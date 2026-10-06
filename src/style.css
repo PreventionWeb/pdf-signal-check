@@ -27,12 +27,9 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .mg-form-check__input { flex-shrink: 0; }
 .sample-buttons { display: grid; gap: 8px; }
 .sample-buttons .mg-button { width: 100%; justify-content: space-between; text-align: left; }
-.upload-limit, .small, .privacy-note { font-size: 13px; color: var(--muted); }
-.upload-limit { text-align: center; }
-.check-preview { padding-left: 20px; }
-.check-preview p { font-size: 14px; color: var(--muted); }
-.check-preview li { margin-block: 16px; }
-.check-preview li > span { display: none; }
+.small, .privacy-note { font-size: 13px; color: var(--muted); }
+.upload-batch { margin-top: 14px; text-align: center; }
+.upload-batch .mg-button { width: 100%; }
 .about-profile { margin-block: 48px; }
 .flow-steps ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 16px 0; margin: 0; color: var(--muted); }
 .flow-actions { margin-block: 16px; }
@@ -95,12 +92,18 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .drop-target strong {
   font-weight: 600;
   font-size: 17px;
-  margin-top: 9px;
+  margin-top: 6px;
 }
 
-.drop-target > span:last-child {
-  font-size:13px;
+.drop-target .drop-subtext,
+.drop-target .drop-limit {
+  font-size: 13px;
   color: var(--muted);
+}
+
+.drop-target .drop-limit {
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .document-icon {display:flex;align-items:center;justify-content:center;width:48px;height:56px;color:rgb(var(--mg-color-interactive));}

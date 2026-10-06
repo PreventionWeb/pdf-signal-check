@@ -9,7 +9,6 @@ import React, {
 import { PageHeader } from "@undrr/undrr-mangrove/components/PageHeader.js";
 import { Footer } from "@undrr/undrr-mangrove/components/Footer.js";
 import { Hero } from "@undrr/undrr-mangrove/components/Hero.js";
-import { HighlightBox } from "@undrr/undrr-mangrove/components/HighlightBox.js";
 import { FormAction } from "@undrr/undrr-mangrove/components/FormAction.js";
 import { createAppController } from "./controller.js";
 import { BatchController } from "../batch/controller.js";
@@ -218,11 +217,6 @@ export function App() {
               )}
               {state.stage === "document" && (
                 <>
-                  <p className="entry-orientation">
-                    Start with a PDF or a sample. Find the problems, compare the
-                    evidence, and keep a report. Traditional checks run first;
-                    AI is optional.
-                  </p>
                   {state.report && (
                     <Actions>
                       <Button onClick={() => controller.go("review")}>
@@ -243,42 +237,9 @@ export function App() {
                   )}
                   <EmptyState title="What will machines get from this PDF?">
                     <p>
-                      Check a defined text profile, inspect metadata, and review
-                      the extracted order with the original page.
+                      Inspect extracted text, connected semantic tags, and publication
+                      metadata against original page layout.
                     </p>
-                    <ol className="check-preview">
-                      <li>
-                        <strong>Text that decodes</strong>
-                        <p>
-                          Usable output, rather than just pixels or suspicious
-                          characters.
-                        </p>
-                      </li>
-                      <li>
-                        <strong>Tags that connect</strong>
-                        <p>
-                          Semantic structure tied to content, with coverage and
-                          parent links.
-                        </p>
-                      </li>
-                      <li>
-                        <strong>Metadata to compare</strong>
-                        <p>
-                          Compare title and authors with headings and cover
-                          text.
-                        </p>
-                      </li>
-                    </ol>
-                    <HighlightBox>
-                      <div>
-                        <strong>A specific profile. A traceable result.</strong>
-                        <p>
-                          This early version checks text-centric PDFs. Complex
-                          content can return “No — not established.” It does not
-                          certify PDF/UA or guarantee downstream AI accuracy.
-                        </p>
-                      </div>
-                    </HighlightBox>
                   </EmptyState>
                 </>
               )}
@@ -454,7 +415,8 @@ function Entry({ state, controller, batchBusy }) {
             <Icon name="file-alt" />
           </span>
           <strong>Drop your PDF here</strong>
-          <span>or choose a file from your device</span>
+          <span className="drop-subtext">or choose a file from your device</span>
+          <span className="drop-limit">Up to 50 MB · 200 pages</span>
         </label>
         <input
           className="mg-u-sr-only"
@@ -468,12 +430,11 @@ function Entry({ state, controller, batchBusy }) {
             if (file) controller.analyze(file);
           }}
         />
-        <p className="upload-limit">
-          Up to 50 MB · 200 pages ·{" "}
+        <div className="upload-batch">
           <Button onClick={() => controller.go("batch")}>
             Check several PDFs
           </Button>
-        </p>
+        </div>
       </Card>
       <Card className="sample-card">
         <p className="eyebrow">Try it first</p>
