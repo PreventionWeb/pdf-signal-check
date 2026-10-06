@@ -4,7 +4,7 @@ Build a browser-local PDF analysis tool from zero, using PDF-A-go-actionable as 
 
 ## Shipped implementation
 
-App version 0.7 implements the strengthened [text actionability profile 0.2](PROFILE.md), guided single-PDF browser flow, categorized issue frames, visual evidence preview, JSON export, original calibration PDFs, and optional pinned model selection and title/subject/per-keyword/heading screening, advisory author comparison, and bounded reading-order/visibility review. GitHub Pages is the selected v1 hosting target. The app and inference runtime are static assets; no server or API key is required. GitHub deployment is configured, with publication pending creation of a remote repository.
+App version 0.8 implements [text actionability profile 0.3](PROFILE.md), guided single-PDF review, publication-first identity comparisons, illustrated reading-order clues, contextual help, explicit finding provenance, captured exports, calibration PDFs, optional pinned model screening, and bounded embedded-file inventory. GitHub Pages is the selected v1 hosting target. The app and inference runtime are static assets; no server or API key is required. The private PreventionWeb repository contains the baseline and implementation branches; merging and Pages deployment remain pending.
 
 The proposed profile below remains the broader target. The first implementation does not prove correct glyph semantics, visual reading order, or meaningful graphics. MiniLM is a provisional evaluation baseline, and model thresholds remain uncalibrated.
 

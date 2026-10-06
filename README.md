@@ -6,7 +6,7 @@ The aim is to reduce avoidable extraction errors, misleading context, and wasted
 
 ## Project status
 
-Early implementation, app version 0.7.0 with text actionability profile 0.2. The product is PDF Signal Check; the local repository and package are named `pdf-signal-check`. Created October 5, 2026 as a fresh project with independent application code and git history.
+Early implementation, app version 0.8.0 with text actionability profile 0.3. The product is PDF Signal Check; the local repository and package are named `pdf-signal-check`. Created October 5, 2026 as a fresh project with independent application code and git history.
 
 Follow a guided single-PDF review: choose a document, inspect optional screening choices, then review concrete problems and uncertain scope against the rendered page. Traditional analysis runs once before model selection; “Review without AI” is always available. Full evidence and JSON export remain accessible without finishing the review queue. Optional [local semantic screening](docs/SEMANTIC.md) offers pinned MiniLM and multilingual Granite choices, selectable title/subject/per-keyword checks, and bounded tagged-heading/section comparisons. PDF processing stays on the user's device. Model and runtime assets download only when screening is requested. The model picker explains language support, model/tokenizer downloads, and limitations before an explicit run. Per-model advisory thresholds require calibration; opt-in fixed-workload browser tests report observed timings without hardware or document-speed guarantees.
 
@@ -14,7 +14,7 @@ Batch queues remain in this browser session only. Traditional checks are the def
 
 ## What the result means
 
-- **Text actionability profile 0.2: Yes or No.** Deterministic checks establish whether the document meets the [implemented profile](docs/PROFILE.md). Required checks that cannot complete produce No with a reason distinguishing a defect from compliance not established. This initial text profile is narrower than the proposed profile v1.
+- **Text actionability profile 0.3: Yes or No.** Deterministic checks establish whether the document meets the [implemented profile](docs/PROFILE.md). Required checks that cannot complete produce No with a reason distinguishing a defect from compliance not established. This initial text profile is narrower than the proposed profile v1.
 - **Deterministic title consistency: Match, Suspected mismatch, or Uncertain.** Rules compare metadata with extracted title candidates and preserve Info/XMP and identity conflicts.
 - **Optional semantic screening: Match, Related—identity unconfirmed, Suspected mismatch, or Uncertain.** Local embeddings screen titles, subjects, and keywords against bounded evidence. Provisional similarity thresholds produce advisory findings; they never change structural acceptance or override deterministic title warnings.
 
@@ -35,10 +35,13 @@ The project prioritizes machine consumption over a full human accessibility audi
 - One-page PDF preview with navigation, zoom, issue highlights, and a separate logical tag-tree order overlay.
 - Extraction rehearsal: switch bounded transcripts between tagged and content-stream order; compare paired author and reading-order examples.
 - A SHA-256 receipt of original input bytes where browser cryptography is available.
+- Interactive term explanations with reference links, and finding-source labels separating extracted rules, heuristics, completed local AI, and unassessed checks.
+- Data-driven reading-order illustrations compare matched headings from tag-tree and page-drawing sequences, with detected jumps and explicit uncertainty.
 - Captured PDF signal-check reports, dedicated PNG summaries, and detailed JSON exports generated locally; cancel exports without losing analysis.
 - Bounded source evidence crops shared by guided review and PDF reports, independent of preview state.
 - Optional synthetic browser timing tests with explicit download costs; timings are observations, never hardware grades or document estimates.
-- Three simple examples and [eighteen representative calibration PDFs](docs/CALIBRATION.md), including original logos, charts, metadata defects, title mismatches, and German text.
+- Three simple examples and [twenty representative calibration PDFs](docs/CALIBRATION.md), including original logos, charts, metadata defects, title mismatches, German text, and embedded spreadsheets/Word files with and without declared guidance.
+- Bounded embedded/associated-file inventory records declared names, media types, descriptions, relationships, and unresolved payload contexts without opening attachments. Payloads and incomplete inventories prevent text-profile acceptance.
 
 Meaningful graphics, forms, annotations, Form XObjects, optional layers, and ActualText replacements currently prevent acceptance because their analysis is outside the supported profile. A No in these cases means not established, rather than a defect in the PDF. Extracted Unicode indicators do not establish visually correct text; reading order and tag meaning are not proven correct by structural checks. Author and order findings are bounded advisories, not universal identity/order validation.
 
@@ -107,6 +110,6 @@ The name describes a check of document signals rather than a guarantee of AI acc
 
 The visual evidence viewer also draws on [pdf-a-go-go](https://github.com/khawkins98/pdf-a-go-go), another project by Ken Hawkins. The new viewer is independently authored. Click title candidates, extracted text, or finding evidence to locate trustworthy regions; metadata-only findings have no page location.
 
-Profile 0.2 strengthens structural analysis with marked-content integrity checks. Profile results remain separate from metadata, author, reading-order, and visibility advisories. Known example ground-truth labels appear only for examples loaded through the app, never inferred from an uploaded filename.
+Profile 0.3 extends the earlier marked-content integrity checks with bounded embedded-file inventory and conservative attachment scope handling. Profile results remain separate from metadata, author, reading-order, and visibility advisories. Known example ground-truth labels appear only for examples loaded through the app, never inferred from an uploaded filename.
 
-A first-visit notice explains local processing, external asset downloads, AI limitations, and AI-assisted development. “I understand” continues; an optional browser-local preference suppresses future automatic notices. The header’s “About AI & privacy” control reopens it. Only that preference is saved, not PDF content.
+A first-visit notice explains local processing, external asset downloads, AI limitations, and AI-assisted development. “I understand” or Escape dismisses it; an optional browser-local preference suppresses future automatic notices. The header’s “About AI & privacy” control reopens it. Only that preference is saved, not PDF content.

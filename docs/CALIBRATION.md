@@ -1,6 +1,6 @@
 # Original calibration PDFs
 
-Run `node scripts/generate-calibration.js` from the repository root to regenerate the eighteen two-page PDFs and `public/calibration/manifest.json`. All prose, invented observations, vector charts and logo marks are original project material under the repository license. No third-party content or personal data is included.
+Run `npm run calibration` from the repository root to regenerate all twenty two-page PDFs and `public/calibration/manifest.json`. The original generator creates eighteen fixtures; `node scripts/generate-attachment-calibration.js` appends two attachment fixtures without changing the earlier PDF bytes. All prose, invented observations, vector charts, logo marks, and embedded OOXML files are original project material under the repository license. No third-party content or personal data is included.
 
 The documents deliberately share a plausible report series. Changing just a year or organization makes a difficult negative pair: topic similarity must not override publication identity. English and German controls provide a basic multilingual smoke test.
 
@@ -24,6 +24,8 @@ The documents deliberately share a plausible report series. Changing just a year
 | `16-correct-reading-order.pdf` | Correct title/authors; two-column procedure in logical steps 1, 2, 3, 4 |
 | `17-flawed-reading-order.pdf` | Identical visible procedure and content-stream text; valid tags read steps 3, 4, 1, 2 |
 | `18-title-author-control.pdf` | Exact visible/tagged counterpart to 14, with correct Info/XMP authors |
+| `19-embedded-files-guided.pdf` | Clean tagged report with valid fictional `.xlsx` data and `.docx` source notes; descriptions, MIME types, and Data/Source AFRelationship declarations |
+| `20-embedded-files-no-guidance.pdf` | Same visible report and OOXML payloads; filenames remain, but description, MIME, and AFRelationship declarations are absent |
 
 Each manifest entry records expected observable properties, deliberately introduced defects and the supported scope. These are **not certifications or preassigned overall verdicts**. The complete text controls use a Document structure element containing H1/H2/P elements; every semantic content span has an MCID, page reference, parent element and ParentTree mapping. The root ParentTree is indexed by each page's StructParents value. Running headers, page numbers and decorative logo marks are explicitly marked Artifact. Text uses standard embedded font resources with PDF standard encoding; a missing ToUnicode entry is not itself evidence that extraction failed.
 
@@ -61,3 +63,13 @@ The optional device check parses the fixed public two-page control and embeds fo
 A separate eighteen-case English/German development/held-out corpus in `evaluation/cases.json` broadens titles, date/entity differences, keyword topics and heading/body pairs. Browser-WASM observations and sensitivity tables live in `evaluation/*-observed.json`; see [EVALUATION](EVALUATION.md) for reproduction and limitations. This remains a small synthetic policy exercise, not validated real-PDF accuracy or confidence calibration. No thresholds are automatically tuned.
 
 The reading-order advisory now also detects a recovered single-alignment heading sequence that reverses vertical order. Multi-column, rotated and incomplete spatial evidence abstain; numbered-step findings stay separate. Passing either narrow check cannot certify global reading order.
+
+## App 0.8 attachment boundaries
+
+Samples 19 and 20 copy the earlier clean report without modifying its visible pages or semantic tags. Each embeds `observations.xlsx` (an Observations worksheet with Station and Visibility_metres columns) and `source-notes.docx` (original fictional source paragraphs). The generated ZIP packages have the appropriate OOXML content-type and relationship parts and contain no macros. These are authored fixture properties, not conclusions obtained by the application's attachment inventory.
+
+The guided fixture declares the spreadsheet as **Data** and the Word notes as **Source**, with descriptions connecting them to the publication. The negative fixture deliberately omits those descriptions, relationship names, and MIME types. A filename extension alone does not verify file type. Both receive **No: acceptance not established** under text-actionability-0.3 because embedded payload contents are outside the text profile, even when their metadata guidance is present. Missing guidance is a separate advisory, not a claim that a declared relationship proves correct interpretation or safe execution.
+
+The analyzer records bounded raw attachment declarations and encoded stream lengths; it never decodes, opens, executes, or returns the embedded file contents. Declared decoded sizes, MIME types, descriptions, and AFRelationship values remain unverified producer statements. Inventory covers reachable dictionary/array relationships and separately labels raw unlinked/unreachable EmbeddedFile stream declarations as possible remnants. Content-stream-level associated-file instructions are not interpreted. Cycles, dead references, malformed listings, traversal limits, and unresolved streams make scope uncertain rather than establishing absence.
+
+Generation QA: both new PDFs were reopened and analyzed; the original eighteen fixture files remained unchanged. Poppler rendered all four new pages, and each was visually inspected. Separate fixture-authoring QA checks the OOXML ZIPs and XML parts; this is not a payload-reading feature in the application or a claim of PDF/A conformance.

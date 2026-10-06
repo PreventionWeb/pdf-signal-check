@@ -25,7 +25,7 @@ it('collects verified coverage targets and emits completed pages only after insp
  const finding=normalizeFindings(r).findings.find(f=>f.id==='required:coverage');expect(finding.targets.length).toBeGreaterThan(0);
  expect(finding.targets[0].page).toBe(1);expect(finding.targets[0].blockIds.length).toBeGreaterThan(0);
  const pages=events.filter(e=>e.stage==='pages');expect(pages[0]).toMatchObject({completed:0,total:1,unit:'pages'});expect(pages.at(-1)).toMatchObject({completed:1,total:1,state:'completed'});
- expect(r.profile).toBe('text-actionability-0.2');
+ expect(r.profile).toBe('text-actionability-0.3');
 });
 
 it('never turns missing or unknown required outcomes into a positive finding',()=>{
@@ -46,4 +46,20 @@ it('preserves XML parser uncertainty with XMP guidance and structural fallback f
 it('presents failed optional model initialization as unassessed, retaining the error without changing required outcomes',()=>{
  const report={accepted:true,checks:[{id:'title',status:'pass',label:'Title',summary:'Present'}],semantic:{status:'error',model:null,error:'Download denied',errorStage:'model-init',errorCode:'MODEL_INIT_FAILED',requestedChecks:['keywords'],inferencePerformed:false}};
  const normalized=normalizeFindings(report);const failure=normalized.findings.find(f=>f.id==='semantic:error');expect(failure).toMatchObject({category:'unassessed',outcome:'error',method:'model-initialization-failed',summary:'Download denied',targets:[],comparison:{model:null,errorCode:'MODEL_INIT_FAILED'}});expect(failure.whatToInspect).toMatch(/Retry explicitly/);expect(normalized.counts.success).toBe(1);expect(report.accepted).toBe(true);
+});
+
+it('keeps an incomplete attachment inventory visible and carries file guidance into captured evidence',()=>{
+ const report={checks:[],pages:[],metadata:{},attachments:{status:'uncertain',inventoryComplete:false,reason:'Inventory limited',files:[{id:'f1',filename:'data.xlsx',embedded:true,description:null,relationship:null,payloads:[{mediaType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}],guidanceIssues:['Missing description or usage instructions']}],warnings:['Traversal limit reached']}};
+ const normalized=normalizeFindings(report),f=normalized.findings.find(f=>f.source?.path==='attachments');
+ expect(f.category).toBe('uncertain');expect(f.evidence.some(e=>e.includes('data.xlsx')&&e.includes('Missing description'))).toBe(true);expect(f.evidence).toContain('Traversal limit reached');expect(f.comparison.inventory.inventoryComplete).toBe(false);
+});
+it('retains unresolved embedded-stream evidence without inventing an active file or filename',()=>{
+ const report={checks:[],pages:[],metadata:{},attachments:{status:'uncertain',inventoryComplete:false,reason:'Context unresolved',files:[],orphanStreams:[{origin:'unreachable-remnant',streamRef:'9 0 R',mediaType:'text/csv',encodedBytes:42,path:null}],warnings:[]}};
+ const f=normalizeFindings(report).findings.find(f=>f.source?.path==='attachments');
+ expect(f.category).toBe('uncertain');expect(f.evidence[0]).toContain('unreachable-remnant');expect(f.evidence[0]).toContain('9 0 R');expect(f.evidence[0]).toContain('not established as an active attachment');expect(f.comparison.inventory.files).toEqual([]);
+});
+it('does not turn an embedded-file key into proof that a payload stream was located',()=>{
+ const report={checks:[],pages:[],metadata:{},attachments:{status:'uncertain',inventoryComplete:false,files:[{id:'f1',filename:'broken.dat',embedded:true,payloads:[],guidanceIssues:[]}],warnings:['Malformed EF declaration']}};
+ const f=normalizeFindings(report).findings.find(f=>f.source?.path==='attachments');
+ expect(f.evidence[0]).toContain('no payload stream located');expect(f.evidence[0]).not.toContain('located embedded payload stream(s)');
 });

@@ -7,12 +7,14 @@ The application is a static browser client. PDF bytes, extracted text, model inp
 | Boundary | Responsibility | Refactor constraint |
 | --- | --- | --- |
 | `src/engine` | One-document structural checks, metadata rules, bounded advisories and semantic policy | Keep profile acceptance independent of optional inference, preview and user review annotations. |
+| `src/engine/attachments.js` | Bounded file-declaration inventory and unresolved payload context | Never decode or return attachment contents. Keep active declarations separate from possible remnants; incomplete inventory prevents acceptance. |
 | `src/analysis.worker.js` | Run one document off the UI thread and emit observed page progress | Dispose the worker per document; do not decode every queued file at admission. |
 | `src/runtime` and `src/model.worker.js` | Build bounded screening requests and own the selected encoder | Reuse the same model across sequential jobs; cancellation terminates work and invalidates request identity. Do not silently substitute models. |
 | `src/batch/queue.js` | DOM-free scheduling, admission, attempts, configuration snapshots and recovery | Inject analysis, screening, hashing, disposal and observation services. Exactly one active item; pause finishes the current file and stop cancels it. |
 | `src/batch/report-store.js` | Estimate serialized detail size and retain independent report copies | A serialized-byte budget is not a RAM cap. Never evict details without an explicit user choice. |
 | `src/batch/client.js` | Adapt worker requests to the queue's service and AbortSignal contract | Cancellation must settle pending promises and stop workers. Old callbacks must not update newer attempts. |
 | `src/flow.js` and `src/review` | Navigation, normalized findings, source-edit guidance and session review annotations | Display concerns first; keep success, uncertainty and unassessed scope distinct. Reviewed does not mean fixed. |
+| `src/help` and `src/review/provenance.js` | Local term explanations and recorded finding-source labels | Opening help must not start inference or asset downloads. Infer AI attribution from completed per-check execution, never model selection alone. |
 | `src/view-state.js` | Preserve disclosure choices across view rebuilds | Store only stable UI keys and open/closed values; do not retain PDF content or change analysis outcomes. |
 | `src/brand.js` | Shared product and export filename labels | Keep product branding separate from stable repository, profile, and preference identifiers. |
 | `src/preview.js` and `src/evidence` | Full-page inspection and independent bounded source crops | Render the original File; use the full viewport transform, trustworthy geometry and explicit unavailable states. |

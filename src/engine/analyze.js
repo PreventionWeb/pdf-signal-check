@@ -5,9 +5,10 @@ import { inspectPage } from './page.js';
 import { readMetadata } from './metadata.js';
 import { compareTitles } from './titles.js';
 import { compareAuthors, inspectReadingOrder, inspectTextVisibility } from './advisories.js';
+import { inspectAttachments } from './attachments.js';
 
 export { pdfjs };
-export const PROFILE = 'text-actionability-0.2';
+export const PROFILE = 'text-actionability-0.3';
 export const LIMITS = { maxBytes: 50 * 1024 * 1024, maxPages: 200, maxOperators: 1_000_000, maxTextItems: 250_000 };
 const check = (id, label, status, summary, evidence = []) => ({ id, label, required: true, status, summary, evidence });
 
@@ -21,10 +22,10 @@ export function finalize(report) {
 export async function analyzePdf(input, options = {}) {
   const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
   const limits = { ...LIMITS, ...options };
-  const report = { schemaVersion: 1, appVersion: '0.7.0', profile: PROFILE, analyzedAt: new Date().toISOString(),
+  const report = { schemaVersion: 1, appVersion: '0.8.0', profile: PROFILE, analyzedAt: new Date().toISOString(),
     file: { name: options.fileName || 'document.pdf', bytes: bytes.byteLength, pages: null },
     analysisComplete: false, accepted: false, metadata: {}, metadataConsistency: { status: 'uncertain', candidates: [] },
-    semantic: null, authorConsistency: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
+    semantic: null, attachments: {status:'not-assessed',inventoryComplete:false,files:[],orphanStreams:[],warnings:[],payloadsAnalyzed:false,reason:'Document parsing did not complete; attachment inventory not assessed.'}, authorConsistency: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     readingOrder: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     textVisibility: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] }, checks: [], pages: [], limitations: [
       'This is a project-specific text profile, not PDF/UA or PDF/A validation.',
@@ -45,8 +46,12 @@ export async function analyzePdf(input, options = {}) {
     if (report.file.pages > limits.maxPages) throw new Error(`The ${limits.maxPages}-page analysis limit was exceeded.`);
     stage = 'analysis';
     const structure = inspectStructure(raw);
+    report.attachments = inspectAttachments(raw);
     const rawContentErrors = [];
     const unsupported = unsupportedFeatures(raw, { onContentError: error => rawContentErrors.push(error) }).concat(structure.unsupported);
+    if (report.attachments.files.some(file => file.embedded)) unsupported.push('Embedded file payloads require separate analysis outside this text profile; attachment contents have not been decoded or checked.');
+    if (!report.attachments.inventoryComplete) unsupported.push('Attachment inventory was incomplete; attachment absence and supported content scope cannot be established.');
+    if (report.attachments.files.some(file => !file.embedded)) unsupported.push('Associated external file references require analysis outside this text profile; no referenced file was fetched.');
     task = pdfjs.getDocument({ data: bytes.slice(), stopAtErrors: true, isEvalSupported: false,
       useSystemFonts: false, ...options.pdfjsOptions });
     const doc = await task.promise;

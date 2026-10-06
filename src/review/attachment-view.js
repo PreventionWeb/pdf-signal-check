@@ -1,0 +1,20 @@
+import { helpTip } from '../help/popover.js';
+const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};
+/** Declared file metadata only. No attachment links, reads, extraction or safety claims. */
+export function createAttachmentView(inventory) {
+  const section=node('section','attachment-inventory'),heading=node('h4','','Files carried or referenced by this PDF');heading.append(helpTip('attachments'));section.append(heading);
+  section.append(node('p','model-note',`Inventory completeness: ${inventory?.inventoryComplete===true?'recovered inventory complete within inspection bounds':'not established; inspect limits and warnings'}.`));
+  section.append(node('p','model-note','This is an inventory of file declarations. Attached contents are not opened or analyzed.'),node('p','',inventory?.reason || 'Attachment inventory was not assessed.'));
+  for(const file of inventory?.files || []) {
+    const card=node('article','attachment-card'),name=file.unicodeFilename || file.filename || `Unnamed file (${file.id})`;card.append(node('h5','',name),node('p','model-note',file.embedded?(file.payloads?.length?'Located embedded payload stream(s); contents not analyzed.':'Embedded-file declaration; no payload stream was located.'):'Associated reference only; no payload was fetched.'));
+    const fields=[['Declared media type',[...new Set((file.payloads || []).map(p=>p.mediaType).filter(Boolean))].join('; ') || 'Not declared'],['Description / intended use',file.description || 'Not set'],['Declared relationship',file.relationship?`${file.relationship}${file.relationshipRecognized===false?' (custom or unrecognized)':''}`:'Not set'],['Association',(file.associations || []).map(a=>`${a.kind || 'Association'}${a.page?` · page ${a.page}`:''}${a.path?` · ${a.path}`:''}`).join('; ') || 'Not recovered']];
+    const related=[...new Set((file.payloads || []).map(p=>p.relatedFilename).filter(Boolean))];if(related.length)fields.push(['Related filename declarations',related.join('; ')]);
+    const values=node('dl','attachment-values');fields.forEach(([label,value])=>values.append(node('dt','',label),node('dd','',value)));card.append(values);
+    if(file.guidanceIssues?.length){const issues=node('ul','attachment-guidance');file.guidanceIssues.forEach(issue=>issues.append(node('li','',typeof issue==='string'?issue:issue.message || JSON.stringify(issue))));card.append(node('h6','','Guidance to inspect'),issues);}
+    card.append(node('p','model-note','Descriptions and relationships are author declarations; this tool does not verify that payload contents match them or contain machine-readable instructions.'));section.append(card);
+  }
+  if(inventory?.orphanStreams?.length){const orphans=node('section','attachment-orphans');orphans.append(node('h5','','Unlinked embedded payload declarations'),node('p','model-note','These stream declarations lack a resolved file context. Unreachable records may be inactive remnants; they are not presented as active attachments.'));for(const stream of inventory.orphanStreams){const row=node('p','',`${stream.origin==='unreachable-remnant'?'Possible inactive remnant':'Reachable, unassociated declaration'} · reference ${stream.streamRef || 'not recovered'} · declared media type ${stream.mediaType || 'not declared'} · encoded size ${Number.isFinite(stream.encodedBytes)?`${stream.encodedBytes} bytes`:'unknown'}${stream.path?` · context ${stream.path}`:''}`);orphans.append(row);}section.append(orphans);}
+  const scope=node('details','attachment-scope');scope.dataset.disclosureKey='attachment-scope';scope.append(node('summary','','Inventory scope and limits'),node('p','model-note',inventory?.scope || 'Inspection scope was not recorded.'));section.append(scope);
+  if(inventory?.warnings?.length){const warnings=node('ul','attachment-guidance');inventory.warnings.forEach(warning=>warnings.append(node('li','',typeof warning==='string'?warning:warning.message || JSON.stringify(warning))));scope.append(node('h5','','Inventory limits or warnings'),warnings);}
+  return section;
+}

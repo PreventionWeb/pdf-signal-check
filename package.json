@@ -1,6 +1,6 @@
 {
   "name": "pdf-signal-check",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "samples": "node scripts/generate-samples.js",
-    "calibration": "node scripts/generate-calibration.js"
+    "calibration": "node scripts/generate-calibration.js && node scripts/generate-attachment-calibration.js"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.0",

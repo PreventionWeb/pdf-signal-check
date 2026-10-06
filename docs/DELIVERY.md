@@ -1,6 +1,6 @@
 # Roadmap delivery audit
 
-Verified October 6, 2026 against app 0.7.0, text profile `text-actionability-0.2`, the current sources and final production assets. The requested local V1 roadmap is delivered. Publication was not requested and no remote deployment was performed.
+Historical audit verified October 6, 2026 against app 0.7.0, text profile `text-actionability-0.2`, and the sources/production assets at that point. The requested local V1 roadmap was delivered; no remote deployment had been performed. Subsequent UX refinements and attachment inventory are documented in [UX refinement](UX-REFINEMENT.md), [current profile](PROFILE.md), and [calibration fixtures](CALIBRATION.md). The repository has since been pushed privately to PreventionWeb; Pages deployment remains pending.
 
 | Goal requirement | Delivered implementation | Evidence inspected |
 | --- | --- | --- |

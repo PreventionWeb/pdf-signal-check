@@ -1,6 +1,6 @@
 import { describe,it,expect } from 'vitest';
 import { cropBounds,targetQuads } from '../src/evidence/geometry.js';
-import { captureSnapshot,safeFilename,comparisonLines } from '../src/export/snapshot.js';
+import { captureSnapshot,safeFilename,comparisonLines,screeningReceipt } from '../src/export/snapshot.js';
 import { wrapText } from '../src/export/report.js';
 const report=()=>({file:{name:'Müller.pdf',sourceBytes:123,sha256:'abc'},pages:[],checks:[],metadata:{infoTitle:'Wasserqualität',author:'Maya Chen',xmpAuthors:['Maya Chen']},profile:'text-actionability-0.2',screeningSelection:{modelId:'granite-r2'},semantic:{model:{label:'MiniLM'},requestedChecks:['title']}});
 describe('captured exports',()=>{
@@ -15,4 +15,13 @@ describe('bounded evidence geometry',()=>{
  it('clamps padding and rejects outside/degenerate geometry',()=>{const vp={width:100,height:100,transform:[1,0,0,1,0,0]};expect(cropBounds([[0,0],[10,0],[10,10],[0,10]],vp,28)).toMatchObject({x:0,y:0,width:38,height:38});expect(cropBounds([[120,0],[130,0],[130,10],[120,10]],vp)).toBeNull();});
  it('refuses page-scoped geometry for unsupported Forms',()=>{const r={pages:[],checks:[{evidence:['Form XObjects detected']}]};expect(targetQuads(r,{page:1,quads:[[[0,0],[1,0],[1,1],[0,1]]]})).toEqual([]);});
  it('retains direct graphic geometry, rejects nonfinite points',()=>{const r={pages:[],checks:[]};const q=[[0,0],[1,0],[1,1],[0,1]];expect(targetQuads(r,{page:1,quads:[q]})).toEqual([q]);expect(targetQuads(r,{page:1,quads:[[[NaN,0],[1,0],[1,1],[0,1]]]})).toEqual([]);});
+});
+
+it('attributes export comparison execution per field rather than borrowing sibling inference',()=>{
+ const r=report();r.semantic={status:'completed',model:{id:'minilm',label:'MiniLM'},inferencePerformed:true,subject:{method:'embedding-screening',inferencePerformed:true},sections:{method:'unsupported-language',inferencePerformed:false}};
+ const ai={source:{path:'semantic.subject'},method:'embedding-screening',comparison:{model:r.semantic.model}};
+ const skipped={source:{path:'semantic.sections'},method:'unsupported-language',comparison:{model:r.semantic.model}};
+ expect(comparisonLines(ai,r)[0]).toContain('Actual model for this check');expect(comparisonLines(skipped,r)[0]).toContain('no completed inference for this check');
+ expect(screeningReceipt(r)).toContain('Actual model:');r.semantic.inferencePerformed=false;expect(screeningReceipt(r)).toContain('Configured model:');expect(screeningReceipt(r)).not.toContain('Actual model:');
+ r.semantic.status='error';r.semantic.inferencePerformed=true;expect(screeningReceipt(r)).toContain('AI unavailable');expect(screeningReceipt(r)).not.toContain('Actual model:');
 });

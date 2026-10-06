@@ -59,7 +59,7 @@ The shortlist covers literal checking, workflow gates, source preparation, extra
 - **Product name:** PDF Signal Check.
 - **Product descriptor:** Text, structure, and metadata for machine use.
 - **Result artifact:** PDF Signal Check report, an input-analysis receipt containing findings and captured evidence. Download filenames use the `-pdf-signal-check` suffix.
-- **Acceptance label:** Text actionability profile 0.2: Yes/No, with limitations and reasons. A product name must not become the name of an external standard.
+- **Acceptance label:** Text actionability profile 0.3: Yes/No, with limitations and reasons. A product name must not become the name of an external standard.
 - **AI feature:** Optional local semantic screening. Name the selected model and its actual language limits in the workflow; avoid implying all checks or every language use AI.
 
 Retain credits to Ken Hawkins's PDF-A-go-actionable and pdf-a-go-go. A new name changes neither authorship nor reference-project attribution. The original guidance was to preserve the repository slug until a separate migration was requested. That migration is now complete: the folder/package use `pdf-signal-check`, with the former slug and original project name preserved as searchable history. The private GitHub repository is [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check); the baseline and implementation branches have been pushed. GitHub Pages has not been deployed.

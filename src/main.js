@@ -1,3 +1,8 @@
+import { createAttachmentView } from './review/attachment-view.js';
+import { createIdentityComparison } from './review/identity-comparison.js';
+import { createOrderComparison } from './review/order-comparison.js';
+import { helpTip, helpLabel } from './help/popover.js';
+import { screeningProvenance } from './review/provenance.js';
 import { captureDisclosureState, restoreDisclosureState } from './view-state.js';
 import { BatchView } from './batch/view.js';
 import { buildScreeningRequest } from './runtime/screening-request.js';
@@ -116,10 +121,10 @@ function renderFlow(focusIssue=false) {
     host.append(flowButton('Choose another PDF',()=>flow.go('document')));restoreDisclosureState(host,disclosures);return;
   }
   const normalized=normalizeFindings(report);const exportMenu=el('details','review-export-menu');exportMenu.dataset.disclosureKey='review-export';exportMenu.append(el('summary','','Keep this report'),exports.root);host.append(exportMenu);
-  const counts=el('p','review-counts',`${normalized.findings.filter(f=>f.category==='required-defect').length} required defects · ${normalized.findings.filter(f=>f.category==='required-indeterminate').length} required checks not established · ${normalized.findings.filter(f=>f.category==='advisory-concern').length} advisory concerns · ${normalized.findings.filter(f=>['uncertain','unassessed'].includes(f.category)).length} uncertain or unassessed`);const overview=el('section','review-result-overview');const receipt=el('details','review-scope-details');receipt.dataset.disclosureKey='review-scope';receipt.append(el('summary','','Scope and required-check counts'),counts,el('p','model-note','Your PDF is retained only for this browser session. Required profile outcomes and advisory findings are separate; downstream AI accuracy is not certified.'));overview.append(el('p','profile-receipt',`Text profile ${report.profile.replace('text-actionability-','')}: ${report.accepted?'Yes — required checks passed':report.checks.some(c=>c.status==='fail')?'No — required defects found':'No — not established'}`),el('p','model-note','Metadata and reading order require separate review.'),receipt);host.append(overview);
+  const counts=el('p','review-counts',`${normalized.findings.filter(f=>f.category==='required-defect').length} required defects · ${normalized.findings.filter(f=>f.category==='required-indeterminate').length} required checks not established · ${normalized.findings.filter(f=>f.category==='advisory-concern').length} advisory concerns · ${normalized.findings.filter(f=>['uncertain','unassessed'].includes(f.category)).length} uncertain or unassessed`);const overview=el('section','review-result-overview');const receipt=el('details','review-scope-details');receipt.dataset.disclosureKey='review-scope';receipt.append(el('summary','','Scope and required-check counts'),counts,el('p','model-note','Your PDF is retained only for this browser session. Required profile outcomes and advisory findings are separate; downstream AI accuracy is not certified.'));overview.append(el('p','profile-receipt',`Text profile ${report.profile.replace('text-actionability-','')}: ${report.accepted?'Yes — required checks passed':report.checks.some(c=>c.status==='fail')?'No — required defects found':'No — not established'}`),el('p','model-note','Metadata and reading order require separate review.'),receipt);overview.querySelector('.profile-receipt').append(helpTip('profile'));const execution=screeningProvenance(report),executionLine=el('div','execution-receipt');executionLine.append(el('span','','Traditional rules + PDF extraction'),el('span',`source-badge ${execution.kind}`,execution.label),helpTip(execution.kind==='ai'?'ai':'bounded',{label:'About actual AI execution',extraText:execution.detail}));overview.append(executionLine);host.append(overview);
   if(knownExample){const labels=el('details','example-label-details');labels.append(el('summary','','Synthetic example labels (separate from findings)'),el('p','example-truth',`${knownExample.defects?.join('; ') || 'Matching control'}. These authored labels do not determine analyzer results.`));receipt.append(labels);}
-  host.append(reviewView({normalized,flow,selectEvidence:t=>{const page=report.pages.find(p=>p.number===t.page);inspectPreview({page:t.page,quads:t.quads?.length?t.quads:page?candidateBlocks(page,t).flatMap(b=>b.quad?[b.quad]:[]):[],label:t.text || 'Finding evidence'});},comparison:f=>{const path=f.source?.path || '';const kind=/author/i.test(path)?'authors':/metadataConsistency|deterministicTitle/.test(path)?'title':/readingOrder/.test(path)?'order':null;if(!kind)return null;const panel=summaryComparison(kind);panel.removeAttribute('id');panel.removeAttribute('aria-labelledby');panel.removeAttribute('role');return panel;},refresh:focus=>renderFlow(focus)}));
-  const selectedFinding=normalized.findings.find(f=>f.id===flow.issueId);const frame=host.querySelector('.problem-frame');if(frame && sourceFile)cropView.show(frame.querySelector('.finding-crop-slot') || frame,sourceFile,report,selectedFinding);
+  host.append(reviewView({normalized,report,flow,selectEvidence:t=>{const page=report.pages.find(p=>p.number===t.page);inspectPreview({page:t.page,quads:t.quads?.length?t.quads:page?candidateBlocks(page,t).flatMap(b=>b.quad?[b.quad]:[]):[],label:t.text || 'Finding evidence'});},comparison:f=>{const path=f.source?.path || '';if(path==='attachments')return createAttachmentView(report.attachments);const kind=/author/i.test(path)?'authors':(/metadataConsistency|deterministicTitle/.test(path) || f.source?.checkId==='title')?'title':/readingOrder/.test(path)?'order':null;if(!kind)return null;const panel=summaryComparison(kind);panel.removeAttribute('id');panel.removeAttribute('aria-labelledby');panel.removeAttribute('role');return panel;},refresh:focus=>renderFlow(focus)}));
+  const selectedFinding=normalized.findings.find(f=>f.id===flow.issueId);const frame=host.querySelector('.problem-frame');if(frame && sourceFile){let cropFinding=selectedFinding;if(selectedFinding?.source?.checkId==='title'&&!selectedFinding.targets?.length){const candidates=report.metadataConsistency?.publicationCandidates || [];cropFinding={...selectedFinding,targets:candidates.map(e=>({page:e.page,text:e.text,keys:e.keys || (e.key?[e.key]:[]),blockIds:e.blockIds || (e.id!=null?[e.id]:[])}))};}const cropHost=frame.querySelector('.finding-crop-slot') || frame;if(cropFinding?.targets?.length)cropView.show(cropHost,sourceFile,report,cropFinding);else if(cropHost.classList.contains('finding-crop-slot'))cropHost.append(el('p','model-note','No trustworthy source region is available for a crop. Recovered text and metadata remain available below.'));}
   if(preview){const full=el('details','full-page-evidence');full.id='full-page-evidence';full.dataset.disclosureKey='full-page';full.append(el('summary','','Inspect the full page and extracted order'),preview.root);host.append(full);}
   const actions=el('div','flow-actions');for(const [label,action] of [['Back to screening choices',()=>flow.go('checks')],['Recheck this PDF',()=>analyze(sourceFile,knownExample)]]){const b=flowButton(label,action);b.dataset.batchLock='';b.disabled=batchView.busy;actions.append(b);}actions.append(flowButton('Choose another PDF',()=>{if(batchView.busy){batchView.queue.stopAll();batchView.client.dispose();}flow.go('document');}));if(batchReviewId)actions.append(flowButton('Return to batch',()=>flow.go('batch')),el('p','model-note','This is a detached copy of the retained attempt. Review/preferences do not change the batch summary.'));host.append(actions);
   restoreDisclosureState(host,disclosures);if(exports.abort)exportMenu.open=true;
@@ -157,7 +162,7 @@ function summaryEvidence(e, label) {
   const page=report.pages.find(p=>p.number===e.page);
   const blocks=page ? candidateBlocks(page,e) : [];
   const row=el('div','comparison-evidence');
-  row.append(el('small','',e.page ? `Page ${e.page}${e.source ? ` · ${e.source}` : e.role ? ` · tagged ${e.role}` : ''}` : 'No page location'));
+  const origin=el('small','',e.page ? `Page ${e.page}${e.source ? ` · ${e.source}` : e.role ? ` · tagged ${e.role}` : ''}` : 'No page location');if(e.role || /tagged|structure/i.test(e.source || ''))origin.append(helpTip('tags',{label:`About tagged ${e.role || 'content'}`}));row.append(origin);
   row.append(locationButton({page:e.page,quads:blocks.flatMap(b=>b.quad?[b.quad]:[]),label:e.text || label},label || e.text || 'Inspect evidence'));
   return row;
 }
@@ -167,23 +172,14 @@ function summaryComparison(kind) {
   const result=kind==='title' ? report.metadataConsistency : kind==='authors' ? report.authorConsistency : report.readingOrder;
   panel.append(el('h3','',kind==='title'?'Compare publication titles':kind==='authors'?'Compare author names':'Compare the extracted sequence'));const reason=el('p','comparison-reason',result?.reason || 'This property has not been assessed.');
   if(kind==='title' || kind==='authors') {
-    const values=el('dl','metadata-dl');
-    const sources=kind==='title' ? [['Info title',report.metadata.infoTitle],...(report.metadata.xmpTitles || []).map(t=>[`XMP title (${t.lang || 'unspecified language'})`,t.text])] : [['Info authors',report.metadata.author],['XMP authors',(report.authorConsistency?.metadataAuthors?.xmp || report.metadata.xmpAuthors || []).join('; ')]];
-    sources.forEach(([label,value])=>values.append(el('dt','',label),el('dd','',value || 'Not set')));
-    const comparison=el('div','sequence-comparison');const sourceColumn=el('div');sourceColumn.append(el('h4','','Document metadata'),values);
-    const visibleColumn=el('div');comparison.append(sourceColumn,visibleColumn);panel.append(comparison);
-    const evidence=kind==='title' ? result?.publicationCandidates || [] : result?.evidence || [];
-    visibleColumn.append(el('h4','',kind==='title'?'Credible publication title candidates':'Explicit byline candidates'));
-    evidence.slice(0,8).forEach(e=>visibleColumn.append(summaryEvidence(e)));
-    if(!evidence.length)visibleColumn.append(el('p','model-note',kind==='title'?'No credible first-page publication title candidate was recovered.':'No comparable explicit first-page byline was recovered. Missing evidence is not a match.'));
+    panel.append(createIdentityComparison({kind,report,result,renderEvidence:summaryEvidence}));
   } else {
     const findings=result?.findings || [];
-    findings.forEach(f=>panel.append(el('p','order-anomaly',`Page ${f.page}: ${f.reason}`)));
     const pageNumbers=findings.length ? [...new Set(findings.map(f=>f.page))] : report.pages.slice(0,2).map(p=>p.number);
     const columns=el('div','sequence-comparison');
     const numbered=b=>/^(?:H[1-6]?|Lbl)$/.test(b.role || '') && /^\s*\d{1,3}[.)]\s+\S/.test(b.text || '');
     for(const [label,field] of [['Tagged reading order','logicalBlocks'],['Content-stream order','blocks']]) {
-      const column=el('div');column.append(el('h4','',label));let count=0;
+      const column=el('div');column.append(helpLabel(label,field==='logicalBlocks'?'taggedOrder':'contentStream','h4'));let count=0;
       for(const number of pageNumbers) {
         const page=report.pages.find(p=>p.number===number); if(!page)continue;
         const keys=new Set(findings.filter(f=>f.page===number).flatMap(f=>(f.evidence || []).flatMap(e=>e.keys || (e.key?[e.key]:[]))));const relevant=keys.size?page[field].filter(b=>keys.has(b.key)):page[field].filter(numbered); const blocks=relevant.length ? relevant : page[field].slice(0,6);
@@ -192,7 +188,7 @@ function summaryComparison(kind) {
       if(!count)column.append(el('p','model-note','No text was recovered for this sequence.'));
       columns.append(column);
     }
-    panel.append(columns,el('p','model-note','Bounded comparison of detected heading/label evidence, or opening text when no located order clue is available. Extracted order alone does not prove the intended reading sequence.'));
+    const technical=el('details','order-technical');technical.dataset.disclosureKey='order-technical';technical.append(el('summary','','Recovered text and technical detail'));findings.forEach(f=>technical.append(el('p','order-anomaly',`Page ${f.page}: ${f.reason}`)));technical.append(columns,el('p','model-note','Bounded comparison of detected heading/label evidence, or opening text when no located order clue is available. Extracted order alone does not prove the intended reading sequence.'));panel.append(createOrderComparison(report),technical);
   }
   panel.append(reason);return panel;
 }
@@ -388,7 +384,8 @@ document.querySelectorAll('[data-example]').forEach(b=>b.onclick=()=>loadSample(
 $('#calibration-select').onchange = () => { $('#load-calibration').disabled = analysisBusy || !$('#calibration-select').value; };
 $('#load-calibration').onclick = () => loadSample(`./calibration/${$('#calibration-select').value}`);
 fetch(new URL('./calibration/manifest.json', document.baseURI)).then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(manifest => {
-  for (const sample of manifest.samples || manifest) { exampleLabels.set(sample.file,sample); const option = el('option', '', sample.title); option.value = sample.file; $('#calibration-select').append(option); }
+  const samples=manifest.samples || manifest;$('#example-gallery-summary').textContent=`Controls and all ${samples.length} examples`;
+  for (const sample of samples) { exampleLabels.set(sample.file,sample); const option = el('option', '', sample.title); option.value = sample.file; $('#calibration-select').append(option); }
 }).catch(() => { $('#calibration-select').disabled = true; });
 
 renderFlow();

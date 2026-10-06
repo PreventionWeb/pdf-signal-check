@@ -732,6 +732,90 @@
       "defects": [],
       "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
       "bytes": 8440
+    },
+    {
+      "id": "19-embedded-files-guided",
+      "file": "19-embedded-files-guided.pdf",
+      "title": "Embedded spreadsheet and source document with guidance",
+      "description": "Original clean tagged report with two benign valid OOXML attachments. Descriptions, MIME declarations and Data/Source relationships provide machine context.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "structure": "complete",
+        "titleRelationship": "match",
+        "embeddedFileCount": 2
+      },
+      "groundTruth": {
+        "attachments": [
+          {
+            "filename": "observations.xlsx",
+            "actualFormat": "xlsx",
+            "declaredMimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "relationship": "Data",
+            "descriptionPresent": true,
+            "containsMacros": false
+          },
+          {
+            "filename": "source-notes.docx",
+            "actualFormat": "docx",
+            "declaredMimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "relationship": "Source",
+            "descriptionPresent": true,
+            "containsMacros": false
+          }
+        ],
+        "currentChecks": {
+          "attachmentContents": "Not decoded or validated by the application; guidance declarations are not proof of safety or correct payload meaning."
+        }
+      },
+      "defects": [],
+      "supportedScope": "Embedded payloads are outside text-actionability-0.3; overall acceptance is not established even when declared guidance is present.",
+      "bytes": 13153
+    },
+    {
+      "id": "20-embedded-files-no-guidance",
+      "file": "20-embedded-files-no-guidance.pdf",
+      "title": "Embedded spreadsheet and Word document without guidance",
+      "description": "Original clean tagged report with two benign valid OOXML attachments. Filenames remain, but MIME, descriptions and AFRelationship are deliberately omitted.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "structure": "complete",
+        "titleRelationship": "match",
+        "embeddedFileCount": 2
+      },
+      "groundTruth": {
+        "attachments": [
+          {
+            "filename": "observations.xlsx",
+            "actualFormat": "xlsx",
+            "declaredMimeType": null,
+            "relationship": null,
+            "descriptionPresent": false,
+            "containsMacros": false
+          },
+          {
+            "filename": "source-notes.docx",
+            "actualFormat": "docx",
+            "declaredMimeType": null,
+            "relationship": null,
+            "descriptionPresent": false,
+            "containsMacros": false
+          }
+        ],
+        "currentChecks": {
+          "attachmentContents": "Not decoded or validated by the application; guidance declarations are not proof of safety or correct payload meaning."
+        }
+      },
+      "defects": [
+        "attachment MIME, descriptions and AFRelationship omitted"
+      ],
+      "supportedScope": "Embedded payloads are outside text-actionability-0.3; overall acceptance is not established even when declared guidance is present.",
+      "bytes": 11411
     }
   ]
 }
