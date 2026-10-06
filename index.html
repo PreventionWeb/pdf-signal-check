@@ -3,41 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f5f3ec" />
+    <meta name="theme-color" content="#004f91" />
     <meta
       name="description"
       content="Check PDF text, semantic structure, and metadata before AI ingestion. Analyze locally in your browser."
     />
     <title>PDF Signal Check | Text, structure, and metadata for machine use</title>
+    <link id="mangrove-theme" rel="stylesheet" href="/vendor/mangrove/2.0.0/style.css" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="mg-skip-link" href="#main">Skip to content</a>
+    <div class="mg-page-header mg-page-header--decoration-only" aria-hidden="true"><div class="mg-page-header__decoration"><div></div><div></div><div></div><div></div></div></div>
     <header class="site-header">
-      <a class="wordmark" href="./" aria-label="PDF Signal Check home"
-        ><span class="mark" aria-hidden="true">P<span>↗</span></span
-        ><span>PDF<br /><strong>Signal Check</strong></span></a
-      >
+      <div class="institution-identity">
+        <img id="institution-logo" class="institution-logo" src="./vendor/mangrove/2.0.0/logo.svg" alt="United Nations Office for Disaster Risk Reduction (UNDRR)" width="160" height="24" />
+        <a class="wordmark" href="./" aria-label="PDF Signal Check home"><span>PDF<br /><strong>Signal Check</strong></span></a>
+      </div>
       <div class="header-meta">
         <span class="local-indicator">Processed on your device</span
-        ><span class="version">EARLY VERSION / 0.8</span><button id="about-ai" class="privacy-info-button" type="button">About AI &amp; privacy</button>
+        ><span class="version">Early version / 0.8</span><button id="about-ai" class="mg-button mg-button-secondary mg-button-outline privacy-info-button" type="button">About AI &amp; privacy</button>
       </div>
     </header>
     <dialog closedby="none" id="ai-info-dialog" aria-labelledby="ai-info-title" aria-describedby="ai-info-description">
       <div class="ai-info-content">
-        <p class="eyebrow">BEFORE YOU BEGIN</p>
+        <p class="eyebrow">Before you begin</p>
         <h2 id="ai-info-title">About AI and your PDF</h2>
         <div id="ai-info-description">
           <p>This tool checks PDFs in your browser. Your PDF contents stay on this device and are not uploaded for analysis.</p>
           <p>Optional AI screening also runs locally. It downloads model and tokenizer assets from external hosts; those requests do not include your PDF text. The app and runtime assets load from the site hosting this tool.</p>
           <p>AI can make mistakes. This tool was built with AI assistance, and its rules and models can miss issues or flag legitimate content. Review the evidence before relying on a result.</p>
         </div>
-        <label class="ai-info-preference"><input id="ai-info-suppress" type="checkbox" /> Don't show again</label>
+        <label class="ai-info-preference"><input id="ai-info-suppress" class="mg-form-check__input mg-form-check__input--checkbox" type="checkbox" /> Don't show again</label>
         <p id="ai-info-preference-note" class="model-note">Only this notice preference is saved in your browser; no PDF data is saved with it. You can reopen this information using “About AI &amp; privacy.”</p>
-        <button id="ai-info-understand" class="secondary" type="button" autofocus>I understand</button>
+        <button id="ai-info-understand" class="mg-button mg-button-primary secondary" type="button" autofocus>I understand</button>
       </div>
     </dialog>
-    <main id="main">
+    <main id="main" tabindex="-1">
       <section class="intro" aria-labelledby="intro-title">
         <div>
           <p class="eyebrow">Text, structure, and metadata for machine use.</p>
@@ -56,22 +58,22 @@
         <aside class="input-column" aria-label="Choose a PDF">
           <section class="upload-card" id="drop-zone">
             <div class="section-label">
-              <span>CHOOSE YOUR PDF</span><span aria-hidden="true">↙</span>
+              <span>Choose your PDF</span><span class="mg-icon mg-icon-arrow-right" aria-hidden="true"></span>
             </div>
             <label class="drop-target" for="file-input"
               ><span class="document-icon" aria-hidden="true"
-                >PDF<span>↗</span></span
+                ><span class="mg-icon mg-icon-file-alt" aria-hidden="true"></span></span
               ><strong>Drop your PDF here</strong
               ><span>or choose a file from your device</span></label
             >
             <input
               id="file-input"
-              class="sr-only"
+              class="mg-u-sr-only"
               type="file"
               accept="application/pdf,.pdf"
             />
             <p class="upload-limit">
-              Up to 50 MB · 200 pages · <button id="entry-batch" class="text-button" type="button">Check several PDFs</button>
+              Up to 50 MB · 200 pages · <button id="entry-batch" class="mg-button mg-button-secondary mg-button-outline text-button" type="button">Check several PDFs</button>
             </p>
             <div id="selected-file" class="selected-file" hidden></div>
             <div id="progress-area" hidden>
@@ -83,28 +85,28 @@
               ></progress>
             </div>
             <p id="status" role="status" aria-live="polite"></p>
-            <button id="cancel" class="text-button" hidden>
+            <button id="cancel" class="mg-button mg-button-secondary mg-button-outline text-button" hidden>
               Cancel analysis
             </button>
           </section>
           <section class="sample-card" aria-labelledby="sample-title">
-            <p class="eyebrow">TRY IT FIRST</p>
+            <p class="eyebrow">Try it first</p>
             <h2 id="sample-title">Try a sample first.</h2>
             <div class="sample-buttons">
-              <button data-example="14-author-mismatch.pdf">Conflicting authors <span aria-hidden="true">↗</span></button>
-              <button data-example="17-flawed-reading-order.pdf">Flawed reading order <span aria-hidden="true">↗</span></button>
-              <button data-sample="wrong-title">Wrong title year <span aria-hidden="true">↗</span></button>
+              <button data-example="14-author-mismatch.pdf" class="mg-button mg-button-secondary mg-button-outline">Conflicting authors <span class="mg-icon mg-icon-arrow-right" aria-hidden="true"></span></button>
+              <button data-example="17-flawed-reading-order.pdf" class="mg-button mg-button-secondary mg-button-outline">Flawed reading order <span class="mg-icon mg-icon-arrow-right" aria-hidden="true"></span></button>
+              <button data-sample="wrong-title" class="mg-button mg-button-secondary mg-button-outline">Wrong title year <span class="mg-icon mg-icon-arrow-right" aria-hidden="true"></span></button>
             </div>
             <details class="example-gallery"><summary id="example-gallery-summary">Controls and example gallery</summary>
             <div class="paired-examples">
               <p class="small">Compare the same visual page with different machine input.</p>
-              <div><button data-example="18-title-author-control.pdf">Matching authors</button><button data-example="16-correct-reading-order.pdf">Correct tagged order</button></div>
-              <div><button data-sample="clean">Clean, tagged text</button><button data-sample="untagged">Readable, but untagged</button></div>
+              <div><button data-example="18-title-author-control.pdf" class="mg-button mg-button-secondary mg-button-outline">Matching authors</button><button data-example="16-correct-reading-order.pdf" class="mg-button mg-button-secondary mg-button-outline">Correct tagged order</button></div>
+              <div><button data-sample="clean" class="mg-button mg-button-secondary mg-button-outline">Clean, tagged text</button><button data-sample="untagged" class="mg-button mg-button-secondary mg-button-outline">Readable, but untagged</button></div>
             </div>
             <label for="calibration-select">Example PDFs</label
-            ><select id="calibration-select">
+            ><select id="calibration-select" class="mg-form-select">
               <option value="">Choose an example PDF…</option></select
-            ><button id="load-calibration" class="secondary" disabled>
+            ><button id="load-calibration" class="mg-button mg-button-secondary mg-button-outline secondary" disabled>
               Analyze selected example
             </button>
             <p class="small">
@@ -128,11 +130,11 @@
         <section class="output-column" aria-label="Analysis report">
           <div id="guided-flow"></div>
           <details id="advanced-evidence" hidden><summary>Full evidence and JSON report</summary><div id="report" hidden></div></details>
-          <div id="empty-state" class="empty-state">
+          <div id="empty-state" class="empty-state mg-empty-state mg-empty-state--panel mg-empty-state--start">
             <div class="section-label">
-              <span>02 / THE EVIDENCE</span><span>READY WHEN YOU ARE</span>
+              <span>The evidence</span><span>Ready when you are</span>
             </div>
-            <h2>What will machines<br />get from this PDF?</h2>
+            <h2 class="mg-empty-state__title">What will machines<br />get from this PDF?</h2>
             <p>
               Start with a PDF. Check a defined text profile, inspect its metadata,
               and review the extracted order with the original page.
@@ -182,7 +184,7 @@
       </div>
       <section class="about-profile">
         <div>
-          <p class="eyebrow">WHAT A YES MEANS</p>
+          <p class="eyebrow">What a Yes means</p>
           <h2>Inspect the PDF.<br />Keep the evidence.</h2>
         </div>
         <p>

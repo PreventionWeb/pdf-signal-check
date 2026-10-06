@@ -77,6 +77,7 @@ The private repository is [PreventionWeb/pdf-signal-check](https://github.com/Pr
 - [Feature roadmap](docs/features/README.md): delivered onboarding, issue review, exports, device calibration and foreground batch processing, with deferred capabilities identified separately.
 - [Delivery audit](docs/DELIVERY.md): implementation and verification evidence for the local V1 roadmap.
 - [Interface brand](docs/BRAND.md): working label, positioning, and evidence-focused result hierarchy.
+- [Mangrove presentation](docs/MANGROVE.md): pinned local UNDRR theme, component mapping, licenses, and future PreventionWeb migration.
 - [UX refinement](docs/UX-REFINEMENT.md): results-first flow changes and desktop/mobile browser verification.
 - [Naming options](docs/NAMING.md): UN-first, cross-industry naming recommendations and observed name conflicts.
 - [Implementation plan](docs/PLAN.md): scope, acceptance rules, architecture, milestones, and evaluation.

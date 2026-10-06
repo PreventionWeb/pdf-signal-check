@@ -1,5 +1,6 @@
+import { createElement } from '../ui/element.js';
 import { helpLabel } from '../help/popover.js';
-const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};
+const node=createElement;
 /** Publication evidence first; metadata stores remain separate declared values. */
 export function createIdentityComparison({kind,report,result,renderEvidence}) {
   const root=node('div','identity-comparison'),publication=node('section','identity-source identity-publication');

@@ -1,6 +1,7 @@
+import { createElement } from '../ui/element.js';
 import {BENCHMARK_TIMEOUT_MS} from './workload.js';
 import { getSemanticModel } from '../engine/models.js';
-const el=(tag,text='')=>{const n=document.createElement(tag);n.textContent=text;return n;};
+const el=(tag,text='')=>createElement(tag,'',text);
 export function createCalibrationView({getSelectedModel=()=> 'minilm',onBusy=()=>{},timeoutMs=BENCHMARK_TIMEOUT_MS}={}) {
   const root=el('section');root.className='calibration-panel';
   root.append(el('h3','Optional: test this browser'));

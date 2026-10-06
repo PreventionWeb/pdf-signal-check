@@ -1,14 +1,15 @@
+import { createElement } from '../ui/element.js';
 import { PRODUCT_NAME, REPORT_FILENAME_STEM } from '../brand.js';
 import { captureSnapshot, safeFilename } from './snapshot.js';
 import { targetQuads } from '../evidence/geometry.js';
 import { EvidenceCropService } from '../evidence/crops.js';
-const node=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
+const node=(tag,text)=>createElement(tag,'',text);
 export class ExportController {
   constructor(getState) {
     this.getState=getState;this.epoch=0;this.root=node('section');this.root.className='export-actions';this.root.append(node('h3','Keep a captured report'),node('p','Reports can include your document’s file name, metadata, text excerpts, and page images. Downloads are generated on this device; share only with intended recipients.'));
     this.actions=node('div');this.actions.className='flow-actions';this.buttons=[];
-    for(const [kind,label] of [['pdf',`Download ${PRODUCT_NAME} report (PDF)`],['png','Download summary image (PNG)'],['json','Download detailed report (JSON)']]){const b=node('button',label);b.className='secondary';b.type='button';b.onclick=()=>this.run(kind);this.buttons.push(b);this.actions.append(b);}
-    this.cancelButton=node('button','Cancel export');this.cancelButton.type='button';this.cancelButton.className='secondary';this.cancelButton.hidden=true;this.cancelButton.onclick=()=>this.cancel();this.actions.append(this.cancelButton);this.message=node('p');this.message.setAttribute('role','status');this.root.append(this.actions,this.message);
+    for(const [kind,label] of [['pdf',`Download ${PRODUCT_NAME} report (PDF)`],['png','Download summary image (PNG)'],['json','Download detailed report (JSON)']]){const b=node('button',label);b.classList.add('secondary');b.type='button';b.onclick=()=>this.run(kind);this.buttons.push(b);this.actions.append(b);}
+    this.cancelButton=node('button','Cancel export');this.cancelButton.type='button';this.cancelButton.classList.add('secondary');this.cancelButton.hidden=true;this.cancelButton.onclick=()=>this.cancel();this.actions.append(this.cancelButton);this.message=node('p');this.message.setAttribute('role','status');this.root.append(this.actions,this.message);
   }
   cancel(message='Export canceled. Completed analysis remains available.') {const wasActive=Boolean(this.abort);++this.epoch;this.abort?.abort();this.abort=null;this.buttons.forEach(b=>b.disabled=false);this.cancelButton.hidden=true;this.message.textContent=wasActive?message:'';}
   async run(kind) {

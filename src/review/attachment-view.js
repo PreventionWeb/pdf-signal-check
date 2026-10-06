@@ -1,5 +1,6 @@
+import { createElement } from '../ui/element.js';
 import { helpTip } from '../help/popover.js';
-const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};
+const node=createElement;
 /** Declared file metadata only. No attachment links, reads, extraction or safety claims. */
 export function createAttachmentView(inventory) {
   const section=node('section','attachment-inventory'),heading=node('h4','','Files carried or referenced by this PDF');heading.append(helpTip('attachments'));section.append(heading);

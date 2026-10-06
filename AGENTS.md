@@ -16,6 +16,11 @@
 - Do not silently substitute models, evict report details, or imply serialized report size measures browser RAM.
 - Keep changes modular; consult [profile scope](docs/PROFILE.md) and [evaluation limits](docs/EVALUATION.md) when changing outcomes or claims.
 
+## Presentation
+
+- Follow [docs/MANGROVE.md](docs/MANGROVE.md): pinned Mangrove 2.0 vanilla components, semantic font roles, correctly wrapped sRGB tokens, and local bundled assets; no external startup scripts/fonts.
+- Keep brand/theme adaptation separate from PDF outcomes. A future PreventionWeb change needs its pinned theme bundle, not a class on the UNDRR-only stylesheet.
+
 ## Repository and delivery
 
 - Private remote: `https://github.com/PreventionWeb/pdf-signal-check`.

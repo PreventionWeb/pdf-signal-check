@@ -5,10 +5,10 @@ let nextId=0;
 export function helpTip(key,{label,extraText}={}) {
   const topic=HELP_TOPICS[key];if(!topic)throw new Error(`Unknown help topic: ${key}`);
   const root=document.createElement('span');root.className='help-tip';
-  const trigger=document.createElement('button');trigger.type='button';trigger.className='help-trigger';trigger.textContent='i';trigger.setAttribute('aria-label',label || `About ${topic.title}`);
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='help-trigger mg-icon-button';const info=document.createElement('span');info.className='mg-icon mg-icon-info-circle';info.setAttribute('aria-hidden','true');trigger.append(info);trigger.setAttribute('aria-label',label || `About ${topic.title}`);
   const popup=document.createElement('div');popup.className='help-popover';popup.id=`help-${++nextId}`;popup.setAttribute('popover','auto');popup.setAttribute('role','region');
   const title=document.createElement('h4');title.id=`${popup.id}-title`;title.textContent=topic.title;popup.setAttribute('aria-labelledby',title.id);trigger.setAttribute('aria-controls',popup.id);trigger.setAttribute('aria-expanded','false');
-  const close=document.createElement('button');close.type='button';close.className='help-close';close.textContent='×';close.setAttribute('aria-label',`Close help about ${topic.title}`);
+  const close=document.createElement('button');close.type='button';close.className='help-close mg-icon-button';const closeIcon=document.createElement('span');closeIcon.className='mg-icon mg-icon-close';closeIcon.setAttribute('aria-hidden','true');close.append(closeIcon);close.setAttribute('aria-label',`Close help about ${topic.title}`);
   popup.append(title,close);for(const text of [...(extraText?[extraText]:[]),...topic.text]){const p=document.createElement('p');p.textContent=text;popup.append(p);}
   for(const reference of topic.references || []){const a=document.createElement('a');a.href=reference.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=`${reference.label} ↗`;a.setAttribute('aria-label',`${reference.label} (opens in a new tab)`);popup.append(a);}
   root.append(trigger,popup);let pinned=false,timer,quietUntil=0;
