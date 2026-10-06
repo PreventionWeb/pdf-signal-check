@@ -1,3 +1,4 @@
+import { card as createCard, notice, checkRow, formField } from './ui/patterns.js';
 import { initializePresentationBrand } from './brand.js';
 import { createElement, primaryButton, checkbox } from './ui/element.js';
 import { createAttachmentView } from './review/attachment-view.js';
@@ -19,7 +20,7 @@ import { SEMANTIC_MODELS, getSemanticModel, supportsLanguage } from './engine/mo
 import { Preview } from './preview.js';
 import { candidateBlocks, findingTargets } from './geometry.js';
 import './style.css';
-import './ui/theme.css';
+
 
 initializePresentationBrand();
 
@@ -95,7 +96,7 @@ function renderFlow(focusIssue=false) {
   $('#advanced-evidence').hidden=!report || !['review','checks'].includes(stage);
   const steps=$('#flow-steps');steps.replaceChildren();const inBatch=stage==='batch' || (stage==='review' && batchReviewId);$('#flow-steps').setAttribute('aria-label',inBatch?'Batch review':'Review stages');
   for(const [key,label] of (inBatch?[['batch','Batch queue'],['review','PDF evidence']]:[['document','1 · Document'],['checks','2 · Checks'],['processing','3 · Processing'],['review','4 · Review']])){const item=el('li','',label);if(stage===key || stage.startsWith('processing') && key==='processing')item.setAttribute('aria-current','step');steps.append(item);}
-  const heading=el('h2','flow-title',{batch:'Review several PDFs',document:'Choose one PDF to begin',checks:'Choose how to review this PDF',review:'Review the evidence', 'processing-analysis':'Checking text, tags, and metadata', 'processing-model':'Screening selected checks locally'}[stage]);heading.id='flow-title';heading.tabIndex=-1;if(stage!=='document')host.append(heading);
+  const heading=el(stage==='document'?'h2':'h1','flow-title',{batch:'Review several PDFs',document:'Choose one PDF to begin',checks:'Choose how to review this PDF',review:'Review the evidence', 'processing-analysis':'Checking text, tags, and metadata', 'processing-model':'Screening selected checks locally'}[stage]);heading.id='flow-title';heading.tabIndex=-1;if(stage!=='document')host.append(heading);
   if(stage==='batch'){host.append(batchView.root,flowButton('Stop queue and return to single PDF',()=>{batchView.queue.stopAll();batchView.client.dispose();flow.go('document');}));restoreDisclosureState(host,disclosures);return;}
   if(sourceFile)host.append(el('p','flow-file',`${sourceFile.name} · ${(sourceFile.size/1e6).toFixed(2)} MB`));
   if(stage==='document'){
@@ -110,12 +111,12 @@ function renderFlow(focusIssue=false) {
     const cancel=flowButton('Cancel and go back',()=>{if(stage==='processing-analysis')cancelAnalysis();else {stopModel();modelMessage='AI screening canceled. Traditional results and any previous completed screening are retained.';flow.go('checks');}});cancel.id='flow-cancel';host.append(cancel);restoreDisclosureState(host,disclosures);if(previousFocus)document.getElementById(previousFocus)?.focus({preventScroll:true});return;
   }
   if(stage==='checks'){
-    const completed=normalizeFindings(report),problemCount=completed.findings.filter(f=>['required-defect','required-indeterminate','advisory-concern'].includes(f.category)).length;const first=el('section','traditional-result mg-notice mg-notice--info');first.append(el('p','eyebrow','Traditional checks complete'),el('h3','',problemCount?`${problemCount} finding${problemCount===1?'':'s'} to inspect`:'No concrete problems found'),el('p','',report.accepted?'The required text profile passed. Metadata and reading order still need separate review.':report.checks.some(c=>c.status==='fail')?'The required text profile failed: required defects were found. Inspect their evidence.':'The required text profile was not established. Inspect the required findings.'),primaryButton(flowButton('Review findings without AI',()=>flow.go('review'))));host.append(first);
+    const completed=normalizeFindings(report),problemCount=completed.findings.filter(f=>['required-defect','required-indeterminate','advisory-concern'].includes(f.category)).length;const first=notice({title:problemCount?`${problemCount} finding${problemCount===1?'':'s'} to inspect`:'No concrete problems found',description:report.accepted?'The required text profile passed. Metadata and reading order still need separate review.':report.checks.some(c=>c.status==='fail')?'The required text profile failed: required defects were found. Inspect their evidence.':'The required text profile was not established. Inspect the required findings.',className:'traditional-result',titleTag:'h2'});first.body.prepend(el('p','eyebrow','Traditional checks complete'));first.actions.append(primaryButton(flowButton('Review findings without AI',()=>flow.go('review'))));host.append(first.root);
     host.append(el('p','model-note','Optional AI compares bounded text relatedness. It can add clues, make mistakes, and takes additional time and downloads.'));
     const recommendedKey=/^en(?:-|$)/i.test(report.metadata.language || '')?'minilm':supportsLanguage(getSemanticModel('granite-r2'),report.metadata.language)?'granite-r2':null;const model=recommendedKey && getSemanticModel(recommendedKey),supported=Boolean(model);
-    const recommendation=el('div','recommendation');recommendation.append(el('h3','',supported?`Recommended for the declared language: ${model.label}`:'No supported recommendation is available'),el('p','',supported?`${(model.graphBytes/1e6).toFixed(2)} MB model + ${(model.tokenizerBytes/1e6).toFixed(2)} MB tokenizer on first use; runtime assets are separate. Assets download from external hosts; PDF text stays on this device. Speed, memory use, and accuracy for this task are unmeasured.`:'Language metadata is missing or unsupported. You can review without AI immediately. Selecting an unsupported model does not make that language supported.'));
+    const {root:recommendation,content:recommendationBody}=createCard('div','recommendation');recommendationBody.append(el('h3','',supported?`Recommended for the declared language: ${model.label}`:'No supported recommendation is available'),el('p','',supported?`${(model.graphBytes/1e6).toFixed(2)} MB model + ${(model.tokenizerBytes/1e6).toFixed(2)} MB tokenizer on first use; runtime assets are separate. Assets download from external hosts; PDF text stays on this device. Speed, memory use, and accuracy for this task are unmeasured.`:'Language metadata is missing or unsupported. You can review without AI immediately. Selecting an unsupported model does not make that language supported.'));
     const actions=el('div','flow-actions');
-    if(supported){const run=flowButton('Use recommended settings',()=>{selectedModel=recommendedKey;report.screeningSelection={modelId:selectedModel,checks:[...screeningChecks]};runSimilarity();});primaryButton(run);run.id='recommended-run';run.disabled=!screeningChecks.size;actions.append(run);}recommendation.append(actions);const optional=el('details','optional-screening');optional.dataset.disclosureKey='optional-screening';optional.append(el('summary','','Add optional local AI screening'),recommendation);host.append(optional);
+    if(supported){const run=flowButton('Use recommended settings',()=>{selectedModel=recommendedKey;report.screeningSelection={modelId:selectedModel,checks:[...screeningChecks]};runSimilarity();});primaryButton(run);run.id='recommended-run';run.disabled=!screeningChecks.size;actions.append(run);}recommendationBody.append(actions);const optional=el('details','optional-screening');optional.dataset.disclosureKey='optional-screening';optional.append(el('summary','','Add optional local AI screening'),recommendation);host.append(optional);
     const choose=el('details','alternate-model');choose.dataset.disclosureKey='alternate-model';choose.append(el('summary','','Choose another model or change screening checks'),modelPicker());optional.append(choose);deviceTest.refresh();optional.append(deviceTest.root);
     if(modelMessage)host.append(el('p','model-note',modelMessage));
     host.append(flowButton('Choose another PDF',()=>flow.go('document')));restoreDisclosureState(host,disclosures);return;
@@ -212,20 +213,21 @@ function renderReviewSummary() {
 function renderReport() {
   const focusedSummary=document.activeElement?.id?.startsWith('review-toggle-') ? document.activeElement.id : null;
   const root = $('#report'); root.replaceChildren(); root.hidden = false; $('#empty-state').hidden = true;
-  const top = el('section', 'report-top');
-  top.append(el('div', 'section-label', '02 / THE EVIDENCE'));
-  top.append(el('h2','profile-label',`Text profile ${report.profile?.replace('text-actionability-','') || '—'}`));
+  const {root:top,content:topBody}=createCard('section','report-top');
+  topBody.append(el('div', 'section-label', '02 / THE EVIDENCE'));
+  topBody.append(el('h2','profile-label',`Text profile ${report.profile?.replace('text-actionability-','') || '—'}`));
   const verdictRow = el('div', 'verdict-row');
   verdictRow.append(el('div', `verdict ${report.accepted ? 'yes' : 'no'}`, report.accepted ? 'Yes' : 'No'));
   const copy = el('div', 'verdict-copy');
   copy.append(el('h2', '', report.accepted ? 'Meets the text actionability profile.' : report.checks.some(c => c.status === 'fail') ? 'Required checks found a defect.' : 'Compliance is not established.'), el('p', '', report.accepted ? 'Required structural checks passed. Review publication identity and reading order separately.' : 'Inspect the findings and supported scope before using this PDF as an AI input.'));
-  verdictRow.append(copy); top.append(verdictRow);
-  const stats = el('div', 'report-stats');
-  for (const [value, label] of [[report.file.pages ?? '—', 'pages'], [report.checks.filter(c => c.status === 'pass').length, 'checks passed'], [report.checks.filter(c => c.status !== 'pass').length, 'required checks to inspect']]) {
-    const stat = el('span', ''); stat.append(el('strong', '', value), document.createTextNode(label)); stats.append(stat);
+  verdictRow.append(copy); topBody.append(verdictRow);
+  const stats = el('section','mg-stats-card');stats.setAttribute('aria-label','Required check counts');
+  const statGrid=el('div','mg-grid mg-grid__col-3');stats.append(statGrid);
+  for (const [value,label] of [[report.file.pages ?? '—','pages'],[report.checks.filter(c=>c.status==='pass').length,'checks passed'],[report.checks.filter(c=>c.status!=='pass').length,'required checks to inspect']]) {
+    const stat=el('article','mg-card mg-stats-card-item');const count=el('data','mg-stats-card-item__value',value);count.value=String(value);stat.append(count,el('strong','mg-stats-card-item__bottom-label',label));statGrid.append(stat);
   }
-  top.append(stats, renderReviewSummary());
-  if(knownExample){const note=el('div','example-truth');note.append(el('strong','','Known example: authored ground truth'),el('p','',knownExample.defects?.length ? knownExample.defects.join('; ') : 'Matching metadata and intended semantic order control.'),el('small','','These labels describe this synthetic example; analyzer findings are shown separately.'));top.append(note);} root.append(top); root.append( el('h3', 'report-heading', 'Required checks'));
+  topBody.append(stats, renderReviewSummary());
+  if(knownExample){const note=el('div','example-truth');note.append(el('strong','','Known example: authored ground truth'),el('p','',knownExample.defects?.length ? knownExample.defects.join('; ') : 'Matching metadata and intended semantic order control.'),el('small','','These labels describe this synthetic example; analyzer findings are shown separately.'));topBody.append(note);} root.append(top); root.append( el('h3', 'report-heading', 'Required checks'));
   const list = el('div', 'check-list');
   for (const check of report.checks) {
     const row = el('details', `check-row ${check.status}`), summary = el('summary');
@@ -243,14 +245,14 @@ function renderReport() {
     row.open = check.status === 'fail' || check.status === 'indeterminate'; row.append(evidence); list.append(row);
   }
   root.append(list, el('h3', 'report-heading', 'Publication metadata'));
-  const metadata = el('section', 'metadata-card');
+  const {root:metadata,content:metadataBody}=createCard('section','metadata-card');
   const consistency = report.metadataConsistency;
-  metadata.append(el('h4','','Title comparison'), el('span', `badge ${consistency.status}`, { match: 'MATCH', 'suspected-mismatch': 'SUSPECTED MISMATCH', uncertain: 'UNCERTAIN' }[consistency.status]), el('p', '', consistency.reason || 'Metadata comparison could not complete.'));
+  metadataBody.append(el('h4','','Title comparison'), el('span', `badge ${consistency.status}`, { match: 'MATCH', 'suspected-mismatch': 'SUSPECTED MISMATCH', uncertain: 'UNCERTAIN' }[consistency.status]), el('p', '', consistency.reason || 'Metadata comparison could not complete.'));
   const dl = el('dl', 'metadata-dl');
   for (const [label, value] of [['Info title', report.metadata.infoTitle], ...((report.metadata.xmpTitles || []).map(t => [`XMP ${t.lang || 'title'}`, t.text])), ['Author metadata (Info)',report.metadata.author], ['Language', report.metadata.language]]) dl.append(el('dt', '', label), el('dd', '', value || 'Not set'));
   if(report.authorConsistency?.metadataAuthors?.xmp?.length)dl.append(el('dt','','Author metadata (XMP)'),el('dd','',report.authorConsistency.metadataAuthors.xmp.join('; ')));
-  metadata.append(dl);
-  if(report.authorConsistency)metadata.append(advisorySection('Author identity',report.authorConsistency));
+  metadataBody.append(dl);
+  if(report.authorConsistency)metadataBody.append(advisorySection('Author identity',report.authorConsistency));
   const candidates = report.semantic?.ranked?.length ? report.semantic.ranked : consistency.candidates || [];
   const candidateList = el('ol', 'candidates');
   candidates.forEach(c => {
@@ -259,13 +261,13 @@ function renderReport() {
     li.append(locationButton({page:c.page, quads:candidateBlocks(report.pages.find(p=>p.number===c.page),c).flatMap(b=>b.quad?[b.quad]:[]),label:c.text},c.text), el('small', '', `Page ${c.page} · ${c.source}${c.node ? ` · node ${c.node}` : ''}`));
     candidateList.append(li);
   });
-  metadata.append(candidateList);
-  if (!candidates.length) metadata.append(el('p', 'model-note', 'No title candidates were recovered.'));
+  metadataBody.append(candidateList);
+  if (!candidates.length) metadataBody.append(el('p', 'model-note', 'No title candidates were recovered.'));
 
   if (report.semantic) {
-    if(report.semantic.error)metadata.append(el('p','error-message',`Optional screening failed: ${report.semantic.error}. Traditional results are retained; no model inference is claimed.`));
-    if(report.semantic.status==='skipped')metadata.append(el('p','model-note',`AI requested but not run: ${report.semantic.reason || report.semantic.skipReason || 'analysis incomplete'}. No model inference is claimed.`));
-    metadata.append(el('h4','semantic-heading','Completed screening result'),el('p','model-result-identity',`${report.semantic.inferencePerformed?'Model used':'No model inference; selected model configuration'}: ${report.semantic.model?.label || report.semantic.model?.id || 'No completed model configuration'} · ${report.semantic.model?.dtype || '—'} · ${report.semantic.model?.pooling || '—'} pooling · requested checks: ${(report.semantic.requestedChecks || ['title','subject','keywords']).join(', ')}`),el('p', 'model-note', report.semantic.note),el('p','inference-note',report.semantic.inferencePerformed ? `Model inference ran on ${report.semantic.embeddedTextCount ?? 'bounded'} text excerpts.` : 'No model inference ran; inspect each check’s reason.'));
+    if(report.semantic.error)metadataBody.append(el('p','error-message',`Optional screening failed: ${report.semantic.error}. Traditional results are retained; no model inference is claimed.`));
+    if(report.semantic.status==='skipped')metadataBody.append(el('p','model-note',`AI requested but not run: ${report.semantic.reason || report.semantic.skipReason || 'analysis incomplete'}. No model inference is claimed.`));
+    metadataBody.append(el('h4','semantic-heading','Completed screening result'),el('p','model-result-identity',`${report.semantic.inferencePerformed?'Model used':'No model inference; selected model configuration'}: ${report.semantic.model?.label || report.semantic.model?.id || 'No completed model configuration'} · ${report.semantic.model?.dtype || '—'} · ${report.semantic.model?.pooling || '—'} pooling · requested checks: ${(report.semantic.requestedChecks || ['title','subject','keywords']).join(', ')}`),el('p', 'model-note', report.semantic.note),el('p','inference-note',report.semantic.inferencePerformed ? `Model inference ran on ${report.semantic.embeddedTextCount ?? 'bounded'} text excerpts.` : 'No model inference ran; inspect each check’s reason.'));
     for (const field of ['title','subject','keywords','sections']) {
       const result=report.semantic[field]; if(!result)continue;
       const section=el('section','semantic-result');
@@ -277,27 +279,27 @@ function renderReport() {
         const blocks=page ? candidateBlocks(page,e) : [];
         section.append(locationButton({page:e.page,quads:blocks.flatMap(b=>b.quad?[b.quad]:[]),label:e.text || e.source || 'Semantic evidence'},e.text || e.source || 'Show semantic evidence'));
       }
-      metadata.append(section);
+      metadataBody.append(section);
     }
   }
   if(report.semantic){
-    for(const [label,items] of [['Keyword',(report.semantic.keywordItems || [])],['Heading',(report.semantic.sectionItems || [])]])for(const item of items.slice(0,12))metadata.append(advisorySection(`${label}: ${item.keyword || item.heading?.text || item.heading || 'Candidate'}`,item));
-    if(report.semantic.inferenceProvenance?.length){const provenance=el('details','input-receipt');provenance.append(el('summary','','Model input limits'));for(const p of report.semantic.inferenceProvenance.slice(0,24))provenance.append(el('p','model-note',`Input ${p.index+1}: ${p.consumedTokens} / ${p.inputTokens} tokens${p.truncated?' · truncated':''}`),el('p','',p.consumedText || ''));if(report.semantic.inferenceProvenance.length>24)provenance.append(el('p','model-note','First 24 model inputs shown; the JSON report contains all input provenance.'));metadata.append(provenance);if(report.semantic.inferenceProvenance.some(p=>p.truncated))metadata.append(el('p','model-note','Some model inputs were truncated. The model input limits show the consumed prefixes; highlighted spans may also include text beyond those prefixes.'));}
-    if(report.semantic.skippedChecks?.length)metadata.append(el('p','model-note',`Checks without model inference: ${report.semantic.skippedChecks.map(c=>typeof c==='string'?c:`${c.check || c.id || ''}${c.reason?` — ${c.reason}`:''}`).join('; ')}`));
-    if(report.semantic.keywordCoverage)metadata.append(el('p','model-note',`Keyword coverage: ${report.semantic.keywordCoverage.evaluatedTerms} of ${report.semantic.keywordCoverage.totalTerms} terms evaluated${report.semantic.keywordCoverage.skippedTerms?` · ${report.semantic.keywordCoverage.skippedTerms} skipped`:''}.`));
+    for(const [label,items] of [['Keyword',(report.semantic.keywordItems || [])],['Heading',(report.semantic.sectionItems || [])]])for(const item of items.slice(0,12))metadataBody.append(advisorySection(`${label}: ${item.keyword || item.heading?.text || item.heading || 'Candidate'}`,item));
+    if(report.semantic.inferenceProvenance?.length){const provenance=el('details','input-receipt');provenance.append(el('summary','','Model input limits'));for(const p of report.semantic.inferenceProvenance.slice(0,24))provenance.append(el('p','model-note',`Input ${p.index+1}: ${p.consumedTokens} / ${p.inputTokens} tokens${p.truncated?' · truncated':''}`),el('p','',p.consumedText || ''));if(report.semantic.inferenceProvenance.length>24)provenance.append(el('p','model-note','First 24 model inputs shown; the JSON report contains all input provenance.'));metadataBody.append(provenance);if(report.semantic.inferenceProvenance.some(p=>p.truncated))metadataBody.append(el('p','model-note','Some model inputs were truncated. The model input limits show the consumed prefixes; highlighted spans may also include text beyond those prefixes.'));}
+    if(report.semantic.skippedChecks?.length)metadataBody.append(el('p','model-note',`Checks without model inference: ${report.semantic.skippedChecks.map(c=>typeof c==='string'?c:`${c.check || c.id || ''}${c.reason?` — ${c.reason}`:''}`).join('; ')}`));
+    if(report.semantic.keywordCoverage)metadataBody.append(el('p','model-note',`Keyword coverage: ${report.semantic.keywordCoverage.evaluatedTerms} of ${report.semantic.keywordCoverage.totalTerms} terms evaluated${report.semantic.keywordCoverage.skippedTerms?` · ${report.semantic.keywordCoverage.skippedTerms} skipped`:''}.`));
   }
-  const modelStatus = el('p', 'model-progress',modelMessage); modelStatus.id = 'model-status'; modelStatus.setAttribute('role', 'status'); metadata.append(modelStatus);
+  const modelStatus = el('p', 'model-progress',modelMessage); modelStatus.id = 'model-status'; modelStatus.setAttribute('role', 'status'); metadataBody.append(modelStatus);
   root.append(metadata);
   root.append(el('h3','report-heading','Reading order and text visibility'));
-  const review=el('section','evidence-card');
-  review.append(advisorySection('Reading order',report.readingOrder || {status:'requires-review',reason:'Compare the tagged sequence with the original page. Correct order has not been established.'}));
-  if(report.textVisibility)review.append(advisorySection('Text visibility',report.textVisibility));
+  const {root:review,content:reviewBody}=createCard('section','evidence-card');
+  reviewBody.append(advisorySection('Reading order',report.readingOrder || {status:'requires-review',reason:'Compare the tagged sequence with the original page. Correct order has not been established.'}));
+  if(report.textVisibility)reviewBody.append(advisorySection('Text visibility',report.textVisibility));
   root.append(review,el('h3', 'report-heading', 'Inspect the extracted evidence'));
-  const evidence = el('section', 'evidence-card');
+  const {root:evidence,content:evidenceBody}=createCard('section','evidence-card');
   const orderLabel=el('label','extraction-label','Extracted text order'); orderLabel.htmlFor='extraction-order';
   const order=el('select');order.id='extraction-order';
   for(const [value,label] of [['tagged','Tagged reading order'],['stream','Content-stream order']]){const option=el('option','',label);option.value=value;order.append(option);}order.value=extractionOrder;
-  evidence.append(orderLabel,order,el('p','model-note','Tags record an intended reading sequence. Connectivity alone does not establish that the sequence is correct.'));
+  evidenceBody.append(orderLabel,order,el('p','model-note','Tags record an intended reading sequence. Connectivity alone does not establish that the sequence is correct.'));
   order.onchange=()=>{extractionOrder=order.value;evidence.querySelectorAll('[data-order]').forEach(n=>n.hidden=n.dataset.order!==extractionOrder);};
   for (const page of report.pages) {
     const details = el('details'); details.append(el('summary', '', `Page ${page.number} · ${page.characters} characters · ${page.untaggedCharacters} untagged`));
@@ -307,10 +309,10 @@ function renderReport() {
       if(blocks.length)section.append(blockList(page,blocks));else section.append(el('p','model-note','No connected tagged text was recovered on this page. Choose content-stream order to inspect extracted text.'));
       details.append(section);
     }
-    evidence.append(details);
+    evidenceBody.append(details);
   }
   const limitations = el('details'); limitations.append(el('summary', '', 'Profile scope and limitations'));
-  const limitationsList = el('ul', 'limitations'); report.limitations.forEach(l => limitationsList.append(el('li', '', l))); limitations.append(limitationsList); evidence.append(limitations); root.append(evidence);
+  const limitationsList = el('ul', 'limitations'); report.limitations.forEach(l => limitationsList.append(el('li', '', l))); limitations.append(limitationsList); evidenceBody.append(limitations); root.append(evidence);
   const actions = el('div', 'report-actions'), download = el('button', 'secondary', 'Download detailed report (JSON)');
   download.onclick = () => exports.run('json');
   actions.append(download); root.append(actions);
@@ -320,8 +322,8 @@ function renderReport() {
 }
 
 function modelPicker() {
-  const panel=el('section','model-picker');
-  panel.append(el('h4','semantic-heading','Choose a model and screening checks'),el('p','model-note','Traditional title, author, and structure checks already ran. Optional models compare relatedness against bounded excerpts; they do not change structural acceptance. Nothing downloads when you change these options.'));
+  const {root:panel,content:panelBody}=createCard('section','model-picker');
+  panelBody.append(el('h4','semantic-heading','Choose a model and screening checks'),el('p','model-note','Traditional title, author, and structure checks already ran. Optional models compare relatedness against bounded excerpts; they do not change structural acceptance. Nothing downloads when you change these options.'));
   const label=el('label','','Screening model');label.htmlFor='screening-model';const select=el('select');select.id='screening-model';select.disabled=modelBusy;
   const empty=el('option','','Choose a model…');empty.value='';select.append(empty);
   for(const model of SEMANTIC_MODELS){const option=el('option','',model.label);option.value=model.key;select.append(option);}select.value=selectedModel || '';
@@ -331,13 +333,13 @@ function modelPicker() {
     if($('#recommended-run'))$('#recommended-run').disabled=modelBusy || !screeningChecks.size;
     run.disabled=modelBusy || !selectedModel || !screeningChecks.size || !report.pages.length;
   };
-  select.onchange=()=>{deviceTest.cancel();selectedModel=select.value || null;refresh();deviceTest.refresh();};panel.append(label,select,explanation);
+  select.onchange=()=>{deviceTest.cancel();selectedModel=select.value || null;refresh();deviceTest.refresh();};panelBody.append(formField(label,select,explanation));
   const tableRegion=el('div','mg-table-scroll-region');tableRegion.setAttribute('role','region');tableRegion.setAttribute('aria-label','Model download and language tradeoffs');tableRegion.tabIndex=0;const table=el('table','model-tradeoffs');const head=el('thead');const hr=el('tr');['Model / language','Download assets','Tradeoffs'].forEach(t=>hr.append(el('th','',t)));head.append(hr);table.append(head);const body=el('tbody');
-  for(const model of SEMANTIC_MODELS){const row=el('tr');const identity=el('td','',`${model.label} · ${model.language}`);const languages=el('details');languages.append(el('summary','','Supported languages'));const names=new Intl.DisplayNames(['en'],{type:'language'});languages.append(el('p','',model.languages.map(l=>names.of(l)).join(', ')));identity.append(languages);row.append(identity,el('td','',`${(model.graphBytes/1e6).toFixed(2)} MB model + ${(model.tokenizerBytes/1e6).toFixed(2)} MB tokenizer · ${model.maxTokens}-token input cap`),el('td','',model.tradeoff));body.append(row);}table.append(body);const scroll=tableRegion;scroll.classList.add('model-table-scroll');scroll.append(table);panel.append(scroll,el('p','model-note','Sizes exclude the bundled inference runtime: approximately 26.86 MB of uncompressed WASM plus runtime JavaScript; transfer size depends on hosting compression. First-use assets may be cached by your browser. Browser speed and memory use are unmeasured; PDF text remains on this device. Similarity is not a probability of correctness.'));
-  const checks=el('fieldset','screening-checks');checks.disabled=modelBusy;checks.append(el('legend','','Checks to screen'));
-  for(const [key,text] of [['title','Publication title'],['subject','Subject'],['keywords','Each keyword'],['sections','Tagged headings and section text']]){const checkLabel=el('label');const input=el('input');input.type='checkbox';checkbox(input);input.value=key;input.checked=screeningChecks.has(key);input.onchange=()=>{input.checked?screeningChecks.add(key):screeningChecks.delete(key);refresh();};checkLabel.append(input,document.createTextNode(text));checks.append(checkLabel);}panel.append(checks,el('p','model-note','Section screening associates bounded tagged headings with following tagged text. It is advisory and does not verify all heading roles or the whole document.'));
+  for(const model of SEMANTIC_MODELS){const row=el('tr');const identity=el('td','',`${model.label} · ${model.language}`);const languages=el('details');languages.append(el('summary','','Supported languages'));const names=new Intl.DisplayNames(['en'],{type:'language'});languages.append(el('p','',model.languages.map(l=>names.of(l)).join(', ')));identity.append(languages);row.append(identity,el('td','',`${(model.graphBytes/1e6).toFixed(2)} MB model + ${(model.tokenizerBytes/1e6).toFixed(2)} MB tokenizer · ${model.maxTokens}-token input cap`),el('td','',model.tradeoff));body.append(row);}table.append(body);const scroll=tableRegion;scroll.classList.add('model-table-scroll');scroll.append(table);panelBody.append(scroll,el('p','model-note','Sizes exclude the bundled inference runtime: approximately 26.86 MB of uncompressed WASM plus runtime JavaScript; transfer size depends on hosting compression. First-use assets may be cached by your browser. Browser speed and memory use are unmeasured; PDF text remains on this device. Similarity is not a probability of correctness.'));
+  const checks=el('fieldset','screening-checks');checks.disabled=modelBusy;checks.append(el('legend','mg-form-group__legend','Checks to screen'));
+  for(const [key,text] of [['title','Publication title'],['subject','Subject'],['keywords','Each keyword'],['sections','Tagged headings and section text']]){const input=el('input');input.id=`single-check-${key}`;input.type='checkbox';checkbox(input);input.value=key;input.checked=screeningChecks.has(key);input.onchange=()=>{input.checked?screeningChecks.add(key):screeningChecks.delete(key);refresh();};checks.append(checkRow(input,text));}panelBody.append(checks,el('p','model-note','Section screening associates bounded tagged headings with following tagged text. It is advisory and does not verify all heading roles or the whole document.'));
   const actions=el('div','model-actions');const run=primaryButton(el('button','secondary',modelBusy?'Screening in progress…':'Run selected checks locally'));run.onclick=runSimilarity;actions.append(run);
-  if(modelBusy){const cancel=el('button','secondary','Cancel AI screening');cancel.onclick=()=>{stopModel();modelMessage='AI screening canceled. The structural report and any previous completed result are retained.';renderReport();};actions.append(cancel);}panel.append(actions);refresh();return panel;
+  if(modelBusy){const cancel=el('button','secondary','Cancel AI screening');cancel.onclick=()=>{stopModel();modelMessage='AI screening canceled. The structural report and any previous completed result are retained.';renderReport();};actions.append(cancel);}panelBody.append(actions);refresh();return panel;
 }
 function runSimilarity() {
   if (batchView.busy){modelMessage='Stop the queue before separate screening.';return;}batchView.releaseIdleWorkers();

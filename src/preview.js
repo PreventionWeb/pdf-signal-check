@@ -1,13 +1,14 @@
+import {createElement} from './ui/element.js';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.mjs?url';
 import { point } from './geometry.js';
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
-const node = (tag,text) => { const n=document.createElement(tag); if(text)n.textContent=text; return n; };
+const node=(tag,text)=>createElement(tag,'',text);
 export class Preview {
   constructor() {
     this.root=node('section'); this.root.className='pdf-preview';
     this.root.append(node('h3','Locate the evidence'));
-    const controls=node('div'); controls.className='preview-controls';
+    const controls=node('div'); controls.className='preview-controls mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100';
     this.previous=node('button','←'); this.previous.setAttribute('aria-label','Previous page');
     this.next=node('button','→'); this.next.setAttribute('aria-label','Next page'); this.counter=node('span','');
     this.zoom=node('select'); this.zoom.setAttribute('aria-label','Preview zoom');

@@ -15,12 +15,12 @@
   <body>
     <a class="mg-skip-link" href="#main">Skip to content</a>
     <div class="mg-page-header mg-page-header--decoration-only" aria-hidden="true"><div class="mg-page-header__decoration"><div></div><div></div><div></div><div></div></div></div>
-    <header class="site-header">
+    <header class="site-header mg-container mg-container--slim mg-u-flex mg-u-align-items-center">
       <div class="institution-identity">
         <img id="institution-logo" class="institution-logo" src="./vendor/mangrove/2.0.0/logo.svg" alt="United Nations Office for Disaster Risk Reduction (UNDRR)" width="160" height="24" />
         <a class="wordmark" href="./" aria-label="PDF Signal Check home"><span>PDF<br /><strong>Signal Check</strong></span></a>
       </div>
-      <div class="header-meta">
+      <div class="header-meta mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
         <span class="local-indicator">Processed on your device</span
         ><span class="version">Early version / 0.8</span><button id="about-ai" class="mg-button mg-button-secondary mg-button-outline privacy-info-button" type="button">About AI &amp; privacy</button>
       </div>
@@ -34,13 +34,13 @@
           <p>Optional AI screening also runs locally. It downloads model and tokenizer assets from external hosts; those requests do not include your PDF text. The app and runtime assets load from the site hosting this tool.</p>
           <p>AI can make mistakes. This tool was built with AI assistance, and its rules and models can miss issues or flag legitimate content. Review the evidence before relying on a result.</p>
         </div>
-        <label class="ai-info-preference"><input id="ai-info-suppress" class="mg-form-check__input mg-form-check__input--checkbox" type="checkbox" /> Don't show again</label>
+        <div class="ai-info-preference mg-form-check"><input id="ai-info-suppress" class="mg-form-check__input mg-form-check__input--checkbox" type="checkbox" /><label for="ai-info-suppress" class="mg-form-check__label">Don't show again</label></div>
         <p id="ai-info-preference-note" class="model-note">Only this notice preference is saved in your browser; no PDF data is saved with it. You can reopen this information using “About AI &amp; privacy.”</p>
         <button id="ai-info-understand" class="mg-button mg-button-primary secondary" type="button" autofocus>I understand</button>
       </div>
     </dialog>
-    <main id="main" tabindex="-1">
-      <section class="intro" aria-labelledby="intro-title">
+    <main class="mg-container mg-container--slim" id="main" tabindex="-1">
+      <section class="intro mg-grid mg-grid__col-2" aria-labelledby="intro-title">
         <div>
           <p class="eyebrow">Text, structure, and metadata for machine use.</p>
           <h1 id="intro-title">
@@ -54,10 +54,10 @@
         </p>
       </section>
       <nav class="flow-steps" aria-label="Review stages"><ol id="flow-steps"></ol></nav>
-      <div class="workspace">
+      <div class="workspace mg-grid mg-grid__col-3">
         <aside class="input-column" aria-label="Choose a PDF">
-          <section class="upload-card" id="drop-zone">
-            <div class="section-label">
+          <section class="upload-card mg-card mg-card__vc mg-card--no-link" id="drop-zone"><div class="mg-card__content">
+            <div class="section-label mg-u-flex mg-u-flex-wrap mg-u-gap-100">
               <span>Choose your PDF</span><span class="mg-icon mg-icon-arrow-right" aria-hidden="true"></span>
             </div>
             <label class="drop-target" for="file-input"
@@ -88,8 +88,8 @@
             <button id="cancel" class="mg-button mg-button-secondary mg-button-outline text-button" hidden>
               Cancel analysis
             </button>
-          </section>
-          <section class="sample-card" aria-labelledby="sample-title">
+          </div></section>
+          <section class="sample-card mg-card mg-card__vc mg-card--no-link" aria-labelledby="sample-title"><div class="mg-card__content">
             <p class="eyebrow">Try it first</p>
             <h2 id="sample-title">Try a sample first.</h2>
             <div class="sample-buttons">
@@ -97,16 +97,16 @@
               <button data-example="17-flawed-reading-order.pdf" class="mg-button mg-button-secondary mg-button-outline">Flawed reading order <span class="mg-icon mg-icon-arrow-right" aria-hidden="true"></span></button>
               <button data-sample="wrong-title" class="mg-button mg-button-secondary mg-button-outline">Wrong title year <span class="mg-icon mg-icon-arrow-right" aria-hidden="true"></span></button>
             </div>
-            <details class="example-gallery"><summary id="example-gallery-summary">Controls and example gallery</summary>
+            <details class="example-gallery mg-details"><summary id="example-gallery-summary">Controls and example gallery</summary>
             <div class="paired-examples">
               <p class="small">Compare the same visual page with different machine input.</p>
               <div><button data-example="18-title-author-control.pdf" class="mg-button mg-button-secondary mg-button-outline">Matching authors</button><button data-example="16-correct-reading-order.pdf" class="mg-button mg-button-secondary mg-button-outline">Correct tagged order</button></div>
               <div><button data-sample="clean" class="mg-button mg-button-secondary mg-button-outline">Clean, tagged text</button><button data-sample="untagged" class="mg-button mg-button-secondary mg-button-outline">Readable, but untagged</button></div>
             </div>
-            <label for="calibration-select">Example PDFs</label
+            <div class="mg-form-field"><label class="mg-form-label" for="calibration-select">Example PDFs</label
             ><select id="calibration-select" class="mg-form-select">
               <option value="">Choose an example PDF…</option></select
-            ><button id="load-calibration" class="mg-button mg-button-secondary mg-button-outline secondary" disabled>
+            ></div><button id="load-calibration" class="mg-button mg-button-secondary mg-button-outline secondary" disabled>
               Analyze selected example
             </button>
             <p class="small">
@@ -120,22 +120,22 @@
               >
             </p>
             </details>
-          </section>
+          </div></section>
           <p class="privacy-note">
             Your PDF stays here. The structural analysis needs no AI model or
             account. Optional semantic screening downloads model assets, then
             runs locally.
           </p>
         </aside>
-        <section class="output-column" aria-label="Analysis report">
+        <section class="output-column mg-grid__col--span-2" aria-label="Analysis report">
           <div id="guided-flow"></div>
-          <details id="advanced-evidence" hidden><summary>Full evidence and JSON report</summary><div id="report" hidden></div></details>
+          <details class="mg-details" id="advanced-evidence" hidden><summary>Full evidence and JSON report</summary><div id="report" hidden></div></details>
           <div id="empty-state" class="empty-state mg-empty-state mg-empty-state--panel mg-empty-state--start">
-            <div class="section-label">
+            <div class="section-label mg-u-flex mg-u-flex-wrap mg-u-gap-100">
               <span>The evidence</span><span>Ready when you are</span>
             </div>
             <h2 class="mg-empty-state__title">What will machines<br />get from this PDF?</h2>
-            <p>
+            <p class="mg-empty-state__description">
               Start with a PDF. Check a defined text profile, inspect its metadata,
               and review the extracted order with the original page.
             </p>
@@ -182,7 +182,7 @@
 
         </section>
       </div>
-      <section class="about-profile">
+      <section class="about-profile mg-grid mg-grid__col-2">
         <div>
           <p class="eyebrow">What a Yes means</p>
           <h2>Inspect the PDF.<br />Keep the evidence.</h2>
@@ -195,7 +195,7 @@
         </p>
       </section>
     </main>
-    <footer>
+    <footer class="mg-container mg-container--slim mg-u-flex mg-u-flex-wrap mg-u-gap-100">
       <span>PDF Signal Check · A project by Ken Hawkins</span
       ><span
         >Built with reference to

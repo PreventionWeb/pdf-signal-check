@@ -66,7 +66,7 @@ const node = (tag, className, text) => {
 /** Compact data-driven illustration; importing this module never accesses the DOM. */
 export function createOrderComparison(report) {
   const data = orderComparisonData(report), section = node('section', 'order-map');
-  section.append(node('h4', 'order-map-heading', 'Same page, two recovered sequences'));
+  section.append(node('h3', 'order-map-heading', 'Same page, two recovered sequences'));
   if (!data.available) {
     section.append(node('p', 'model-note order-map-unavailable', data.reason));
     return section;
@@ -78,7 +78,7 @@ export function createOrderComparison(report) {
     ['drawing', 'Page drawing order', 'Text recovered from drawing instructions; not intended order.', data.drawing],
   ]) {
     const lane = node('div', `order-map-lane order-map-${kind}`);
-    lane.append(node('h5', 'order-map-label', label), node('p', 'order-map-description', description));
+    lane.append(node('h4', 'order-map-label', label), node('p', 'order-map-description', description));
     const cards = node('ul', 'order-map-cards');
     entries.forEach((entry, index) => {
       const anomaly = kind === 'tagged' && data.anomalies.find(item => item.to === entry.key);
