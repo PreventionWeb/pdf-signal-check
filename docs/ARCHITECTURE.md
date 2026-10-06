@@ -18,6 +18,7 @@ The application is a static browser client. PDF bytes, extracted text, model inp
 | React component state and stable finding IDs | Preserve disclosure choices and review position across ordinary rerenders | Reset source-specific review state only when source identity changes; browser-native disclosures do not own PDF data. |
 | `src/brand.js` and `src/ui` | Product identity, pinned Mangrove adaptation, published React components and composable native adaptations and export palette | Presentation is separate from stable repository/profile/preference identifiers and analysis state. Local assets only; component classes never take ownership of workers or PDF data. |
 | `src/evidence/Preview.jsx`, `preview-session.js` and `src/evidence` | Full-page inspection and independent bounded source crops | Render the original File; use the full viewport transform, trustworthy geometry and explicit unavailable states. |
+| `src/evidence/GoGoViewer.jsx` and locally bundled PDF-A-go-go | Isolated same-origin context viewer during processing and reading-order review. Pass only a local object URL; validate frame origin/source, dispose source/instances on replacement and unmount. This renderer does not own findings or profile acceptance. |
 | `src/export` | Capture and generate PDF, dedicated PNG and detailed JSON records | Export one fixed report/source snapshot. Preview state or later inference must not relabel an export. |
 | `src/calibration` and `src/evaluation` | Fixed-workload resource measurements and labeled semantic evaluation | Device timing is separate from detection accuracy. Keep cache/RAM unknowns and small-corpus limits visible. |
 | `src/main.jsx` and `src/app/App.jsx` | React root, declarative guided surfaces and controller subscriptions | Keep policy DOM-free; StrictMode cleanup must cancel resources and permit a fresh mount. Completed batch reports are detached presentation copies. |
@@ -31,7 +32,7 @@ Only one document analysis and one inference request run at a time. A warm batch
 
 Full reports are bounded by estimated UTF-8 JSON size, with one explicitly identified pending report allowed while scheduling pauses at budget pressure. Copies, source File handles, parsed documents, canvases and model/runtime heaps are additional allocations. Browser garbage collection and total RAM are not controlled by this estimate. Releasing details keeps compact outcomes but deliberately removes recoverable full evidence; it requires an explicit choice.
 
-Queue state and document review annotations are foreground, in-session data. Reloading or closing the tab loses them. The app does not promise background execution, persistent source access or resumable parser/model state. The existing notice preference is separate from document storage.
+Queue state and document review annotations are foreground, in-session data. Reloading or closing the tab loses them. The app does not promise background execution, persistent source access or resumable parser/model state. The notice preference and per-model synthetic device benchmark receipts persist in local storage, separately from document storage. Device receipts expire after 30 days and are invalidated when browser or pinned model settings change. Setup download consent and PDF evaluation state remain session-only.
 
 ## Verification boundaries
 

@@ -39,7 +39,7 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,onProg
     await write('Names and non-Latin text outside the bundled font are preserved as raster text using available browser fonts. Raster text is not selectable/extractable; exact Unicode values remain in JSON. If glyphs are missing in this browser, use the JSON values.');
     await heading('Publication metadata');
     for(const [k,v] of [['Info title',report.metadata.infoTitle],['XMP titles',(report.metadata.xmpTitles || []).map(t=>`${t.lang || 'unspecified'}: ${t.text}`).join('; ')],['Info authors',report.metadata.author],['XMP creators',(report.metadata.xmpAuthors || []).join('; ')],['Language',report.metadata.language]])await write(`${k}: ${bounded(v || 'Not set')}`);
-    await heading('Optional screening receipt');const semantic=report.semantic;
+    await heading('Local AI screening receipt');const semantic=report.semantic;
     await write(screeningReceipt(report));if(semantic)await write(`Requested checks: ${(semantic.requestedChecks || []).join(', ')}.`);
     if(report.sourceIdentity?.requestedConfiguration)await write(`Original batch attempt: ${report.sourceIdentity.queueItemId || 'unknown item'}; epoch ${report.sourceIdentity.attemptEpoch ?? 'unknown'}; frozen requested configuration ${JSON.stringify(report.sourceIdentity.requestedConfiguration)}. Detached preferences do not change this attempt.`);
     await write(`Selection preferences at capture (separate from completed result): ${JSON.stringify(report.screeningSelection || {})}`);

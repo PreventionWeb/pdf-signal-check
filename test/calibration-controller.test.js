@@ -39,3 +39,37 @@ it("requires explicit start, releases completed workers, and times out without e
   expect(controller.getSnapshot().message).toContain("time budget expired");
   controller.dispose();
 });
+
+it('restores saved receipts without work and persists only an active completed run', async () => {
+  const worker = { terminate: vi.fn(), postMessage: vi.fn() };
+  const prior = { model: { key: 'minilm' }, warm: { medianMs: 1000 } };
+  const preferences = { load: vi.fn(() => ({ receipt: prior, savedAt: 10 })), save: vi.fn(() => true) };
+  const factory = vi.fn(() => worker);
+  const controller = new CalibrationController({ preferences, workerFactory: factory });
+  expect(controller.receipt).toBe(prior);
+  expect(factory).not.toHaveBeenCalled();
+  await controller.start('minilm');
+  const canceledId = worker.postMessage.mock.calls[0][0].requestId;
+  controller.cancel();
+  worker.onmessage({ data: { type: 'result', requestId: canceledId, receipt: prior } });
+  expect(preferences.save).not.toHaveBeenCalled();
+  await controller.start('minilm');
+  const requestId = worker.postMessage.mock.calls[1][0].requestId;
+  worker.onmessage({ data: { type: 'result', requestId, receipt: prior } });
+  expect(preferences.save).toHaveBeenCalledOnce();
+  expect(controller.getSnapshot().saved).toBe(true);
+  controller.dispose();
+});
+
+it('exposes actual worker progress and rejects canceled progress', async () => {
+  const worker = { terminate: vi.fn(), postMessage: vi.fn() };
+  const controller = new CalibrationController({ workerFactory: () => worker, preferences: { load: () => null, save: () => false } });
+  await controller.start('minilm');
+  const requestId = worker.postMessage.mock.calls[0][0].requestId;
+  worker.onmessage({ data: { type: 'progress', requestId, message: 'Measured one run', progress: { stage: 'benchmark', completed: 1, total: 3, unit: 'runs' } } });
+  expect(controller.getSnapshot().progress).toEqual({ stage: 'benchmark', completed: 1, total: 3, unit: 'runs' });
+  controller.cancel();
+  worker.onmessage({ data: { type: 'progress', requestId, progress: { completed: 3, total: 3 } } });
+  expect(controller.getSnapshot().progress).toBe(null);
+  controller.dispose();
+});

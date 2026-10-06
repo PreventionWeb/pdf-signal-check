@@ -1,5 +1,6 @@
 import React from "react";
 export { Checkbox } from "@undrr/undrr-mangrove/components/Checkbox.js";
+export { Radio } from "@undrr/undrr-mangrove/components/Radio.js";
 export { Select } from "@undrr/undrr-mangrove/components/Select.js";
 export { SegmentedControl } from "@undrr/undrr-mangrove/components/SegmentedControl.js";
 export { FormGroup } from "@undrr/undrr-mangrove/components/FormGroup.js";

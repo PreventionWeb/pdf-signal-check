@@ -2,13 +2,19 @@ import React from "react";
 import { orderComparisonData } from "./order-comparison.js";
 import { Details } from "../ui/react.jsx";
 import { HelpLabel } from "../help/Help.jsx";
-export function OrderComparison({ report, onInspect }) {
+import { GoGoViewer } from "../evidence/GoGoViewer.jsx";
+export function OrderComparison({ report, file, onInspect }) {
   const data = orderComparisonData(report);
+  const recoveredTaggedText = report.pages?.some(page => page.logicalBlocks?.some(block => block.text?.trim()));
   return (
     <section className="order-map">
-      <h3 className="order-map-heading">Same page, two recovered sequences</h3>
+      <h3 className="order-map-heading">{data.available ? 'Same page, two recovered sequences' : 'Reading-order evidence'}</h3>
       {!data.available ? (
-        <p className="model-note">{data.reason}</p>
+        <div className="order-map-unavailable">
+          <p><strong>{recoveredTaggedText ? 'Tagged text was recovered; a comparison diagram is unavailable.' : 'No tagged reading sequence was recovered.'}</strong></p>
+          <p>{recoveredTaggedText ? 'A diagram requires a supported reading-order concern with matching, located headings. No such comparison is available for this finding. This does not mean the PDF has no reading order, or that its order is correct.' : 'The available evidence does not establish a machine reading order. Tags may be missing, empty or not recoverable by this check; the absence of a diagram does not establish which.'}</p>
+          <p className="model-note">The PDF viewer below shows the original page, independently of this check. Inspect its layout and the recovered text in the details.</p>
+        </div>
       ) : (
         <>
           <p className="order-map-intro">
@@ -86,6 +92,7 @@ export function OrderComparison({ report, onInspect }) {
           </p>
         </>
       )}
+      <GoGoViewer file={file} page={data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1} title="Inspect reading order in page context" />
       <Details
         summary="Recovered text and technical detail"
         className="order-technical"

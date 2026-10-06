@@ -1,5 +1,39 @@
 # Browser-local hybrid semantic screening
 
+## Default evaluation workflow
+
+The UI offers two-step setup before selecting single or multiple PDFs.
+First, an optional MiniLM baseline benchmark runs the fixed synthetic workload
+and saves its per-model receipt in browser
+local storage, and summarizes observed speed as Great (≤1.5 s), OK (≤5 s), or
+Not recommended (>5 s). These are product responsiveness bands for four fixed
+inputs, not validated hardware requirements, document timing predictions or
+accuracy grades. Hidden/interrupted runs are unrated. Saved results expire after
+30 days or browser/model configuration changes; blocked storage leaves the
+current result usable. Only synthetic timing receipts and notice preferences
+persist, never PDF content or model-download consent.
+
+The second step compares options in a feature matrix and defaults to MiniLM for English PDFs. No AI is the last option, reserved as
+a fallback when local AI cannot run.
+Continuing without AI runs deterministic checks without model downloads.
+Explicit “Use selected model and continue” consent enables the chosen model for every
+PDF in this session, including the batch default. Single-document analysis
+chains into model screening; missing/unsupported language pauses instead of
+silently substituting models. A missing declaration still permits an explicit
+English assumption. Failed, canceled or evidence-free AI runs expose partial
+text results, without claiming a completed AI evaluation.
+
+In this workflow, `requireInference` requests title relatedness even when title
+identity rules already settled the title. That separate `titleAI` advisory
+records actual model execution and never overwrites `title` identity findings,
+wrong-year warnings or profile acceptance. Insufficient comparison evidence
+still abstains; no artificial model inputs are invented merely to claim AI ran.
+The underlying assessment API and historical developer corpus continue to
+support the prior hybrid rules-first mode when that flag is absent. Existing
+recorded corpus metrics have not been rerun or relabeled for this new workflow.
+
+## Model policy and historical hybrid mode
+
 App 0.4 offers explicit model and check selection before inference. Changing a selector downloads nothing. Running a requested check may download model/tokenizer/runtime assets. PDF text stays in a dedicated local worker. These are embedding encoders, not generative LLMs: they screen relatedness and cannot certify identity, reading order, roles, factual claims, or freedom from hallucinations. Text profile 0.2 remains independent.
 
 ## Shipped model choices
@@ -11,7 +45,7 @@ App 0.4 offers explicit model and check selection before inference. Changing a s
 
 Sizes are decimal bytes from pinned Hugging Face model-tree artifacts, excluding runtime/configuration assets, and are not RAM estimates. Transformers.js and the approximately 26.86 MB uncompressed WASM runtime add cost. Browser caching is implementation-dependent. Performance must be measured on the user's hardware; model size alone is not a latency benchmark.
 
-The registry is [models.js](../src/engine/models.js). MiniLM has explicit English coverage. Granite enables the 52 enhanced-support languages named by IBM, including German; Norwegian `nb`/`nn` variants map to its `no` coverage. IBM's wider 200+ language pretraining is not treated as a tested blanket capability. Missing, invalid, or out-of-coverage language declarations prevent model inference while deterministic title rules still operate. This is a declaration guard, not language detection or proof the content uses that language.
+The registry is [models.js](../src/engine/models.js). MiniLM has explicit English coverage. Granite enables the 52 enhanced-support languages named by IBM, including German; Norwegian `nb`/`nn` variants map to its `no` coverage. IBM's wider 200+ language pretraining is not treated as a tested blanket capability. Missing, invalid, or out-of-coverage language declarations prevent model inference while deterministic title rules still operate. For a missing declaration only, single-document review offers an explicit English assumption for optional screening. Choosing it makes no downloads; a separate run action authorizes assets. It cannot override an existing declaration, changes neither PDF metadata nor profile acceptance, and resets on source changes. The result records `languageContext` with the original declaration, screening language and `user-assumption` source; review and PDF/PNG/JSON receipts retain that distinction. Batch defaults continue to require a supported declaration. This is a declaration/assumption guard, not language detection or proof the content uses that language.
 
 Primary references: [MiniLM browser export](https://huggingface.co/Xenova/all-MiniLM-L6-v2), [original MiniLM](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), [IBM Granite card and unprefixed examples](https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2), [Granite pooling configuration](https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/blob/main/1_Pooling/config.json), [Granite browser export](https://huggingface.co/onnx-community/granite-embedding-97m-multilingual-r2-ONNX), [Transformers.js feature-extraction implementation](https://github.com/huggingface/transformers.js/blob/main/packages/transformers/src/pipelines/feature-extraction.js).
 
@@ -43,7 +77,7 @@ Intermediate scores remain uncertain. These manually selected policies are conse
 
 ## Integration contract and lifecycle
 
-Worker input: `{requestId, modelId, checks, metadata, candidates, openingEvidence, deterministicTitle, sections}`. Model IDs are registry keys `minilm` and `granite-r2`; checks are `title`, `subject`, `keywords`, `sections`. `sectionEvidence(pages)` can create bounded heading/body pairs from tagged logical blocks. Unsupported model/check IDs fail explicitly with no silent fallback.
+Worker input: `{requestId, modelId, checks, metadata, candidates, openingEvidence, deterministicTitle, sections, languageAssumption}`. Model IDs are registry keys `minilm` and `granite-r2`; checks are `title`, `subject`, `keywords`, `sections`. `sectionEvidence(pages)` can create bounded heading/body pairs from tagged logical blocks. Unsupported model/check IDs fail explicitly with no silent fallback.
 
 Result schema 2 preserves `title`, `subject`, `keywords`, `assessment` (title alias), `ranked`, `note`, plus `sections`, `keywordItems`, `sectionItems`, coverage counts, requested checks, selected pinned model/thresholds, `inferencePerformed`, embedded text count and per-input token provenance. Per-field `method`/`inferencePerformed` distinguish rules, skipped checks and actual AI. Evidence preserves page/node/content keys/block IDs.
 

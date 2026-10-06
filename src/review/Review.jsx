@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { normalizeFindings } from "./findings.js";
-import { findingProvenance, screeningProvenance } from "./provenance.js";
+import { findingProvenance, screeningProvenance, screeningLanguageNote } from "./provenance.js";
 import {
   Button,
   Card,
@@ -125,13 +125,14 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         <p className="profile-receipt">
           Text profile {report.profile.replace("text-actionability-", "")}:{" "}
           {report.accepted
-            ? "Yes — required checks passed"
+            ? "Required text checks passed"
             : report.checks.some((c) => c.status === "fail")
-              ? "No — required defects found"
-              : "No — not established"}
+              ? "Required text defects found"
+              : "Required text checks not established"}
           <Help topic="profile" />
         </p>
         <p className="model-note">
+          {groups.problems.length ? `${groups.problems.length} finding${groups.problems.length === 1 ? "" : "s"} still need${groups.problems.length === 1 ? "s" : ""} inspection. ` : ""}
           Metadata and reading order require separate review.
         </p>
         <Details
@@ -181,6 +182,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             extraText={execution.detail}
           />
         </div>
+        {screeningLanguageNote(report) && <p className="model-note">{screeningLanguageNote(report)}</p>}
       </section>
       <SegmentedControl
         legend="Finding groups"
@@ -269,7 +271,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             />
           ) : kind === "order" ? (
             <>
-              <OrderComparison report={report} onInspect={inspect} />
+              <OrderComparison report={report} file={file} onInspect={inspect} />
               <Crop file={file} report={report} targets={targets} />
             </>
           ) : kind === "attachments" ? (

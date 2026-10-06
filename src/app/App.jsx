@@ -1,7 +1,6 @@
 import React, {
   StrictMode,
   useEffect,
-  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -9,15 +8,16 @@ import React, {
 import { PageHeader } from "@undrr/undrr-mangrove/components/PageHeader.js";
 import { Footer } from "@undrr/undrr-mangrove/components/Footer.js";
 import { Hero } from "@undrr/undrr-mangrove/components/Hero.js";
-import { FormAction } from "@undrr/undrr-mangrove/components/FormAction.js";
+import { Samples } from "./Samples.jsx";
 import { createAppController } from "./controller.js";
 import { BatchController } from "../batch/controller.js";
 import { BatchPanel } from "../batch/BatchPanel.jsx";
-import { CalibrationPanel } from "../calibration/CalibrationPanel.jsx";
+import { Setup } from "./Setup.jsx";
+import { Checks } from "./Checks.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
 import { Review } from "../review/Review.jsx";
 import { AdvancedReport } from "../review/AdvancedReport.jsx";
-import { normalizeFindings } from "../review/findings.js";
+import { GoGoViewer } from "../evidence/GoGoViewer.jsx";
 import {
   PRESENTATION_BRAND,
   PRODUCT_NAME,
@@ -25,20 +25,12 @@ import {
   PRODUCT_TAGLINE,
 } from "../brand.js";
 import {
-  SEMANTIC_MODELS,
-  getSemanticModel,
-  supportsLanguage,
-} from "../engine/models.js";
-import {
   Button,
   Card,
   Details,
   Actions,
   Notice,
   EmptyState,
-  Checkbox,
-  Select,
-  FormGroup,
   Loader,
   Icon,
   Tag,
@@ -49,7 +41,8 @@ export function App() {
     calibrationRef = useRef(null),
     exportRef = useRef(null),
     privacyRef = useRef(null),
-    openerRef = useRef(null);
+    openerRef = useRef(null),
+    samplesRequested = useRef(false);
   const [batch] = useState(
     () =>
       new BatchController({
@@ -79,28 +72,34 @@ export function App() {
     };
   }, [controller, batch]);
   useEffect(() => {
-    if (state.stage !== "welcome")
-      document.getElementById("flow-title")?.focus({ preventScroll: true });
+    if (state.stage === "document" && samplesRequested.current) {
+      samplesRequested.current = false;
+      const heading = document.getElementById("sample-title");
+      heading?.focus({ preventScroll: true });
+      heading?.scrollIntoView({ block: "start" });
+    } else if (state.stage !== "welcome") {
+      const heading = document.getElementById("flow-title");
+      heading?.focus({ preventScroll: true });
+      heading?.scrollIntoView({ block: "start", behavior: "instant" });
+    }
   }, [state.stage]);
   const inBatch =
       state.stage === "batch" || (state.stage === "review" && state.batchId),
     steps = inBatch
       ? [
-          ["welcome", "1 · Welcome"],
-          ["batch", "2 · Batch queue"],
-          ["review", "3 · PDF evidence"],
+          ["batch", "1 · Batch queue"],
+          ["review", "2 · PDF evidence"],
         ]
       : [
-          ["welcome", "1 · Welcome"],
-          ["document", "2 · Select PDF"],
-          ["checks", "3 · Checks"],
-          ["processing", "4 · Processing"],
-          ["review", "5 · Review"],
+          ["document", "1 · Select PDF"],
+          ["checks", "2 · Check results"],
+          ["review", "3 · Review evidence"],
         ];
   const title = {
+    setup: "Set up PDF checks",
     document: "Select a PDF to check",
     batch: "Review several PDFs",
-    checks: "Choose how to review this PDF",
+    checks: "Your PDF check results",
     review: "Review the evidence",
     "processing-analysis": "Checking text, tags, and metadata",
     "processing-model": "Screening selected checks locally",
@@ -125,9 +124,9 @@ export function App() {
         className="mg-container mg-container--slim mg-container--padded"
         aria-label="PDF Signal Check controls"
       >
-        <div className="mg-footer-bar__row">
+        <div className="app-toolbar">
           <a
-            className="mg-u-font-size-500"
+            className="app-home mg-u-font-size-500"
             href="./"
             aria-label="PDF Signal Check home"
             onClick={(e) => {
@@ -137,25 +136,23 @@ export function App() {
           >
             {PRODUCT_NAME}
           </a>
-          <div className="mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
-            <span className="mg-status-label">
-              <span className="mg-status-label__indicator" aria-hidden="true" />
-              Processed on your device
-            </span>
-            <Tag subtle>Early version / 0.8</Tag>
-            <Button
-              id="about-ai"
-              ref={openerRef}
-              onClick={(e) => privacyRef.current?.open(e.currentTarget)}
-            >
-              About AI &amp; privacy
-            </Button>
-          </div>
+          <Tag subtle className="app-version">
+            Early version / 0.8
+          </Tag>
+          <span className="app-local">Processed on your device</span>
+          <Button
+            className="app-privacy"
+            id="about-ai"
+            ref={openerRef}
+            onClick={(e) => privacyRef.current?.open(e.currentTarget)}
+          >
+            About AI &amp; privacy
+          </Button>
         </div>
       </section>
       <PrivacyNotice ref={privacyRef} openerRef={openerRef} />
       <main id="main" tabIndex={-1} className="mg-container mg-container--slim">
-        <nav
+        {!["welcome", "setup"].includes(state.stage) && (<nav
           className="flow-steps"
           aria-label={inBatch ? "Batch review" : "Review stages"}
         >
@@ -163,9 +160,8 @@ export function App() {
             {steps.map(([key, label]) => {
               const isCurrent =
                 state.stage === key ||
-                (state.stage.startsWith("processing") && key === "processing");
+                (state.stage.startsWith("processing") && key === "checks");
               const canNavigate =
-                key === "welcome" ||
                 key === "document" ||
                 (key === "batch" && !batch.busy) ||
                 (key === "checks" && state.report) ||
@@ -190,9 +186,15 @@ export function App() {
               );
             })}
           </ol>
-        </nav>
+        </nav>)}
         {state.stage === "welcome" && (
-          <Welcome controller={controller} />
+          <Welcome controller={controller} onBegin={stage => {
+            samplesRequested.current = false;
+            controller.beginEvaluation(stage);
+          }} onSamples={() => {
+            samplesRequested.current = true;
+            controller.beginEvaluation("document");
+          }} />
         )}
         {state.stage !== "welcome" && (
           <div
@@ -214,6 +216,8 @@ export function App() {
                     {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
                   </p>
                 )}
+                {state.stage === "setup" && <Setup controller={controller} calibrationRef={calibrationRef} batchBusy={batch.busy}
+                  canCalibrate={() => !batch.busy && !controller.getSnapshot().analysisBusy} />}
                 {state.stage === "document" && (
                   <Entry
                     state={state}
@@ -273,6 +277,7 @@ export function App() {
                   >
                     Cancel and go back
                   </Button>
+                  <GoGoViewer file={state.file} title="Your PDF while checks run" />
                 </>
               )}
               {state.stage === "review" && state.report && (
@@ -286,7 +291,7 @@ export function App() {
               )}
               {state.stage === "batch" && (
                 <>
-                  <BatchPanel controller={batch} />
+                  <BatchPanel controller={batch} requireAI={state.aiEnabled} />
                   <Button
                     onClick={() => {
                       batch.queue.stopAll();
@@ -322,7 +327,7 @@ export function App() {
           <section className="about-profile mg-grid mg-grid__col-2">
             <div>
               <p className="eyebrow">What a Yes means</p>
-              <h2>Inspect the PDF. Keep the evidence.</h2>
+              <h2>Understand the result’s limits</h2>
             </div>
             <p>
               A Yes means every required check passed for the supported text
@@ -364,7 +369,7 @@ export function App() {
     </>
   );
 }
-function Welcome({ controller }) {
+function Welcome({ controller, onSamples, onBegin }) {
   return (
     <section className="welcome-screen" aria-label="Welcome and tool orientation">
       <Hero
@@ -374,14 +379,14 @@ function Welcome({ controller }) {
             label: `${PRODUCT_DESCRIPTOR} · Experimental preflight`,
             title: PRODUCT_TAGLINE,
             summaryText:
-              "Inspect extracted text, connected semantic tags, and publication metadata directly on your device. Discover missing structure or conflicting information before using documents in AI workflows.",
+              "Find missing text structure, conflicting metadata, and reading-order concerns before using a PDF in AI workflows. Your PDF stays on this device; no account is needed.",
             buttons: [
               {
-                label: "Get started",
+                label: "Select a PDF",
                 type: "Primary",
                 onClick: (e) => {
                   e.preventDefault();
-                  controller.go("document");
+                  onBegin("document");
                 },
               },
               {
@@ -389,80 +394,55 @@ function Welcome({ controller }) {
                 type: "Secondary",
                 onClick: (e) => {
                   e.preventDefault();
-                  controller.loadSample("./samples/clean.pdf");
+                  onSamples();
+                },
+              },
+              {
+                label: "Check several PDFs",
+                type: "Secondary",
+                onClick: (e) => {
+                  e.preventDefault();
+                  onBegin("batch");
                 },
               },
             ],
           },
         ]}
       />
-      <div className="welcome-pillars mg-grid mg-grid__col-2">
+      <div className="welcome-pillars mg-grid mg-grid__col-3">
         <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header">
-            <h3>Powered by AI</h3>
-          </div>
+          <h2 className="mg-card__title">Check text and structure</h2>
           <p>
-            Combines deterministic extraction rules with optional on-device
-            embedding models (such as MiniLM and IBM Granite) to test semantic
-            relatedness between titles, subjects, keywords, and tagged sections.
+            Check text, tags and metadata, with local AI comparisons if enabled.
+            Your PDF contents are never uploaded.
           </p>
         </Card>
         <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header">
-            <h3>Made with AI assistance</h3>
-          </div>
+          <h2 className="mg-card__title">Review the evidence</h2>
           <p>
-            This application was built and refined with AI assistance. Automated
-            preflight checks can miss subtle defects or flag valid variations; always
-            review the underlying document evidence.
+            Compare findings with publication text and page images. Make changes
+            in your authoring tool, then export and check the revised PDF.
           </p>
         </Card>
         <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header">
-            <h3>100% on-device &amp; private</h3>
-          </div>
+          <h2 className="mg-card__title">Choose how to check</h2>
           <p>
-            Your PDF files and extracted text never leave your device. All parsing,
-            tag inspections, and model runs happen locally in your browser with zero
-            remote telemetry, tracking, or document uploads.
+            Benchmark your device, then choose a local AI model or continue
+            without AI. Review download costs before enabling a model.
           </p>
         </Card>
-        <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header">
-            <h3>Experimental preflight tool</h3>
-          </div>
-          <p>
-            Preflights text-centric PDFs against an actionability profile.
-            A passing result confirms required text/tag checks, but does not certify
-            full PDF/UA compliance or guarantee downstream LLM accuracy.
-          </p>
-        </Card>
-      </div>
-      <div className="welcome-start-bar mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
-        <Button
-          variant="primary"
-          onClick={() => controller.go("document")}
-        >
-          Select a PDF to check <Icon name="arrow-right" />
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => controller.go("batch")}
-        >
-          Batch upload several PDFs
-        </Button>
       </div>
     </section>
   );
 }
 function Entry({ state, controller, batch, batchBusy }) {
   const [dragging, setDragging] = useState(false),
-    [sample, setSample] = useState(""),
     disabled = state.analysisBusy || batchBusy;
   return (
-    <div className="document-intake" aria-label="Choose a PDF">
+    <div className="document-intake">
       <p className="step-intro">
-        Choose your PDF or batch. Select or drop a single PDF to inspect, or drop multiple PDFs to start a batch queue.
+        Select or drop a PDF to run text checks{state.aiEnabled ? " and local AI" : ""}. Selecting several files creates
+        a batch queue.
       </p>
       {state.report && (
         <Actions>
@@ -533,110 +513,16 @@ function Entry({ state, controller, batch, batchBusy }) {
         />
         <div className="upload-batch">
           <Button onClick={() => controller.go("batch")}>
-            Check several PDFs (Batch queue)
+            Check several PDFs
           </Button>
         </div>
       </Card>
-      <Card className="sample-card">
-        <p className="eyebrow">Try it first</p>
-        <h2 id="sample-title" tabIndex={-1}>
-          Try a sample PDF
-        </h2>
-        <div className="sample-buttons">
-          {[
-            ["Conflicting authors", "./calibration/14-author-mismatch.pdf"],
-            [
-              "Flawed reading order",
-              "./calibration/17-flawed-reading-order.pdf",
-            ],
-            ["Wrong title year", "./samples/wrong-title.pdf"],
-          ].map(([label, path]) => (
-            <Button
-              disabled={disabled}
-              key={path}
-              onClick={() => controller.loadSample(path)}
-            >
-              {label}
-              <Icon name="arrow-right" />
-            </Button>
-          ))}
-        </div>
-        <Details
-          summary={`Controls and all ${state.manifest.length} examples`}
-          className="example-gallery"
-        >
-          <p className="small">
-            Compare the same visual page with different machine input.
-          </p>
-          <Actions>
-            {[
-              ["Matching authors", "18-title-author-control.pdf"],
-              ["Correct tagged order", "16-correct-reading-order.pdf"],
-            ].map(([label, name]) => (
-              <Button
-                disabled={disabled}
-                key={name}
-                onClick={() => controller.loadSample(`./calibration/${name}`)}
-              >
-                {label}
-              </Button>
-            ))}
-            <Button
-              disabled={disabled}
-              onClick={() => controller.loadSample("./samples/clean.pdf")}
-            >
-              Clean, tagged text
-            </Button>
-            <Button
-              disabled={disabled}
-              onClick={() => controller.loadSample("./samples/untagged.pdf")}
-            >
-              Readable, but untagged
-            </Button>
-          </Actions>
-          <FormAction
-            label="Example PDFs"
-            stackOnMobile
-            control={
-              <select
-                id="calibration-select"
-                className="mg-form-select"
-                value={sample}
-                disabled={disabled || state.manifestError}
-                onChange={(e) => setSample(e.target.value)}
-              >
-                <option value="">Choose an example PDF…</option>
-                {state.manifest.map((s) => (
-                  <option key={s.file} value={s.file}>
-                    {s.title}
-                  </option>
-                ))}
-              </select>
-            }
-            action={
-              <Button
-                variant="primary"
-                id="load-calibration"
-                disabled={disabled || !sample}
-                onClick={() => controller.loadSample(`./calibration/${sample}`)}
-              >
-                Analyse selected example
-              </Button>
-            }
-          />
-          <p className="small">
-            Original synthetic reports with metadata, logos, figures, and
-            deliberate defects.{" "}
-            <a
-              href="./calibration/manifest.json"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View labels ↗
-            </a>
-          </p>
-        </Details>
-      </Card>
+      <Samples
+        manifest={state.manifest}
+        manifestError={state.manifestError}
+        disabled={disabled}
+        onChoose={(path) => controller.loadSample(path)}
+      />
       <div className="flow-actions">
         <Button
           variant="secondary"
@@ -651,254 +537,5 @@ function Entry({ state, controller, batch, batchBusy }) {
         locally.
       </p>
     </div>
-  );
-}
-function Checks({
-  state,
-  controller,
-  calibrationRef,
-  batchBusy,
-  canCalibrate,
-}) {
-  const normalized = useMemo(
-      () => normalizeFindings(state.report),
-      [state.report],
-    ),
-    problems = normalized.findings.filter((f) =>
-      [
-        "required-defect",
-        "required-indeterminate",
-        "advisory-concern",
-      ].includes(f.category),
-    ).length,
-    report = state.report,
-    recommended = /^en(?:-|$)/i.test(report.metadata.language || "")
-      ? "minilm"
-      : supportsLanguage(
-            getSemanticModel("granite-r2"),
-            report.metadata.language,
-          )
-        ? "granite-r2"
-        : null,
-    model = recommended && getSemanticModel(recommended);
-  return (
-    <>
-      <Notice
-        title={
-          problems
-            ? `${problems} finding${problems === 1 ? "" : "s"} to inspect`
-            : "No concrete problems found"
-        }
-        headingLevel="h2"
-        description={
-          report.accepted
-            ? "The required text profile passed. Metadata and reading order still need separate review."
-            : report.checks.some((c) => c.status === "fail")
-              ? "The required text profile failed: required defects were found. Inspect their evidence."
-              : "The required text profile was not established. Inspect the required findings."
-        }
-        actions={
-          <>
-            {model && (
-              <Button
-                variant="primary"
-                disabled={
-                  !state.checks.length || state.calibrationBusy || batchBusy
-                }
-                onClick={() => {
-                  controller.setModel(recommended);
-                  controller.runScreening();
-                }}
-              >
-                Review with AI (recommended)
-              </Button>
-            )}
-            <Button
-              variant="secondary"
-              onClick={() => controller.go("review")}
-            >
-              {problems ? "Review findings without AI" : "Review without AI"}
-            </Button>
-          </>
-        }
-      />
-      <p className="model-note">
-        Optional AI compares bounded relatedness. It can make mistakes and takes
-        additional time and downloads.
-      </p>
-      <Details
-        summary="Add optional local AI screening"
-        className="optional-screening"
-        defaultOpen
-      >
-        <Card className="recommendation">
-          <h3>
-            {model
-              ? `Recommended for the declared language: ${model.label}`
-              : "No supported recommendation is available"}
-          </h3>
-          <p>
-            {model
-              ? `${(model.graphBytes / 1e6).toFixed(2)} MB model + ${(model.tokenizerBytes / 1e6).toFixed(2)} MB tokenizer on first use; runtime assets are separate. Assets download from external hosts; PDF text stays on this device. Speed, memory use and accuracy for this task are unmeasured.`
-              : "Language metadata is missing or unsupported. Review without AI or inspect model eligibility; no language is silently substituted."}
-          </p>
-          {model && (
-            <Actions>
-              <Button
-                variant="primary"
-                disabled={
-                  !state.checks.length || state.calibrationBusy || batchBusy
-                }
-                onClick={() => {
-                  controller.setModel(recommended);
-                  controller.runScreening();
-                }}
-              >
-                Use recommended settings
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => controller.go("review")}
-              >
-                {problems ? "Review findings without AI" : "Review without AI"}
-              </Button>
-            </Actions>
-          )}
-        </Card>
-        <Details
-          summary="Choose another model or change screening checks"
-          className="alternate-model"
-        >
-          <ModelPicker
-            state={state}
-            controller={controller}
-            batchBusy={batchBusy}
-          />
-        </Details>
-        <CalibrationPanel
-          ref={calibrationRef}
-          canRun={canCalibrate}
-          modelId={state.selectedModel || "minilm"}
-          disabled={state.modelBusy || batchBusy}
-          onBusy={(value) => controller.calibrationBusy(value)}
-        />
-      </Details>
-      {state.message && <p className="model-note">{state.message}</p>}
-      <Button onClick={() => controller.go("document")}>
-        Choose another PDF
-      </Button>
-    </>
-  );
-}
-function ModelPicker({ state, controller, batchBusy }) {
-  const model = state.selectedModel
-    ? getSemanticModel(state.selectedModel)
-    : null;
-  return (
-    <Card className="model-picker">
-      <h3>Choose a model and screening checks</h3>
-      <p className="model-note">
-        Traditional title, author, and structure checks already ran. Models
-        compare bounded relatedness and do not change structural acceptance.
-        Changing options makes no downloads.
-      </p>
-      <Select
-        id="screening-model"
-        label="Screening model"
-        value={state.selectedModel || ""}
-        placeholder="Choose a model…"
-        onChange={(e) => controller.setModel(e.target.value || null)}
-        options={SEMANTIC_MODELS.map((m) => ({ value: m.key, label: m.label }))}
-        helpText={
-          model
-            ? `${model.language}. ${supportsLanguage(model, state.report.metadata.language) ? "Eligible for declared language." : "Missing or unsupported declared language; inference will remain unassessed."} ${model.tradeoff}`
-            : "Select a model to see download costs and language support."
-        }
-      />
-      <div
-        className="mg-table-scroll-region"
-        role="region"
-        aria-label="Model download and language tradeoffs"
-        tabIndex={0}
-      >
-        <table className="mg-table mg-table--data mg-u-font-size-200">
-          <thead>
-            <tr>
-              <th scope="col">Model / language</th>
-              <th scope="col">Download assets</th>
-              <th scope="col">Tradeoffs</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SEMANTIC_MODELS.map((m) => (
-              <tr key={m.key}>
-                <td>
-                  {m.label} · {m.language}
-                  <Details summary="Supported languages">
-                    <p>
-                      {m.languages
-                        .map((lang) =>
-                          new Intl.DisplayNames(["en"], {
-                            type: "language",
-                          }).of(lang),
-                        )
-                        .join(", ")}
-                    </p>
-                  </Details>
-                </td>
-                <td>
-                  {(m.graphBytes / 1e6).toFixed(2)} MB model +{" "}
-                  {(m.tokenizerBytes / 1e6).toFixed(2)} MB tokenizer ·{" "}
-                  {m.maxTokens}-token cap
-                </td>
-                <td>{m.tradeoff}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="model-note">
-        Sizes exclude bundled runtime: approximately 26.86 MB uncompressed WASM
-        plus runtime JavaScript. Transfer/cache cost varies. Browser speed and
-        memory use are unmeasured. Similarity is not a probability of
-        correctness.
-      </p>
-      <FormGroup legend="Checks to screen" className="screening-checks">
-        {[
-          ["title", "Publication title"],
-          ["subject", "Subject"],
-          ["keywords", "Each keyword"],
-          ["sections", "Tagged headings and section text"],
-        ].map(([key, label]) => (
-          <Checkbox
-            key={key}
-            id={`single-check-${key}`}
-            label={label}
-            checked={state.checks.includes(key)}
-            onChange={(e) =>
-              controller.setChecks(
-                e.target.checked
-                  ? [...state.checks, key]
-                  : state.checks.filter((c) => c !== key),
-              )
-            }
-          />
-        ))}
-      </FormGroup>
-      <p className="model-note">
-        Section screening associates bounded tagged headings with following
-        tagged text. It does not verify every heading role or the whole
-        document.
-      </p>
-      <Button
-        variant="primary"
-        disabled={
-          !model || !state.checks.length || state.calibrationBusy || batchBusy
-        }
-        onClick={() => controller.runScreening()}
-      >
-        Run selected checks locally
-      </Button>
-    </Card>
   );
 }

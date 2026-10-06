@@ -17,14 +17,23 @@ export function findingProvenance(finding,report) {
   if(!finding.source?.checkId && method!=='profile-rules')return {kind:'unknown',label:'Source not established',help:'bounded',detail:'The receipt does not identify a supported execution method for this finding. No model execution is implied.'};
   return {kind:'rules',label:'Extracted PDF + rules',help:'rules',detail:'PDF parsing and rule checks provide this evidence. They do not establish the meaning or correctness of the publication.'};
 }
-export function screeningProvenance(report) {
+function executionProvenance(report) {
   const semantic=report.semantic,selection=report.screeningSelection?.modelId;
   if(!semantic)return {kind:'unassessed',label:'AI not run',detail:selection?`Selection only: ${selection}. No completed model screening is recorded.`:'No completed model screening is recorded.'};
   if(semantic.status==='error')return {kind:'unassessed',label:'AI unavailable',detail:semantic.error || 'Optional screening failed; no completed inference result is available.'};
   if(semantic.status==='skipped')return {kind:'unassessed',label:'AI skipped',detail:semantic.reason || semantic.skipReason || 'Requested screening was not performed.'};
   if(![undefined,null,'completed'].includes(semantic.status))return {kind:'unknown',label:'AI provenance incomplete',detail:'The receipt has an unknown screening status; no completed inference is attributed.'};
-  const fields=['title','subject','keywords','sections'],performed=fields.filter(field=>semantic[field]?.inferencePerformed===true),rules=fields.filter(field=>semantic[field]?.method==='deterministic-rules');
+  const fields=['title','titleAI','subject','keywords','sections'],performed=fields.filter(field=>semantic[field]?.inferencePerformed===true),rules=fields.filter(field=>semantic[field]?.method==='deterministic-rules');
   if(semantic.inferencePerformed===true&&!completedModel(semantic))return {kind:'unknown',label:'AI provenance incomplete',detail:'The receipt records inference but does not identify a completed model configuration. Inspect the full evidence; this view cannot attribute a model.'};
-  if(completedModel(semantic))return {kind:'ai',label:`Local AI ran: ${modelName(semantic.model)}`,detail:`Bounded checks with recorded inference: ${performed.join(', ') || 'see individual results'}. ${rules.length?`Rules only: ${rules.join(', ')}. `:''}Skipped or unsupported checks remain unassessed.`};
+  if(completedModel(semantic))return {kind:'ai',label:`Local AI ran: ${modelName(semantic.model)}`,detail:`Bounded checks with recorded inference: ${performed.map(field=>field==='titleAI'?'AI title relatedness':field).join(', ') || 'see individual results'}. ${rules.length?`Rules only: ${rules.join(', ')}. `:''}Skipped or unsupported checks remain unassessed.`};
   return {kind:'unassessed',label:rules.length?'AI not run · rules only':'AI not run',detail:`Configured model: ${modelName(semantic.model)}; configuration does not mean it was loaded or used. ${rules.length?`Rules settled: ${rules.join(', ')}. `:''}Other checks may be unrequested, unsupported, or lack sufficient evidence.`};
+}
+export function screeningLanguageNote(report) {
+  return report.semantic?.languageContext?.source === 'user-assumption'
+    ? 'Screening language: English (explicit user assumption). The PDF language declaration remains missing.'
+    : null;
+}
+export function screeningProvenance(report) {
+  const execution = executionProvenance(report), languageNote = screeningLanguageNote(report);
+  return languageNote ? { ...execution, detail: `${execution.detail} ${languageNote}` } : execution;
 }

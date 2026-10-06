@@ -6,9 +6,9 @@ const summary=report=>({screeningSelection:clone(report.screeningSelection||null
  checks:(report.checks||[]).map(c=>({id:c.id,status:c.status})),
  advisories:{title:outcome(report.metadataConsistency),authors:outcome(report.authorConsistency),order:outcome(report.readingOrder),visibility:outcome(report.textVisibility)},
  findingCounts:normalizeFindings(report).counts,
- semantic:report.semantic?{status:report.semantic.status||'completed',model:report.semantic.model,requestedChecks:report.semantic.requestedChecks,inferencePerformed:report.semantic.inferencePerformed,
+ semantic:report.semantic?{status:report.semantic.status||'completed',requireInference:report.semantic.requireInference===true,model:report.semantic.model,requestedChecks:report.semantic.requestedChecks,inferencePerformed:report.semantic.inferencePerformed,
  skipReason:report.semantic.skipReason||null,reason:report.semantic.reason||null,error:report.semantic.error||null,errorStage:report.semantic.errorStage||null,errorCode:report.semantic.errorCode||null,skippedChecks:report.semantic.skippedChecks||[],
- checks:Object.fromEntries(['title','subject','keywords','sections'].map(field=>[field,outcome(report.semantic[field])])),
+ checks:Object.fromEntries(['title','titleAI','subject','keywords','sections'].map(field=>[field,outcome(report.semantic[field])])),
  keywordCoverage:report.semantic.keywordCoverage||null,sectionCoverage:report.semantic.sectionCoverage||null,
  keywordOutcomes:(report.semantic.keywordItems||[]).map(outcome),sectionOutcomes:(report.semantic.sectionItems||[]).map(outcome)}:null});
 

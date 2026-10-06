@@ -39,7 +39,7 @@ function Disclosure({
     </Details>
   );
 }
-function QueueItem({ item, state, controller, pending }) {
+function QueueItem({ item, state, controller, pending, requireAI }) {
   const queue = state.queue,
     act = (fn) => controller.act(fn),
     counts = item.summary?.findingCounts || {};
@@ -55,7 +55,7 @@ function QueueItem({ item, state, controller, pending }) {
       <h3>{item.name}</h3>
       <p className="batch-status">
         {item.status === "completed"
-          ? "Complete"
+          ? requireAI && !item.summary?.semantic?.inferencePerformed ? "Partial evaluation · AI did not complete" : "Complete"
           : item.status === "failed"
             ? "Incomplete / failed"
             : item.status}{" "}
@@ -104,7 +104,7 @@ function QueueItem({ item, state, controller, pending }) {
           </p>
           {item.summary.semantic?.error && (
             <p className="error-message">
-              Optional AI did not complete: {item.summary.semantic.error}
+              AI did not complete: {item.summary.semantic.error}
             </p>
           )}
         </>
@@ -266,7 +266,7 @@ function QueueItem({ item, state, controller, pending }) {
 }
 
 /** Declarative queue UI; queue/client ownership stays with the app's controller. */
-export function BatchPanel({ controller }) {
+export function BatchPanel({ controller, requireAI = false }) {
   const state = useSyncExternalStore(
       controller.subscribe,
       controller.getSnapshot,
@@ -336,7 +336,7 @@ export function BatchPanel({ controller }) {
         summary={
           queue.configuration
             ? "Run settings and download receipt"
-            : "Optional AI settings · traditional checks run by default"
+            : requireAI ? "AI model and checks" : "Optional AI settings · traditional checks run by default"
         }
       >
         <FormGroup
@@ -346,9 +346,9 @@ export function BatchPanel({ controller }) {
         >
           <Checkbox
             id="batch-use-ai"
-            label="Optional local AI screening"
+            label={requireAI ? "Local AI screening enabled for every PDF" : "Optional local AI screening"}
             checked={settings.useAI}
-            disabled={locked}
+            disabled={locked || requireAI}
             onChange={(event) =>
               controller.setSettings({ useAI: event.target.checked })
             }
@@ -402,7 +402,7 @@ export function BatchPanel({ controller }) {
           {settings.useAI && (
             <Checkbox
               id="batch-consent"
-              label="I authorize the displayed optional model/tokenizer downloads for this queue."
+              label="I authorize the displayed model, tokenizer and runtime downloads for this queue."
               checked={state.consent}
               disabled={locked}
               onChange={(event) => controller.setConsent(event.target.checked)}
@@ -543,7 +543,7 @@ export function BatchPanel({ controller }) {
       </Actions>
       {queue.modelFailure && (
         <Notice
-          title="Optional model initialization failed"
+          title="AI model initialization failed"
           variant="negative"
           className="batch-decision"
           actions={
@@ -554,12 +554,12 @@ export function BatchPanel({ controller }) {
               >
                 Retry model initialization
               </Button>
-              <Button
+              {!requireAI && <Button
                 id="batch-structural-only"
                 onClick={() => controller.recoverModel("structural-only")}
               >
                 Continue remaining PDFs without AI
-              </Button>
+              </Button>}
             </>
           }
         >
@@ -626,6 +626,7 @@ export function BatchPanel({ controller }) {
             state={state}
             controller={controller}
             pending={pending}
+            requireAI={requireAI}
           />
         ))}
       </div>

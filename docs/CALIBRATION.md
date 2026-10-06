@@ -73,3 +73,11 @@ The guided fixture declares the spreadsheet as **Data** and the Word notes as **
 The analyzer records bounded raw attachment declarations and encoded stream lengths; it never decodes, opens, executes, or returns the embedded file contents. Declared decoded sizes, MIME types, descriptions, and AFRelationship values remain unverified producer statements. Inventory covers reachable dictionary/array relationships and separately labels raw unlinked/unreachable EmbeddedFile stream declarations as possible remnants. Content-stream-level associated-file instructions are not interpreted. Cycles, dead references, malformed listings, traversal limits, and unresolved streams make scope uncertain rather than establishing absence.
 
 Generation QA: both new PDFs were reopened and analyzed; the original eighteen fixture files remained unchanged. Poppler rendered all four new pages, and each was visually inspected. Separate fixture-authoring QA checks the OOXML ZIPs and XML parts; this is not a payload-reading feature in the application or a claim of PDF/A conformance.
+
+## Public representative samples
+
+`npm run samples` generates three visually identical two-page reports in
+`public/samples`: well prepared, partly prepared and poorly prepared. The app
+uses their separate manifest; the twenty-case calibration corpus remains for
+developer checks. New sample labels describe authored preparation, not predicted
+profile outcomes. The meaningful figure keeps manual graphics review visible.

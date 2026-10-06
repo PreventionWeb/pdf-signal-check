@@ -1,5 +1,5 @@
 import { buildScreeningRequest } from "../runtime/screening-request.js";
-import { getSemanticModel, supportsLanguage } from "../engine/models.js";
+import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from "../engine/models.js";
 /** DOM-free single-source owner. Construction does not fetch, create workers, or start inference. */
 export function createAppController({
   workerFactory = (kind) =>
@@ -21,7 +21,12 @@ export function createAppController({
     example: null,
     batchId: null,
     sourceKey: 0,
+    setupComplete: false,
+    aiEnabled: false,
+    evaluationModel: "minilm",
+    setupDestination: "document",
     selectedModel: null,
+    languageAssumption: null,
     checks: ["title", "subject", "keywords"],
     message: "",
     progress: null,
@@ -83,7 +88,7 @@ export function createAppController({
       const epoch = ++mountEpoch;
       manifestAbort?.abort();
       manifestAbort = new AbortController();
-      fetcher(new URL("./calibration/manifest.json", baseUrl), {
+      fetcher(new URL("./samples/manifest.json", baseUrl), {
         signal: manifestAbort.signal,
       })
         .then((r) => {
@@ -111,16 +116,45 @@ export function createAppController({
       if (stage !== "checks") services.calibration?.cancel();
       emit({ stage });
     },
+    beginEvaluation(stage = "document") {
+      if (state.setupComplete) controller.go(stage);
+      else emit({ setupDestination: stage, stage: "setup" });
+    },
+    openSetup(stage = state.stage) { emit({ setupDestination: stage, stage: "setup" }); },
+    completeSetup(modelId) {
+      const useAI = modelId !== null;
+      if (useAI) getSemanticModel(modelId);
+      services.batch?.setSettings({ useAI, modelId: modelId || "minilm", checks: [...state.checks] });
+      services.batch?.setConsent(useAI);
+      emit({ setupComplete: true, aiEnabled: useAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination });
+      if (useAI && state.stage === "checks" && state.report && supportsLanguage(getSemanticModel(modelId), state.languageAssumption || state.report.metadata.language)) controller.runScreening();
+    },
     setModel(modelId) {
       services.calibration?.cancel();
       emit({
         selectedModel: modelId,
+        ...(state.aiEnabled ? { evaluationModel: modelId } : {}),
         report: state.report
           ? {
               ...state.report,
-              screeningSelection: { modelId, checks: [...state.checks] },
+              screeningSelection: { modelId, checks: [...state.checks], languageAssumption: state.languageAssumption },
             }
           : null,
+      });
+    },
+    setLanguageAssumption(languageAssumption) {
+      if (!state.report) return;
+      resolveScreeningLanguage(state.report.metadata.language, languageAssumption);
+      stopModel();
+      services.calibration?.cancel();
+      const selectedModel = state.selectedModel || (languageAssumption ? "minilm" : null);
+      emit({
+        languageAssumption,
+        selectedModel,
+        report: {
+          ...state.report,
+          screeningSelection: { modelId: selectedModel, checks: [...state.checks], languageAssumption },
+        },
       });
     },
     setChecks(checks) {
@@ -132,6 +166,7 @@ export function createAppController({
               screeningSelection: {
                 modelId: state.selectedModel,
                 checks: [...checks],
+                languageAssumption: state.languageAssumption,
               },
             }
           : null,
@@ -190,6 +225,7 @@ export function createAppController({
           report: null,
           batchId: null,
           sourceKey: ++job,
+          languageAssumption: null,
           reviewed: new Set(),
           reviewCursor: { category: "problems", issueId: null },
         });
@@ -206,6 +242,7 @@ export function createAppController({
         batchId: id,
         sourceKey: job,
         example: null,
+        languageAssumption: null,
         reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         selectedModel: report.screeningSelection?.modelId || null,
@@ -235,6 +272,7 @@ export function createAppController({
         reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         selectedModel: null,
+        languageAssumption: null,
         message: "Preparing local analysis…",
         progress: null,
         stage: "processing-analysis",
@@ -290,7 +328,7 @@ export function createAppController({
               ...(hash ? { sha256: hash } : {}),
             };
             let selectedModel = null;
-            if (/^en(?:-|$)/i.test(report.metadata.language || ""))
+            if (supportsLanguage(getSemanticModel("minilm"), report.metadata.language))
               selectedModel = "minilm";
             else if (
               supportsLanguage(
@@ -303,13 +341,18 @@ export function createAppController({
             analysisWorker = null;
             emit({
               report,
-              selectedModel,
+              selectedModel: state.setupComplete ? state.evaluationModel : selectedModel,
               analysisBusy: false,
               error: false,
-              stage: "checks",
+              stage: state.setupComplete && !state.aiEnabled ? "review" : "checks",
               message: "Analysis complete. Your file was processed locally.",
               progress: null,
             });
+            if (state.aiEnabled && supportsLanguage(getSemanticModel(state.selectedModel), report.metadata.language)) {
+              controller.runScreening();
+            } else if (state.aiEnabled) {
+              emit({ message: "Text checks completed. AI screening needs a supported language before this evaluation can finish." });
+            }
           }
         };
         worker.postMessage({ buffer, fileName: file.name }, [buffer]);
@@ -343,6 +386,7 @@ export function createAppController({
         reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         message: "Loading the example PDF…",
+        languageAssumption: null,
         progress: null,
       });
       try {
@@ -353,7 +397,7 @@ export function createAppController({
         const name = path.split("/").at(-1);
         await controller.analyze(
           new File([blob], name, { type: "application/pdf" }),
-          path.includes("/calibration/")
+          path.includes("/samples/")
             ? state.manifest.find((s) => s.file === name) || null
             : null,
         );
@@ -384,6 +428,7 @@ export function createAppController({
           screeningSelection: {
             modelId: state.selectedModel,
             checks: [...state.checks],
+            languageAssumption: state.languageAssumption,
           },
         };
       let worker;
@@ -428,9 +473,10 @@ export function createAppController({
           emit({
             report: { ...state.report, semantic: data.semantic },
             modelBusy: false,
-            stage: "review",
-            message:
-              "Screening complete. Structural acceptance and traditional metadata findings are unchanged.",
+            stage: state.aiEnabled && !data.semantic.inferencePerformed ? "checks" : "review",
+            message: state.aiEnabled && !data.semantic.inferencePerformed
+              ? "AI could not compare the selected checks with available evidence. Inspect the partial results or change the screening checks; no completed AI evaluation is claimed."
+              : "Screening complete. Structural acceptance and traditional metadata findings are unchanged.",
             progress: null,
           });
         }
@@ -441,6 +487,8 @@ export function createAppController({
             requestId: currentRun,
             modelId: state.selectedModel,
             checks: [...state.checks],
+            languageAssumption: state.languageAssumption,
+            requireInference: state.aiEnabled,
           }),
         );
       } catch (e) {

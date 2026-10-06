@@ -1,8 +1,11 @@
+import { createDevicePreferences } from "./preferences.js";
 import { BENCHMARK_TIMEOUT_MS } from "./workload.js";
 
 /** Explicit fixed-workload ownership; construction and subscription never download assets. */
 export class CalibrationController {
   constructor({
+    preferences = createDevicePreferences(),
+    modelId = "minilm",
     onBusy = () => {},
     canRun = () => true,
     timeoutMs = BENCHMARK_TIMEOUT_MS,
@@ -18,6 +21,7 @@ export class CalibrationController {
     },
   } = {}) {
     Object.assign(this, {
+      preferences,
       onBusy,
       canRun,
       timeoutMs,
@@ -27,7 +31,13 @@ export class CalibrationController {
     });
     this.epoch = 0;
     this.listeners = new Set();
-    this.view = { busy: false, message: "", receipt: null };
+    this.view = { busy: false, message: "", receipt: null, savedAt: null, saved: false, progress: null };
+    this.selectModel(modelId);
+  }
+  selectModel(modelId) {
+    this.cancel({ silent: true });
+    const saved = this.preferences.load(modelId);
+    this.update({ receipt: saved?.receipt || null, savedAt: saved?.savedAt || null, saved: Boolean(saved), message: "", progress: null });
   }
   subscribe = (listener) => {
     this.listeners.add(listener);
@@ -58,6 +68,7 @@ export class CalibrationController {
     this.stopTracking();
     this.update({
       busy: false,
+      progress: null,
       ...(!silent && active
         ? {
             message:
@@ -88,6 +99,7 @@ export class CalibrationController {
     let previousWall = Date.now();
     this.update({
       busy: true,
+      progress: null,
       message: "Starting the synthetic browser test…",
     });
     const fail = (message) => {
@@ -97,6 +109,7 @@ export class CalibrationController {
       this.stopTracking();
       this.update({
         busy: false,
+        progress: null,
         message: `Device test unavailable: ${message}. No device capability verdict was made.`,
       });
       this.releaseBusy();
@@ -132,7 +145,7 @@ export class CalibrationController {
       };
       worker.onmessage = ({ data }) => {
         if (!active() || data.requestId !== epoch) return;
-        if (data.type === "progress") this.update({ message: data.message });
+        if (data.type === "progress") this.update({ message: data.message, progress: data.progress || null });
         else if (data.type === "error") fail(data.message);
         else if (data.type === "result") {
           if (Date.now() - previousWall > 5000)
@@ -140,11 +153,16 @@ export class CalibrationController {
           worker.terminate();
           this.worker = null;
           this.stopTracking();
+          const receipt = structuredClone({ ...data.receipt, conditions });
+          const saved = this.preferences.save(receipt);
           this.update({
             busy: false,
-            receipt: structuredClone({ ...data.receipt, conditions }),
+            progress: null,
+            receipt,
+            saved,
+            savedAt: saved ? Date.now() : null,
             message:
-              "Device test complete. No document speed or memory guarantee is implied.",
+              "Device check complete.",
           });
           this.releaseBusy();
         }

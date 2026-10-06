@@ -25,3 +25,13 @@ it('attributes export comparison execution per field rather than borrowing sibli
  expect(screeningReceipt(r)).toContain('Actual model:');r.semantic.inferencePerformed=false;expect(screeningReceipt(r)).toContain('Configured model:');expect(screeningReceipt(r)).not.toContain('Actual model:');
  r.semantic.status='error';r.semantic.inferencePerformed=true;expect(screeningReceipt(r)).toContain('AI unavailable');expect(screeningReceipt(r)).not.toContain('Actual model:');
 });
+
+it('captures the screening assumption without replacing the source language or relabelling it after preferences change',()=>{
+ const r=report();r.metadata.language=null;r.semantic.languageContext={declared:null,screening:'en',source:'user-assumption'};
+ const captured=captureSnapshot({report:r,file:{}});
+ r.semantic.languageContext.screening='de';r.screeningSelection.languageAssumption=null;
+ expect(captured.report.metadata.language).toBe(null);
+ expect(captured.report.semantic.languageContext.screening).toBe('en');
+ expect(screeningReceipt(captured.report)).toContain('English (explicit user assumption)');
+ expect(screeningReceipt(captured.report)).toContain('PDF language declaration remains missing');
+});

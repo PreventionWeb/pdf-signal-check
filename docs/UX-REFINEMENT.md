@@ -1,5 +1,238 @@
 # Results-first UX refinement
 
+## Final verification — 6 October 2026
+
+191 tests pass and production build passes with the existing large-chunk warning.
+Real browser checks cover desktop/mobile setup, model/no-AI paths, automatic
+MiniLM inference, missing-language pause, processing viewer, reading-order page
+context, navigation/search/zoom and a repository-prefixed build. The new source
+PDF pages were rendered and inspected; corresponding PNG hashes are identical
+across all three preparation variants. Earlier captured AI reports and PDF pages
+were also rendered and inspected in this refinement pass.
+
+## Three matched samples — 6 October 2026
+
+The public sample picker now contains only Well prepared, Partly prepared and
+Poorly prepared versions of the same two-page fictional report. Each has authors,
+a year/title, descriptive paragraphs, a multi-column procedure and a vector
+figure. Their visible page render hashes match across all three versions; only
+metadata, tags and alternate text differ. The broad calibration corpus remains
+a developer test asset. The well-prepared figure still requires manual inspection
+under the existing profile scope; sample labels do not predeclare a pass.
+
+## PDF-A-go-go page context — 6 October 2026
+
+Processing now shows the original PDF in a locally bundled PDF-A-go-go viewer.
+Reading-order review opens that viewer on the finding page alongside the existing
+recovered sequences. Zoom, search and page navigation provide whole-page context;
+the existing evidence preview still owns located overlays. Viewer layout is not
+a reading-order verdict. When a diagram is unavailable, the UI distinguishes
+recovered tagged text from an unrecovered sequence and explains the limits of
+the check separately from successful page rendering. The frame loads only same-origin scripts, worker and
+fonts, and receives a local object URL rather than a remote PDF URL. Epoch checks
+reject late results, instance IDs prevent stale disposal from unregistering a
+replacement, and source URLs/frames are released when leaving the screen.
+
+Independent walkthrough feedback fixed zero-sized navigation icons, added
+visible fit/zoom controls that preserve the viewed page, made the PDF scroll
+region keyboard-focusable, and labeled search totals as matching pages.
+
+## Product comparison presentation — 6 October 2026
+
+The model table no longer sits inside a fieldset panel. Product headings state
+the recommended use, the selected column has a subtle blue emphasis, and rows
+use horizontal dividers without vertical grid borders. The scroll region and
+radio names remain accessible on mobile.
+
+## Visual benchmark timings and fallback ordering — 6 October 2026
+
+The saved result now includes three horizontal timing bars for PDF preparation,
+AI model startup and median AI comparison time, with actual seconds on a fixed
+five-second scale. Longer bars mean faster completion (full at zero seconds,
+empty at five seconds or more); only the AI
+comparison uses the existing Great/OK/Not recommended rating colors. No invented
+percentage score or accuracy rating is displayed. The model matrix orders MiniLM,
+Granite R2, then No AI as an explicitly limited fallback; MiniLM is the initial
+selection. Selection alone does not authorize downloads.
+
+## Two-step setup and model comparison — 6 October 2026
+
+Setup now separates the optional MiniLM baseline benchmark from a model feature
+matrix. MiniLM is selected by default; No AI is the last option and presented
+as a fallback. Choosing a model explicitly enables its
+session-wide downloads and screening. The MiniLM result does not rate Granite.
+After a benchmark result exists, the bottom Skip benchmark action becomes Check
+again, and the duplicate retry action inside the result box disappears.
+
+Verification: 186 tests and production build pass (existing large-chunk warning).
+A real browser rerun from the new bottom Check again action completed and restored
+the saved speed result. Desktop/mobile walkthrough found no must-fix confusion. The matrix scrolls in
+its own region on mobile, supports keyboard scrolling, and the no-AI
+sample path completed without model downloads. This supersedes the mandatory-AI
+setup described in the earlier iteration below.
+
+## Focused benchmark states — 6 October 2026
+
+| Before | After |
+| --- | --- |
+| The benchmark box repeated setup/download prose, two technical disclosures and an old rating during a new run. | Idle shows a short benchmark explanation and download cost; running shows only the model, current step, progress bar and cancellation; completion shows the saved rating, short guidance and one technical disclosure. |
+| Worker progress was reduced to changing messages. | The controller retains actual progress. Asset downloads show their own bounded progress; measured runs advance from 0 to 3 without resetting between encoder batches. Unknown-duration preparation stays indeterminate. Terminal/canceled states clear progress and stale callbacks cannot restore it. |
+
+Verification: 185 tests pass and build passes with the existing chunk warning.
+A real MiniLM benchmark exercised the compact mobile running box and saved
+result. The current run hides the previous grade and all technical disclosures.
+No PDF data or export formatting changed. Screenshots use
+`/tmp/pdf-signal-benchmark-*`.
+
+## Saved device setup and AI-first evaluations — 6 October 2026
+
+| Before | After |
+| --- | --- |
+| Device timing was a repeated optional step after PDF checks, with technical results leading. | Initial model setup measures speed once and leads with Great, OK or Not recommended. Detailed timings and a downloadable receipt remain in a disclosure. Synthetic receipts persist per model in local storage; PDF data and download consent do not. |
+| Each PDF offered a separate choice to add AI. | Explicit session setup consent enables automatic text checks followed by local AI for each PDF, including batch defaults. Missing/unsupported language pauses single-document screening; failures retain clearly partial results. |
+| Exact matches or rule-settled wrong years could skip all model work. | Required-AI mode additionally records title relatedness as a separate `titleAI` result when comparison evidence is available. Identity rules and profile outcomes remain unchanged. Captured reports and compact batch summaries retain this actual AI result. |
+
+Speed bands are product responsiveness guidance: ≤1.5 seconds Great, ≤5 seconds
+OK, >5 seconds Not recommended, for the fixed four-input warm workload. They
+are not validated device requirements or document/accuracy predictions.
+Interrupted/hidden runs are unrated. Saved receipts expire after 30 days or
+browser/pinned model changes; storage failure permits current-session use.
+Reload restores the most recently tested compatible model, and requires fresh
+session consent before any PDF evaluation. Slow results can be explicitly
+accepted. Unsupported or evidence-free screening never fabricates model use.
+
+Verification: 184 tests pass and the production build passes with its existing
+chunk-size warning. New contracts cover automatic inference after consent,
+missing-language pause, rule-settled title model work without identity override,
+rating boundaries, persistence/expiry/incompatibility/storage failure and
+canceled/stale benchmark writes. Real browser MiniLM testing measured about
+1.35 seconds for four inputs (Great), persisted across reload, and started no
+asset requests when opening saved setup. A user-requested subagent independently
+verified saved setup, automatic single-PDF inference, missing-language completion
+with accurate provenance, two-PDF model-backed batch and mobile evidence (zero
+sampled accessibility violations). Its copy corrections are incorporated.
+Production `/pdf-signal-check/` exercised benchmark, saved setup and automatic
+inference. Desktop/mobile views fit without horizontal overflow. Actual JSON
+records five embedded inputs and separate deterministic title / AI title
+relatedness results. PDF receipt and the new AI advisory pages were downloaded,
+rendered and visually checked. Local artifacts use `/tmp/pdf-signal-auto-ai*`
+and `/tmp/pdf-signal-setup-*`.
+
+This workflow supersedes the earlier “review without AI” choice documented
+below. Historical developer-corpus metrics are unchanged and have not been
+rerun for required-AI mode.
+
+## Visible AI choices and normal-user walkthrough — 6 October 2026
+
+| Before | After |
+| --- | --- |
+| Suggested AI and its action were inside disclosures, with a model select, comparison table and nested language lists. | Results expose local AI and review without AI as cards. The model, selected checks, costs and explicit download action are visible; alternate models use Mangrove radios with compact tradeoffs and language help. |
+| Mobile users with missing language met disabled AI before finding a valid review path. | Review without AI comes first on mobile, followed by optional AI and a separate “Check local AI speed” card. Desktop retains AI on the left with the other choices alongside it. |
+| Welcome’s sample action silently analyzed a clean fixture. | It opens and focuses the sample gallery so users choose a scenario. |
+| AI prose promised unchecked sections and “Text profile Yes” looked inconsistent with metadata findings. | The selected checks are named explicitly; evidence review says which required text checks passed and how many findings still need inspection. Language guidance gives concrete source/PDF-property and re-export steps. |
+
+A user-requested subagent independently walked welcome, samples, author and
+reading-order findings, language warnings, settings, evidence and the speed-check
+entry on desktop and mobile. The revisions above incorporate that feedback;
+retesting found no remaining must-fix confusion. No model downloads were
+consented to during this walkthrough. The benchmark measures observed synthetic
+workload speed, not document accuracy or certified machine suitability.
+
+Verification: all 178 tests pass and the production build passes with the
+existing large-chunk warning. Desktop 1280px, mobile 390px and 320px layout
+checks show no horizontal overflow. Changing models updates displayed costs
+and benchmark model without downloading assets. The English assumption remains
+explicit and separate from PDF metadata. The production repository-prefixed URL
+loads and analyzes the missing-language fixture. A fresh four-page PDF report
+was downloaded; its changed language guidance was rendered and visually checked
+across pages 1–2, with all text retained and no clipping. Sampled mobile evidence
+accessibility audit found zero WCAG 2A/AA violations; decorative sequence arrows
+still require manual contrast inspection. Screenshots are local QA artifacts
+under `/tmp/pdf-signal-checks-*` and `/tmp/pdf-signal-user-*`.
+
+This section supersedes the older collapsed-AI/benchmark presentation recorded
+in the takeover notes below. No dependency versions changed: the registry check
+found patch updates for Transformers 4.3.0 → 4.3.1 and Vite 8.3.2 → 8.3.3.
+
+## Missing language and explicit screening assumption — 6 October 2026
+
+| Before | After |
+| --- | --- |
+| Missing and unsupported declarations shared an opaque model recommendation message. | A Mangrove warning explains that missing language can cause unsuitable reading/processing choices and recommends correcting the source export. Unsupported or invalid declarations receive separate guidance. |
+| Missing language prevented inference with no user-controlled path forward. | A source-scoped “Assume English for optional AI screening” checkbox explicitly enables English eligibility, without changing PDF metadata or starting downloads. Existing declarations cannot be overridden; new sources reset the choice. |
+| There was no assumption provenance. | Requests carry `languageAssumption` separately from metadata. Semantic results record declared/screening language and assumption source; review and captured PDF/PNG/JSON receipts state that the PDF declaration remains missing. Prior completed results retain their actual context when preferences change. |
+
+Verification: 178 tests pass, including explicit versus default eligibility,
+refused declaration overrides, source reset, stale result rejection and captured
+provenance. Production build passes with the existing chunk-size warning. A
+synthetic PDF with its catalog language removed exercised the warning, checkbox,
+model eligibility and title-only rules path in the actual browser; acceptance
+remained No and the language finding remained failed. Selecting the assumption
+and running rules-only screening requested no model assets. Mobile review axe
+sampling reported zero violations and zero incomplete checks. Five downloaded
+report pages and the dedicated PNG were rendered/visually inspected; the
+assumption fits, while source language remains “Not set”. JSON retains the null
+declaration and separate user-assumption context. Local QA artifacts use the
+`/tmp/pdf-signal-language-*` prefix. Inference policy tests use injected vectors;
+this pass does not establish model accuracy on documents with missing language.
+
+## Sample cards — 6 October 2026
+
+| Before | After |
+| --- | --- |
+| Sample shortcuts were buttons, while the full library required a long native select and a separate analysis action. | Three featured Mangrove cards have short descriptions and direct sample actions. The expandable full library shows all 20 manifest examples as the same responsive card pattern. |
+| The sample area nested one large card around controls with little context. | A named section contains documented no-link vertical cards, semantic H3 titles, summaries and native action buttons with unique accessible names. Equal-height rows align actions; headings and descriptions use balanced/pretty wrapping. |
+| A redundant label on the generic intake div required manual accessibility review. | Removed the unsupported generic-div label; the page heading and named samples section provide the context. |
+
+Sample presentation lives in `src/app/Samples.jsx`; fetching, source ownership
+and analysis remain with the existing controller. Full-library descriptions
+come from the manifest and remain authored scenario labels, independent of
+check results. A failed manifest load keeps the featured examples available
+and explains the unavailable library.
+
+Verification: 173 tests passed and production build passed with the existing
+chunk-size warning. Headed agent-browser checks covered desktop 1280px and
+mobile 390px, all 20 library entries, direct analysis from a gallery card and
+no horizontal overflow. Local screenshots:
+`/tmp/pdf-signal-sample-cards-desktop.png` and
+`/tmp/pdf-signal-sample-cards-mobile.png`.
+
+## Takeover browser review — 6 October 2026
+
+Reviewed the React 0.8 app against the pinned Mangrove 2.0 Hero, card, button,
+notice, disclosure and segmented-control guidance. This is a focused local
+presentation refinement, not a detector or model evaluation.
+
+| Before | After |
+| --- | --- |
+| Welcome repeated its primary action below four introductory cards and led with “Powered by AI”. | Published Hero actions offer PDF selection, a sample and batch review once. Three documented Mangrove cards explain checks without AI, evidence review and optional AI; headings use H2 and balanced wrapping. AI-assisted development remains disclosed in About AI & privacy. |
+| The profile introduction repeated the product tagline. | “Understand the result’s limits” introduces the existing separate profile scope and acceptance limits. |
+| Five numbered stages included welcome and a non-interactive processing step. | Single-PDF navigation has three task stages; processing belongs to check results. Batch has two stages. The product home link returns to welcome, which has no stage navigation. Navigation targets are at least 40px high. |
+| The toolbar reused footer layout, with a decorative status dot and several mobile rows. | A dedicated responsive toolbar retains product identity, version, local-processing text and the Mangrove privacy button in two mobile rows; desktop keeps one row. Local-processing text uses the UI font role and the page enables font smoothing. |
+| Intake copy repeated single versus batch choices. | Shorter selection guidance explains that several files create a batch queue; the batch action uses the same “Check several PDFs” wording as welcome. |
+| The result notice’s primary AI action started downloads before its cost explanation; optional AI was expanded and repeated the review action. | Evidence review is the primary notice action. Optional screening starts collapsed, with model/tokenizer sizes, separate runtime cost, language eligibility and limitations before the explicit “Download assets and run local AI” action. Alternate-model execution also names downloads. |
+| Browser calibration prose competed with the model choices. | The unchanged fixed-workload calibration controls have their own optional disclosure. |
+| Report/scope disclosure panels and wrapped finding-group controls delayed mobile evidence. | Scoped compact disclosure padding keeps 44px targets and space for the Mangrove disclosure icon. Native Mangrove radio groups remain adjacent and equally sized on mobile, with balanced labels and preserved arrow-key selection. |
+
+Verification: all 173 tests passed; production build passed with the existing
+large-chunk warning. Headed agent-browser checks covered desktop 1280×900,
+mobile 390×844 and 320×740, author evidence, reading-order evidence, a two-file
+traditional batch and retained review. The production app was served under
+`/pdf-signal-check/`; presentation assets, sample analysis and queue workers
+resolved under that prefix. No horizontal overflow was observed in checked
+views. Opening optional AI made no model/tokenizer/WASM requests. Native radio
+arrow-key navigation changed the selected group. Sampled checks and review
+axe audits reported zero violations and zero incomplete checks; the welcome
+Hero had zero violations with gradient contrast requiring manual inspection.
+
+At 390px, the author finding heading now appears about 707px from the top of
+the page. Local screenshots include `/tmp/pdf-signal-before-home.png`,
+`/tmp/pdf-signal-after-home-desktop.png` and
+`/tmp/pdf-signal-final-review-mobile.png`. These are uncommitted QA artifacts.
+No optional inference or export generation was run in this presentation pass.
+Detection accuracy and full accessibility conformity are not established by
+these sampled checks.
+
 Implemented against local v0.7.0 with agent-browser. At the time of this UX slice the working name was PDF Input Check. PDF Signal Check was adopted in the subsequent naming pass. Neither pass includes external publication.
 
 Primary needs: find problems quickly, compare metadata with publication text and approximate page evidence, inspect extracted order against the visual page, understand what to change in the authoring source, and retain the report. Successes remain available as a secondary group. Traditional checks require no model; optional AI remains local, advisory, and gated by the displayed download action or explicit batch consent.

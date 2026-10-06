@@ -63,6 +63,36 @@ it("constructs and changes preferences without fetches, workers or model downloa
   app.dispose();
 });
 
+it("records a source-scoped English assumption, preserves the language defect, and requires a separate run", async () => {
+  const { app, workers, workerFactory, fetcher } = setup();
+  const missing = { ...report(), accepted: false, metadata: { language: null }, checks: [{ id: "language", status: "fail" }] };
+  app.openCompletedReport(missing, file(), "missing-language");
+  app.setLanguageAssumption("en");
+  expect(workerFactory).not.toHaveBeenCalled();
+  expect(fetcher).not.toHaveBeenCalled();
+  expect(app.getSnapshot().selectedModel).toBe("minilm");
+  expect(app.getSnapshot().report.metadata.language).toBe(null);
+  expect(app.getSnapshot().report.accepted).toBe(false);
+  expect(app.getSnapshot().report.checks[0].status).toBe("fail");
+  app.runScreening();
+  const request = workers[0].worker.postMessage.mock.calls[0][0];
+  expect(request.languageAssumption).toBe("en");
+  expect(request.metadata.language).toBe(null);
+  expect(app.getSnapshot().report.screeningSelection.languageAssumption).toBe("en");
+  const stale = workers[0].worker.onmessage;
+  app.setLanguageAssumption(null);
+  expect(workers[0].worker.terminate).toHaveBeenCalled();
+  stale({ data: { type: "result", requestId: request.requestId, semantic: { stale: true } } });
+  expect(app.getSnapshot().report.semantic).toBeUndefined();
+  app.setLanguageAssumption("en");
+  await app.analyze(file("another.pdf"));
+  expect(app.getSnapshot().languageAssumption).toBe(null);
+  app.openCompletedReport(report(), file(), "declared-language");
+  expect(() => app.setLanguageAssumption("en")).toThrow("only when the PDF language is missing");
+  expect(app.getSnapshot().report.metadata.language).toBe("en");
+  app.dispose();
+});
+
 it("invalidates disposed manifest requests before remount and aborts the old request", async () => {
   const old = deferred(),
     fresh = deferred(),
@@ -252,5 +282,51 @@ it("allows retained report inspection but blocks separate analysis and screening
   expect(app.getSnapshot().batchId).toBe("retained");
   expect(app.getSnapshot().report.accepted).toBe(true);
   expect(app.getSnapshot().message).toContain("Stop the active queue");
+  app.dispose();
+});
+
+it("setup consent enables automatic model screening without silently changing the chosen model", async () => {
+  const { app, workers, workerFactory } = setup();
+  app.beginEvaluation();
+  expect(app.getSnapshot().stage).toBe('setup');
+  expect(workerFactory).not.toHaveBeenCalled();
+  app.completeSetup('granite-r2');
+  await app.analyze(file());
+  workers[0].worker.onmessage({ data: { type: 'result', report: report() } });
+  expect(workers[1].kind).toBe('model');
+  expect(workers[1].worker.postMessage.mock.calls[0][0]).toMatchObject({ modelId: 'granite-r2', requireInference: true });
+  expect(app.getSnapshot().stage).toBe('processing-model');
+  app.dispose();
+});
+
+it("automatic screening pauses for missing language and keeps the PDF defect", async () => {
+  const { app, workers } = setup();
+  app.completeSetup('minilm');
+  await app.analyze(file());
+  workers[0].worker.onmessage({ data: { type: 'result', report: { ...report(), accepted: false, metadata: { language: null } } } });
+  expect(workers).toHaveLength(1);
+  expect(app.getSnapshot()).toMatchObject({ stage: 'checks', selectedModel: 'minilm', languageAssumption: null });
+  app.setLanguageAssumption('en');
+  app.runScreening();
+  expect(workers[1].worker.postMessage.mock.calls[0][0]).toMatchObject({ languageAssumption: 'en', requireInference: true });
+  expect(app.getSnapshot().report.accepted).toBe(false);
+  app.dispose();
+});
+
+it('an explicit no-model setup persists for this session and runs no model worker', async () => {
+  const { app, workers } = setup();
+  const batch = { setSettings: vi.fn(), setConsent: vi.fn(), releaseIdleWorkers: vi.fn() };
+  app.bindServices({ batch });
+  app.beginEvaluation();
+  app.completeSetup(null);
+  expect(app.getSnapshot()).toMatchObject({ setupComplete: true, aiEnabled: false, selectedModel: null });
+  expect(batch.setSettings).toHaveBeenCalledWith({ useAI: false, modelId: 'minilm', checks: ['title', 'subject', 'keywords'] });
+  expect(batch.setConsent).toHaveBeenCalledWith(false);
+  app.go('welcome'); app.beginEvaluation();
+  expect(app.getSnapshot().stage).toBe('document');
+  await app.analyze(file());
+  workers[0].worker.onmessage({ data: { type: 'result', report: report() } });
+  expect(workers).toHaveLength(1);
+  expect(app.getSnapshot()).toMatchObject({ stage: 'review', selectedModel: null });
   app.dispose();
 });

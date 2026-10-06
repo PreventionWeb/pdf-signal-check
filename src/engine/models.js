@@ -25,3 +25,16 @@ export function supportsLanguage(model, language) {
   const primary = canonical.split('-')[0].toLowerCase();
   return model.languages.includes(primary) || (model.key === 'granite-r2' && ['nb','nn'].includes(primary));
 }
+
+/** An explicit screening assumption never replaces a declaration in the PDF. */
+export function resolveScreeningLanguage(declaredLanguage, languageAssumption = null) {
+  const missing = declaredLanguage == null || (typeof declaredLanguage === 'string' && !declaredLanguage.trim());
+  if (languageAssumption != null && (languageAssumption !== 'en' || !missing)) {
+    throw new Error('English may be assumed for screening only when the PDF language is missing.');
+  }
+  return {
+    declared: declaredLanguage ?? null,
+    screening: languageAssumption || declaredLanguage || null,
+    source: languageAssumption ? 'user-assumption' : 'pdf-declaration',
+  };
+}

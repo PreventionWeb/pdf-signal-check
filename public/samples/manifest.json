@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "description": "Three visually identical fictional reports. Only machine metadata, tags and alternate text differ. Authored examples, not conformance certificates.",
+  "samples": [
+    {
+      "id": "well-prepared",
+      "file": "well-prepared.pdf",
+      "title": "Well prepared",
+      "description": "Matching title, year and authors; complete text tags, intended column order and figure description.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "meaningful figure",
+        "figureAlt": true,
+        "declaredLanguage": "en-GB"
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "logicalHeadingOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "intentionalDefect": false,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 10882
+    },
+    {
+      "id": "partly-prepared",
+      "file": "partly-prepared.pdf",
+      "title": "Partly prepared",
+      "description": "Wrong metadata year and authors, reordered procedure tags and a figure without alternate text.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2024",
+        "xmpTitle": "Harbor Observatory Annual Report 2024",
+        "structure": "complete",
+        "titleRelationship": "mismatch",
+        "graphics": "meaningful figure",
+        "figureAlt": false,
+        "declaredLanguage": "en-GB"
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Iris Hale",
+          "Owen Brooks"
+        ],
+        "authorRelationship": "mismatch",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "logicalHeadingOrder": [
+            2,
+            3,
+            0,
+            1
+          ],
+          "intentionalDefect": true,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:8",
+              "2:11",
+              "2:2",
+              "2:5"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "inspect deterministic title warning separately from structural acceptance"
+        }
+      },
+      "defects": [
+        "wrong metadata year",
+        "wrong metadata authors",
+        "tag-tree procedure reads steps 3–4 before 1–2",
+        "figure alternate text missing"
+      ],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 10491
+    },
+    {
+      "id": "poorly-prepared",
+      "file": "poorly-prepared.pdf",
+      "title": "Poorly prepared",
+      "description": "Misleading title, year, authors, description and keywords; missing language, text tags and figure description.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Mountain Observatory Annual Report 2024",
+        "xmpTitle": "Mountain Observatory Annual Report 2024",
+        "structure": "none",
+        "titleRelationship": "mismatch",
+        "graphics": "meaningful figure",
+        "figureAlt": false,
+        "declaredLanguage": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": null,
+        "taggedByline": null,
+        "metadataAuthors": [
+          "Iris Hale",
+          "Owen Brooks"
+        ],
+        "authorRelationship": "mismatch",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "inspect deterministic title warning separately from structural acceptance"
+        }
+      },
+      "defects": [
+        "misleading metadata identity, description and keywords",
+        "language not declared",
+        "no semantic text tags",
+        "no tagged reading sequence",
+        "figure alternate text missing"
+      ],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 6748
+    }
+  ]
+}

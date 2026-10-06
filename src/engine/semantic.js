@@ -1,6 +1,6 @@
 import { compareTitles, normalizeTitle, publicationCandidates } from './titles.js';
 
-import { getSemanticModel, supportsLanguage } from './models.js';
+import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from './models.js';
 export const SEMANTIC_MODEL = getSemanticModel('minilm');
 export const SEMANTIC_LIMITS = Object.freeze({ titleCandidates: 8, excerptCount: 6,
   excerptCharacters: 800, metadataCharacters: 350, keywordCount: 12, sectionCount: 6, titleLow: 0.35, titleHigh: 0.75,
@@ -83,13 +83,14 @@ export async function assessSemantic(input, embed) {
   const model = getSemanticModel(input.modelId);
   const limits = { ...SEMANTIC_LIMITS, ...model.thresholds };
   const { metadata, candidates, excerpts, deterministicTitle } = prepareSemanticInput(input);
+  const languageContext = resolveScreeningLanguage(metadata.language, input.languageAssumption);
   const checks = [...new Set(input.checks || ['title','subject','keywords'])];
   const allowed = ['title','subject','keywords','sections'];
   if (checks.some(c => !allowed.includes(c))) throw new Error('Unknown semantic check requested.');
   const requested = field => checks.includes(field);
   const rules = compareTitles(metadata, candidates);
   const warnings = identityWarnings(metadata, candidates, deterministicTitle);
-  const result = { schemaVersion: 2, model, thresholds: model.thresholds, limits, requestedChecks: checks,
+  const result = { schemaVersion: 2, model, languageContext, requireInference: input.requireInference === true, thresholds: model.thresholds, limits, requestedChecks: checks,
     assessedAt: new Date().toISOString(), inferencePerformed: false, embeddedTextCount: 0,
     inferenceProvenance: [], skippedChecks: [], keywordItems: [], sectionItems: [],
     title: uncertain('No credible cover or first-page title evidence.'),
@@ -102,7 +103,7 @@ export async function assessSemantic(input, embed) {
   if (titleSettled) result.title = { status: warnings.length ? 'suspected-mismatch' : 'match',
     reason: warnings.length ? warnings.join(' ') : rules.reason, evidence: warnings.length ? candidates : candidates.filter(c => normalizeTitle(c.text) === normalizeTitle(rules.title)),
     identityWarnings: warnings, method: 'deterministic-rules', inferencePerformed: false };
-  if (!supportsLanguage(model, metadata.language)) {
+  if (!supportsLanguage(model, languageContext.screening)) {
     for (const field of allowed) if (requested(field) && !(field === 'title' && titleSettled)) result[field] = {
       ...uncertain(`The declared language is missing or outside ${model.label}'s explicit language coverage. No language detection or multilingual accuracy guarantee is provided.`), method: 'unsupported-language', inferencePerformed: false };
     return { ...result, assessment: result.title };
@@ -114,7 +115,7 @@ export async function assessSemantic(input, embed) {
     if (!query?.trim() || query.length > limits.metadataCharacters || !evidence.length) return;
     tasks.push({ field, query, queryIndex: add(query), evidence: evidence.map(e => ({...e, embeddingIndex: add(e.text)})), ...extra });
   };
-  if (requested('title') && !titleSettled && words(rules.title || '').length >= 2) addTask('title',rules.title,candidates);
+  if (requested('title') && words(rules.title || '').length >= 2 && (!titleSettled || input.requireInference)) addTask(titleSettled ? 'title-support' : 'title',rules.title,candidates);
   if (requested('subject')) addTask('subject',metadata.subject,excerpts);
   const rawKeywords = typeof metadata.keywords === 'string' ? metadata.keywords.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean) : [];
   const keywordTerms = [...new Set(rawKeywords)];
@@ -141,12 +142,13 @@ export async function assessSemantic(input, embed) {
       const evidence = task.evidence.map(e => ({...e, similarity:cosine(vectors[task.queryIndex],vectors[e.embeddingIndex]),
         modelInput:result.inferenceProvenance[e.embeddingIndex] || null})).sort((a,b)=>b.similarity-a.similarity);
       const best = evidence[0].similarity;
-      const low = task.field === 'title' ? limits.titleLow : limits.topicLow;
-      const high = task.field === 'title' ? limits.titleHigh : limits.topicHigh;
+      const low = task.field.startsWith('title') ? limits.titleLow : limits.topicLow;
+      const high = task.field.startsWith('title') ? limits.titleHigh : limits.topicHigh;
       const assessment = { status:best>=high?'semantically-related':best<low?'suspected-mismatch':'uncertain',
         method:'embedding-screening',inferencePerformed:true,evidence, queryInput:result.inferenceProvenance[task.queryIndex] || null,
         reason:best>=high?'The bounded evidence is topically related; identity and factual correctness remain unconfirmed.':best<low?'The query is weakly related to the bounded evidence. Inspect the text; later sections, generic headings or alternate wording may supply missing context.':'Similarity falls in this model’s provisional review range.' };
       if(task.field==='title'){result.title=assessment;result.ranked=evidence;}
+      else if(task.field==='title-support')result.titleAI=assessment;
       else if(task.field==='subject')result.subject=assessment;
       else if(task.field==='keyword')result.keywordItems.push({...assessment,keyword:task.keyword});
       else result.sectionItems.push({...assessment,heading:task.heading});

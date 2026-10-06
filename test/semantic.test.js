@@ -36,6 +36,30 @@ it('avoids inference without supported language or metadata evidence', async () 
     expect(result.title.status).toBe('uncertain'); expect(calls).toBe(0);
   }
 });
+it('allows an explicit English assumption for a missing declaration without changing PDF metadata', async () => {
+  const data = input('River flood risk', 'Flood hazards along rivers');
+  data.metadata.language = null;
+  const before = structuredClone(data);
+  let calls = 0;
+  const embed = async texts => { calls++; return similar(texts); };
+  const skipped = await assessSemantic(data, embed);
+  expect(skipped.inferencePerformed).toBe(false);
+  expect(calls).toBe(0);
+  const screened = await assessSemantic({ ...data, languageAssumption: 'en' }, embed);
+  expect(screened.inferencePerformed).toBe(true);
+  expect(calls).toBe(1);
+  expect(screened.languageContext).toEqual({ declared: null, screening: 'en', source: 'user-assumption' });
+  expect(data).toEqual(before);
+  expect(screened).not.toHaveProperty('accepted');
+});
+it('refuses assumptions that replace a declaration or use an unoffered language', async () => {
+  for (const language of ['de', 'invalid_language', 'en']) {
+    const data = input('River flood risk', 'Flood hazards along rivers');
+    data.metadata.language = language;
+    await expect(assessSemantic({ ...data, languageAssumption: 'en' }, () => { throw Error('Must not infer'); })).rejects.toThrow('only when the PDF language is missing');
+  }
+  await expect(assessSemantic({ metadata: { language: null }, languageAssumption: 'de' }, similar)).rejects.toThrow('only when the PDF language is missing');
+});
 it('reports a low-similarity mismatch and middle-range uncertainty with sourced evidence', async () => {
   const data = input('River flood risk', 'Aircraft maintenance guide');
   const result = await assessSemantic(data, async () => [[1, 0], [0, 1]]);
@@ -104,4 +128,18 @@ it('uses different provisional policies per model rather than pretending score e
   const fake=async()=>[[1,0],[0.8,0.6]];
   expect((await assessSemantic(data,fake)).title.status).toBe('semantically-related');
   expect((await assessSemantic({...data,modelId:'granite-r2'},fake)).title.status).toBe('uncertain');
+});
+
+it('required AI mode compares rule-settled titles without replacing identity or year findings', async () => {
+  for (const [title, candidate] of [['River flood risk', 'River flood risk'], ['River report 2025', 'River report 2024']]) {
+    let calls = 0;
+    const result = await assessSemantic({ ...input(title, candidate), checks: ['title'], requireInference: true }, async texts => {
+      calls++; return texts.map(() => [1, 0]);
+    });
+    expect(calls).toBe(1);
+    expect(result.inferencePerformed).toBe(true);
+    expect(result.title.method).toBe('deterministic-rules');
+    expect(result.title.status).toBe(title === candidate ? 'match' : 'suspected-mismatch');
+    expect(result.titleAI).toMatchObject({ method: 'embedding-screening', inferencePerformed: true, status: 'semantically-related' });
+  }
 });

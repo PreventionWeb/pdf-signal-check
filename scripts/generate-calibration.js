@@ -28,7 +28,7 @@ const cases = [
 const ink = rgb(.12,.2,.28), teal = rgb(.02,.42,.45), pale = rgb(.91,.96,.96);
 const xml = s => s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
-async function generate(spec) {
+export async function generate(spec, outputDirectory = output) {
   const pdf = await PDFDocument.create();
   const context = pdf.context;
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
@@ -39,19 +39,20 @@ async function generate(spec) {
   const metadataTitle = spec.metadataTitle || visibleTitle;
   if (spec.metadata !== 'none') {
     pdf.setTitle(metadataTitle); pdf.setAuthor(spec.metadataAuthors?.join('; ') || 'Harbor Observatory (fictional)');
-    pdf.setSubject('Synthetic annual report for PDF actionability calibration');
-    pdf.setKeywords(['synthetic', 'calibration', 'observatory', 'annual report']);
+    pdf.setSubject(spec.metadataSubject || 'Synthetic annual report for PDF actionability calibration');
+    pdf.setKeywords(spec.metadataKeywords || ['synthetic', 'calibration', 'observatory', 'annual report']);
     pdf.setCreator('PDFs for AI Actionability calibration generator');
     pdf.setProducer('pdf-lib / original calibration corpus');
     pdf.setCreationDate(new Date('2026-01-01T00:00:00Z'));
     pdf.setModificationDate(new Date('2026-01-01T00:00:00Z'));
-    const xmp = `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title><rdf:Alt><rdf:li xml:lang="x-default">${xml(spec.xmpTitle || metadataTitle)}</rdf:li></rdf:Alt></dc:title>${spec.metadataAuthors ? `<dc:creator><rdf:Seq>${spec.metadataAuthors.map(a=>`<rdf:li>${xml(a)}</rdf:li>`).join('')}</rdf:Seq></dc:creator>` : ''}<dc:language><rdf:Bag><rdf:li>${language}</rdf:li></rdf:Bag></dc:language></rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>`;
+    const xmp = `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title><rdf:Alt><rdf:li xml:lang="x-default">${xml(spec.xmpTitle || metadataTitle)}</rdf:li></rdf:Alt></dc:title>${spec.metadataAuthors ? `<dc:creator><rdf:Seq>${spec.metadataAuthors.map(a=>`<rdf:li>${xml(a)}</rdf:li>`).join('')}</rdf:Seq></dc:creator>` : ''}${spec.missingLanguage ? "" : `<dc:language><rdf:Bag><rdf:li>${language}</rdf:li></rdf:Bag></dc:language>`}${spec.metadataSubject ? `<dc:description><rdf:Alt><rdf:li xml:lang="x-default">${xml(spec.metadataSubject)}</rdf:li></rdf:Alt></dc:description>` : ""}${spec.metadataKeywords ? `<dc:subject><rdf:Bag>${spec.metadataKeywords.map(k => `<rdf:li>${xml(k)}</rdf:li>`).join("")}</rdf:Bag></dc:subject>` : ""}</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>`;
     pdf.catalog.set(PDFName.of('Metadata'), context.register(context.stream(new TextEncoder().encode(xmp), { Type: 'Metadata', Subtype: 'XML' })));
   } else {
     // PDFDocument.create adds a producer Info dictionary by default.
     context.trailerInfo.Info = undefined;
   }
   pdf.catalog.set(PDFName.of('Lang'), PDFHexString.fromText(language));
+  if (spec.missingLanguage) pdf.catalog.delete(PDFName.of('Lang'));
   const tagged = spec.tags !== 'none';
   const root = context.obj({ Type: 'StructTreeRoot', K: [] });
   const rootRef = context.register(root);
@@ -114,6 +115,17 @@ async function generate(spec) {
   wrapped(0, german ? 'Die mittlere Sichttiefe stieg von 2,4 auf 3,1 Meter. Für die Station Nord fehlt eine Wintermessung; die Jahreswerte sind deshalb nur eingeschränkt vergleichbar.' : 'Mean visibility increased from 2.4 to 3.1 metres. North station has one missing winter observation, so annual station averages are only partly comparable.', y-73);
   text(0,'P', german ? 'Berichtszeitraum: Januar bis Dezember 2025.' : 'Reporting period: January to December 2025.', 310);
   text(0,'P', german ? 'Herausgeber: Hafenobservatorium, fiktive Forschungsgruppe.' : 'Publisher: Harbor Observatory, a fictional research group.', 284);
+  if (spec.overviewFigure) {
+    semantic(0,'Figure', p => {
+      p.drawRectangle({x:48,y:75,width:499,height:173,color:pale});
+      [2.8,3.1,3.4].forEach((v,i) => {
+        p.drawRectangle({x:95+i*139,y:105,width:72,height:v*31,color:teal});
+        p.drawText(`${v} m`,{x:111+i*139,y:111+v*31,size:10,font:bold,color:ink});
+        p.drawText(['North','Central','South'][i],{x:111+i*139,y:87,size:10,font:regular,color:ink});
+      });
+    }, spec.missingAlt ? undefined : 'Mean water visibility: North 2.8 metres, Central 3.1 metres, South 3.4 metres. South is highest.');
+    text(0,'P','Figure 1. Mean water visibility at the three fictional stations.',54,10);
+  }
   let orderTruth = null;
   if (spec.readingOrder) {
     text(1,'H1','Field sampling procedure',738,23);
@@ -159,7 +171,7 @@ async function generate(spec) {
     root.set(PDFName.of('ParentTreeNextKey'), context.obj(2));
   }
   const bytes = await pdf.save({useObjectStreams:false,addDefaultPage:false,updateFieldAppearances:false});
-  await writeFile(`${output}${spec.id}.pdf`,bytes);
+  await writeFile(`${outputDirectory}${spec.id}.pdf`,bytes);
   return {
     id:spec.id,file:`${spec.id}.pdf`,title:spec.name,description:`Two-page original ${german ? 'German' : 'English'} report. ${spec.defects?.length ? `Deliberate defects: ${spec.defects.join('; ')}.` : 'Positive control with matching metadata and connected text structure.'}`,language,visibleTitle,
     expectedProperties:{pageCount:2,extractableText:true,infoTitle:spec.metadata === 'none' ? null : metadataTitle,xmpTitle:spec.metadata === 'none' ? null : spec.xmpTitle || metadataTitle,structure:spec.tags || 'complete',titleRelationship:spec.metadata === 'none' ? 'not assessable' : spec.metadataTitle || spec.xmpTitle ? 'mismatch' : 'match',graphics:spec.graphics || 'none',figureAlt:spec.graphics === 'chart' ? !spec.missingAlt : null},
@@ -169,8 +181,10 @@ async function generate(spec) {
     bytes:bytes.length,
   };
 }
-await mkdir(output,{recursive:true});
-const samples=[];
-for (const spec of cases.sort((a,b)=>a.id.localeCompare(b.id))) samples.push(await generate(spec));
-await writeFile(`${output}manifest.json`,`${JSON.stringify({schemaVersion:1,description:'Original synthetic calibration corpus, not a conformance certification or statistical evaluation set.',samples},null,2)}\n`);
-console.log(`Generated ${samples.length} original calibration PDFs in ${output}`);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  await mkdir(output,{recursive:true});
+  const samples=[];
+  for (const spec of cases.sort((a,b)=>a.id.localeCompare(b.id))) samples.push(await generate(spec));
+  await writeFile(`${output}manifest.json`,`${JSON.stringify({schemaVersion:1,description:'Original synthetic calibration corpus, not a conformance certification or statistical evaluation set.',samples},null,2)}\n`);
+  console.log(`Generated ${samples.length} original calibration PDFs in ${output}`);
+}

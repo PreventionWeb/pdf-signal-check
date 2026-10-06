@@ -45,3 +45,11 @@ it('attachment declarations remain rule-based metadata evidence when optional AI
 });
 
 it('does not imply an attachment inspection when inventory was not assessed',()=>{expect(findingProvenance(finding('attachments','attachment-metadata-inspection'),{attachments:{status:'not-assessed',reason:'Parser failed'}}).kind).toBe('unassessed');});
+
+it('attributes a language assumption to the completed screening, separately from current preferences',()=>{
+ const report={screeningSelection:{languageAssumption:null},semantic:{model:{id:'recorded'},inferencePerformed:false,languageContext:{declared:null,screening:'en',source:'user-assumption'}}};
+ expect(screeningProvenance(report).detail).toContain('English (explicit user assumption)');
+ expect(screeningProvenance(report).detail).toContain('PDF language declaration remains missing');
+ expect(screeningProvenance(report).kind).toBe('unassessed');
+ expect(screeningProvenance({screeningSelection:{languageAssumption:'en'}}).detail).not.toContain('Screening language:');
+});

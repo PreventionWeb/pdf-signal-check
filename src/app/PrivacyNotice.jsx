@@ -1,7 +1,7 @@
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Button, Checkbox } from "../ui/react.jsx";
 const KEY = "pdf-input-check.hide-ai-notice.v1";
-/** Only notice preference is persistent. Native dialog owns the focus trap/top layer. */
+/** Native dialog owns the focus trap/top layer; preferences never contain PDF data. */
 export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
   const read = () => {
     try {
@@ -82,7 +82,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
             this device and are not uploaded for analysis.
           </p>
           <p>
-            Optional AI screening also runs locally. It downloads model and
+            If you enable an AI model in setup, screening runs locally for each PDF. With your consent, it downloads model and
             tokenizer assets from external hosts; those requests do not include
             your PDF text. The app and runtime assets load from the site hosting
             this tool.
@@ -100,8 +100,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
           onChange={(e) => setSuppressed(e.target.checked)}
         />
         <p id="ai-info-preference-note" className="model-note">
-          Only this notice preference is saved in your browser; no PDF data are
-          saved with it. You can reopen this information using “About AI &amp;
+          This notice preference and synthetic device benchmark results are saved in your browser. No PDF data are saved in local storage. You can reopen this information using “About AI &amp;
           privacy.”
         </p>
         <Button

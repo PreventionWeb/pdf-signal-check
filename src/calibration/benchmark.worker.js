@@ -30,7 +30,8 @@ self.onmessage=async({data})=>{
     await runner.embed(WORKLOAD.texts,model,post);
     const runs=[];let provenance;
     for(let i=0;i<3;i++){
-      const start=performance.now();const output=await runner.embed(WORKLOAD.texts,model,post);runs.push(performance.now()-start);provenance=output.provenance;
+      post({type:'progress',message:`Running speed check ${i+1} of 3.`,progress:{stage:'benchmark',state:'progress',completed:i,total:3,unit:'runs'}});
+      const start=performance.now();const output=await runner.embed(WORKLOAD.texts,model,m=>post({...m,message:`Running speed check ${i+1} of 3.`,progress:{stage:'benchmark',state:'progress',completed:i,total:3,unit:'runs'}}));runs.push(performance.now()-start);provenance=output.provenance;
       post({type:'progress',message:`Completed ${i+1} of 3 measured sample runs.`,progress:{stage:'benchmark',state:'progress',completed:i+1,total:3,unit:'runs'}});
     }
     await runner.dispose();
