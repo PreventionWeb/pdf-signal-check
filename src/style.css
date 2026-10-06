@@ -15,9 +15,7 @@
 }
 body { background: rgb(var(--mg-color-neutral-25)); }
 .version, .eyebrow, .section-label { font-family: var(--mg-font-family-ui); font-size: 14px; color: var(--muted); }
-.input-column { min-width: 0; }
 .workspace { align-items: start; }
-.workspace:not([data-stage="document"]) > .output-column { grid-column: 1 / -1; }
 .output-column, #guided-flow, #report, .pdf-preview, .mg-card__content { min-width: 0; max-width: 100%; }
 .mg-button { min-height: 44px; }
 .mg-button:disabled { opacity: .55; }
@@ -25,10 +23,12 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .mg-form-select { max-width: 100%; }
 .mg-form-check { min-height: 44px; }
 .mg-form-check__input { flex-shrink: 0; }
-.sample-buttons { display: grid; gap: 8px; }
+.step-intro { font-size: 15px; color: var(--muted); line-height: 1.5; margin-block: 8px 16px; }
+.sample-card { margin-top: 20px; }
+.sample-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-block: 12px 16px; }
 .sample-buttons .mg-button { width: 100%; justify-content: space-between; text-align: left; }
 .small, .privacy-note { font-size: 13px; color: var(--muted); }
-.upload-batch { margin-top: 14px; text-align: center; }
+.upload-batch { margin-top: 16px; text-align: center; }
 .upload-batch .mg-button { width: 100%; }
 .about-profile { margin-block: 48px; }
 .welcome-screen { margin-bottom: 32px; }
@@ -39,9 +39,6 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .welcome-pillar-header h3 { margin: 0; font-size: 1.15rem; }
 .welcome-pillar-card p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
 .welcome-start-bar { margin-top: 24px; }
-.document-guide-card { margin-top: 16px; }
-.document-guide-card h3 { font-size: 1.15rem; margin-top: 0; }
-.document-guide-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
 .flow-steps ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 16px 0; margin: 0; color: var(--muted); }
 .flow-steps li[aria-current="step"] { font-weight: 600; color: rgb(var(--mg-color-neutral-900)); }
 .flow-step-link {
@@ -96,9 +93,9 @@ body { background: rgb(var(--mg-color-neutral-25)); }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 240px;
+  min-height: 220px;
   cursor: pointer;
-  margin-top: 18px;
+  padding: 24px 16px;
   border: 1px dashed rgb(var(--mg-color-neutral-50));
   border-radius:var(--mg-card-border-radius);
   background: rgb(var(--mg-color-neutral-25));
@@ -270,8 +267,6 @@ progress {
 }
 
 .flow-steps [aria-current] {color:rgb(var(--mg-color-text));font-weight:700;text-decoration:underline;text-underline-offset:8px;}
-
-.workspace:not([data-stage="document"]) {grid-template-columns:minmax(0,1fr);}
 
 .flow-title {font-size:clamp(1.6rem,3vw,2.3rem);text-wrap:balance;margin-top:0;}
 

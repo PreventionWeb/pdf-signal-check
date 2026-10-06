@@ -196,19 +196,11 @@ export function App() {
         )}
         {state.stage !== "welcome" && (
           <div
-            className="workspace mg-grid mg-grid__col-3"
+            className="workspace"
             data-stage={state.stage}
           >
-            {state.stage === "document" && (
-              <Entry
-                state={state}
-                controller={controller}
-                batch={batch}
-                batchBusy={batch.busy}
-              />
-            )}
             <section
-              className="output-column mg-grid__col--span-2"
+              className="output-column"
               aria-label="Analysis report"
             >
               <div id="guided-flow">
@@ -217,49 +209,18 @@ export function App() {
                     {title}
                   </h1>
                 )}
-                {state.file && state.stage !== "batch" && (
+                {state.file && state.stage !== "batch" && state.stage !== "document" && (
                   <p className="flow-file">
                     {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
                   </p>
                 )}
                 {state.stage === "document" && (
-                  <>
-                    {state.report && (
-                      <Actions>
-                        <Button onClick={() => controller.go("review")}>
-                          Return to this PDF’s review
-                        </Button>
-                        <Button onClick={() => controller.go("checks")}>
-                          Return to screening choices
-                        </Button>
-                      </Actions>
-                    )}
-                    {!state.report && state.file && (
-                      <Button
-                        disabled={batch.busy}
-                        onClick={() => controller.analyze(state.file)}
-                      >
-                        Retry this PDF
-                      </Button>
-                    )}
-                    <Card className="document-guide-card">
-                      <h3>Step 2: Choose your PDF or batch</h3>
-                      <p>
-                        Select or drop a single PDF to inspect, or drop multiple PDFs to start a batch queue.
-                      </p>
-                      <p>
-                        Once loaded, text decodability and tag coverage are checked locally. Next, you will choose how to process the document: with recommended local AI screening or directly without AI.
-                      </p>
-                      <div className="flow-actions">
-                        <Button
-                          variant="secondary"
-                          onClick={() => controller.go("welcome")}
-                        >
-                          ← Back to welcome
-                        </Button>
-                      </div>
-                    </Card>
-                  </>
+                  <Entry
+                    state={state}
+                    controller={controller}
+                    batch={batch}
+                    batchBusy={batch.busy}
+                  />
                 )}
               {state.stage === "checks" && (
                 <Checks
@@ -503,7 +464,30 @@ function Entry({ state, controller, batch, batchBusy }) {
     [sample, setSample] = useState(""),
     disabled = state.analysisBusy || batchBusy;
   return (
-    <aside className="input-column" aria-label="Choose a PDF">
+    <div className="document-intake" aria-label="Choose a PDF">
+      <p className="step-intro">
+        Choose your PDF or batch. Select or drop a single PDF to inspect, or drop multiple PDFs to start a batch queue.
+      </p>
+      {state.report && (
+        <Actions>
+          <Button onClick={() => controller.go("review")}>
+            Return to this PDF’s review
+          </Button>
+          <Button onClick={() => controller.go("checks")}>
+            Return to screening choices
+          </Button>
+        </Actions>
+      )}
+      {!state.report && state.file && (
+        <div className="flow-actions">
+          <Button
+            disabled={disabled}
+            onClick={() => controller.analyze(state.file)}
+          >
+            Retry this PDF
+          </Button>
+        </div>
+      )}
       <Card
         className={`upload-card ${dragging ? "dragging" : ""}`}
         id="drop-zone"
@@ -525,10 +509,6 @@ function Entry({ state, controller, batch, batchBusy }) {
           }
         }}
       >
-        <div className="section-label mg-u-flex mg-u-gap-100">
-          Choose your PDF
-          <Icon name="arrow-right" />
-        </div>
         <label className="drop-target" htmlFor="file-input">
           <span className="document-icon">
             <Icon name="file-alt" />
@@ -564,7 +544,7 @@ function Entry({ state, controller, batch, batchBusy }) {
       <Card className="sample-card">
         <p className="eyebrow">Try it first</p>
         <h2 id="sample-title" tabIndex={-1}>
-          Try a sample first.
+          Try a sample PDF
         </h2>
         <div className="sample-buttons">
           {[
@@ -661,12 +641,20 @@ function Entry({ state, controller, batch, batchBusy }) {
           </p>
         </Details>
       </Card>
+      <div className="flow-actions">
+        <Button
+          variant="secondary"
+          onClick={() => controller.go("welcome")}
+        >
+          ← Back to welcome
+        </Button>
+      </div>
       <p className="privacy-note">
         Your PDF stays here. The structural analysis needs no AI model or
         account. Optional semantic screening downloads model assets, then runs
         locally.
       </p>
-    </aside>
+    </div>
   );
 }
 function Checks({
