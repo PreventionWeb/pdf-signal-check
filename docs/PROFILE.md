@@ -1,0 +1,48 @@
+# Text actionability profile 0.2
+
+App version 0.7.0 retains `text-actionability-0.2`, distinct from the broader proposed profile v1. Compared with 0.1, this adds a required marked-content integrity predicate, fixes whitespace-only titles and narrowed list/table connection checks, and treats state-only content references as unsupported. Advisory identity/order/visibility findings remain separate from acceptance. A Yes means that every required predicate below passed within this scope. A No distinguishes detected defects from analysis that could not establish compliance.
+
+## Required predicates
+
+1. **Parsing:** pdf-lib and PDF.js can load the file. Encrypted PDFs are excluded. Analysis is limited to 50 MB, 200 pages, 1 million decoded operators, 250,000 text items, 10 MB per decoded content stream, and bounded object/structure traversal.
+2. **Title:** a nonempty title exists in the Info dictionary or XMP. XMP is parsed as XML with language alternatives preserved. Malformed, oversized, or DTD-bearing XMP prevents acceptance.
+3. **Language:** catalog language is accepted by `Intl.getCanonicalLocales`. This validates syntax, not that the declared language describes the content.
+4. **Text decoding:** non-artifact text is extracted, with no replacement characters, private-use characters, disallowed controls, or empty Unicode strings on observed text glyphs. This is an indicator check, not proof of correct glyph semantics or exhaustive Unicode conformance.
+5. **Tag connection:** a marked structure tree contains indirect elements and page content references. Element parent links and content parent-tree associations agree. Cycles, duplicate ownership, invalid MCIDs, empty trees, unknown roles, and unresolved references prevent acceptance. Every raw content reference must have observed text or graphic content. A referenced sequence containing only state operations produces an indeterminate supported-scope result; a reference with no observed sequence fails connection. Harmless empty paragraph tags with no content references are not rejected.
+6. **Text coverage:** every extracted non-artifact text item has a page-scoped marked-content association owned by a structure element. Artifact declarations are trusted; this does not prove that producers designated artifacts correctly.
+7. **Supported scope:** no Form XObjects, Type 3 fonts, ActualText replacements, optional content, inline images, forms, annotations, associated files, object-reference tags, separate-stream marked references, or non-artifact graphic painting operations are detected. Such features produce indeterminate outcomes, not assertions that the document itself is broken. Unused resources can also trigger conservative exclusions.
+8. **Marked-content integrity:** logical page content streams have balanced BMC/BDC/EMC boundaries. Raw lexical inspection catches extra EMC boundaries that PDF.js can silently recover, while ignoring literal/hex strings, comments and names. Numbered marked-content occurrences have unique, nonnegative integer MCIDs within the logical page stream. Unnumbered containers and artifacts remain supported; Form XObjects and inline-image content remain excluded rather than asserting equivalent stream coverage.
+9. **Completion:** every page and required check completes. An error or exceeded limit prevents acceptance.
+
+The narrowed project profile requires lists to contain LI elements, LI to contain LBody and optional Lbl, table sections to contain TR, and TR to contain TH/TD. These containers must not directly own text instead of those relationships. These are project-profile constraints, not claims of universal PDF invalidity. Basic list and table child relationships are inspected during tag traversal. Logical order, semantic correctness of assigned roles, complex table associations, and visually correct text are not established by this profile. Valid PDF/UA files can be outside its supported scope.
+
+## Title consistency
+
+Title comparison is separate from structural acceptance. The rules preserve years and normalize Unicode typography, case, and whitespace. A normalized match with a credible first-page H/H1 or prominent cover candidate returns Match. Later headings, references and body-size cover lines remain inspection evidence but cannot establish Match. Conflicting Info and default XMP titles, or otherwise identical title wording with different years, returns Suspected mismatch. Near-identical titles of at least five tokens with one substituted term are also flagged for inspection; this heuristic does not prove an entity mismatch. Other differences remain Uncertain.
+
+Candidates come from tagged headings and prominent cover text on the first page. Candidate collection is limited to the first three pages and twelve unique texts. A heading or a cover line is evidence to inspect, not automatically the true document title. A legitimate title on a later frontmatter page can remain Uncertain because title evidence scope is deliberately conservative. Entity and edition comparison beyond exact wording is deferred.
+
+Optional [hybrid semantic screening](SEMANTIC.md) offers an explicit choice of pinned MiniLM English or Granite R2 multilingual ONNX encoders through Transformers.js and WASM. Deterministic rules settle exact title agreement and known identity warnings before inference; Match is a rules result, not AI certainty. Requested AI checks screen ambiguous titles, subject relevance, individual delimited keywords, and bounded tagged heading/body pairs. Missing or unsupported declared languages prevent model inference. Model-specific provisional thresholds yield related, suspected mismatch, or uncertain advisories; they are uncalibrated, not comparable confidence across models, and never change text-profile acceptance. The report preserves selected model/checks, per-field methods, evaluated/skipped counts, consumed token counts, truncation flags, decoded consumed text, and located evidence. Relatedness does not prove metadata identity, assigned roles, factual correctness or reading order.
+
+## Reproducibility and resource limits
+
+Dependencies are locked with npm. Model and runtime assets are fetched only on explicit semantic-screening request; PDF content is processed locally. Parsing limits constrain ordinary workloads but do not bound allocation before parsing or guarantee a fixed memory ceiling. The UI supports terminating the analysis worker.
+
+The report contains file identity, profile and schema versions, required outcomes, metadata provenance, per-page evidence, limitations, and optional model configuration. Per-page evidence includes both content-stream text and connected text in tag-tree order; structure content leaves carry joined text and page-scoped keys. It does not persist document contents automatically. Export is initiated by the user.
+
+## Visual evidence
+
+The one-page preview projects text quadrilaterals and graphic bounding regions through PDF.js’s complete viewport matrix, including page rotation and crop offsets. Red regions identify extracted untagged or suspicious text; amber graphics require semantic inspection and remain indeterminate, rather than defects. Blue regions identify selected evidence. Graphics bounds may include clipped-away space. Unknown graphic operators, dangling references, and document metadata receive no invented region. Vertical text geometry is currently unavailable.
+
+The logical-order overlay numbers connected text in tag-tree order, distinct from content-stream extraction order. It does not establish that reading order is correct. Form XObjects disable location overlays because reliable stream-scoped MCID joining is outside this profile. Canvas rendering is capped at 8 million pixels and 4,096 pixels per side; overlays cap at 1,500 regions. Preview failures never change profile acceptance.
+
+
+## Bounded identity, order and visibility advisories
+
+Info Author and XMP `dc:creator` values are preserved independently. Explicit first-page `Author(s):`, `Written by:`, or `By` lines supply byline candidates. Semicolon/“and” separated full names can support normalized same-name-set comparison. Comma-separated or initialed names, multiple byline candidates, missing metadata and partial overlap remain uncertain. Different full-name sets or conflicting Info/XMP author lists produce a suspected mismatch. Names are never authenticated; software Creator and publisher lines are not treated as authors.
+
+Reading-order diagnostics inspect numbered tagged heading/list-label sequences (at least three observed steps). A repeated or decreasing step number produces Requires review with ordered, located evidence; a numbering restart can be legitimate. Absence of an anomaly remains Uncertain, and never certifies columns, prose, tables or global order. Tag connections and complete coverage alone cannot establish correct order.
+
+Text-rendering modes 3 and 7 (invisible/clipping-only) produce a separate visibility review with linked content regions where recoverable. Invisible OCR/accessibility text can be legitimate, so it does not automatically fail the profile. Color, clipping, occlusion, off-page text, arbitrary glyph-to-text substitutions and producer artifact declarations remain material limits.
+
+A second bounded order clue examines at least three short, geometrically located headings on unrotated pages with one recovered left alignment and no recovered body-column spread beyond the simple-layout guard. A substantial upward move in tag order produces review evidence. Multi-column, rotated, missing-geometry and more complex layouts abstain from that spatial rule; no detected anomaly still remains Uncertain. The report names the numbered or spatial detector.

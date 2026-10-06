@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "workloadId": "synthetic-browser-cost-v1",
+  "model": {
+    "dtype": "q8",
+    "device": "wasm",
+    "normalize": true,
+    "prefix": "",
+    "dimensions": 384,
+    "calibrated": false,
+    "key": "granite-r2",
+    "label": "Granite R2 \u00b7 multilingual",
+    "id": "onnx-community/granite-embedding-97m-multilingual-r2-ONNX",
+    "revision": "536a9f241cb3f02a9c5995a1e708c784bd274859",
+    "pooling": "cls",
+    "maxTokens": 512,
+    "language": "52 explicitly supported languages",
+    "languages": [
+      "sq",
+      "ar",
+      "az",
+      "bn",
+      "bg",
+      "ca",
+      "zh",
+      "hr",
+      "cs",
+      "da",
+      "nl",
+      "en",
+      "et",
+      "fi",
+      "fr",
+      "ka",
+      "de",
+      "el",
+      "he",
+      "hi",
+      "hu",
+      "is",
+      "id",
+      "it",
+      "ja",
+      "kk",
+      "km",
+      "ko",
+      "lv",
+      "lt",
+      "ms",
+      "mr",
+      "no",
+      "fa",
+      "pl",
+      "pt",
+      "ro",
+      "ru",
+      "sr",
+      "sk",
+      "sl",
+      "es",
+      "sw",
+      "sv",
+      "tl",
+      "te",
+      "th",
+      "tr",
+      "uk",
+      "ur",
+      "uz",
+      "vi"
+    ],
+    "graphBytes": 97858099,
+    "tokenizerBytes": 25301671,
+    "tradeoff": "About 123 MB model/tokenizer; multilingual comparison, more memory and first-load time. Application uses 512 tokens, not the full 32K context.",
+    "thresholds": {
+      "titleLow": 0.5,
+      "titleHigh": 0.9,
+      "topicLow": 0.45,
+      "topicHigh": 0.8
+    }
+  },
+  "fixture": {
+    "file": "01-clean-text.pdf",
+    "bytes": 8205,
+    "pages": 2,
+    "parseMs": 174.79999995231628
+  },
+  "load": {
+    "loadAndInitMs": 14278.5,
+    "state": "new-encoder",
+    "assetSource": "unknown-network-or-cache",
+    "assets": [
+      {
+        "asset": "config.json",
+        "reportedBytes": 1215,
+        "totalBytes": 1215
+      },
+      {
+        "asset": "tokenizer_config.json",
+        "reportedBytes": 12860,
+        "totalBytes": 12860
+      },
+      {
+        "asset": "tokenizer.json",
+        "reportedBytes": 25301671,
+        "totalBytes": 25301671
+      },
+      {
+        "asset": "onnx/model_quantized.onnx",
+        "reportedBytes": 97858099,
+        "totalBytes": 97858099
+      }
+    ]
+  },
+  "warm": {
+    "medianMs": 3266.5,
+    "minimumMs": 3197.7000000476837,
+    "maximumMs": 3287.2999999523163,
+    "runsMs": [
+      3197.7000000476837,
+      3266.5,
+      3287.2999999523163
+    ]
+  },
+  "workload": {
+    "texts": 4,
+    "batchSize": 4,
+    "warmups": 1,
+    "measuredRuns": 3,
+    "tokenCap": 512,
+    "tokens": [
+      {
+        "inputTokens": 7,
+        "consumedTokens": 7,
+        "truncated": false
+      },
+      {
+        "inputTokens": 11,
+        "consumedTokens": 11,
+        "truncated": false
+      },
+      {
+        "inputTokens": 195,
+        "consumedTokens": 195,
+        "truncated": false
+      },
+      {
+        "inputTokens": 243,
+        "consumedTokens": 243,
+        "truncated": false
+      }
+    ]
+  },
+  "memory": {
+    "status": "unknown"
+  },
+  "encoderLifecycle": "released-before-result",
+  "note": "Tiny synthetic workload cost only. No device certification, real-document ETA, RAM guarantee or semantic accuracy calibration.",
+  "observation": {
+    "backend": "browser WASM",
+    "cacheSource": "unknown",
+    "note": "Serial developer pilot; no recorded page-visibility monitor in this direct worker invocation."
+  }
+}

@@ -1,0 +1,737 @@
+{
+  "schemaVersion": 1,
+  "description": "Original synthetic calibration corpus, not a conformance certification or statistical evaluation set.",
+  "samples": [
+    {
+      "id": "01-clean-text",
+      "file": "01-clean-text.pdf",
+      "title": "Clean tagged text control",
+      "description": "Two-page original English report. Positive control with matching metadata and connected text structure.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8205
+    },
+    {
+      "id": "02-artifact-logo",
+      "file": "02-artifact-logo.pdf",
+      "title": "Clean report with decorative logo",
+      "description": "Two-page original English report. Positive control with matching metadata and connected text structure.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "logo",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8400
+    },
+    {
+      "id": "03-meaningful-figure",
+      "file": "03-meaningful-figure.pdf",
+      "title": "Meaningful figure with alternate text",
+      "description": "Two-page original English report. Positive control with matching metadata and connected text structure.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "chart",
+        "figureAlt": true
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Meaningful vector figure may be indeterminate in the text-centric v0.1 profile; valid Alt does not alone establish graphics coverage.",
+      "bytes": 9061
+    },
+    {
+      "id": "04-no-metadata",
+      "file": "04-no-metadata.pdf",
+      "title": "No document metadata",
+      "description": "Two-page original English report. Deliberate defects: missing metadata.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": null,
+        "xmpTitle": null,
+        "structure": "complete",
+        "titleRelationship": "not assessable",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "missing metadata"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 6864
+    },
+    {
+      "id": "05-untagged",
+      "file": "05-untagged.pdf",
+      "title": "Readable text without semantic tags",
+      "description": "Two-page original English report. Deliberate defects: missing structure tree.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "none",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "missing structure tree"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 6021
+    },
+    {
+      "id": "06-empty-structure",
+      "file": "06-empty-structure.pdf",
+      "title": "Marked document with empty structure",
+      "description": "Two-page original English report. Deliberate defects: empty structure tree.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "empty",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "empty structure tree"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 6177
+    },
+    {
+      "id": "07-partial-tags",
+      "file": "07-partial-tags.pdf",
+      "title": "Partial semantic coverage",
+      "description": "Two-page original English report. Deliberate defects: second-page body content untagged.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "partial",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "second-page body content untagged"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 7315
+    },
+    {
+      "id": "08-wrong-year",
+      "file": "08-wrong-year.pdf",
+      "title": "Same series, wrong metadata year",
+      "description": "Two-page original English report. Deliberate defects: metadata year mismatch.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2024",
+        "xmpTitle": "Harbor Observatory Annual Report 2024",
+        "structure": "complete",
+        "titleRelationship": "mismatch",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "inspect deterministic title warning separately from structural acceptance"
+        }
+      },
+      "defects": [
+        "metadata year mismatch"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8205
+    },
+    {
+      "id": "09-wrong-entity",
+      "file": "09-wrong-entity.pdf",
+      "title": "Same topic, wrong organization",
+      "description": "Two-page original English report. Deliberate defects: metadata organization mismatch.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Mountain Observatory Annual Report 2025",
+        "xmpTitle": "Mountain Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "mismatch",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "inspect deterministic title warning separately from structural acceptance"
+        }
+      },
+      "defects": [
+        "metadata organization mismatch"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8215
+    },
+    {
+      "id": "10-conflicting-metadata",
+      "file": "10-conflicting-metadata.pdf",
+      "title": "Info and XMP disagree",
+      "description": "Two-page original English report. Deliberate defects: Info/XMP title conflict.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2024",
+        "structure": "complete",
+        "titleRelationship": "mismatch",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "Info/XMP title conflict"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8205
+    },
+    {
+      "id": "11-combined-defects",
+      "file": "11-combined-defects.pdf",
+      "title": "Missing metadata, partial tags and figure without alternate text",
+      "description": "Two-page original English report. Deliberate defects: missing metadata; second-page body content untagged; figure has no alternate text.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": null,
+        "xmpTitle": null,
+        "structure": "partial",
+        "titleRelationship": "not assessable",
+        "graphics": "chart",
+        "figureAlt": false
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "missing metadata",
+        "second-page body content untagged",
+        "figure has no alternate text"
+      ],
+      "supportedScope": "Meaningful vector figure may be indeterminate in the text-centric v0.1 profile; valid Alt does not alone establish graphics coverage.",
+      "bytes": 6534
+    },
+    {
+      "id": "12-german-control",
+      "file": "12-german-control.pdf",
+      "title": "German title and text control",
+      "description": "Two-page original German report. Positive control with matching metadata and connected text structure.",
+      "language": "de-DE",
+      "visibleTitle": "Hafenobservatorium Jahresbericht 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Hafenobservatorium Jahresbericht 2025",
+        "xmpTitle": "Hafenobservatorium Jahresbericht 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "logo",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Hafenobservatorium Jahresbericht 2025",
+        "taggedByline": null,
+        "metadataAuthors": null,
+        "authorRelationship": "not labeled",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8344
+    },
+    {
+      "id": "13-tagged-title-mismatch",
+      "file": "13-tagged-title-mismatch.pdf",
+      "title": "Tagged publication title contradicts metadata",
+      "description": "Two-page original English report. Deliberate defects: tagged H1 title differs from Info/XMP title.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Summary 2025",
+        "xmpTitle": "Harbor Observatory Annual Summary 2025",
+        "structure": "complete",
+        "titleRelationship": "mismatch",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "inspect deterministic title warning separately from structural acceptance"
+        }
+      },
+      "defects": [
+        "tagged H1 title differs from Info/XMP title"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8445
+    },
+    {
+      "id": "14-author-mismatch",
+      "file": "14-author-mismatch.pdf",
+      "title": "Metadata authors contradict tagged byline",
+      "description": "Two-page original English report. Deliberate defects: Info/XMP authors differ from tagged byline.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Iris Hale",
+          "Owen Brooks"
+        ],
+        "authorRelationship": "mismatch",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "Info/XMP authors differ from tagged byline"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8445
+    },
+    {
+      "id": "15-title-author-mismatch",
+      "file": "15-title-author-mismatch.pdf",
+      "title": "Plausible title and author identity mismatch",
+      "description": "Two-page original English report. Deliberate defects: metadata year differs from tagged H1; Info/XMP authors differ from tagged byline.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2024",
+        "xmpTitle": "Harbor Observatory Annual Report 2024",
+        "structure": "complete",
+        "titleRelationship": "mismatch",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Iris Hale",
+          "Owen Brooks"
+        ],
+        "authorRelationship": "mismatch",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "inspect deterministic title warning separately from structural acceptance"
+        }
+      },
+      "defects": [
+        "metadata year differs from tagged H1",
+        "Info/XMP authors differ from tagged byline"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8445
+    },
+    {
+      "id": "16-correct-reading-order",
+      "file": "16-correct-reading-order.pdf",
+      "title": "Two-column procedure in correct tag-tree order",
+      "description": "Two-page original English report. Positive control with matching metadata and connected text structure.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "logicalHeadingOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "intentionalDefect": false,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 9159
+    },
+    {
+      "id": "17-flawed-reading-order",
+      "file": "17-flawed-reading-order.pdf",
+      "title": "Two-column procedure with reordered semantic text",
+      "description": "Two-page original English report. Deliberate defects: tag-tree order reads steps 3-4 before steps 1-2.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "logicalHeadingOrder": [
+            2,
+            3,
+            0,
+            1
+          ],
+          "intentionalDefect": true,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:8",
+              "2:11",
+              "2:2",
+              "2:5"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "tag-tree order reads steps 3-4 before steps 1-2"
+      ],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 9159
+    },
+    {
+      "id": "18-title-author-control",
+      "file": "18-title-author-control.pdf",
+      "title": "Matching title and tagged authors control",
+      "description": "Two-page original English report. Positive control with matching metadata and connected text structure.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "none",
+        "figureAlt": null
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text-centric v0.1 profile; decorative graphics and running furniture explicitly marked Artifact.",
+      "bytes": 8440
+    }
+  ]
+}

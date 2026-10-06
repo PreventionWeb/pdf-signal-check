@@ -1,0 +1,409 @@
+{
+  "schemaVersion": 1,
+  "model": {
+    "dtype": "q8",
+    "device": "wasm",
+    "normalize": true,
+    "prefix": "",
+    "dimensions": 384,
+    "calibrated": false,
+    "key": "granite-r2",
+    "label": "Granite R2 · multilingual",
+    "id": "onnx-community/granite-embedding-97m-multilingual-r2-ONNX",
+    "revision": "536a9f241cb3f02a9c5995a1e708c784bd274859",
+    "pooling": "cls",
+    "maxTokens": 512,
+    "language": "52 explicitly supported languages",
+    "languages": [
+      "sq",
+      "ar",
+      "az",
+      "bn",
+      "bg",
+      "ca",
+      "zh",
+      "hr",
+      "cs",
+      "da",
+      "nl",
+      "en",
+      "et",
+      "fi",
+      "fr",
+      "ka",
+      "de",
+      "el",
+      "he",
+      "hi",
+      "hu",
+      "is",
+      "id",
+      "it",
+      "ja",
+      "kk",
+      "km",
+      "ko",
+      "lv",
+      "lt",
+      "ms",
+      "mr",
+      "no",
+      "fa",
+      "pl",
+      "pt",
+      "ro",
+      "ru",
+      "sr",
+      "sk",
+      "sl",
+      "es",
+      "sw",
+      "sv",
+      "tl",
+      "te",
+      "th",
+      "tr",
+      "uk",
+      "ur",
+      "uz",
+      "vi"
+    ],
+    "graphBytes": 97858099,
+    "tokenizerBytes": 25301671,
+    "tradeoff": "About 123 MB model/tokenizer; multilingual comparison, more memory and first-load time. Application uses 512 tokens, not the full 32K context.",
+    "thresholds": {
+      "titleLow": 0.5,
+      "titleHigh": 0.9,
+      "topicLow": 0.45,
+      "topicHigh": 0.8
+    }
+  },
+  "rows": [
+    {
+      "id": "year",
+      "split": "development",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "entity",
+      "split": "development",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "subtitle",
+      "split": "development",
+      "task": "title",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.9317281392466488
+    },
+    {
+      "id": "generic",
+      "split": "development",
+      "task": "title",
+      "expected": "uncertain",
+      "outcome": "match",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "de-year",
+      "split": "development",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "edition-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "entity-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.9214227309512493
+    },
+    {
+      "id": "translated-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "support",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.8937100965535472
+    },
+    {
+      "id": "unrelated-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.6668573012280088
+    },
+    {
+      "id": "keyword-0",
+      "split": "development",
+      "task": "keyword",
+      "expected": "support",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.7354975971254801
+    },
+    {
+      "id": "keyword-1",
+      "split": "development",
+      "task": "keyword",
+      "expected": "mismatch",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.6607631569565076
+    },
+    {
+      "id": "keyword-2",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.8233420171837669
+    },
+    {
+      "id": "keyword-3",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "mismatch",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.6967820929270482
+    },
+    {
+      "id": "keyword-4",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.8416139800678766
+    },
+    {
+      "id": "keyword-5",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "mismatch",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.6310202015025547
+    },
+    {
+      "id": "heading-0",
+      "split": "held-out",
+      "task": "section",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.8565441657051164
+    },
+    {
+      "id": "heading-1",
+      "split": "held-out",
+      "task": "section",
+      "expected": "mismatch",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.5806183561956448
+    },
+    {
+      "id": "heading-2",
+      "split": "held-out",
+      "task": "section",
+      "expected": "uncertain",
+      "outcome": "unassessed",
+      "method": "embedding-screening",
+      "inferencePerformed": false,
+      "score": null
+    }
+  ],
+  "thresholdSensitivity": [
+    {
+      "split": "development",
+      "rows": [
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.45,
+          "scoredTopicCases": 2,
+          "abstentions": 0,
+          "missedMismatch": 1,
+          "falseTopicalSupport": 1,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.5,
+          "scoredTopicCases": 2,
+          "abstentions": 0,
+          "missedMismatch": 1,
+          "falseTopicalSupport": 1,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.65,
+          "scoredTopicCases": 2,
+          "abstentions": 0,
+          "missedMismatch": 1,
+          "falseTopicalSupport": 1,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.75,
+          "scoredTopicCases": 2,
+          "abstentions": 2,
+          "missedMismatch": 1,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.8,
+          "scoredTopicCases": 2,
+          "abstentions": 2,
+          "missedMismatch": 1,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.9,
+          "scoredTopicCases": 2,
+          "abstentions": 2,
+          "missedMismatch": 1,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        }
+      ]
+    },
+    {
+      "split": "held-out",
+      "rows": [
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.45,
+          "scoredTopicCases": 6,
+          "abstentions": 0,
+          "missedMismatch": 3,
+          "falseTopicalSupport": 3,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.5,
+          "scoredTopicCases": 6,
+          "abstentions": 0,
+          "missedMismatch": 3,
+          "falseTopicalSupport": 3,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.65,
+          "scoredTopicCases": 6,
+          "abstentions": 2,
+          "missedMismatch": 3,
+          "falseTopicalSupport": 1,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.75,
+          "scoredTopicCases": 6,
+          "abstentions": 3,
+          "missedMismatch": 3,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.8,
+          "scoredTopicCases": 6,
+          "abstentions": 3,
+          "missedMismatch": 3,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.45,
+          "topicSupportCutoff": 0.9,
+          "scoredTopicCases": 6,
+          "abstentions": 6,
+          "missedMismatch": 3,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 3
+        }
+      ]
+    }
+  ],
+  "development": {
+    "cases": 7,
+    "knownMismatches": 4,
+    "falseIdentityMatches": 0,
+    "wrongMetadataRelated": 0,
+    "missedMismatch": 1,
+    "correctSupportRejected": 0,
+    "uncertain": 2
+  },
+  "heldOut": {
+    "cases": 11,
+    "knownMismatches": 6,
+    "falseIdentityMatches": 0,
+    "wrongMetadataRelated": 1,
+    "missedMismatch": 5,
+    "correctSupportRejected": 0,
+    "uncertain": 6
+  },
+  "note": "Small manually labeled synthetic corpus; functional comparison only, insufficient for thresholds or real-world accuracy. No automatic threshold changes.",
+  "observation": {
+    "observedAt": "2026-10-06T07:00:39.899Z",
+    "backend": "browser WASM",
+    "browserHarness": "agent-browser",
+    "agentBrowserVersion": "agent-browser 0.37.1",
+    "cacheSource": "unknown"
+  }
+}

@@ -1,0 +1,464 @@
+[
+  {
+    "id": "year",
+    "split": "development",
+    "field": "title",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Polar field report 2024",
+        "language": "en"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Polar field report 2025"
+        }
+      ]
+    }
+  },
+  {
+    "id": "entity",
+    "split": "development",
+    "field": "title",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Cedar Institute Annual Review 2025",
+        "language": "en"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Birch Institute Annual Review 2025"
+        }
+      ]
+    }
+  },
+  {
+    "id": "subtitle",
+    "split": "development",
+    "field": "title",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Coastal erosion preparedness",
+        "language": "en"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Preparing coastal communities for erosion"
+        }
+      ]
+    }
+  },
+  {
+    "id": "generic",
+    "split": "development",
+    "field": "title",
+    "expected": "uncertain",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Report",
+        "language": "en"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Report"
+        }
+      ]
+    }
+  },
+  {
+    "id": "de-year",
+    "split": "development",
+    "field": "title",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Jahresbericht Forschung 2024",
+        "language": "de"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Jahresbericht Forschung 2025"
+        }
+      ]
+    }
+  },
+  {
+    "id": "edition-heldout",
+    "split": "held-out",
+    "field": "title",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "River handbook edition 2",
+        "language": "en"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "River handbook edition 3"
+        }
+      ]
+    }
+  },
+  {
+    "id": "entity-heldout",
+    "split": "held-out",
+    "field": "title",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Northern observatory water review",
+        "language": "en"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Southern observatory water review"
+        }
+      ]
+    }
+  },
+  {
+    "id": "translated-heldout",
+    "split": "held-out",
+    "field": "title",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Coastal Water Monitoring",
+        "language": "de"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Überwachung der Wasserqualität an Küsten"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-heldout",
+    "split": "held-out",
+    "field": "title",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "infoTitle": "Spacecraft propulsion guide",
+        "language": "en"
+      },
+      "candidates": [
+        {
+          "page": 1,
+          "source": "tagged H1",
+          "keys": [
+            "1:0"
+          ],
+          "text": "Urban flood response handbook"
+        }
+      ]
+    }
+  },
+  {
+    "id": "keyword-0",
+    "split": "development",
+    "field": "keyword",
+    "query": "flooding",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "keywords"
+      ],
+      "metadata": {
+        "language": "en",
+        "keywords": "flooding"
+      },
+      "openingEvidence": [
+        {
+          "page": 1,
+          "key": "1:2",
+          "text": "River flooding and seasonal rain threaten homes. This handbook explains evacuation preparation and community response."
+        }
+      ]
+    }
+  },
+  {
+    "id": "keyword-1",
+    "split": "development",
+    "field": "keyword",
+    "query": "spacecraft",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "keywords"
+      ],
+      "metadata": {
+        "language": "en",
+        "keywords": "spacecraft"
+      },
+      "openingEvidence": [
+        {
+          "page": 1,
+          "key": "1:2",
+          "text": "River flooding and seasonal rain threaten homes. This handbook explains evacuation preparation and community response."
+        }
+      ]
+    }
+  },
+  {
+    "id": "keyword-2",
+    "split": "held-out",
+    "field": "keyword",
+    "query": "diabetes",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "keywords"
+      ],
+      "metadata": {
+        "language": "en",
+        "keywords": "diabetes"
+      },
+      "openingEvidence": [
+        {
+          "page": 1,
+          "key": "1:2",
+          "text": "This clinical overview concerns elevated blood glucose, diabetes monitoring, medication adherence and consultation with clinicians."
+        }
+      ]
+    }
+  },
+  {
+    "id": "keyword-3",
+    "split": "held-out",
+    "field": "keyword",
+    "query": "cryptocurrency",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "keywords"
+      ],
+      "metadata": {
+        "language": "en",
+        "keywords": "cryptocurrency"
+      },
+      "openingEvidence": [
+        {
+          "page": 1,
+          "key": "1:2",
+          "text": "This clinical overview concerns elevated blood glucose, diabetes monitoring, medication adherence and consultation with clinicians."
+        }
+      ]
+    }
+  },
+  {
+    "id": "keyword-4",
+    "split": "held-out",
+    "field": "keyword",
+    "query": "Wasserqualität",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "keywords"
+      ],
+      "metadata": {
+        "language": "de",
+        "keywords": "Wasserqualität"
+      },
+      "openingEvidence": [
+        {
+          "page": 1,
+          "key": "1:2",
+          "text": "Dieser Bericht beschreibt die Wasserqualität an drei Küstenstationen. Messungen dokumentieren Sichttiefe und saisonale Veränderungen."
+        }
+      ]
+    }
+  },
+  {
+    "id": "keyword-5",
+    "split": "held-out",
+    "field": "keyword",
+    "query": "Weltraumantrieb",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "keywords"
+      ],
+      "metadata": {
+        "language": "de",
+        "keywords": "Weltraumantrieb"
+      },
+      "openingEvidence": [
+        {
+          "page": 1,
+          "key": "1:2",
+          "text": "Dieser Bericht beschreibt die Wasserqualität an drei Küstenstationen. Messungen dokumentieren Sichttiefe und saisonale Veränderungen."
+        }
+      ]
+    }
+  },
+  {
+    "id": "heading-0",
+    "split": "held-out",
+    "field": "section",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "sections"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "sections": [
+        {
+          "heading": {
+            "role": "H2",
+            "page": 1,
+            "keys": [
+              "1:1"
+            ],
+            "text": "Volcanic ash dispersion"
+          },
+          "body": {
+            "page": 1,
+            "keys": [
+              "1:2"
+            ],
+            "text": "Ash plumes travel downwind from volcanic eruptions. Measurements estimate particle concentrations and regional dispersal patterns."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "heading-1",
+    "split": "held-out",
+    "field": "section",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "sections"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "sections": [
+        {
+          "heading": {
+            "role": "H2",
+            "page": 1,
+            "keys": [
+              "1:1"
+            ],
+            "text": "Retirement investment strategy"
+          },
+          "body": {
+            "page": 1,
+            "keys": [
+              "1:2"
+            ],
+            "text": "Ash plumes travel downwind from volcanic eruptions. Measurements estimate particle concentrations and regional dispersal patterns."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "heading-2",
+    "split": "held-out",
+    "field": "section",
+    "expected": "uncertain",
+    "input": {
+      "checks": [
+        "sections"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "sections": [
+        {
+          "heading": {
+            "role": "H2",
+            "page": 1,
+            "keys": [
+              "1:1"
+            ],
+            "text": "Overview"
+          },
+          "body": {
+            "page": 1,
+            "keys": [
+              "1:2"
+            ],
+            "text": "Ash plumes travel downwind from volcanic eruptions. Measurements estimate particle concentrations and regional dispersal patterns."
+          }
+        }
+      ]
+    }
+  }
+]

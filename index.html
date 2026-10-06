@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f3ec" />
+    <meta
+      name="description"
+      content="Check PDF text, semantic structure, and metadata before AI ingestion. Analyze locally in your browser."
+    />
+    <title>PDF Signal Check | Text, structure, and metadata for machine use</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="wordmark" href="./" aria-label="PDF Signal Check home"
+        ><span class="mark" aria-hidden="true">P<span>↗</span></span
+        ><span>PDF<br /><strong>Signal Check</strong></span></a
+      >
+      <div class="header-meta">
+        <span class="local-indicator">Processed on your device</span
+        ><span class="version">EARLY VERSION / 0.7</span><button id="about-ai" class="privacy-info-button" type="button">About AI &amp; privacy</button>
+      </div>
+    </header>
+    <dialog closedby="none" id="ai-info-dialog" aria-labelledby="ai-info-title" aria-describedby="ai-info-description">
+      <div class="ai-info-content">
+        <p class="eyebrow">BEFORE YOU BEGIN</p>
+        <h2 id="ai-info-title">About AI and your PDF</h2>
+        <div id="ai-info-description">
+          <p>This tool checks PDFs in your browser. Your PDF contents stay on this device and are not uploaded for analysis.</p>
+          <p>Optional AI screening also runs locally. It downloads model and tokenizer assets from external hosts; those requests do not include your PDF text. The app and runtime assets load from the site hosting this tool.</p>
+          <p>AI can make mistakes. This tool was built with AI assistance, and its rules and models can miss issues or flag legitimate content. Review the evidence before relying on a result.</p>
+        </div>
+        <label class="ai-info-preference"><input id="ai-info-suppress" type="checkbox" /> Don't show again</label>
+        <p id="ai-info-preference-note" class="model-note">Only this notice preference is saved in your browser; no PDF data is saved with it. You can reopen this information using “About AI &amp; privacy.”</p>
+        <button id="ai-info-understand" class="secondary" type="button" autofocus>I understand</button>
+      </div>
+    </dialog>
+    <main id="main">
+      <section class="intro" aria-labelledby="intro-title">
+        <div>
+          <p class="eyebrow">Text, structure, and metadata for machine use.</p>
+          <h1 id="intro-title">
+            Inspect the PDF.<br /><em>Understand the input.</em>
+          </h1>
+        </div>
+        <p class="intro-copy">
+          Inspect extracted text, connected tags, and publication metadata. Find
+          evidence of missing structure or conflicting information before using
+          the document.
+        </p>
+      </section>
+      <nav class="flow-steps" aria-label="Review stages"><ol id="flow-steps"></ol></nav>
+      <div class="workspace">
+        <aside class="input-column" aria-label="Choose a PDF">
+          <section class="upload-card" id="drop-zone">
+            <div class="section-label">
+              <span>CHOOSE YOUR PDF</span><span aria-hidden="true">↙</span>
+            </div>
+            <label class="drop-target" for="file-input"
+              ><span class="document-icon" aria-hidden="true"
+                >PDF<span>↗</span></span
+              ><strong>Drop your PDF here</strong
+              ><span>or choose a file from your device</span></label
+            >
+            <input
+              id="file-input"
+              class="sr-only"
+              type="file"
+              accept="application/pdf,.pdf"
+            />
+            <p class="upload-limit">
+              Up to 50 MB · 200 pages · <button id="entry-batch" class="text-button" type="button">Check several PDFs</button>
+            </p>
+            <div id="selected-file" class="selected-file" hidden></div>
+            <div id="progress-area" hidden>
+              <progress
+                id="progress"
+                max="100"
+                value="0"
+                aria-label="PDF analysis progress"
+              ></progress>
+            </div>
+            <p id="status" role="status" aria-live="polite"></p>
+            <button id="cancel" class="text-button" hidden>
+              Cancel analysis
+            </button>
+          </section>
+          <section class="sample-card" aria-labelledby="sample-title">
+            <p class="eyebrow">TRY IT FIRST</p>
+            <h2 id="sample-title">Try a sample first.</h2>
+            <div class="sample-buttons">
+              <button data-example="14-author-mismatch.pdf">Conflicting authors <span aria-hidden="true">↗</span></button>
+              <button data-example="17-flawed-reading-order.pdf">Flawed reading order <span aria-hidden="true">↗</span></button>
+              <button data-sample="wrong-title">Wrong title year <span aria-hidden="true">↗</span></button>
+            </div>
+            <details class="example-gallery"><summary>Controls and all 18 examples</summary>
+            <div class="paired-examples">
+              <p class="small">Compare the same visual page with different machine input.</p>
+              <div><button data-example="18-title-author-control.pdf">Matching authors</button><button data-example="16-correct-reading-order.pdf">Correct tagged order</button></div>
+              <div><button data-sample="clean">Clean, tagged text</button><button data-sample="untagged">Readable, but untagged</button></div>
+            </div>
+            <label for="calibration-select">Example PDFs</label
+            ><select id="calibration-select">
+              <option value="">Choose an example PDF…</option></select
+            ><button id="load-calibration" class="secondary" disabled>
+              Analyze selected example
+            </button>
+            <p class="small">
+              Original synthetic reports with metadata, logos, figures, and
+              deliberate defects.
+              <a
+                href="./calibration/manifest.json"
+                target="_blank"
+                rel="noopener"
+                >View labels ↗</a
+              >
+            </p>
+            </details>
+          </section>
+          <p class="privacy-note">
+            Your PDF stays here. The structural analysis needs no AI model or
+            account. Optional semantic screening downloads model assets, then
+            runs locally.
+          </p>
+        </aside>
+        <section class="output-column" aria-label="Analysis report">
+          <div id="guided-flow"></div>
+          <details id="advanced-evidence" hidden><summary>Full evidence and JSON report</summary><div id="report" hidden></div></details>
+          <div id="empty-state" class="empty-state">
+            <div class="section-label">
+              <span>02 / THE EVIDENCE</span><span>READY WHEN YOU ARE</span>
+            </div>
+            <h2>What will machines<br />get from this PDF?</h2>
+            <p>
+              Start with a PDF. Check a defined text profile, inspect its metadata,
+              and review the extracted order with the original page.
+            </p>
+            <ol class="check-preview">
+              <li>
+                <span>01</span>
+                <div>
+                  <strong>Text that decodes</strong>
+                  <p>
+                    Usable text output, rather than just pixels or suspicious
+                    characters.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>02</span>
+                <div>
+                  <strong>Tags that connect</strong>
+                  <p>
+                    Semantic structure tied to the content, with coverage and
+                    parent links.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>03</span>
+                <div>
+                  <strong>Metadata to compare</strong>
+                  <p>
+                    Compare the document title with headings and cover text.
+                  </p>
+                </div>
+              </li>
+            </ol>
+            <div class="scope-note">
+              <strong>A specific profile. A traceable result.</strong>
+              <p>
+                This early version checks text-centric PDFs. Complex content can
+                return “No — not established.” It does not certify PDF/UA or
+                guarantee downstream AI accuracy.
+              </p>
+            </div>
+          </div>
+
+        </section>
+      </div>
+      <section class="about-profile">
+        <div>
+          <p class="eyebrow">WHAT A YES MEANS</p>
+          <h2>Inspect the PDF.<br />Keep the evidence.</h2>
+        </div>
+        <p>
+          A Yes means every required check passed for the supported text profile.
+          Metadata findings and reading-order review are separate. Meaningful graphics, forms, annotations, and some
+          text replacements need deeper analysis and prevent acceptance in this
+          version.
+        </p>
+      </section>
+    </main>
+    <footer>
+      <span>PDF Signal Check · A project by Ken Hawkins</span
+      ><span
+        >Built with reference to
+        <a
+          href="https://github.com/khawkins98/PDF-A-go-actionable"
+          target="_blank"
+          rel="noopener"
+          >PDF-A-go-actionable ↗</a> and <a href="https://github.com/khawkins98/pdf-a-go-go" target="_blank" rel="noopener">pdf-a-go-go ↗</a
+        ></span
+      >
+    </footer>
+    <noscript
+      >This application needs JavaScript to analyze PDFs locally in your
+      browser.</noscript
+    >
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
