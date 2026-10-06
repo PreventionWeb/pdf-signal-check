@@ -21,13 +21,8 @@ export function initializeAiNotice({ onStorageFailure = () => {} } = {}) {
     dialog.showModal();
     understand.focus({ preventScroll: true });
   };
-  dialog.addEventListener('cancel', event => event.preventDefault());
-  dialog.addEventListener('keydown', event => {
-    if (event.key === 'Escape' || event.code === 'Escape' || event.keyCode === 27) {
-      event.preventDefault(); event.stopPropagation();
-    }
-  });
-  understand.addEventListener('click', () => {
+  const close = () => {
+    if (!dialog.open) return;
     try {
       if (checkbox.checked) localStorage.setItem(preferenceKey, '1');
       else localStorage.removeItem(preferenceKey);
@@ -37,7 +32,18 @@ export function initializeAiNotice({ onStorageFailure = () => {} } = {}) {
     dialog.close();
     const target = returnFocus && returnFocus !== document.body && returnFocus.isConnected ? returnFocus : opener;
     target.focus({ preventScroll: true });
+  };
+  dialog.addEventListener('cancel', event => {
+    event.preventDefault();
+    close();
   });
+  dialog.addEventListener('keydown', event => {
+    if (event.key === 'Escape' || event.code === 'Escape' || event.keyCode === 27) {
+      event.preventDefault(); event.stopPropagation();
+      close();
+    }
+  });
+  understand.addEventListener('click', close);
   opener.addEventListener('click', open);
   if (!readPreference()) open();
 }
