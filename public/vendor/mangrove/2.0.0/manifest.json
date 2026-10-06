@@ -371,6 +371,12 @@
       "bytes": 87693
     },
     {
+      "path": "toolbar-logo.svg",
+      "url": "https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg",
+      "sha256": "c48d269fc01cf87c8e89356f6bd404ba1d1df6f6c48a73ccdecc7dc2f7f92e80",
+      "bytes": 26830
+    },
+    {
       "path": "upstream.css",
       "url": "https://assets.undrr.org/mangrove/2.0.0/css/style.css",
       "sha256": "1a6c63d258c88d6d4ef2e1e0cb5318dcc6e1f0ec7716803facc0c3d91b71bb76",

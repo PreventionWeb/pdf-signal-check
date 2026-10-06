@@ -25,6 +25,7 @@ records.append({'path':'style.css','derivedFrom':'upstream.css','sha256':hashlib
 extras={
  'LICENSE.txt':'https://raw.githubusercontent.com/PreventionWeb/undrr-mangrove/main/LICENSE',
  'logo.svg':THEMES[THEME][1],
+ 'toolbar-logo.svg':'https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg',
  'tokens.json':'https://mangrove.undrr.org/tokens.json',
  'noto-kufi-OFL.txt':'https://assets.undrr.org/fonts/noto-kufi-arabic/v1.1.0/OFL.txt',
  'noto-arabic-OFL.txt':'https://assets.undrr.org/fonts/noto-sans-arabic/v1.0.0/OFL.txt',

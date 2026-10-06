@@ -41,7 +41,7 @@ Mangrove and the shipped Roboto fonts use Apache 2.0; full license text is bundl
 
 To refresh: deliberately select the version/theme in `scripts/vendor-mangrove.py`, run `python3 scripts/vendor-mangrove.py`, review source/derived hashes and license changes, then run tests/build and actual root/Pages-prefix desktop/mobile and export QA. Do not fetch presentation assets at runtime or copy upstream analytics scripts. Versioned CDN paths are pinned, but hashes provide the recorded byte identity if upstream content changes.
 
-For a future PreventionWeb build, set the script theme to `preventionweb`, refresh its pinned bundle/logo, then update `PRESENTATION_BRAND.id`, logo alternative text and export palette from that theme's official tokens. Keep the aliased local `style.css`/`logo.svg` paths. Review logo sizing and header decoration for the adopted identity. The current single-theme stylesheet has no runtime theme overrides: adding a `mg-theme-*` class alone does not switch brands. A runtime picker would need the all-theme bundle and separate UX work; it is not implemented.
+For a future PreventionWeb build, set the script theme to `preventionweb`, refresh its pinned bundle/logo, then update `PRESENTATION_BRAND.id`, logo alternative text and export palette from that theme's official tokens. Keep the local stylesheet alias and deliberately select the appropriate logo aliases (`toolbar-logo.svg` for the current institutional toolbar). Review logo source, contrast, dimensions/crop and header decoration for the adopted identity. The current single-theme stylesheet has no runtime theme overrides: adding a `mg-theme-*` class alone does not switch brands. A runtime picker would need the all-theme bundle and separate UX work; it is not implemented.
 
 ## Delivered scope and limits
 
@@ -84,3 +84,51 @@ All 153 tests passed after the final presentation cleanup; the final production 
 Artifacts: `/tmp/pdfai-patterns-final-home-desktop.png`, `/tmp/pdfai-patterns-final-author-desktop.png`, `/tmp/pdfai-patterns-final-author-mobile.png`, `/tmp/pdfai-patterns-final-author-crop-mobile.png`, and independently checked `/tmp/pdfai-patterns-final-outline-mobile.png`. These are local verification artifacts, not production data.
 
 Independent final review confirmed source-first identity evidence, actual order/attachment findings, native radio focus, retained disclosure state, batch download consent and local-only asset loading. The sampled author review returned zero axe violations and zero incomplete checks after the bounded heading-outline correction; this sampled result is not full accessibility certification.
+
+## Institutional shell and catalog coverage — local implementation
+
+This follow-up replaces the separate bespoke institutional header/footer with published component contracts. The locally implemented shell is transferable to a React host; no React dependency or runtime migration has been started. The broader implementation/verification pass paused while that framework choice was being considered.
+
+| Before | After |
+| --- | --- |
+| Decoration-only stripe followed by a custom institutional header | Full [PageHeader](https://mangrove.undrr.org/ai-components/components-pageheader.json): decoration, toolbar wrapper, container, toolbar region and logo block. The documented `showAccount=false` and `showLanguage=false` variant omits unused controls. Product identity/privacy remain a separate utility row. |
+| Blue logo on a custom white surface | Official white horizontal logo in the published dark toolbar, bundled locally as `toolbar-logo.svg`. Published Logo/autocrop classes and native dimensions are preserved. One narrow focus-visible rule restores the logo-anchor ring suppressed by upstream toolbar CSS. |
+| Application footer built only from layout utilities | Published [Footer](https://mangrove.undrr.org/ai-components/components-footer.json) with `enableSyndication=false`, and site-specific children using the upstream `mg-footer-bar`, row/text/link structure. No external widget or analytics initializer. |
+| Custom two-column introductory heading | Published [Hero](https://mangrove.undrr.org/ai-components/components-hero-hero.json), contained and without an image, with title/summary and real upload/sample links. The deprecated ChildHero was deliberately avoided. |
+| Plain device-processing label and indeterminate progress bar | Neutral [StatusLabel](https://mangrove.undrr.org/ai-components/components-status-label.json) and a named [Loader](https://mangrove.undrr.org/ai-components/components-loader.json) for unknown preparation. Determinate progress still reports actual completed/total units. |
+| Separate gallery selection/action and a plain scope callout | Published [FormAction](https://mangrove.undrr.org/ai-components/components-forms-form-action.json) joins example selection to its Analyze action; [HighlightBox](https://mangrove.undrr.org/ai-components/components-highlightbox.json) presents the scope caveat. |
+| 532 lines / 19,186 bytes / 254 custom blocks | 521 lines / 18,332 bytes / 238 blocks. Common shell/intro/footer rules were removed; the necessary logo keyboard ring was added. Source counts exclude unchanged pinned upstream CSS. |
+
+The footer's generic “do not omit elements” guidance applies to the selected variant. Its published `enableSyndication=false` option and [source implementation](https://raw.githubusercontent.com/PreventionWeb/undrr-mangrove/main/stories/Components/Footer/Footer.jsx) render a `footer.mg-footer` with provided site children, without a syndicated container/script. The footer-bar structure is defined in the [upstream footer stylesheet](https://raw.githubusercontent.com/PreventionWeb/undrr-mangrove/main/stories/Components/Footer/footer.scss). Header show/hide options preserve all required brand wrappers; their [source implementation](https://raw.githubusercontent.com/PreventionWeb/undrr-mangrove/main/stories/Components/PageHeader/PageHeader.jsx) confirms those conditions.
+
+### Visible-surface coverage audit
+
+| Visible surface | Actual component/pattern or justified custom boundary |
+| --- | --- |
+| Institutional identity | PageHeader + Logo; exact required wrappers and four stripe segments. |
+| Product/privacy utility row | Published container, footer-bar row layout, subtle Tag, neutral StatusLabel and Button; no fictional institutional navigation slot. |
+| Opening orientation | Hero, no-image/contained variant; functional upload/sample anchors. |
+| Footer/attribution | Footer without syndication, with official footer-bar children; local static credit links. |
+| Single-document upload/drop | Native file input/label plus Card and Icon. Catalog has no file-upload/drop-zone component; PDF admission/drag state remains application-owned. |
+| Samples/gallery | Cards, Buttons, native Details and Select/FormAction. Analyzer state, sample bytes and manifest labels stay separate. |
+| Guided process stages | Native ordered list and `aria-current=step`. Catalog has no wizard-stepper; breadcrumbs would imply a false page hierarchy. |
+| Preparation/actual progress | Loader for unknown preparation; native progress for measured units. Catalog has no determinate-progress component. |
+| Completed checks / queue decisions | Complete Notice header/title/description/actions; explicit profile scope and severity words. |
+| Profile/model execution receipt | Text and subtle Tags with native Details; these receipt facts are not publication/editorial workflow statuses. |
+| Finding category choice | Named native SegmentedControl radio group, with checked state and keyboard focus restoration. |
+| Finding / identity / attachment / retained queue surfaces | Non-linked VerticalCards with explicit content children; controls are independent, not stretched card links. |
+| No-problem/empty groups | Complete EmptyState title/description/actions and uncertainty CTA. |
+| Model/configuration/consent controls | FormField, FormGroup, Checkbox and Select; optional network/download authorization remains in app policy. |
+| Model tradeoffs / advanced check counts | Table with scroll-region utility and StatsCard; source receipts remain truthful and readable. |
+| Disclosure/advanced evidence navigation | Standalone Details and grouped Accordion; native open state plus app disclosure keys. |
+| Action rows / provenance badges / evidence controls | Buttons, Tags, Icons and published flex/gap utilities. Labels distinguish actual inference, rules, heuristics and unassessed scope. |
+| Publication crop / page preview / SVG overlays | Custom source geometry, using component buttons/selects. No catalog component understands PDF coordinates, selection epochs or rendering disposal. |
+| Reading-order comparison | Custom two recovered sequences, omission/uncertainty caveats and actual anomaly arrows. A generic gallery/tree would change the evidentiary meaning. |
+| Privacy information modal | Native dialog with component typography/check/button controls. Catalog has no modal; existing Escape/focus/preference policy is retained. Drawer is a different interaction with its own lifecycle, not a modal substitute. |
+| Interactive contextual help | Native popover plus Icon/Button/typography. Catalog has no tooltip/popover; help contains reachable external references, so it must not be a hover-only tooltip. |
+| Calibration / raw receipts / export menu | Existing worker-owned calibration, native Details, Buttons and code font role. No new PDF/export generation or model execution behavior. |
+| Captured PDF/PNG | Existing separate report layouts and shared export palette/Noto embedding; web component DOM does not control captured-report layout. |
+
+The new toolbar logo is sourced from [the official horizontal SVG](https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg), 26,830 bytes, SHA-256 `c48d269fc01cf87c8e89356f6bd404ba1d1df6f6c48a73ccdecc7dc2f7f92e80`. The manifest now has 63 records, all hashes verified. Existing logo usage guidance continues to apply. `PRESENTATION_BRAND` selects the toolbar logo and its dimensions/crop; the refresh script preserves its source. A future PreventionWeb build must deliberately choose a suitable toolbar logo, update both logo aliases/brand settings and review contrast/crop, in addition to swapping the theme bundle.
+
+Shell verification: 153 tests and build passed (`index-D-GJEezr.js`, `index-D1584CCW.css`, `report-CSU0Gt5b.js`). Desktop 1280px and mobile 390px repository-prefixed startup displayed the real header/Hero, no horizontal overflow and no external asset requests. Independent review verified the header/footer, real Hero anchors, gallery analysis, author crop and provenance, reading-order comparison, attachment declarations, two-file queue, help/privacy Escape and focus. The product utility row is a named landmark. Home accessibility sampling found zero violations and one contrast item needing manual review on the official Hero gradient; it was visually reviewed, not certified. Screenshots: `/tmp/pdfai-shell-home-desktop.png`, `/tmp/pdfai-shell-final-home-mobile.png`, `/tmp/pdfai-shell-footer-desktop.png` and `/tmp/pdfai-shell-footer-mobile.png`. React UI migration was then authorized as the next step; this records the validated shell checkpoint, not a completed React migration or full Mangrove conformity.

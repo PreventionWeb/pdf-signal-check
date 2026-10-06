@@ -7,17 +7,14 @@
   font-variant-numeric: tabular-nums;
 }
 [hidden] { display: none !important; }
+/* Upstream toolbar suppresses anchor outlines but restores only icon descendants.
+   The logo-only variant needs the same visible keyboard ring on its home link. */
+.mg-page-header__block--logo > a:focus-visible {
+  outline: var(--mg-focus-ring-width) solid rgb(var(--mg-color-focus-ring));
+  outline-offset: var(--mg-focus-ring-offset);
+}
 body { background: rgb(var(--mg-color-neutral-25)); }
-.site-header { justify-content: space-between; gap: 24px; padding-block: 28px; background: rgb(var(--mg-color-neutral-0)); }
-.institution-identity { display: flex; align-items: center; gap: 28px; min-width: 0; }
-.institution-logo { width: 160px; height: auto; flex-shrink: 0; }
-.wordmark { font-family: var(--mg-font-family-ui); font-size: 18px; line-height: 1.25; border-left: 1px solid var(--line); padding-left: 24px; text-decoration: none; }
-.header-meta { justify-content: flex-end; font-size: 13px; }
 .version, .eyebrow, .section-label { font-family: var(--mg-font-family-ui); font-size: 14px; color: var(--muted); }
-.intro { padding-block: 48px; align-items: end; }
-.intro h1 { text-wrap: balance; }
-.intro h1 em { font-style: normal; color: rgb(var(--mg-color-interactive)); }
-.intro-copy { max-width: 40ch; color: var(--muted); }
 .input-column { min-width: 0; }
 .workspace { align-items: start; }
 .workspace:not([data-stage="document"]) > .output-column { grid-column: 1 / -1; }
@@ -38,7 +35,6 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .check-preview li { margin-block: 16px; }
 .check-preview li > span { display: none; }
 .about-profile { margin-block: 48px; }
-footer { justify-content: space-between; padding-block: 24px; font-size: 13px; color: var(--muted); }
 .flow-steps ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 16px 0; margin: 0; color: var(--muted); }
 .flow-actions, .report-actions, .model-actions { margin-block: 16px; }
 .review-categories { margin-block: 16px; }
@@ -73,17 +69,10 @@ footer { justify-content: space-between; padding-block: 24px; font-size: 13px; c
 .attachment-card h4 { overflow-wrap: anywhere; font-size: 1.05rem; }
 .attachment-card h5 { font-size: .85rem; }
 @media (max-width: 680px) {
-  .site-header { align-items: flex-start; gap: 12px; padding-block: 20px; }
-  .institution-identity { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .institution-logo { width: 125px; }
-  .wordmark { border: 0; padding: 0; font-size: 17px; }
-  .header-meta { max-width: 150px; gap: 6px; }
-  .intro { padding-block: 32px; }
-  .workspace, .intro, .about-profile { grid-template-columns: minmax(0, 1fr); }
+              .workspace, .about-profile { grid-template-columns: minmax(0, 1fr); }
   .output-column { grid-column: 1 / -1; }
   .flow-actions > button { flex: 1 1 160px; }
-  footer { flex-direction: column; }
-  .review-categories .mg-segmented-control__label { font-size: .8rem; padding-inline: 8px; }
+    .review-categories .mg-segmented-control__label { font-size: .8rem; padding-inline: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mg-button:active { scale: 1; }
