@@ -79,23 +79,26 @@ export function App() {
     };
   }, [controller, batch]);
   useEffect(() => {
-    if (state.stage !== "document")
+    if (state.stage !== "welcome")
       document.getElementById("flow-title")?.focus({ preventScroll: true });
   }, [state.stage]);
   const inBatch =
       state.stage === "batch" || (state.stage === "review" && state.batchId),
     steps = inBatch
       ? [
-          ["batch", "Batch queue"],
-          ["review", "PDF evidence"],
+          ["welcome", "1 · Welcome"],
+          ["batch", "2 · Batch queue"],
+          ["review", "3 · PDF evidence"],
         ]
       : [
-          ["document", "1 · Document"],
-          ["checks", "2 · Checks"],
-          ["processing", "3 · Processing"],
-          ["review", "4 · Review"],
+          ["welcome", "1 · Welcome"],
+          ["document", "2 · Select PDF"],
+          ["checks", "3 · Checks"],
+          ["processing", "4 · Processing"],
+          ["review", "5 · Review"],
         ];
   const title = {
+    document: "Select a PDF to check",
     batch: "Review several PDFs",
     checks: "Choose how to review this PDF",
     review: "Review the evidence",
@@ -127,6 +130,10 @@ export function App() {
             className="mg-u-font-size-500"
             href="./"
             aria-label="PDF Signal Check home"
+            onClick={(e) => {
+              e.preventDefault();
+              controller.go("welcome");
+            }}
           >
             {PRODUCT_NAME}
           </a>
@@ -148,101 +155,112 @@ export function App() {
       </section>
       <PrivacyNotice ref={privacyRef} openerRef={openerRef} />
       <main id="main" tabIndex={-1} className="mg-container mg-container--slim">
-        {state.stage === "document" && (
-          <Hero
-            contained
-            data={[
-              {
-                label: PRODUCT_DESCRIPTOR,
-                title: PRODUCT_TAGLINE,
-                summaryText:
-                  "Inspect extracted text, connected tags, and publication metadata. Find evidence of missing structure or conflicting information before using the document.",
-                buttons: [
-                  { label: "Choose a PDF", url: "#drop-zone" },
-                  {
-                    label: "Try a sample",
-                    url: "#sample-title",
-                    type: "Secondary",
-                  },
-                ],
-              },
-            ]}
-          />
-        )}
         <nav
           className="flow-steps"
           aria-label={inBatch ? "Batch review" : "Review stages"}
         >
           <ol id="flow-steps">
-            {steps.map(([key, label]) => (
-              <li
-                key={key}
-                aria-current={
-                  state.stage === key ||
-                  (state.stage.startsWith("processing") && key === "processing")
-                    ? "step"
-                    : undefined
-                }
-              >
-                {label}
-              </li>
-            ))}
+            {steps.map(([key, label]) => {
+              const isCurrent =
+                state.stage === key ||
+                (state.stage.startsWith("processing") && key === "processing");
+              const canNavigate =
+                key === "welcome" ||
+                key === "document" ||
+                (key === "batch" && !batch.busy) ||
+                (key === "checks" && state.report) ||
+                (key === "review" && state.report);
+              return (
+                <li
+                  key={key}
+                  aria-current={isCurrent ? "step" : undefined}
+                >
+                  {!isCurrent && canNavigate ? (
+                    <button
+                      type="button"
+                      className="flow-step-link"
+                      onClick={() => controller.go(key)}
+                    >
+                      {label}
+                    </button>
+                  ) : (
+                    <span>{label}</span>
+                  )}
+                </li>
+              );
+            })}
           </ol>
         </nav>
-        <div
-          className="workspace mg-grid mg-grid__col-3"
-          data-stage={state.stage}
-        >
-          {state.stage === "document" && (
-            <Entry
-              state={state}
-              controller={controller}
-              batchBusy={batch.busy}
-            />
-          )}
-          <section
-            className="output-column mg-grid__col--span-2"
-            aria-label="Analysis report"
+        {state.stage === "welcome" && (
+          <Welcome controller={controller} />
+        )}
+        {state.stage !== "welcome" && (
+          <div
+            className="workspace mg-grid mg-grid__col-3"
+            data-stage={state.stage}
           >
-            <div id="guided-flow">
-              {title && (
-                <h1 className="flow-title" id="flow-title" tabIndex={-1}>
-                  {title}
-                </h1>
-              )}
-              {state.file && state.stage !== "batch" && (
-                <p className="flow-file">
-                  {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
-                </p>
-              )}
-              {state.stage === "document" && (
-                <>
-                  {state.report && (
-                    <Actions>
-                      <Button onClick={() => controller.go("review")}>
-                        Return to this PDF’s review
+            {state.stage === "document" && (
+              <Entry
+                state={state}
+                controller={controller}
+                batch={batch}
+                batchBusy={batch.busy}
+              />
+            )}
+            <section
+              className="output-column mg-grid__col--span-2"
+              aria-label="Analysis report"
+            >
+              <div id="guided-flow">
+                {title && (
+                  <h1 className="flow-title" id="flow-title" tabIndex={-1}>
+                    {title}
+                  </h1>
+                )}
+                {state.file && state.stage !== "batch" && (
+                  <p className="flow-file">
+                    {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
+                  </p>
+                )}
+                {state.stage === "document" && (
+                  <>
+                    {state.report && (
+                      <Actions>
+                        <Button onClick={() => controller.go("review")}>
+                          Return to this PDF’s review
+                        </Button>
+                        <Button onClick={() => controller.go("checks")}>
+                          Return to screening choices
+                        </Button>
+                      </Actions>
+                    )}
+                    {!state.report && state.file && (
+                      <Button
+                        disabled={batch.busy}
+                        onClick={() => controller.analyze(state.file)}
+                      >
+                        Retry this PDF
                       </Button>
-                      <Button onClick={() => controller.go("checks")}>
-                        Return to screening choices
-                      </Button>
-                    </Actions>
-                  )}
-                  {!state.report && state.file && (
-                    <Button
-                      disabled={batch.busy}
-                      onClick={() => controller.analyze(state.file)}
-                    >
-                      Retry this PDF
-                    </Button>
-                  )}
-                  <EmptyState title="What will machines get from this PDF?">
-                    <p>
-                      Inspect extracted text, connected semantic tags, and publication
-                      metadata against original page layout.
-                    </p>
-                  </EmptyState>
-                </>
-              )}
+                    )}
+                    <Card className="document-guide-card">
+                      <h3>Step 2: Choose your PDF or batch</h3>
+                      <p>
+                        Select or drop a single PDF to inspect, or drop multiple PDFs to start a batch queue.
+                      </p>
+                      <p>
+                        Once loaded, text decodability and tag coverage are checked locally. Next, you will choose how to process the document: with recommended local AI screening or directly without AI.
+                      </p>
+                      <div className="flow-actions">
+                        <Button
+                          variant="secondary"
+                          onClick={() => controller.go("welcome")}
+                        >
+                          ← Back to welcome
+                        </Button>
+                      </div>
+                    </Card>
+                  </>
+                )}
               {state.stage === "checks" && (
                 <Checks
                   state={state}
@@ -338,7 +356,8 @@ export function App() {
             )}
           </section>
         </div>
-        {state.stage === "document" && (
+      )}
+      {["welcome", "document"].includes(state.stage) && (
           <section className="about-profile mg-grid mg-grid__col-2">
             <div>
               <p className="eyebrow">What a Yes means</p>
@@ -384,7 +403,102 @@ export function App() {
     </>
   );
 }
-function Entry({ state, controller, batchBusy }) {
+function Welcome({ controller }) {
+  return (
+    <section className="welcome-screen" aria-label="Welcome and tool orientation">
+      <Hero
+        contained
+        data={[
+          {
+            label: `${PRODUCT_DESCRIPTOR} · Experimental preflight`,
+            title: PRODUCT_TAGLINE,
+            summaryText:
+              "Inspect extracted text, connected semantic tags, and publication metadata directly on your device. Discover missing structure or conflicting information before using documents in AI workflows.",
+            buttons: [
+              {
+                label: "Get started",
+                type: "Primary",
+                onClick: (e) => {
+                  e.preventDefault();
+                  controller.go("document");
+                },
+              },
+              {
+                label: "Try a sample PDF",
+                type: "Secondary",
+                onClick: (e) => {
+                  e.preventDefault();
+                  controller.loadSample("./samples/clean.pdf");
+                },
+              },
+            ],
+          },
+        ]}
+      />
+      <div className="welcome-pillars mg-grid mg-grid__col-2">
+        <Card className="welcome-pillar-card">
+          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
+            <span className="welcome-pillar-icon" aria-hidden="true">🤖</span>
+            <h3>Powered by AI</h3>
+          </div>
+          <p>
+            Combines deterministic extraction rules with optional on-device
+            embedding models (such as MiniLM and IBM Granite) to test semantic
+            relatedness between titles, subjects, keywords, and tagged sections.
+          </p>
+        </Card>
+        <Card className="welcome-pillar-card">
+          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
+            <span className="welcome-pillar-icon" aria-hidden="true">🛠️</span>
+            <h3>Made with AI assistance</h3>
+          </div>
+          <p>
+            This application was built and refined with AI assistance. Automated
+            preflight checks can miss subtle defects or flag valid variations; always
+            review the underlying document evidence.
+          </p>
+        </Card>
+        <Card className="welcome-pillar-card">
+          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
+            <span className="welcome-pillar-icon" aria-hidden="true">🔒</span>
+            <h3>100% on-device &amp; private</h3>
+          </div>
+          <p>
+            Your PDF files and extracted text never leave your device. All parsing,
+            tag inspections, and model runs happen locally in your browser with zero
+            remote telemetry, tracking, or document uploads.
+          </p>
+        </Card>
+        <Card className="welcome-pillar-card">
+          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
+            <span className="welcome-pillar-icon" aria-hidden="true">📑</span>
+            <h3>Experimental preflight tool</h3>
+          </div>
+          <p>
+            Preflights text-centric PDFs against an actionability profile.
+            A passing result confirms required text/tag checks, but does not certify
+            full PDF/UA compliance or guarantee downstream LLM accuracy.
+          </p>
+        </Card>
+      </div>
+      <div className="welcome-start-bar mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
+        <Button
+          variant="primary"
+          onClick={() => controller.go("document")}
+        >
+          Select a PDF to check <Icon name="arrow-right" />
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => controller.go("batch")}
+        >
+          Batch upload several PDFs
+        </Button>
+      </div>
+    </section>
+  );
+}
+function Entry({ state, controller, batch, batchBusy }) {
   const [dragging, setDragging] = useState(false),
     [sample, setSample] = useState(""),
     disabled = state.analysisBusy || batchBusy;
@@ -402,8 +516,13 @@ function Entry({ state, controller, batchBusy }) {
         onDrop={(e) => {
           e.preventDefault();
           setDragging(false);
-          if (e.dataTransfer.files.length === 1)
-            controller.analyze(e.dataTransfer.files[0]);
+          const files = Array.from(e.dataTransfer.files || []);
+          if (files.length === 1) {
+            controller.analyze(files[0]);
+          } else if (files.length > 1) {
+            batch.add(files);
+            controller.go("batch");
+          }
         }}
       >
         <div className="section-label mg-u-flex mg-u-gap-100">
@@ -423,16 +542,22 @@ function Entry({ state, controller, batchBusy }) {
           type="file"
           id="file-input"
           accept="application/pdf,.pdf"
+          multiple
           disabled={disabled}
           onChange={(e) => {
-            const file = e.target.files[0];
+            const files = Array.from(e.target.files || []);
             e.target.value = "";
-            if (file) controller.analyze(file);
+            if (files.length === 1) {
+              controller.analyze(files[0]);
+            } else if (files.length > 1) {
+              batch.add(files);
+              controller.go("batch");
+            }
           }}
         />
         <div className="upload-batch">
           <Button onClick={() => controller.go("batch")}>
-            Check several PDFs
+            Check several PDFs (Batch queue)
           </Button>
         </div>
       </Card>

@@ -15,7 +15,7 @@ export function createAppController({
   baseUrl = globalThis.document?.baseURI || "http://localhost/",
 } = {}) {
   let state = {
-    stage: "document",
+    stage: "welcome",
     file: null,
     report: null,
     example: null,

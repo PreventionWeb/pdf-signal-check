@@ -31,7 +31,32 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .upload-batch { margin-top: 14px; text-align: center; }
 .upload-batch .mg-button { width: 100%; }
 .about-profile { margin-block: 48px; }
+.welcome-screen { margin-bottom: 32px; }
+.welcome-pillars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.welcome-pillar-card { height: 100%; }
+.welcome-pillar-header { margin-bottom: 8px; }
+.welcome-pillar-icon { font-size: 1.5rem; line-height: 1; }
+.welcome-pillar-header h3 { margin: 0; font-size: 1.15rem; }
+.welcome-pillar-card p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
+.welcome-start-bar { margin-top: 24px; }
+.document-guide-card { margin-top: 16px; }
+.document-guide-card h3 { font-size: 1.15rem; margin-top: 0; }
+.document-guide-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
 .flow-steps ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 16px 0; margin: 0; color: var(--muted); }
+.flow-steps li[aria-current="step"] { font-weight: 600; color: rgb(var(--mg-color-neutral-900)); }
+.flow-step-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: rgb(var(--mg-color-interactive));
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.flow-step-link:hover {
+  color: rgb(var(--mg-color-interactive-hover));
+}
 .flow-actions { margin-block: 16px; }
 .review-categories { margin-block: 16px; }
 .review-categories .mg-segmented-control__group { flex-wrap: wrap; }
@@ -55,10 +80,10 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .attachment-card h4 { overflow-wrap: anywhere; font-size: 1.05rem; }
 .attachment-card h5 { font-size: .85rem; }
 @media (max-width: 680px) {
-              .workspace, .about-profile { grid-template-columns: minmax(0, 1fr); }
+  .workspace, .about-profile, .welcome-pillars { grid-template-columns: minmax(0, 1fr); }
   .output-column { grid-column: 1 / -1; }
   .flow-actions > button { flex: 1 1 160px; }
-    .review-categories .mg-segmented-control__label { font-size: .8rem; padding-inline: 8px; }
+  .review-categories .mg-segmented-control__label { font-size: .8rem; padding-inline: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mg-button:active { scale: 1; }

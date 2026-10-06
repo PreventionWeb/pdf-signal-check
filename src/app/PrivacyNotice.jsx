@@ -10,7 +10,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
       return false;
     }
   };
-  const [open, setOpen] = useState(() => !read()),
+  const [open, setOpen] = useState(false),
     [suppressed, setSuppressed] = useState(read),
     dialog = useRef(null),
     understand = useRef(null),
