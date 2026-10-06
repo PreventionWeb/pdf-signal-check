@@ -264,7 +264,7 @@ export class BatchController {
       if (this.disposed || generation !== this.generation) return;
       this.createQueue();
       this.message =
-        "Queue cleared. Source handles and retained details released; no data was saved.";
+        "Queue cleared. Source handles and retained details released; no data were saved.";
       this.clearing = false;
       this.publish();
     } catch (error) {

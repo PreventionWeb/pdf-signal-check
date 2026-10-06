@@ -100,7 +100,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
           onChange={(e) => setSuppressed(e.target.checked)}
         />
         <p id="ai-info-preference-note" className="model-note">
-          Only this notice preference is saved in your browser; no PDF data is
+          Only this notice preference is saved in your browser; no PDF data are
           saved with it. You can reopen this information using “About AI &amp;
           privacy.”
         </p>

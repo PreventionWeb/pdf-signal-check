@@ -41,7 +41,7 @@ it('refuses model attribution when execution flags lack model identity or a succ
 });
 it('attachment declarations remain rule-based metadata evidence when optional AI ran elsewhere',()=>{
  const p=findingProvenance(finding('attachments','attachment-metadata-inspection'),{attachments:{status:'requires-review'},semantic:{model:{id:'actual'},inferencePerformed:true}});
- expect(p.kind).toBe('rules');expect(p.label).toBe('Declared attachment metadata');expect(p.detail).toContain('not analyzed');
+ expect(p.kind).toBe('rules');expect(p.label).toBe('Declared attachment metadata');expect(p.detail).toContain('not analysed');
 });
 
 it('does not imply an attachment inspection when inventory was not assessed',()=>{expect(findingProvenance(finding('attachments','attachment-metadata-inspection'),{attachments:{status:'not-assessed',reason:'Parser failed'}}).kind).toBe('unassessed');});

@@ -4,7 +4,29 @@ export { Select } from "@undrr/undrr-mangrove/components/Select.js";
 export { SegmentedControl } from "@undrr/undrr-mangrove/components/SegmentedControl.js";
 export { FormGroup } from "@undrr/undrr-mangrove/components/FormGroup.js";
 export { Loader } from "@undrr/undrr-mangrove/components/Loader.js";
+export { StatsCard } from "@undrr/undrr-mangrove/components/StatsCard.js";
 import { Notice as PublishedNotice } from "@undrr/undrr-mangrove/components/Notice.js";
+export function Tag({
+  variant,
+  subtle = false,
+  className = "",
+  children,
+  ...props
+}) {
+  const classes = [
+    "mg-tag",
+    subtle && "mg-tag--subtle",
+    variant && `mg-tag--${variant}`,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return (
+    <span className={classes} {...props}>
+      {children}
+    </span>
+  );
+}
 /** Published CTA renders an anchor; application actions require actual native buttons. */
 export function Button({
   variant = "secondary",
@@ -74,10 +96,15 @@ export function Actions({ children }) {
 export function Icon({ name }) {
   return <span className={`mg-icon mg-icon-${name}`} aria-hidden="true" />;
 }
-export function EmptyState({ title, children, actions }) {
+export function EmptyState({
+  title,
+  children,
+  actions,
+  headingLevel: Heading = "h2",
+}) {
   return (
     <section className="mg-empty-state mg-empty-state--panel mg-empty-state--start mg-empty-state--compact">
-      <h2 className="mg-empty-state__title">{title}</h2>
+      <Heading className="mg-empty-state__title">{title}</Heading>
       <div className="mg-empty-state__description">{children}</div>
       {actions && <div className="mg-empty-state__actions">{actions}</div>}
     </section>

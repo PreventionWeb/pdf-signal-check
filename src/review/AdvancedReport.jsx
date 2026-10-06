@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Details, Select } from "../ui/react.jsx";
+import { Card, Details, Select, StatsCard } from "../ui/react.jsx";
 import { normalizeFindings } from "./findings.js";
 import { findingProvenance, screeningProvenance } from "./provenance.js";
 export function AdvancedReport({ report }) {
@@ -19,41 +19,47 @@ export function AdvancedReport({ report }) {
               ? "No — required defects found"
               : "No — not established"}
         </p>
-        <div className="mg-stats-card">
-          <div className="mg-grid mg-grid__col-3">
-            {[
-              [report.file.pages ?? "—", "pages"],
-              [
-                report.checks.filter((c) => c.status === "pass").length,
-                "checks passed",
-              ],
-              [
-                report.checks.filter((c) => c.status !== "pass").length,
-                "required checks to inspect",
-              ],
-            ].map(([value, label]) => (
-              <article key={label} className="mg-card mg-stats-card-item">
-                <data
-                  className="mg-stats-card-item__value"
-                  value={String(value)}
-                >
-                  {value}
-                </data>
-                <strong className="mg-stats-card-item__bottom-label">
-                  {label}
-                </strong>
-              </article>
-            ))}
-          </div>
-        </div>
+        <StatsCard
+          aria-label="Profile summary statistics"
+          stats={[
+            { value: report.file.pages ?? "—", bottomLabel: "pages" },
+            {
+              value: report.checks.filter((c) => c.status === "pass").length,
+              bottomLabel: "checks passed",
+            },
+            {
+              value: report.checks.filter((c) => c.status !== "pass").length,
+              bottomLabel: "required checks to inspect",
+            },
+          ]}
+        />
       </Card>
       <h3>Required checks</h3>
       <div className="mg-accordion">
         {report.checks.map((check) => (
           <Details
             key={check.id}
-            summary={`${check.status === "pass" ? "✓" : check.status === "fail" ? "×" : "?"} ${check.label}`}
-            className={`check-row ${check.status}`}
+            summary={
+              <span>
+                <span
+                  className={
+                    check.status === "pass"
+                      ? "mg-u-color--accent-400"
+                      : check.status === "fail"
+                        ? "mg-u-color--red-900"
+                        : "mg-u-color--neutral-600"
+                  }
+                  aria-hidden="true"
+                >
+                  {check.status === "pass"
+                    ? "✓ "
+                    : check.status === "fail"
+                      ? "× "
+                      : "? "}
+                </span>
+                {check.label}
+              </span>
+            }
           >
             <p>{check.summary}</p>
             <p>Outcome: {check.status}. Required for acceptance.</p>

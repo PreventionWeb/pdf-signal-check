@@ -8,6 +8,7 @@ import {
   Actions,
   EmptyState,
   SegmentedControl,
+  Tag,
 } from "../ui/react.jsx";
 import { Help } from "../help/Help.jsx";
 import { IdentityComparison } from "./IdentityComparison.jsx";
@@ -166,14 +167,14 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             <Details summary="Synthetic example labels (separate from findings)">
               <p>
                 {state.example.defects?.join("; ") || "Matching control"}. These
-                authored labels do not determine analyzer results.
+                authored labels do not determine analyser results.
               </p>
             </Details>
           )}
         </Details>
         <div className="execution-receipt mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
           <span>Traditional rules + PDF extraction</span>
-          <span className="mg-tag mg-tag--subtle">{execution.label}</span>
+          <Tag subtle>{execution.label}</Tag>
           <Help
             topic={execution.kind === "ai" ? "ai" : "bounded"}
             label="About actual AI execution"
@@ -249,9 +250,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             <span className="finding-method">
               {finding.outcome.replaceAll("-", " ")}
             </span>
-            <span className="mg-tag mg-tag--subtle">
+            <Tag subtle>
               Source: {method.label}
-            </span>
+            </Tag>
             <Help
               topic={method.help}
               label={`About this finding’s source: ${method.label}`}

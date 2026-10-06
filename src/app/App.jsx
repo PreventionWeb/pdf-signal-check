@@ -42,6 +42,7 @@ import {
   FormGroup,
   Loader,
   Icon,
+  Tag,
 } from "../ui/react.jsx";
 export function App() {
   const [controller] = useState(() => createAppController()),
@@ -135,7 +136,7 @@ export function App() {
               <span className="mg-status-label__indicator" aria-hidden="true" />
               Processed on your device
             </span>
-            <span className="mg-tag mg-tag--subtle">Early version / 0.8</span>
+            <Tag subtle>Early version / 0.8</Tag>
             <Button
               id="about-ai"
               ref={openerRef}
@@ -557,7 +558,7 @@ function Entry({ state, controller, batchBusy }) {
                 disabled={disabled || !sample}
                 onClick={() => controller.loadSample(`./calibration/${sample}`)}
               >
-                Analyze selected example
+                Analyse selected example
               </Button>
             }
           />
@@ -722,12 +723,12 @@ function ModelPicker({ state, controller, batchBusy }) {
         aria-label="Model download and language tradeoffs"
         tabIndex={0}
       >
-        <table className="mg-table mg-table--data model-tradeoffs">
+        <table className="mg-table mg-table--data mg-u-font-size-200">
           <thead>
             <tr>
-              <th>Model / language</th>
-              <th>Download assets</th>
-              <th>Tradeoffs</th>
+              <th scope="col">Model / language</th>
+              <th scope="col">Download assets</th>
+              <th scope="col">Tradeoffs</th>
             </tr>
           </thead>
           <tbody>

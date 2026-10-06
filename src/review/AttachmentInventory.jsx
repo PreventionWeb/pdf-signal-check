@@ -17,7 +17,7 @@ export function AttachmentInventory({ inventory }) {
       </p>
       <p>
         This is an inventory of file declarations. Attached contents are not
-        opened or analyzed.
+        opened or analysed.
       </p>
       <p>{inventory?.reason}</p>
       {inventory?.files?.map((file) => (
@@ -30,7 +30,7 @@ export function AttachmentInventory({ inventory }) {
           <p className="model-note">
             {file.embedded
               ? file.payloads?.length
-                ? "Located embedded payload stream(s); contents not analyzed."
+                ? "Located embedded payload stream(s); contents not analysed."
                 : "Embedded-file declaration; no payload stream was located."
               : "Associated reference only; no payload was fetched."}
           </p>
