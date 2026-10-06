@@ -1,0 +1,11 @@
+{
+  "version": "1.9.0",
+  "source": "https://github.com/khawkins98/PDF-A-go-go",
+  "commit": "02fb17120d36fc1afee9e260906cbf38694d44ff",
+  "files": {
+    "pdf-a-go-go.js": "5a3dd4112606be49592ca96db36c42a4945718033f5abcfa90b3d8eb91b68492",
+    "pdf-a-go-go.css": "6fd684066f0c7be059e8539b44e0b3c1b951eebc603f0071508840f53e6ebf5e",
+    "pdf-a-go-go.worker.js": "fa2d27b9961efee800242d04713158e7530958f0dca2e0cf28e2d8811db0fe1e",
+    "pdf-a-go-go.worker.js.LICENSE.txt": "b5e8c493d516d9b156045ec3b83cc3e26785363af56db22bd52382942b394242"
+  }
+}
