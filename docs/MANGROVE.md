@@ -1,6 +1,6 @@
 # Mangrove presentation migration
 
-PDF Signal Check uses the UNDRR theme of Mangrove **2.0.0**, provisionally. Product name, PDF/profile identifiers, source ownership, local processing and optional AI consent remain independent of presentation. This is a first migration of a static Vite application; it does not use Drupal, Gutenberg, React hydration, analytics, cookie scripts or remote footer widgets.
+PDF Signal Check uses the UNDRR theme of Mangrove **2.0.0**, provisionally. Product name, PDF/profile identifiers, source ownership, local processing and optional AI consent remain independent of presentation. This is a static React 19 + Vite application using published Mangrove React modules and documented native adaptations. It does not use Drupal, Gutenberg, server hydration, analytics, cookie scripts or remote footer widgets. Historical receipts below describe earlier vanilla implementation checkpoints.
 
 ## Primary specifications
 
@@ -59,7 +59,7 @@ Local QA screenshots: `/tmp/pdf-signal-mangrove-entry-desktop.png`, `/tmp/pdf-si
 
 ## Component consolidation — 6 October 2026
 
-The second pass adopts complete vanilla structures rather than applying theme classes to bespoke surfaces. `src/ui/patterns.js` provides explicit card/content, notice/header/description/actions and form-field/check-row constructors; it attaches no listeners. Views continue to own state, source handles and cancellation. `src/ui/element.js` applies documented control, utility and standalone `mg-details` classes. Common presentation is consolidated in `src/style.css`; the separate `src/ui/theme.css` override layer was removed.
+At the second-pass checkpoint, complete vanilla structures replaced theme classes on bespoke surfaces. The former `src/ui/patterns.js` provided explicit card/content, notice/header/description/actions and form-field/check-row constructors; it attached no listeners. Views then owned state, source handles and cancellation. The former `src/ui/element.js` applied documented control, utility and standalone `mg-details` classes. Common presentation is consolidated in `src/style.css`; the separate `src/ui/theme.css` override layer was removed.
 
 | Before | After |
 | --- | --- |
@@ -87,7 +87,7 @@ Independent final review confirmed source-first identity evidence, actual order/
 
 ## Institutional shell and catalog coverage — local implementation
 
-This follow-up replaces the separate bespoke institutional header/footer with published component contracts. The locally implemented shell is transferable to a React host; no React dependency or runtime migration has been started. The broader implementation/verification pass paused while that framework choice was being considered.
+This validated follow-up replaced the bespoke institutional header/footer with published component contracts. At that checkpoint no React runtime migration had started. The subsequently authorized React migration is documented below.
 
 | Before | After |
 | --- | --- |
@@ -132,3 +132,29 @@ The footer's generic “do not omit elements” guidance applies to the selected
 The new toolbar logo is sourced from [the official horizontal SVG](https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg), 26,830 bytes, SHA-256 `c48d269fc01cf87c8e89356f6bd404ba1d1df6f6c48a73ccdecc7dc2f7f92e80`. The manifest now has 63 records, all hashes verified. Existing logo usage guidance continues to apply. `PRESENTATION_BRAND` selects the toolbar logo and its dimensions/crop; the refresh script preserves its source. A future PreventionWeb build must deliberately choose a suitable toolbar logo, update both logo aliases/brand settings and review contrast/crop, in addition to swapping the theme bundle.
 
 Shell verification: 153 tests and build passed (`index-D-GJEezr.js`, `index-D1584CCW.css`, `report-CSU0Gt5b.js`). Desktop 1280px and mobile 390px repository-prefixed startup displayed the real header/Hero, no horizontal overflow and no external asset requests. Independent review verified the header/footer, real Hero anchors, gallery analysis, author crop and provenance, reading-order comparison, attachment declarations, two-file queue, help/privacy Escape and focus. The product utility row is a named landmark. Home accessibility sampling found zero violations and one contrast item needing manual review on the official Hero gradient; it was visually reviewed, not certified. Screenshots: `/tmp/pdfai-shell-home-desktop.png`, `/tmp/pdfai-shell-final-home-mobile.png`, `/tmp/pdfai-shell-footer-desktop.png` and `/tmp/pdfai-shell-footer-mobile.png`. React UI migration was then authorized as the next step; this records the validated shell checkpoint, not a completed React migration or full Mangrove conformity.
+
+## React UI migration — 6 October 2026
+
+| Before | After |
+| --- | --- |
+| DOM entry rebuilds and separate view constructors | React 19 root and declarative App, Review, BatchPanel, CalibrationPanel and ExportMenu; obsolete DOM entry/views removed. |
+| Shell markup implemented from catalog | Actual published PageHeader, Footer with `enableSyndication={false}`, and Hero React modules, with local identity assets. |
+| Shared vanilla controls | Published Checkbox, Select, SegmentedControl, FormGroup, Notice, Loader, HighlightBox and FormAction modules. |
+| UI-bound worker/export state | DOM-free cached external stores subscribed with `useSyncExternalStore`; explicit source/generation guards, cancellation and reusable mount/dispose. |
+| Full page UI owned by imperative preview | React controls/status/layout around an isolated canvas/SVG PreviewSession. Source crops remain independently canceled and disposed. |
+
+React and React DOM are pinned to 19.3.0, Mangrove to 2.0.0, Vite to 8.3.2 and its React plugin to 6.1.2. Dependencies were installed with lifecycle scripts disabled. Direct component subpaths are used because this Mangrove package has no root entry point. Package JSX uses React 19 element identity; hooks share the app React runtime.
+
+The component catalog does not imply every package API accepts arbitrary app content. Mangrove CtaButton renders links, so disabled/Space-operable actions remain native React buttons with published classes. VerticalCard accepts string data rather than arbitrary children, so evidence/canvas/multi-control cards use the documented no-link/content structure in a composable React adapter. EmptyState, Icon, Details and Accordion are CSS-only patterns. Native measured progress, file input, ordered workflow navigation, privacy dialog and interactive help popovers retain the functional-fit exceptions in the coverage table above. Help uses a React portal to avoid nesting block content inside publication headings/paragraphs. No global widget or component initializer is imported.
+
+Single-source state preserves stable finding IDs through model reruns. Original source identity and deterministic acceptance are unchanged; model selection is separate from actual inference. Batch scheduling retains one owner across stage changes. Constructors do not download models or create workers. StrictMode setup/cleanup/setup is supported through reusable controllers, cancellation, scoped listeners and stale-callback guards. Model bootstrapping failures preserve traditional results. Downloads capture a fixed report/source snapshot.
+
+Verification: 173 tests across 20 files pass. Controller tests cover explicit start, cached subscriptions, remount, stale sample/digest/worker results, synchronous worker failures and captured export identity. Desktop and 390px browser checks cover identity source crops, order diagrams, canvas inspection/zoom/overlays, native radio keys, help and privacy Escape. Actual pinned MiniLM WASM inference completed; title remained rules-only while subject/keyword records prove inference. Downloaded PDF pages 1–5 and PNG were rendered and visually inspected; JSON captured stable source identity. Independent final production receipts follow below. This is a React migration with explicit adapters, not a claim of complete Mangrove conformity or completed Arabic UI support.
+
+Final React receipt: root verified all 173 tests / 20 files, build and clean diff on `index-BVsiThlc.js`, `index-D1584CCW.css`, `report-BjZ-RG9j.js` and `benchmark.worker-DKgflZps.js`. Custom CSS remains 521 lines / 18,332 bytes; this React pass adds no styling layer. Source was conventionally formatted and the parallel legacy DOM views removed. The standard large-chunk warning remains for parser/runtime/report bundles; the main app is approximately 890 kB uncompressed and 273 kB gzip, with heavyweight report generation in a separate lazy chunk.
+
+Artifacts: `/tmp/pdfai-react-author-desktop.png`, `/tmp/pdfai-react-author-mobile.png`, `/tmp/pdfai-react-final-order-mobile.png`, `/tmp/pdfai-react-order-preview-mobile.png`; rendered downloads at `/tmp/pdf-signal-react-qa/reading-order-report.pdf`, `report-page-1.png` through `report-page-5.png`, and `reading-order-summary.png`. Real Pages-prefix processing uses local worker/font/PDF assets. Model assets are requested only through an explicit screening/device-test action; PDF contents remain local.
+
+Independent final review on BVsiThlc verified unsupported German remains unassessed/rules-only, actual MiniLM per-check provenance, no-metadata identity evidence, attachments 19/20, two-file queue retention, profile independence and mobile overflow/local resources. Diagram-focused artifact: `/tmp/pdfai-react-final-order-diagram-mobile.png`. A final attachment report PDF was downloaded and its rendered first page reviewed at `/tmp/pdfai-react-final19.pdf`. Device workload completion and cancellation were exercised on both development and prefixed production URLs after correcting fixture URLs to use an explicit site base. A final one-line context correction hides the previous single-PDF filename on the batch screen.
+
+Final delivered assets after the filename-only batch-context correction are `index-eubInDrY.js`, `index-D1584CCW.css`, and `report-2DwsKV7D.js`. Comprehensive independent browser verification above used BVsiThlc; the final correction was checked separately in the development browser after loading author14, returning to Document, and opening Batch: heading “Review several PDFs” has no stale single-source filename. The production build passes; no engine/profile/inference policy changed.

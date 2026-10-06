@@ -15,8 +15,11 @@ self.onmessage=async({data})=>{
     }
     // No document name, text or arbitrary byte buffer is accepted from the client.
     post({type:'progress',message:'Loading the public synthetic two-page fixture.',progress:{stage:'fixture',state:'started',completed:null,total:null,unit:null}});
-    const assetBase=new URL('../pdfjs/',self.location.href);
-    const fixtureUrl=new URL('../calibration/01-clean-text.pdf',self.location.href);
+    // Dev workers live under /src/calibration; bundled workers live under /assets.
+    // Resolve the site directory first so Pages repository prefixes survive both paths.
+    const siteBase=new URL(import.meta.env.DEV?'../../':'../',self.location.href);
+    const assetBase=new URL('pdfjs/',siteBase);
+    const fixtureUrl=new URL('calibration/01-clean-text.pdf',siteBase);
     const response=await fetch(fixtureUrl);if(!response.ok)throw new Error('Synthetic fixture unavailable.');
     const bytes=new Uint8Array(await response.arrayBuffer());if(bytes.length>100_000)throw new Error('Synthetic fixture size limit exceeded.');
     pdfjs.GlobalWorkerOptions.workerPort=new Worker(workerUrl,{type:'module'});

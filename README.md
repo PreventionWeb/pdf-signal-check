@@ -1,5 +1,7 @@
 # PDF Signal Check
 
+The UI uses React 19 with Vite and published Mangrove 2.0 components. PDF analysis, optional local inference and captured exports remain separate browser-local modules; GitHub Pages requires no server runtime. See [architecture](docs/ARCHITECTURE.md) and [component coverage](docs/MANGROVE.md).
+
 Check whether a PDF provides usable text, connected semantic structure, and metadata that describes its content before sending it into an AI workflow.
 
 The aim is to reduce avoidable extraction errors, misleading context, and wasted processing. The checker assesses document inputs; passing it does not guarantee that a downstream AI system will avoid hallucinations.

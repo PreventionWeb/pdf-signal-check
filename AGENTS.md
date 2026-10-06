@@ -2,7 +2,7 @@
 
 ## Product and privacy
 
-- This is a static Vite browser app intended for GitHub Pages; no backend or API key.
+- This is a static React 19 + Vite browser app intended for GitHub Pages; no backend or API key.
 - PDF bytes, extracted text, model inputs, and results stay on the device. Do not add uploads or telemetry containing PDF data.
 - Optional model/tokenizer assets may download only after explicit user consent. Keep costs, supported languages, and limitations visible.
 - Deterministic text-profile acceptance is independent of AI advisories, previews, and review annotations. A pass does not guarantee AI accuracy; reviewed does not mean fixed.
@@ -12,13 +12,14 @@
 - Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before changing ownership or module boundaries.
 - Keep structural rules in `src/engine`, inference ownership in `src/runtime`/workers, and DOM-free scheduling/retention in `src/batch`.
 - Keep presentation/guidance in `src/review`, rendering/crops in `src/evidence`, captured reports in `src/export`, and fixed device workloads in `src/calibration`.
+- React owns UI; keep observable controller snapshots stable and effect cleanup/remount safe. Canvas/SVG geometry may use isolated refs.
 - Preserve source identity, attempt epochs, cancellation, stale-callback guards, and worker/document/canvas disposal. Export a fixed source/report snapshot.
 - Do not silently substitute models, evict report details, or imply serialized report size measures browser RAM.
 - Keep changes modular; consult [profile scope](docs/PROFILE.md) and [evaluation limits](docs/EVALUATION.md) when changing outcomes or claims.
 
 ## Presentation
 
-- Follow [docs/MANGROVE.md](docs/MANGROVE.md): pinned Mangrove 2.0 vanilla components, semantic font roles, correctly wrapped sRGB tokens, and local bundled assets; no external startup scripts/fonts.
+- Follow [docs/MANGROVE.md](docs/MANGROVE.md): pinned Mangrove 2.0 React components and documented native adaptations, semantic font roles, correctly wrapped sRGB tokens, and local bundled assets; no external startup scripts/fonts.
 - Keep brand/theme adaptation separate from PDF outcomes. A future PreventionWeb change needs its pinned theme bundle, not a class on the UNDRR-only stylesheet.
 
 ## Repository and delivery
