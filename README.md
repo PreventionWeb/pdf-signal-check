@@ -67,7 +67,7 @@ Version 1 is intended for GitHub Pages. [The workflow](.github/workflows/pages.y
 
 Vite uses relative asset URLs so the build works under a repository project path or a custom domain. PDF.js assets are bundled with the site. Optional models use Hugging Face for pinned model/tokenizer files; the inference runtime is bundled with the site. No backend or API key is required.
 
-This repository is currently local only. The planned future GitHub location is `preventionweb/pdf-signal-check`, with GitHub Pages hosting. Creating that repository, adding a remote, pushing, and publishing are deferred until requested.
+The private repository is [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check). `main` is an empty baseline; the initial implementation lives on `feature/initial-implementation` for a squash pull request. GitHub Pages has not been deployed. See [AGENTS.md](AGENTS.md) for concise contributor instructions.
 
 ## Planning documents
 

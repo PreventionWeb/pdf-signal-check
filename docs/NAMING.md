@@ -62,7 +62,7 @@ The shortlist covers literal checking, workflow gates, source preparation, extra
 - **Acceptance label:** Text actionability profile 0.2: Yes/No, with limitations and reasons. A product name must not become the name of an external standard.
 - **AI feature:** Optional local semantic screening. Name the selected model and its actual language limits in the workflow; avoid implying all checks or every language use AI.
 
-Retain credits to Ken Hawkins's PDF-A-go-actionable and pdf-a-go-go. A new name changes neither authorship nor reference-project attribution. The original guidance was to preserve the repository slug until a separate migration was requested. That migration is now complete locally: the folder/package use `pdf-signal-check`, with the former slug and original project name preserved as searchable history. The future GitHub location is planned as `preventionweb/pdf-signal-check`; no GitHub repository or remote has been created, and nothing has been pushed or published.
+Retain credits to Ken Hawkins's PDF-A-go-actionable and pdf-a-go-go. A new name changes neither authorship nor reference-project attribution. The original guidance was to preserve the repository slug until a separate migration was requested. That migration is now complete: the folder/package use `pdf-signal-check`, with the former slug and original project name preserved as searchable history. The private GitHub repository is [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check); the baseline and implementation branches have been pushed. GitHub Pages has not been deployed.
 
 ## Comprehension and language validation
 

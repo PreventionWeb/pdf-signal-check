@@ -35,6 +35,6 @@ The October 6, 2026 naming pass changes current product-facing labels to PDF Sig
 
 ## Repository identity
 
-The local folder and npm package were subsequently renamed to `pdf-signal-check`. The planned future GitHub location is `preventionweb/pdf-signal-check`; repository creation, remote configuration, pushes, and publication have not been performed. Historical validation URLs and receipts retain the paths used when those checks ran.
+The local folder and npm package were subsequently renamed to `pdf-signal-check`. At that stage, GitHub publication was deferred. The private repository is now [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check), with the empty baseline on `main` and implementation on `feature/initial-implementation` for a squash PR. GitHub Pages has not been deployed. Historical validation URLs and receipts retain the paths used when those checks ran.
 
 After the local rename, all 122 tests and the production build passed from the new folder. Agent-browser verified a real author-mismatch review under `/pdf-signal-check/` at 390×844 with the correct brand, comparison evidence, and no horizontal overflow. The local-only production preview for this check used `http://127.0.0.1:4182/pdf-signal-check/`; it is not an external deployment.
