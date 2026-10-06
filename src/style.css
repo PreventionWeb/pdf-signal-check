@@ -35,7 +35,6 @@ body { background: rgb(var(--mg-color-neutral-25)); }
 .welcome-pillars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
 .welcome-pillar-card { height: 100%; }
 .welcome-pillar-header { margin-bottom: 8px; }
-.welcome-pillar-icon { font-size: 1.5rem; line-height: 1; }
 .welcome-pillar-header h3 { margin: 0; font-size: 1.15rem; }
 .welcome-pillar-card p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
 .welcome-start-bar { margin-top: 24px; }

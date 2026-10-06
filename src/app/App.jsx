@@ -398,8 +398,7 @@ function Welcome({ controller }) {
       />
       <div className="welcome-pillars mg-grid mg-grid__col-2">
         <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
-            <span className="welcome-pillar-icon" aria-hidden="true">🤖</span>
+          <div className="welcome-pillar-header">
             <h3>Powered by AI</h3>
           </div>
           <p>
@@ -409,8 +408,7 @@ function Welcome({ controller }) {
           </p>
         </Card>
         <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
-            <span className="welcome-pillar-icon" aria-hidden="true">🛠️</span>
+          <div className="welcome-pillar-header">
             <h3>Made with AI assistance</h3>
           </div>
           <p>
@@ -420,8 +418,7 @@ function Welcome({ controller }) {
           </p>
         </Card>
         <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
-            <span className="welcome-pillar-icon" aria-hidden="true">🔒</span>
+          <div className="welcome-pillar-header">
             <h3>100% on-device &amp; private</h3>
           </div>
           <p>
@@ -431,8 +428,7 @@ function Welcome({ controller }) {
           </p>
         </Card>
         <Card className="welcome-pillar-card">
-          <div className="welcome-pillar-header mg-u-flex mg-u-align-items-center mg-u-gap-100">
-            <span className="welcome-pillar-icon" aria-hidden="true">📑</span>
+          <div className="welcome-pillar-header">
             <h3>Experimental preflight tool</h3>
           </div>
           <p>
