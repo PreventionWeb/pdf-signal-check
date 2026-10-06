@@ -628,9 +628,28 @@ function Checks({
               : "The required text profile was not established. Inspect the required findings."
         }
         actions={
-          <Button variant="primary" onClick={() => controller.go("review")}>
-            Review findings without AI
-          </Button>
+          <>
+            {model && (
+              <Button
+                variant="primary"
+                disabled={
+                  !state.checks.length || state.calibrationBusy || batchBusy
+                }
+                onClick={() => {
+                  controller.setModel(recommended);
+                  controller.runScreening();
+                }}
+              >
+                Review with AI (recommended)
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              onClick={() => controller.go("review")}
+            >
+              {problems ? "Review findings without AI" : "Review without AI"}
+            </Button>
+          </>
         }
       />
       <p className="model-note">
@@ -640,6 +659,7 @@ function Checks({
       <Details
         summary="Add optional local AI screening"
         className="optional-screening"
+        defaultOpen
       >
         <Card className="recommendation">
           <h3>
@@ -653,18 +673,26 @@ function Checks({
               : "Language metadata is missing or unsupported. Review without AI or inspect model eligibility; no language is silently substituted."}
           </p>
           {model && (
-            <Button
-              variant="primary"
-              disabled={
-                !state.checks.length || state.calibrationBusy || batchBusy
-              }
-              onClick={() => {
-                controller.setModel(recommended);
-                controller.runScreening();
-              }}
-            >
-              Use recommended settings
-            </Button>
+            <Actions>
+              <Button
+                variant="primary"
+                disabled={
+                  !state.checks.length || state.calibrationBusy || batchBusy
+                }
+                onClick={() => {
+                  controller.setModel(recommended);
+                  controller.runScreening();
+                }}
+              >
+                Use recommended settings
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => controller.go("review")}
+              >
+                {problems ? "Review findings without AI" : "Review without AI"}
+              </Button>
+            </Actions>
           )}
         </Card>
         <Details

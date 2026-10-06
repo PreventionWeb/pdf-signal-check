@@ -64,14 +64,22 @@ export function Details({
   summary,
   children,
   className = "",
-  defaultOpen,
+  defaultOpen = false,
   open,
   ...props
 }) {
+  const [isOpen, setIsOpen] = React.useState(open ?? defaultOpen);
+  const isControlled = open !== undefined;
   return (
     <details
       className={`mg-details ${className}`}
-      open={open === undefined ? defaultOpen : open}
+      open={isControlled ? open : isOpen}
+      onToggle={(e) => {
+        if (!isControlled) {
+          setIsOpen(e.currentTarget.open);
+        }
+        props.onToggle?.(e);
+      }}
       {...props}
     >
       <summary>{summary}</summary>
