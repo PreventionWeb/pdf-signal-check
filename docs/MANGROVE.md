@@ -187,3 +187,14 @@ Following the independent Astra information-architecture review, the intake page
 | Raw binary profile and five count classes in batch rows | Compact detected-concern, human-review and tool-limit counts; raw profile retained in technical details. Queue cleanup/download management is secondary. |
 
 Verification: 205 tests passed; production build passed with the existing large-chunk warning. Actual MiniLM calibration and PDF inference completed; missing-language recovery required an explicit English assumption. Desktop and 390px mobile reviews and the repository-prefixed production URL were checked. Independent normal-user review covered fresh no-AI setup, all three samples, saved settings and a two-PDF batch; its empty-inventory feedback was implemented. Mobile results had no horizontal page overflow and axe reported zero WCAG A/AA violations; decorative reading-order arrows still require manual contrast assessment. Captured PDF and PNG exports were downloaded and visually inspected. Local artifacts are `/tmp/pdf-signal-ia-final-report.pdf`, `/tmp/pdf-signal-ia-final-summary.png`, and `/tmp/pdf-signal-ia-final-export-*.png`.
+
+## Intake and setup refinement — 7 October 2026
+
+| Before | After |
+| --- | --- |
+| Saved settings and configuration button above redundant selection instructions | Short capability description above the uploader; current model and Settings action below it. Batch entry is a compact secondary action. |
+| Long “Same report, three ways” introduction | “Try a sample” with a short explanation and the same three preparation cards. |
+| Radio cards plus collapsed feature comparison | Always-visible product comparison, with model selection in the column headers and the selected column highlighted. |
+| Saved setup could only be replaced | Reset saved setup revokes future download consent, clears model/check preferences and per-model speed receipts, and restores first-use setup. Cached model files and current document evidence are retained. |
+
+Reset refuses to run during analysis, inference, calibration or an active batch. It also releases deferred intake and reports storage-clear failures honestly. Verification: 207 tests passed, production build passed, desktop/mobile matrix selection and reset were exercised in-browser, and reload after reset reopened first-use setup. Mobile document/dialog widths stayed within the viewport; only the comparison table scrolls horizontally. The repository-prefixed production intake loaded successfully. No PDF export rendering changed.

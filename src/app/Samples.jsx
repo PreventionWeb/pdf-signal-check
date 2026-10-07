@@ -10,9 +10,8 @@ const samples = [
 /** Labels describe authored preparation, not predicted analysis outcomes. */
 export function Samples({ disabled, onChoose }) {
   return <section className="sample-section" aria-labelledby="sample-title">
-    <p className="eyebrow">Try it first</p>
-    <h2 id="sample-title" tabIndex={-1}>Same report, three ways</h2>
-    <p className="sample-intro">Each PDF looks the same: authors, a 2025 report title, paragraphs, a two-column procedure and a figure. Only its metadata, tags and alternate text differ. Compare what machines recover.</p>
+    <h2 id="sample-title" tabIndex={-1}>Try a sample</h2>
+    <p className="sample-intro">The same fictional report, with different metadata, tags and figure descriptions.</p>
     <div className="sample-grid mg-grid mg-grid__col-3">
       {samples.map(sample => <Card as="article" className="sample-option" key={sample.file}>
         <h3 className="mg-card__title">{sample.title}</h3>
@@ -20,6 +19,6 @@ export function Samples({ disabled, onChoose }) {
         <Button disabled={disabled} aria-label={`Check sample: ${sample.title}`} onClick={() => onChoose(`./samples/${sample.file}`)}>Check this sample <Icon name="arrow-right" /></Button>
       </Card>)}
     </div>
-    <p className="model-note">Fictional examples, not accessibility certificates. Even the well-prepared version needs visual review of reading order and figures.</p>
+    <p className="model-note">Samples illustrate preparation levels; they are not accessibility certificates.</p>
   </section>;
 }

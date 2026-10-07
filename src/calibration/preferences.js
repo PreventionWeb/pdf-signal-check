@@ -50,6 +50,6 @@ export function createDevicePreferences({ storage = defaultStorage(), browser = 
         return Boolean(storage);
       } catch { return false; }
     },
-    clear() { try { storage?.removeItem(KEY); } catch {} },
+    clear() { try { storage?.removeItem(KEY); return Boolean(storage); } catch { return false; } },
   };
 }

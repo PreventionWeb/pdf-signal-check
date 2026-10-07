@@ -10,6 +10,7 @@ export function createEvaluationPreferences({ storage = defaultStorage() } = {})
     return JSON.stringify(getSemanticModel(modelId));
   };
   return {
+    clear() { try { storage?.removeItem(KEY); return Boolean(storage); } catch { return false; } },
     load() {
       try {
         const value = JSON.parse(storage?.getItem(KEY) || 'null');

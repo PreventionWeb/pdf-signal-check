@@ -2,7 +2,7 @@ import { it, expect, vi } from 'vitest';
 import { createEvaluationPreferences } from '../src/app/preferences.js';
 import { createAppController } from '../src/app/controller.js';
 import { formatBytes, formatProgress } from '../src/ui/progress.js';
-const storage = () => { let value = null; return { getItem: () => value, setItem: (_, next) => { value = next; } }; };
+const storage = () => { let value = null; return { getItem: () => value, setItem: (_, next) => { value = next; }, removeItem: () => { value = null; } }; };
 it('restores only explicit settings and consent without starting any document or model work', () => {
   const local = storage(), preferences = createEvaluationPreferences({ storage: local });
   const workerFactory = vi.fn(), fetcher = vi.fn();
@@ -99,4 +99,34 @@ it('defers sample fetch and multi-file queue admission until the selected config
   expect(batch.setConsent).toHaveBeenCalledWith(true);
   expect(batch.add).toHaveBeenCalledTimes(1);
   expect(second.getSnapshot().stage).toBe('batch');
+});
+
+it('reset revokes saved consent and benchmarks and releases a deferred first-use PDF', () => {
+  const preferences = createEvaluationPreferences({ storage: storage() });
+  const devicePreferences = { clear: vi.fn(() => true) }, workerFactory = vi.fn();
+  const app = createAppController({ preferences, devicePreferences, workerFactory });
+  app.completeSetup('granite-r2');
+  app.setChecks(['sections']);
+  app.openSetup('document');
+  expect(app.resetSetup()).toBe(true);
+  expect(preferences.load()).toBeNull();
+  expect(devicePreferences.clear).toHaveBeenCalledOnce();
+  expect(app.getSnapshot()).toMatchObject({ setupComplete: false, aiEnabled: false, settingsSaved: false, languageAssumption: null, checks: ['title', 'subject', 'keywords'] });
+  expect(createAppController({ preferences }).getSnapshot().setupComplete).toBe(false);
+  const pdf = { name: 'deferred.pdf', size: 4, arrayBuffer: vi.fn() };
+  app.selectFiles([pdf]);
+  expect(app.getSnapshot().pendingSetupLabel).toBe('deferred.pdf');
+  app.resetSetup();
+  app.completeSetup(null);
+  expect(pdf.arrayBuffer).not.toHaveBeenCalled();
+  expect(workerFactory).not.toHaveBeenCalled();
+});
+it('refuses a reset while another owner is processing and leaves saved consent intact', () => {
+  const preferences = createEvaluationPreferences({ storage: storage() }), devicePreferences = { clear: vi.fn() };
+  const app = createAppController({ preferences, devicePreferences });
+  app.completeSetup('minilm');
+  app.bindServices({ batch: { busy: true, setSettings: vi.fn(), setConsent: vi.fn() } });
+  expect(app.resetSetup()).toBe(false);
+  expect(preferences.load().modelId).toBe('minilm');
+  expect(devicePreferences.clear).not.toHaveBeenCalled();
 });

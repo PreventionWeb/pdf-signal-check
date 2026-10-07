@@ -582,3 +582,9 @@ progress {
   .review-categories { max-width: 100%; }
 }
 .review-export-menu .mg-details summary { padding-inline-end: 52px; }
+
+.intake-settings { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-block: 12px 28px; }
+.intake-settings .model-note { margin: 0; }
+.intake-settings .flow-actions { margin: 0; }
+.setup-reset { border-top: 1px solid rgb(var(--mg-color-neutral-100)); margin-top: 28px; padding-top: 16px; }
+@media (max-width: 680px) { .intake-settings { align-items: start; flex-direction: column; } }

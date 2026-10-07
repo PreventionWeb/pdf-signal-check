@@ -89,8 +89,8 @@ export function App() {
           ["review", "2 · Results"],
         ];
   const title = {
-    setup: "Select a PDF to check",
-    document: "Select a PDF to check",
+    setup: "Check a PDF",
+    document: "Check a PDF",
     batch: "Review several PDFs",
     checks: "Your PDF results",
     review: "Your PDF results",
@@ -293,21 +293,6 @@ export function App() {
             )}
           </section>
         </div>
-      {state.stage === "document" && (
-          <section className="about-profile mg-grid mg-grid__col-2">
-            <div>
-              <p className="eyebrow">What a Yes means</p>
-              <h2>Understand the result’s limits</h2>
-            </div>
-            <p>
-              A Yes means every required check passed for the supported text
-              profile. Metadata findings and reading-order review are separate.
-              Figure tags and alternate-text presence are checked, but image meaning is not.
-              Meaningful graphics and other excluded content keep the full text-profile
-              result unestablished in this version; this is a scope limit, not proof of a defective PDF.
-            </p>
-          </section>
-        )}
       </main>
       <Footer enableSyndication={false}>
         <div className="mg-footer-bar">
@@ -344,15 +329,7 @@ function Entry({ state, controller, batchBusy }) {
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
-      {state.setupComplete ? <p className="model-note">Current settings: {state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · compact English" : "Granite R2 · multilingual" : "No AI model"}. {state.settingsSaved ? "Your choice is remembered in this browser." : "Settings apply for this session; browser storage is unavailable."}</p> : <p>Find missing text tags, conflicting metadata and reading-order concerns before using a PDF in AI workflows. Your PDF stays on this device.</p>}
-      {state.setupComplete && <div className="flow-actions">
-        <Button variant="secondary" disabled={disabled} onClick={() => controller.openSetup("document")}>
-          Change check settings
-        </Button>
-      </div>}
-      <p className="step-intro">
-        {state.setupComplete ? `Select or drop a PDF to run text checks${state.aiEnabled ? " and local AI" : ""}.` : "Select a PDF or sample to get started. We’ll help you choose how to check it, with an optional device speed test."} Selecting several files creates a batch queue.
-      </p>
+      <p className="step-intro">Check metadata, language, text tags, reading order and figure descriptions. Local AI compares text; image and chart meaning still need human review.</p>
       {state.report && (
         <Actions>
           <Button onClick={() => controller.go("review")}>
@@ -392,7 +369,7 @@ function Entry({ state, controller, batchBusy }) {
             <Icon name="file-alt" />
           </span>
           <strong>Drop your PDF here</strong>
-          <span className="drop-subtext">or choose a file from your device</span>
+          <span className="drop-subtext">or choose PDFs from your device</span>
           <span className="drop-limit">Up to 50 MB · 200 pages</span>
         </label>
         <input
@@ -408,12 +385,14 @@ function Entry({ state, controller, batchBusy }) {
             controller.selectFiles(files);
           }}
         />
-        <div className="upload-batch">
-          <Button onClick={() => controller.beginEvaluation("batch")}>
-            Check several PDFs
-          </Button>
-        </div>
       </Card>
+      <div className="intake-settings">
+        <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose your check settings when you select your first PDF."}</p>
+        <Actions>
+          <Button disabled={disabled} onClick={() => controller.openSetup("document")}>Settings</Button>
+          <Button disabled={disabled} onClick={() => controller.beginEvaluation("batch")}>Check several PDFs</Button>
+        </Actions>
+      </div>
       <Samples
         manifest={state.manifest}
         manifestError={state.manifestError}

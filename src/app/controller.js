@@ -1,3 +1,4 @@
+import { createDevicePreferences } from '../calibration/preferences.js';
 import { createEvaluationPreferences } from './preferences.js';
 import { buildScreeningRequest } from "../runtime/screening-request.js";
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from "../engine/models.js";
@@ -14,6 +15,7 @@ export function createAppController({
   fetcher = (...args) => fetch(...args),
   digest = (buffer) => crypto.subtle.digest("SHA-256", buffer),
   preferences = createEvaluationPreferences(),
+  devicePreferences = createDevicePreferences(),
   baseUrl = globalThis.document?.baseURI || "http://localhost/",
 } = {}) {
   const saved = preferences.load();
@@ -137,6 +139,20 @@ export function createAppController({
     openSetup(stage = state.stage) {
       pendingIntake = null;
       emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, stage: "setup" });
+    },
+    resetSetup() {
+      if (state.analysisBusy || state.modelBusy || state.calibrationBusy || services.batch?.busy) return false;
+      pendingIntake = null;
+      stopModel();
+      services.calibration?.cancel();
+      const settingsCleared = preferences.clear?.();
+      const benchmarksCleared = devicePreferences.clear();
+      services.batch?.releaseIdleWorkers();
+      services.batch?.setSettings({ useAI: false, modelId: "minilm", checks: ["title", "subject", "keywords"] });
+      services.batch?.setConsent(false);
+      emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "minilm", selectedModel: null, languageAssumption: null,
+        checks: ["title", "subject", "keywords"], pendingSetupLabel: null, message: settingsCleared && benchmarksCleared ? "Saved setup and speed tests reset. Choose settings for your next PDF." : "Setup reset for this session. Browser storage could not be cleared; saved settings may return after reload." });
+      return true;
     },
     cancelSetup() {
       pendingIntake = null;
