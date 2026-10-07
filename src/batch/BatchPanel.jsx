@@ -90,18 +90,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
       {item.error && <p className="error-message">{item.error}</p>}
       {item.summary && (
         <>
-          <p>
-            {item.summary.analysisComplete === true
-              ? `Text profile ${item.summary.profile}: ${item.summary.accepted ? "Yes" : "No"} · ${item.summary.pages ?? "unknown"} pages.`
-              : "Analysis incomplete: compliance was not established. The retained report explains the failed or unassessed required checks."}
-          </p>
-          <p>
-            {counts["required-defect"] || 0} required defects ·{" "}
-            {counts["required-indeterminate"] || 0} required checks needing
-            review · {counts["advisory-concern"] || 0} advisory concerns ·{" "}
-            {counts.uncertain || 0} uncertain · {counts.unassessed || 0}{" "}
-            unassessed
-          </p>
+          <p><strong>{item.summary.presentationCounts?.problems ?? ((counts['required-defect'] || 0) + (counts['advisory-concern'] || 0))} detected concerns</strong> · {item.summary.presentationCounts?.uncertainty ?? ((counts['required-indeterminate'] || 0) + (counts.uncertain || 0))} human-review items · {item.summary.presentationCounts?.limits ?? 0} tool limits</p>
           {item.summary.semantic?.error && (
             <p className="error-message">
               AI did not complete: {item.summary.semantic.error}
@@ -130,7 +119,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
             id={`batch-open-${item.id}`}
             onClick={() => controller.open(item.id)}
           >
-            Review findings
+            Open report
           </Button>
         ) : (
           item.summary && (
@@ -188,6 +177,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
         className="batch-file-details"
         summary="File identity, timing and compact outcomes"
       >
+        {item.summary && <p>Formal text profile: {item.summary.accepted ? "Required checks passed" : item.summary.checks?.some(check => check.status === "fail") ? "Required defects found" : "Required checks not established"}. Independent of advisory counts.</p>}
         <p>
           {item.id} · {item.phase}
         </p>
@@ -520,26 +510,6 @@ export function BatchPanel({ controller, requireAI = false }) {
             Stop all
           </Button>
         )}
-        <Button
-          id="batch-summary"
-          disabled={!queue.items.length}
-          onClick={() =>
-            downloadJson(
-              controller.state,
-              `${REPORT_FILENAME_STEM}-batch-summary.json`,
-            )
-          }
-        >
-          Download compact batch JSON
-        </Button>
-        <Button
-          id="batch-clear"
-          className="batch-secondary-action"
-          disabled={state.clearing}
-          onClick={() => controller.clear()}
-        >
-          Clear queue and release data
-        </Button>
       </Actions>
       {queue.modelFailure && (
         <Notice
@@ -630,6 +600,28 @@ export function BatchPanel({ controller, requireAI = false }) {
           />
         ))}
       </div>
+      <Disclosure controller={controller} state={state} name="batch-management" summary="Download batch summary or clear queue"><Actions>
+        <Button
+          id="batch-summary"
+          disabled={!queue.items.length}
+          onClick={() =>
+            downloadJson(
+              controller.state,
+              `${REPORT_FILENAME_STEM}-batch-summary.json`,
+            )
+          }
+        >
+          Download compact batch JSON
+        </Button>
+        <Button
+          id="batch-clear"
+          className="batch-secondary-action"
+          disabled={state.clearing}
+          onClick={() => controller.clear()}
+        >
+          Clear queue and release data
+        </Button>
+      </Actions></Disclosure>
       {queue.configuration && setup}
     </section>
   );

@@ -7,7 +7,6 @@ import React, {
   useSyncExternalStore,
 } from "react";
 import { Button, Details } from "../ui/react.jsx";
-import { PRODUCT_NAME } from "../brand.js";
 import { ExportController } from "./controller.js";
 
 export const ExportMenu = forwardRef(function ExportMenu(
@@ -40,34 +39,17 @@ export const ExportMenu = forwardRef(function ExportMenu(
     [controller],
   );
   return (
-    <Details summary="Keep this report" className="review-export-menu">
-      <section className="export-actions">
-        <h3>Keep a captured report</h3>
-        <p>
-          Reports can include your document’s file name, metadata, text
-          excerpts, and page images. Downloads are generated on this device;
-          share only with intended recipients.
-        </p>
-        <div className="flow-actions mg-u-flex mg-u-flex-wrap mg-u-gap-100">
-          {[
-            ["pdf", `Download ${PRODUCT_NAME} report (PDF)`],
-            ["png", "Download summary image (PNG)"],
-            ["json", "Download detailed report (JSON)"],
-          ].map(([kind, label]) => (
-            <Button
-              key={kind}
-              disabled={disabled || state.busy}
-              onClick={() => controller.run(kind)}
-            >
-              {label}
-            </Button>
-          ))}
-          {state.busy && (
-            <Button onClick={() => controller.cancel()}>Cancel export</Button>
-          )}
-        </div>
+    <section className="review-export-menu" aria-label="Download this report">
+      <div className="flow-actions mg-u-flex mg-u-flex-wrap mg-u-gap-100">
+        <Button variant="primary" disabled={disabled || state.busy} onClick={() => controller.run('pdf')}>Download report (PDF)</Button>
+        <Details summary="Other download formats">
+          <Button disabled={disabled || state.busy} onClick={() => controller.run('png')}>Summary image (PNG)</Button>
+          <Button disabled={disabled || state.busy} onClick={() => controller.run('json')}>Detailed report (JSON)</Button>
+        </Details>
+        {state.busy && <Button onClick={() => controller.cancel()}>Cancel export</Button>}
+      </div>
+      <p className="model-note">This PDF and its results last only for this browser session. Download a report to keep them. Reports may contain document text and page images; downloads are generated on your device.</p>
         <p role="status">{state.message}</p>
-      </section>
-    </Details>
+    </section>
   );
 });

@@ -172,3 +172,18 @@ A subsequent alignment pass eliminated custom boilerplate and brought presentati
    - UNDRR grammar rule: *data is plural* ("the data show", "data are"). Corrected `PrivacyNotice.jsx` ("no PDF data are saved with it") and `batch/controller.js` ("no data were saved").
    - Case & colon conventions: Maintained sentence-case buttons and headings with lowercase after colons where applicable.
 
+
+## Information hierarchy — 7 October 2026
+
+Following the independent Astra information-architecture review, the intake page leads with upload and three matched sample cards. Setup selects a model with Mangrove radio cards first, then offers an optional benchmark of that selected model. The full feature matrix remains supporting detail; no model download starts from simply selecting an option. Confirmed settings and synthetic timings remain browser-local preferences.
+
+| Before | After |
+| --- | --- |
+| Separate check-results and evidence screens | One results workspace, including AI progress and recovery alongside completed text findings. |
+| Scope exclusions and uncertain evidence mixed with problems | Detected concerns, human review, tool limits and successful checks have separate inventories. AI coverage is separate again. Formal profile acceptance and raw records remain unchanged. |
+| First finding opened before the inventory; guidance below evidence | Visible inventory with page/type/review state, explicit selection, next/previous near the heading, and next actions before comparisons/crops. Full PDF context is optional. |
+| MiniLM benchmark before choosing any model | Model-first choice cards and optional selected-model benchmark. A no-AI choice remains last and explicit. |
+| Report download hidden with equal competing formats | Primary PDF report action, secondary PNG/JSON formats, and visible session lifetime. PDF/PNG profile wording distinguishes defects from unestablished checks. |
+| Raw binary profile and five count classes in batch rows | Compact detected-concern, human-review and tool-limit counts; raw profile retained in technical details. Queue cleanup/download management is secondary. |
+
+Verification: 205 tests passed; production build passed with the existing large-chunk warning. Actual MiniLM calibration and PDF inference completed; missing-language recovery required an explicit English assumption. Desktop and 390px mobile reviews and the repository-prefixed production URL were checked. Independent normal-user review covered fresh no-AI setup, all three samples, saved settings and a two-PDF batch; its empty-inventory feedback was implemented. Mobile results had no horizontal page overflow and axe reported zero WCAG A/AA violations; decorative reading-order arrows still require manual contrast assessment. Captured PDF and PNG exports were downloaded and visually inspected. Local artifacts are `/tmp/pdf-signal-ia-final-report.pdf`, `/tmp/pdf-signal-ia-final-summary.png`, and `/tmp/pdf-signal-ia-final-export-*.png`.

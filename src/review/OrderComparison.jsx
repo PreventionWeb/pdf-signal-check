@@ -13,7 +13,7 @@ export function OrderComparison({ report, file, onInspect }) {
         <div className="order-map-unavailable">
           <p><strong>{recoveredTaggedText ? 'Tagged text was recovered; a comparison diagram is unavailable.' : 'No tagged reading sequence was recovered.'}</strong></p>
           <p>{recoveredTaggedText ? 'A diagram requires a supported reading-order concern with matching, located headings. No such comparison is available for this finding. This does not mean the PDF has no reading order, or that its order is correct.' : 'The available evidence does not establish a machine reading order. Tags may be missing, empty or not recoverable by this check; the absence of a diagram does not establish which.'}</p>
-          <p className="model-note">The PDF viewer below shows the original page, independently of this check. Inspect its layout and the recovered text in the details.</p>
+          <p className="model-note">The optional page viewer shows the original page, independently of this check. Inspect its layout and the recovered text in the details.</p>
         </div>
       ) : (
         <>
@@ -92,7 +92,7 @@ export function OrderComparison({ report, file, onInspect }) {
           </p>
         </>
       )}
-      <GoGoViewer file={file} page={data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1} title="Inspect reading order in page context" />
+      <PageContext file={file} page={data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1} />
       <Details
         summary="Recovered text and technical detail"
         className="order-technical"
@@ -148,4 +148,9 @@ export function OrderComparison({ report, file, onInspect }) {
       </Details>
     </section>
   );
+}
+
+function PageContext({ file, page }) {
+  const [open, setOpen] = React.useState(false);
+  return <Details summary="View the original PDF in page context" open={open} onToggle={e => setOpen(e.currentTarget.open)}>{open && <GoGoViewer file={file} page={page} title="Inspect reading order in page context" />}</Details>;
 }

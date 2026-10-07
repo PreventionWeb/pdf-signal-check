@@ -562,3 +562,23 @@ progress {
   .setup-dialog-header { top: -16px; padding-block: 12px; margin-top: -12px; }
   .setup-dialog-header h1 { font-size: 1.625rem; }
 }
+
+/* Results lead with an inventory; evidence is opened by an explicit selection. */
+.finding-inventory { margin-block: 16px 24px; }
+.finding-inventory ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.finding-list-button { display: flex; flex-direction: column; gap: 4px; width: 100%; height: 100%; text-align: left; padding: 14px 16px; background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-text)); border: 1px solid rgb(var(--mg-color-neutral-100)); border-radius: var(--mg-card-border-radius); cursor: pointer; font: inherit; }
+.finding-list-button span { font-size: .875rem; color: var(--muted); }
+.finding-list-button:hover, .finding-list-button.is-selected { border-color: rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .06); }
+.finding-list-button:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 3px; }
+.review-export-menu { margin-block: 16px; }
+.review-export-menu .mg-details { margin: 0; }
+.review-export-menu .mg-details summary { padding: 10px 16px; font-size: .9rem; }
+.check-coverage { margin-block: 16px; }
+.setup-model-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-block: 16px; }
+.setup-model-cards .is-selected { border-color: rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .06); }
+.setup-dialog #setup-speed-title { scroll-margin-top: 100px; }
+@media (max-width: 680px) {
+  .finding-inventory ul, .setup-model-cards { grid-template-columns: minmax(0, 1fr); }
+  .review-categories { max-width: 100%; }
+}
+.review-export-menu .mg-details summary { padding-inline-end: 52px; }

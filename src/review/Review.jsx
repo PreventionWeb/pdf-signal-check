@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Checks } from "../app/Checks.jsx";
+import { findingGroups, profileReceipt, profileReasons } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
 import { findingProvenance, screeningProvenance, screeningLanguageNote } from "./provenance.js";
 import {
@@ -6,7 +8,6 @@ import {
   Card,
   Details,
   Actions,
-  EmptyState,
   SegmentedControl,
   Tag,
 } from "../ui/react.jsx";
@@ -22,33 +23,19 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   const { report, file } = state,
     normalized = useMemo(() => normalizeFindings(report), [report]),
     [selection, setSelection] = useState(null),
+    [groupChosen, setGroupChosen] = useState(false),
     [fullOpen, setFullOpen] = useState(false),
     focusFinding = useRef(false),
     titleRef = useRef(null);
-  const { category, issueId } = state.reviewCursor;
+  const { category: storedCategory, issueId } = state.reviewCursor;
   const setCategory = (category) => controller.setReviewCursor({ category }),
     setIssueId = (issueId) => controller.setReviewCursor({ issueId });
-  const groups = useMemo(
-    () => ({
-      problems: normalized.findings.filter((f) =>
-        [
-          "required-defect",
-          "required-indeterminate",
-          "advisory-concern",
-        ].includes(f.category),
-      ),
-      uncertainty: normalized.findings.filter((f) =>
-        ["uncertain", "unassessed"].includes(f.category),
-      ),
-      success: normalized.findings.filter((f) => f.category === "success"),
-    }),
-    [normalized],
-  );
-  const current = groups[category],
-    index = Math.max(
-      0,
-      current.findIndex((f) => f.id === issueId),
-    ),
+  const groups = useMemo(() => findingGroups(normalized.findings), [normalized]);
+  const category = !groupChosen && !issueId && storedCategory === "problems" && !groups.problems.length
+    ? groups.uncertainty.length ? "uncertainty" : groups.limits.length ? "limits" : "success"
+    : storedCategory;
+  const current = groups[category] || groups.problems,
+    index = current.findIndex((f) => f.id === issueId),
     finding = current[index],
     execution = screeningProvenance(report),
     method = finding && findingProvenance(finding, report);
@@ -84,6 +71,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   useEffect(() => {
     if (focusFinding.current) {
       titleRef.current?.focus({ preventScroll: true });
+      titleRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
       focusFinding.current = false;
     }
   }, [finding?.id, category]);
@@ -95,7 +83,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   }, [selection, fullOpen]);
   const choose = (id) => {
     focusFinding.current = true;
-    setIssueId(id);
+    controller.setReviewCursor({ category, issueId: id });
   };
   const kind = finding
     ? /author/i.test(finding.source?.path || "")
@@ -112,77 +100,19 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     : null;
   return (
     <>
-      <ExportMenu
-        ref={exportRef}
-        getState={() => ({
-          report: controller.getSnapshot().report,
-          file: controller.getSnapshot().file,
-          reviewed: controller.getSnapshot().reviewed,
-        })}
-        sourceKey={state.sourceKey}
-      />
       <section className="review-result-overview">
-        <p className="profile-receipt">
-          Text profile {report.profile.replace("text-actionability-", "")}:{" "}
-          {report.accepted
-            ? "Required text checks passed"
-            : report.checks.some((c) => c.status === "fail")
-              ? "Required text defects found"
-              : "Required text checks not established"}
-          <Help topic="profile" />
-        </p>
-        <p className="model-note">
-          {groups.problems.length ? `${groups.problems.length} finding${groups.problems.length === 1 ? "" : "s"} still need${groups.problems.length === 1 ? "s" : ""} inspection. ` : ""}
-          Metadata and reading order require separate review.
-        </p>
-        <Details
-          summary="Scope and required-check counts"
-          className="review-scope-details"
-        >
-          <p>
-            {
-              normalized.findings.filter(
-                (f) => f.category === "required-defect",
-              ).length
-            }{" "}
-            required defects ·{" "}
-            {
-              normalized.findings.filter(
-                (f) => f.category === "required-indeterminate",
-              ).length
-            }{" "}
-            required checks not established ·{" "}
-            {
-              groups.problems.filter((f) => f.category === "advisory-concern")
-                .length
-            }{" "}
-            advisory concerns · {groups.uncertainty.length} uncertain or
-            unassessed
-          </p>
-          <p className="model-note">
-            Your PDF is retained only for this browser session. Profile outcomes
-            and advisory findings are separate; downstream AI accuracy is not
-            certified.
-          </p>
-          {state.example && (
-            <Details summary="Synthetic example labels (separate from findings)">
-              <p>
-                {state.example.defects?.join("; ") || "Matching control"}. These
-                authored labels do not determine analyser results.
-              </p>
-            </Details>
-          )}
+        <h2>{groups.problems.length ? `${groups.problems.length} detected concern${groups.problems.length === 1 ? '' : 's'} to inspect` : 'No detected problems in completed checks'}</h2>
+        <p>{groups.uncertainty.length} human-review item{groups.uncertainty.length === 1 ? '' : 's'} · {groups.limits.length} tool limit{groups.limits.length === 1 ? '' : 's'} · {groups.success.length} checks worked.</p>
+        <p className="model-note">Concerns include rule failures and advisory suspicions. Human review covers uncertain evidence; tool limits describe what this app cannot establish.</p>
+        <ExportMenu ref={exportRef} getState={() => ({ report: controller.getSnapshot().report, file: controller.getSnapshot().file, reviewed: controller.getSnapshot().reviewed })} sourceKey={state.sourceKey} disabled={state.modelBusy} />
+        <Details summary={`Text profile ${report.profile.replace("text-actionability-", "")}: ${profileReceipt(report)}`} className="review-scope-details">
+          <p>Formal text-profile acceptance is separate from advisory findings and tool limits. A pass does not certify accessibility or AI accuracy.</p>
+          {profileReasons(report).map((reason, i) => <p key={i}>{reason}</p>)}
+          {state.example && <p className="model-note">Synthetic example labels: {state.example.defects?.join('; ') || 'Matching control'}. These labels do not determine results.</p>}
         </Details>
-        <div className="execution-receipt mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
-          <span>Traditional rules + PDF extraction</span>
-          <Tag subtle>{execution.label}</Tag>
-          <Help
-            topic={execution.kind === "ai" ? "ai" : "bounded"}
-            label="About actual AI execution"
-            extraText={execution.detail}
-          />
-        </div>
+        <div className="execution-receipt"><span>PDF extraction and rules</span> <Tag subtle>{execution.label}</Tag><Help topic={execution.kind === 'ai' ? 'ai' : 'bounded'} label="About actual AI execution" extraText={execution.detail} /></div>
         {screeningLanguageNote(report) && <p className="model-note">{screeningLanguageNote(report)}</p>}
+        <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} />
       </section>
       <SegmentedControl
         legend="Finding groups"
@@ -191,6 +121,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         className="review-categories"
         value={category}
         onChange={(e) => {
+          setGroupChosen(true);
           setCategory(e.target.value);
           setIssueId(null);
         }}
@@ -198,39 +129,16 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
           { value: "problems", label: `Problems (${groups.problems.length})` },
           {
             value: "uncertainty",
-            label: `Uncertain / unchecked (${groups.uncertainty.length})`,
+            label: `Human review (${groups.uncertainty.length})`,
           },
+          { value: "limits", label: `Tool limits (${groups.limits.length})` },
           { value: "success", label: `What worked (${groups.success.length})` },
         ]}
       />
-      {!finding ? (
-        <EmptyState
-          title={
-            category === "problems"
-              ? "No concrete problems found in completed checks."
-              : "No findings in this group."
-          }
-          actions={
-            category === "problems" && groups.uncertainty.length ? (
-              <Button
-                onClick={() => {
-                  focusFinding.current = true;
-                  setCategory("uncertainty");
-                  setIssueId(null);
-                }}
-              >
-                Inspect uncertain or unassessed findings
-              </Button>
-            ) : null
-          }
-        >
-          <p>
-            Inspect the uncertain or unassessed scope before relying on the PDF.
-            A profile pass does not establish correct metadata, reading order,
-            or downstream AI accuracy.
-          </p>
-        </EmptyState>
-      ) : (
+      <section className="finding-inventory" aria-label="Findings in this group">
+        {current.length ? <ul>{current.map(f => <li key={f.id}><button type="button" className={`finding-list-button ${f.id === finding?.id ? 'is-selected' : ''}`} aria-pressed={f.id === finding?.id} onClick={() => choose(f.id)}><strong>{f.title}</strong><span>{f.targets?.[0]?.page ? `Page ${f.targets[0].page} · ` : 'Document · '}{f.category === 'required-defect' ? 'Rule failure' : f.category === 'advisory-concern' ? 'Advisory concern' : f.outcome.replaceAll('-', ' ')}{state.reviewed.has(f.id) ? ' · Reviewed' : ''}</span></button></li>)}</ul> : <p>No items in this group.</p>}
+      </section>
+      {!finding ? <p className="model-note">{current.length ? 'Select an item above to inspect its evidence and next steps.' : category === 'problems' ? 'Review uncertain evidence and tool limits before relying on this PDF.' : ''}</p> : (
         <Card
           as="article"
           className="problem-frame"
@@ -261,6 +169,10 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
               extraText={method.detail}
             />
           </div>
+          <Actions><Button disabled={index <= 0} onClick={() => choose(current[index - 1].id)}>Previous finding</Button><Button disabled={index === current.length - 1} onClick={() => choose(current[index + 1].id)}>Next finding</Button></Actions>
+          <p>{finding.summary}</p>
+          <h3>What to inspect or change</h3>
+          <Guidance text={finding.whatToInspect} />
           {kind === "title" || kind === "authors" ? (
             <IdentityComparison
               kind={kind}
@@ -278,7 +190,6 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             <AttachmentInventory inventory={report.attachments} />
           ) : (
             <>
-              <p>{finding.summary}</p>
               {finding.comparison?.figure?.alt && <div className="figure-alternative"><h3>Alternate text machines can read</h3><blockquote>{finding.comparison.figure.alt}</blockquote></div>}
               <Crop file={file} report={report} targets={targets} />
             </>
@@ -299,11 +210,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
               ))}
             <ScreeningInputs finding={finding} method={method} />
           </Details>
-          <h3>Why inspect this?</h3>
-          <Guidance text={finding.whyItMatters} />
-          <h3>What to inspect or change</h3>
-          <Guidance text={finding.whatToInspect} />
-          <div className="finding-evidence">
+          <Details summary="Why this matters"><Guidance text={finding.whyItMatters} /></Details>
+          <Details summary={`Page locations (${targets.length})`} className="finding-evidence">
             {targets.slice(0, 12).map((t, i) => (
               <Button
                 className="location-button"
@@ -320,51 +228,17 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
                 No trustworthy page location is available for this finding.
               </p>
             )}
-          </div>
+          </Details>
           <p className="model-note">
             This tool does not repair your PDF. Make changes in the source
             document or PDF authoring tool, then recheck the exported file.
           </p>
-          <Actions>
-            <Button
-              disabled={index === 0}
-              onClick={() => choose(current[index - 1].id)}
-            >
-              Previous
-            </Button>
-            <Button
-              id="finding-reviewed"
-              aria-pressed={state.reviewed.has(finding.id)}
-              onClick={() => controller.markReviewed(finding.id)}
-            >
-              {state.reviewed.has(finding.id) ? "Reviewed ✓" : "Mark reviewed"}
-            </Button>
-            <Button
-              disabled={index === current.length - 1}
-              onClick={() => choose(current[index + 1].id)}
-            >
-              Next
-            </Button>
-          </Actions>
+          <Actions><Button id="finding-reviewed" aria-pressed={state.reviewed.has(finding.id)} onClick={() => controller.markReviewed(finding.id)}>{state.reviewed.has(finding.id) ? 'Reviewed ✓' : 'Mark reviewed'}</Button></Actions>
           <p className="model-note">
             Reviewed records your inspection for this session. It does not
             resolve the finding or change machine results.
           </p>
         </Card>
-      )}
-      {finding && (
-        <Details summary="Jump to a finding" className="review-overview">
-          {current.map((f) => (
-            <Button
-              className="location-button"
-              key={f.id}
-              onClick={() => choose(f.id)}
-            >
-              {state.reviewed.has(f.id) ? "✓ " : ""}
-              {f.title}
-            </Button>
-          ))}
-        </Details>
       )}
       <Details
         id="full-page-evidence"
@@ -378,11 +252,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         )}
       </Details>
       <Actions>
-        <Button onClick={() => controller.go("checks")}>
-          Back to screening choices
-        </Button>
+
         <Button
-          disabled={state.batchBusy}
+          disabled={state.batchBusy || state.modelBusy}
           onClick={() => controller.analyze(file, state.example)}
         >
           Recheck this PDF

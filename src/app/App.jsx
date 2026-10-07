@@ -14,7 +14,6 @@ import { createAppController } from "./controller.js";
 import { BatchController } from "../batch/controller.js";
 import { BatchPanel } from "../batch/BatchPanel.jsx";
 import { SetupDialog } from "./SetupDialog.jsx";
-import { Checks } from "./Checks.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
 import { Review } from "../review/Review.jsx";
 import { AdvancedReport } from "../review/AdvancedReport.jsx";
@@ -28,8 +27,6 @@ import {
   Card,
   Details,
   Actions,
-  Notice,
-  EmptyState,
   Loader,
   Icon,
   Tag,
@@ -40,7 +37,8 @@ export function App() {
     calibrationRef = useRef(null),
     exportRef = useRef(null),
     privacyRef = useRef(null),
-    openerRef = useRef(null);
+    openerRef = useRef(null),
+    previousStage = useRef(state.stage);
   const [batch] = useState(
     () =>
       new BatchController({
@@ -70,7 +68,10 @@ export function App() {
     };
   }, [controller, batch]);
   useEffect(() => {
-    if (state.stage !== "setup") {
+    const resultsStages = ["checks", "review", "processing-model"];
+    const staysInResults = resultsStages.includes(previousStage.current) && resultsStages.includes(state.stage);
+    previousStage.current = state.stage;
+    if (state.stage !== "setup" && !staysInResults) {
       const heading = document.getElementById("flow-title");
       heading?.focus({ preventScroll: true });
       heading?.scrollIntoView({ block: "start", behavior: "instant" });
@@ -85,17 +86,16 @@ export function App() {
         ]
       : [
           ["document", "1 · Select PDF"],
-          ["checks", "2 · Check results"],
-          ["review", "3 · Review evidence"],
+          ["review", "2 · Results"],
         ];
   const title = {
     setup: "Select a PDF to check",
     document: "Select a PDF to check",
     batch: "Review several PDFs",
-    checks: "Your PDF check results",
-    review: "Review the evidence",
+    checks: "Your PDF results",
+    review: "Your PDF results",
     "processing-analysis": "Checking text, tags, and metadata",
-    "processing-model": "Screening selected checks locally",
+    "processing-model": "Your PDF results",
   }[state.stage];
   return (
     <>
@@ -156,7 +156,7 @@ export function App() {
               const isCurrent =
                 state.stage === key ||
                 (state.stage === "setup" && key === "document") ||
-                (state.stage.startsWith("processing") && key === "checks");
+                (["checks", "processing-analysis", "processing-model"].includes(state.stage) && key === "review");
               const canNavigate =
                 key === "document" ||
                 (key === "batch" && !batch.busy) ||
@@ -209,18 +209,7 @@ export function App() {
                     batchBusy={batch.busy}
                   />
                 )}
-              {state.stage === "checks" && (
-                <Checks
-                  state={state}
-                  controller={controller}
-                  calibrationRef={calibrationRef}
-                  batchBusy={batch.busy}
-                  canCalibrate={() =>
-                    !batch.busy && !controller.getSnapshot().analysisBusy
-                  }
-                />
-              )}
-              {state.stage.startsWith("processing") && (
+              {state.stage === "processing-analysis" && (
                 <>
                   <p role="status" id="flow-status">
                     {state.message}
@@ -262,7 +251,7 @@ export function App() {
                   <GoGoViewer file={state.file} title="Your PDF while checks run" />
                 </>
               )}
-              {state.stage === "review" && state.report && (
+              {["checks", "review", "processing-model"].includes(state.stage) && state.report && (
                 <Review
                   key={state.sourceKey}
                   state={{ ...state, batchBusy: batch.busy }}
@@ -280,7 +269,7 @@ export function App() {
                       controller.go("document");
                     }}
                   >
-                    Stop queue and return to single PDF
+                    {batch.busy ? "Stop queue and return to PDF selection" : "Back to PDF selection"}
                   </Button>
                 </>
               )}
@@ -288,7 +277,7 @@ export function App() {
             {state.report && ["checks", "review"].includes(state.stage) && (
               <Details
                 id="advanced-evidence"
-                summary="Full evidence and JSON report"
+                summary="Technical analysis record"
               >
                 <AdvancedReport report={state.report} />
               </Details>
@@ -355,23 +344,21 @@ function Entry({ state, controller, batchBusy }) {
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
-      {state.setupComplete ? <p className="model-note">Current settings: {state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · compact English" : "Granite R2 · multilingual" : "No AI model · fallback"}. {state.settingsSaved ? "Your choice is remembered in this browser." : "Settings apply for this session; browser storage is unavailable."}</p> : <p>Find missing text tags, conflicting metadata and reading-order concerns before using a PDF in AI workflows. Your PDF stays on this device.</p>}
+      {state.setupComplete ? <p className="model-note">Current settings: {state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · compact English" : "Granite R2 · multilingual" : "No AI model"}. {state.settingsSaved ? "Your choice is remembered in this browser." : "Settings apply for this session; browser storage is unavailable."}</p> : <p>Find missing text tags, conflicting metadata and reading-order concerns before using a PDF in AI workflows. Your PDF stays on this device.</p>}
       {state.setupComplete && <div className="flow-actions">
         <Button variant="secondary" disabled={disabled} onClick={() => controller.openSetup("document")}>
           Change check settings
         </Button>
       </div>}
       <p className="step-intro">
-        {state.setupComplete ? `Select or drop a PDF to run text checks${state.aiEnabled ? " and local AI" : ""}.` : "Select a PDF or sample to get started. We’ll guide you through device benchmarking and model selection before checking it."} Selecting several files creates a batch queue.
+        {state.setupComplete ? `Select or drop a PDF to run text checks${state.aiEnabled ? " and local AI" : ""}.` : "Select a PDF or sample to get started. We’ll help you choose how to check it, with an optional device speed test."} Selecting several files creates a batch queue.
       </p>
       {state.report && (
         <Actions>
           <Button onClick={() => controller.go("review")}>
-            Return to this PDF’s review
+            Return to this PDF’s results
           </Button>
-          <Button onClick={() => controller.go("checks")}>
-            Return to screening choices
-          </Button>
+
         </Actions>
       )}
       {!state.report && state.file && (
@@ -433,7 +420,7 @@ function Entry({ state, controller, batchBusy }) {
         disabled={disabled}
         onChoose={(path) => controller.selectSample(path)}
       />
-      <Capabilities />
+      <Details summary="What this tool checks and its limits"><Capabilities /></Details>
       <p className="privacy-note">
         Your PDF stays here. The structural analysis needs no AI model or
         account. Optional semantic screening downloads model assets, then runs
