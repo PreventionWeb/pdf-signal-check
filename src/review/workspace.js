@@ -2,6 +2,10 @@
 export function findingGroups(findings) {
   const groups = { problems: [], uncertainty: [], limits: [], success: [], coverage: [] };
   for (const finding of findings) {
+    // An incomplete scan is a tool limit, not evidence of an attachment to review.
+    // Keep the normalized finding in technical records and exports.
+    if (finding.source?.path === 'attachments' && !finding.comparison?.inventory?.files?.length &&
+      !finding.comparison?.inventory?.orphanStreams?.some(stream=>stream.origin === 'reachable-unassociated')) continue;
     const semantic = finding.source?.path?.startsWith('semantic');
     if (semantic && finding.category === 'unassessed') groups.coverage.push(finding);
     else if (finding.source?.checkId === 'supported-content' && finding.category !== 'success' && finding.category !== 'required-defect') groups.limits.push(finding);
@@ -26,6 +30,23 @@ export function groupHeadingFindings(groups) {
     [destination]: [...groups[destination].filter(item => !ids.has(item.id)), grouped],
   };
 }
+/** Group all image review, including descriptions that passed the presence check. */
+export function groupFigureFindings(groups) {
+  const figures = Object.values(groups).flat().filter(item => item.comparison?.figure);
+  if (!figures.length) return groups;
+  const ids = new Set(figures.map(item => item.id));
+  const result = Object.fromEntries(Object.entries(groups).map(([key, items]) => [key, items.filter(item => !ids.has(item.id))]));
+  for (const type of ['missing', 'described', 'unlabelled', 'decorative']) {
+    const members = figures.filter(item => {
+      const figure = item.comparison.figure;
+      return (figure.decorative ? 'decorative' : !figure.tagged ? 'unlabelled' : !figure.alt ? 'missing' : 'described') === type;
+    }).sort((a, b) => a.comparison.figure.page - b.comparison.figure.page);
+    if (!members.length) continue;
+    result[type === 'missing' ? 'problems' : 'uncertainty'].push({ ...members[0], id: `review:figures:${type}`,
+      source: { path: 'review.figures' }, figureGroup: type, members, targets: [], evidence: [], comparison: null });
+  }
+  return result;
+}
 export function profileReceipt(report) {
   if (report.accepted) return 'Required text checks passed';
   if (report.checks?.some(check => check.status === 'fail')) return 'Required text defects found';
@@ -38,6 +59,7 @@ export function profileReasons(report) {
 
 /** Review urgency is presentation-only; uncertainty never becomes a confirmed defect. */
 export function reviewPriority(finding) {
+  if (finding.figureGroup === 'missing' || (finding.comparison?.figure?.tagged && !finding.comparison.figure.alt)) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.members?.length) return finding.members.map(reviewPriority).reduce((highest, item) => item.rank < highest.rank ? item : highest);
   if (finding.source?.path === 'readingOrder' && finding.comparison?.readingSequenceMissing) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.category === 'required-defect') return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
@@ -70,6 +92,17 @@ export function reviewSummary(report, groups) {
 }
 
 export function reviewTask(finding) {
+  if (finding.figureGroup) {
+    const count = finding.members.length;
+    const descriptions = {
+      missing: ['Add descriptions for images', `${count} image${count === 1 ? '' : 's'} labelled as meaningful ${count === 1 ? 'has' : 'have'} no saved text description. People and tools that cannot see them may miss important information.`, 'Add useful alt text or equivalent nearby text. Mark an image as decorative only if it conveys no essential information.'],
+      described: ['Review image descriptions', `${count} image${count === 1 ? '' : 's'} ${count === 1 ? 'has a saved description' : 'have saved descriptions'}. Review whether each description explains the important information; presence alone does not establish accuracy.`, 'Compare each image with its saved description. For charts, include key values and relationships or a data table.'],
+      unlabelled: ['Decide whether unlabelled graphics are content or decoration', `Graphics on ${count} page${count === 1 ? '' : 's'} could not be linked to an image label. Check their intended role.`, 'Label meaningful graphics and add useful descriptions. Mark backgrounds, borders and purely decorative shapes as artifacts.'],
+      decorative: ['Check graphics marked as decorative', `Graphics on ${count} page${count === 1 ? '' : 's'} are marked as decoration and excluded from machine-readable content. Check that they convey no essential information.`, 'Keep purely decorative graphics marked as artifacts. If a graphic conveys information, give it an image label and a useful description.'],
+    };
+    const [title, summary, action] = descriptions[finding.figureGroup];
+    return { title: `${title} (${count})`, summary, action, detailAction: `${action} Make changes in the source document or a PDF accessibility editor, export again and recheck.`, why: 'Meaningful images need equivalent information in text. Decoration should be excluded so it does not interrupt the reading sequence.' };
+  }
   if (finding.members) return {
     title: 'Check that headings describe their sections',
     summary: `Review the ${finding.members.length} heading${finding.members.length === 1 ? '' : 's'} below against the text that follows each one. The AI results are suggestions for review, not confirmed errors.`,
@@ -79,6 +112,8 @@ export function reviewTask(finding) {
   };
   const path = finding.source?.path || '';
   const check = finding.source?.checkId;
+  const broaderEvidence = finding.comparison?.retrieval?.mode === 'document-evidence-v1';
+  const comparedText = broaderEvidence ? 'the selected excerpts from across the PDF' : 'the opening text it checked';
   if (path.startsWith('semantic.keywordItems[') && finding.method === 'embedding-screening' && finding.category !== 'unassessed') {
     const keyword = finding.comparison?.query || finding.title.replace(/^Keyword: /, '');
     const summaries = {
@@ -88,10 +123,10 @@ export function reviewTask(finding) {
     };
     return {
       title: `Does this keyword describe the PDF? “${keyword}”`,
-      summary: summaries[finding.outcome] || finding.summary,
+      summary: (summaries[finding.outcome] || finding.summary).replaceAll('the opening text it checked', comparedText),
       action: 'Compare this saved topic with the excerpts and the rest of the PDF.',
       detailAction: 'A keyword is a topic saved in the PDF’s properties to help people and tools find it. Read the excerpts below, then check the rest of the PDF. If this topic belongs in the document, keep the keyword. If it does not, change or remove it in the source document or PDF properties, export again and recheck.',
-      why: 'Keywords help people and tools find relevant documents. This AI check compares meaning, rather than searching for the exact words. It uses short excerpts from the beginning of the PDF, so a topic covered later may not appear in its evidence.',
+      why: broaderEvidence ? 'The AI compares meaning across selected excerpts, while the word-matching baseline looks for literal words. Both searches can miss omitted text and neither verifies facts.' : 'Keywords help people and tools find relevant documents. This AI check compares meaning, rather than searching for the exact words. It uses short excerpts from the beginning of the PDF, so a topic covered later may not appear in its evidence.',
     };
   }
   const failed = finding.outcome === 'fail';
@@ -149,9 +184,9 @@ export function reviewTask(finding) {
       const result = finding.outcome === 'suspected-mismatch' ? 'The AI found little connection between this description and the opening text it checked. Check whether it describes the whole document.'
         : finding.outcome === 'semantically-related' ? 'The AI found a connection with the opening text it checked. Check whether the description is accurate for the whole document.'
           : 'The AI could not tell whether this description matches the opening text it checked. Please compare it with the document yourself; this is not a confirmed error.';
-      return task('Check the PDF’s saved description', context + result,
+      return task('Check the PDF’s saved description', context + result.replaceAll('the opening text it checked', comparedText),
         'Read the saved description and the excerpts below, then check the whole PDF. If the description is inaccurate, edit the Subject field in the source document’s properties or a PDF editor, export again and recheck.',
-        'The saved description helps people and software understand what the PDF is about. This AI check uses short excerpts from the beginning, so it may miss topics covered later.');
+        broaderEvidence ? 'The saved description helps people and software understand what the PDF is about. This experimental check compares selected excerpts from across the PDF; omitted text may still change the assessment.' : 'The saved description helps people and software understand what the PDF is about. This AI check uses short excerpts from the beginning, so it may miss topics covered later.');
     }
     const label = section ? 'heading' : subject ? 'saved subject' : path === 'semantic.keywords' ? 'saved keywords' : 'saved title';
     const material = section ? 'the following text it checked' : 'the opening text it checked';
@@ -187,14 +222,19 @@ export function reviewTask(finding) {
     'Search, screen readers and AI tools can use words that people cannot see on the page. Hidden text is not automatically a defect.');
   if (path.startsWith('figureAlternatives')) {
     const figure = finding.comparison?.figure;
-    if (figure) return task(`Image ${finding.comparison.figureNumber || 1} on page ${figure.page}: check the description`,
+    if (figure?.decorative) return task(`Decorative graphics on page ${figure.page}`, finding.summary,
+      'Check that these graphics convey no essential information. If they do, label them as meaningful images and add useful descriptions.',
+      'Graphics marked as decoration are excluded from machine-readable content.');
+    if (figure) return task(figure.tagged ? `Image ${finding.comparison.figureNumber || 1} on page ${figure.page}: check the description` : `Graphics on page ${figure.page}: content or decoration?`,
       !figure.tagged ? 'A graphic was found, but the tool could not reliably connect it to an image label. It may convey information or may be decoration.'
         : !figure.alt ? 'An image label was found without a saved text description.'
           : figure.status === 'uncertain' ? 'A text description is saved, but the tool could not reliably connect the image label to the page content.' : 'A text description is saved for this image. Its accuracy and completeness have not been checked.',
-      'Look at the image and decide what information it conveys. For a meaningful image, check that its text description or nearby text explains that information. For a chart, include key values and relationships or a data table. Use the source document or a PDF accessibility editor to add or correct the description and image label. Mark purely decorative graphics as decoration, then export again and recheck.',
+      figure.tagged ? 'Look at the image and decide what information it conveys. For a meaningful image, check that its text description or nearby text explains that information. For a chart, include key values and relationships or a data table. Use the source document or a PDF accessibility editor to add or correct the description and image label. Mark purely decorative graphics as decoration, then export again and recheck.' : 'Check whether these graphics convey information. Mark backgrounds, borders and purely decorative shapes as decoration (artifacts) in your source document or PDF accessibility editor. For meaningful images or charts, add an image label and a useful text description or nearby equivalent. Export again and recheck.',
       'People and tools that cannot interpret the image need its important information in text. Finding a description does not prove that it is useful or correct.');
   }
-  if (path === 'attachments') return task('Check files attached to this PDF', finding.summary,
+  if (path === 'attachments') return task('Check files attached to this PDF', finding.comparison?.inventory?.files?.length
+    ? `This PDF lists ${finding.comparison.inventory.files.length} attached or linked file${finding.comparison.inventory.files.length === 1 ? '' : 's'}. Their contents have not been checked.`
+    : 'An embedded-file declaration was found, but the tool could not recover its filename or purpose.',
     'Check the listed files and their purpose with the publisher or source document. Make sure the PDF explains how to use them. Review each attachment separately; this tool does not open or analyse its contents.',
     'Important information may be in an attached file rather than on the PDF pages. A filename or description alone does not establish what the attachment contains.');
   const checks = {

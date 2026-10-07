@@ -1,6 +1,7 @@
 import React from 'react';
 import { hasUnchangedNoInputs, needsDocumentInformation } from '../runtime/screening-recovery.js';
 import { MetadataGuidance } from '../review/MetadataGuidance.jsx';
+import { DocumentProperties } from '../review/DocumentProperties.jsx';
 import { getSemanticModel, supportsLanguage } from '../engine/models.js';
 import { formatProgress } from '../ui/progress.js';
 import { Button, Notice, Checkbox } from '../ui/react.jsx';
@@ -42,6 +43,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
   if (showStatus && needsDocumentInformation(state.report)) return <Notice headingLevel="h2" variant="negative" title="Critical document information is missing">
     <p>No title, subject description or keywords are saved in this PDF’s document properties. This basic information is needed before continuing with more detailed analysis.</p>
     <p>A title printed on the page or used as the file name does not supply the saved document title that software needs.</p>
+    <DocumentProperties metadata={state.report.metadata} />
     <MetadataGuidance headingLevel="h3" />
     <Button onClick={() => controller.go('document')} disabled={busy}>Choose an updated PDF</Button>
   </Notice>;

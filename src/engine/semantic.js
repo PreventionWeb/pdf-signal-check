@@ -1,3 +1,4 @@
+import { selectTopicEvidence } from './topic-retrieval.js';
 import { compareTitles, normalizeTitle, publicationCandidates } from './titles.js';
 
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from './models.js';
@@ -117,13 +118,17 @@ export async function assessSemantic(input, embed) {
     tasks.push({ field, query, queryIndex: add(query), evidence: evidence.map(e => ({...e, embeddingIndex: add(e.text)})), ...extra });
   };
   if (requested('title') && words(rules.title || '').length >= 2 && (!titleSettled || input.requireInference)) addTask(titleSettled ? 'title-support' : 'title',rules.title,candidates);
-  if (requested('subject')) addTask('subject',metadata.subject,excerpts);
+  const topicTask = (field, query, extra = {}) => {
+    const selected = input.documentEvidence && query?.trim() ? selectTopicEvidence(query, input.documentEvidence, excerpts) : { evidence: excerpts, receipt: null };
+    addTask(field, query, selected.evidence, { ...extra, retrieval: selected.receipt });
+  };
+  if (requested('subject')) topicTask('subject',metadata.subject);
   const rawKeywords = typeof metadata.keywords === 'string' ? metadata.keywords.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean) : [];
   const keywordTerms = [...new Set(rawKeywords)];
   const selectedKeywords = keywordTerms.slice(0,limits.keywordCount);
   result.keywordCoverage = { totalTerms: keywordTerms.length, evaluatedTerms: 0, skippedTerms: Math.max(0,keywordTerms.length-limits.keywordCount),
     delimitation: /[,;\n]/.test(metadata.keywords || '') ? 'explicit separators' : 'undelimited metadata treated as one phrase' };
-  if (requested('keywords')) for (const keyword of selectedKeywords) addTask('keyword',keyword,excerpts,{keyword});
+  if (requested('keywords')) for (const keyword of selectedKeywords) topicTask('keyword',keyword,{keyword});
   const availableSections = input.sections || sectionEvidence(input.pages);
   const sections = availableSections.slice(0,limits.sectionCount);
   result.sectionCoverage = { suppliedPairs: availableSections.length, evaluatedPairs: 0, skippedPairs: availableSections.length };
@@ -157,7 +162,7 @@ export async function assessSemantic(input, embed) {
       const low = task.field.startsWith('title') ? limits.titleLow : limits.topicLow;
       const high = task.field.startsWith('title') ? limits.titleHigh : limits.topicHigh;
       const assessment = { status:best>=high?'semantically-related':best<low?'suspected-mismatch':'uncertain',
-        method:'embedding-screening',inferencePerformed:true,evidence, queryInput:result.inferenceProvenance[task.queryIndex] || null,
+        retrieval: task.retrieval || undefined, method:'embedding-screening',inferencePerformed:true,evidence, queryInput:result.inferenceProvenance[task.queryIndex] || null,
         reason:best>=high?'The bounded evidence is topically related; identity and factual correctness remain unconfirmed.':best<low?'The query is weakly related to the bounded evidence. Inspect the text; later sections, generic headings or alternate wording may supply missing context.':'Similarity falls in this model’s provisional review range.' };
       if(task.field==='title'){result.title=assessment;result.ranked=evidence;}
       else if(task.field==='title-support')result.titleAI=assessment;
@@ -171,7 +176,7 @@ export async function assessSemantic(input, embed) {
   if(requested('keywords')) {
     result.keywordCoverage.evaluatedTerms=result.keywordItems.length;
     result.keywordCoverage.skippedTerms=keywordTerms.length-result.keywordItems.length;
-    result.keywords=aggregate(result.keywordItems,`${result.keywordItems.length} of ${keywordTerms.length} keyword terms/phrases screened individually against opening text. Terms are screened separately; related terms do not average away flagged terms. Unscreened terms remain unassessed.`,result.keywordCoverage.skippedTerms>0);
+    result.keywords=aggregate(result.keywordItems,`${result.keywordItems.length} of ${keywordTerms.length} keyword terms/phrases screened individually against ${input.documentEvidence ? 'selected document excerpts' : 'opening text'}. Terms are screened separately; related terms do not average away flagged terms. Unscreened terms remain unassessed.`,result.keywordCoverage.skippedTerms>0);
   }
   if(requested('sections')) {
     result.sectionCoverage.evaluatedPairs = result.sectionItems.length; result.sectionCoverage.skippedPairs = availableSections.length - result.sectionItems.length;

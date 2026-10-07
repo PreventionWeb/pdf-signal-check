@@ -17,10 +17,12 @@ export function createAppController({
   digest = (buffer) => crypto.subtle.digest("SHA-256", buffer),
   preferences = createEvaluationPreferences(),
   devicePreferences = createDevicePreferences(),
+  semanticExperiment = false,
   baseUrl = globalThis.document?.baseURI || "http://localhost/",
 } = {}) {
   const saved = preferences.load();
   let state = {
+    semanticExperiment,
     stage: "document",
     file: null,
     report: null,
@@ -591,6 +593,7 @@ export function createAppController({
             checks: [...state.checks],
             languageAssumption: state.languageAssumption,
             requireInference: state.aiEnabled,
+            semanticExperiment,
           }),
         );
       } catch (e) {

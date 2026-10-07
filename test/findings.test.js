@@ -64,3 +64,13 @@ it('does not turn an embedded-file key into proof that a payload stream was loca
  const f=normalizeFindings(report).findings.find(f=>f.source?.path==='attachments');
  expect(f.evidence[0]).toContain('no payload stream located');expect(f.evidence[0]).not.toContain('located embedded payload stream(s)');
 });
+
+it('keeps incomplete attachment scans in records but omits review tasks unless concrete file evidence exists',async()=>{
+ const {findingGroups}=await import('../src/review/workspace.js');
+ const report={...base(),attachments:{status:'uncertain',inventoryComplete:false,files:[],orphanStreams:[],warnings:['Traversal limit reached']}};
+ const finding=normalizeFindings(report).findings.find(f=>f.source.path==='attachments');
+ expect(finding.evidence).toContain('Traversal limit reached');
+ expect(Object.values(findingGroups([finding])).flat()).toEqual([]);
+ report.attachments.files=[{id:'f1',filename:'data.csv',embedded:true,payloads:[]}];
+ expect(findingGroups(normalizeFindings(report).findings).uncertainty.some(f=>f.source.path==='attachments')).toBe(true);
+});

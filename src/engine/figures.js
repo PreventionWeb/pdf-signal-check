@@ -43,5 +43,10 @@ export function inspectFigureAlternatives(structure, pages) {
       keys: [...new Set(unknown.map(graphic => graphic.key).filter(Boolean))], alt: null,
       status: 'uncertain', tagged: false, quads: unknown.filter(graphic => graphic.quad).slice(0,16).map(graphic => graphic.quad) });
   }
-  return { items, meaningAssessed: false, complete: true };
+  const decorativeItems = pages.filter(page => page.decorativeGraphics?.length).map(page => ({
+    id: `${page.number}:decorative`, page: page.number, tagged: false, decorative: true,
+    alt: null, status: 'uncertain', keys: [],
+    quads: page.decorativeGraphics.filter(graphic => graphic.quad).map(graphic => graphic.quad),
+  }));
+  return { items, decorativeItems, meaningAssessed: false, complete: true };
 }

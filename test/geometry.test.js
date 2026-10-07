@@ -21,3 +21,12 @@ describe('preview geometry',()=>{
    expect(findingTargets({pages:[page]},'coverage')).toHaveLength(1);
  });
 });
+
+it('decorative page context uses the full viewport while skipping reused graphic locations', async () => {
+  const {targetQuads,evidenceCropBounds} = await import('../src/evidence/geometry.js');
+  const quad = [[1,1],[2,1],[2,2],[1,2]];
+  const report = {pages:[{number:1, evidenceGeometryScoped:true, formXObjectInvocations:1, blocks:[], graphics:[], decorativeGraphics:[{quad}]}]};
+  const target = {page:1, quads:[quad, [[3,3],[4,3],[4,4],[3,4]]], wholePage:true};
+  expect(targetQuads(report,target)).toEqual([quad]);
+  expect(evidenceCropBounds(report,target,{width:600,height:800})).toMatchObject({x:0,y:0,width:600,height:800,points:[],pageContext:true});
+});

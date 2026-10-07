@@ -62,6 +62,13 @@ export function normalizeFindings(report) {
       evidence:[...(figure.alt ? [`Alternate text: ${figure.alt}`] : []), {page:figure.page,keys:figure.keys,node:figure.node,quads:figure.quads,text:figure.tagged?'Figure content':'Graphic content'}],
       comparison:{figure, figureNumber: report.figureAlternatives.items.slice(0, index + 1).filter(item => item.page === figure.page).length}, source:{path:`figureAlternatives.items[${index}]`}, kind:figure.tagged?'figure':'figureUnknown'});
   }
+  for (const [index, figure] of (report.figureAlternatives?.decorativeItems || []).entries()) {
+    add({ id: `figure:${figure.id}`, category: 'uncertain', title: 'Graphics marked as decorative',
+      outcome: 'uncertain', method: 'figure-alternative-inspection',
+      summary: 'These graphics are marked as decoration and excluded from the reading sequence. Check that they do not convey essential information.',
+      evidence: [{ page: figure.page, keys: [], quads: figure.quads, text: 'Declared decorative graphics' }],
+      comparison: { figure }, source: { path: `figureAlternatives.decorativeItems[${index}]` }, kind: 'figureDecorative' });
+  }
   const identity=(field,id,title,kind,comparison)=>{
     const r=report[field];if(!r)return;
     add({id,category:advisoryCategory(r),title,outcome:r.status,method:r.method || ({authors:'explicit-byline-rules',order:'numbered-and-spatial-order-heuristics',visibility:'text-rendering-mode-inspection',title:'publication-title-rules'}[kind] || 'deterministic-rules'),summary:r.reason,evidence:r.evidence || r.publicationCandidates || r.candidates || [],comparison,source:{path:field},kind});
@@ -84,12 +91,12 @@ export function normalizeFindings(report) {
       if(items.length) {
         items.forEach((item,i)=>{
           const identity=field==='keywords'?normalize(item.keyword):`${item.heading?.page}:${(item.heading?.keys || []).slice().sort().join('|') || item.heading?.node || normalize(item.heading?.text)}`;
-          add({id:`semantic:${field}:${hash(identity)}`,category:advisoryCategory(item),title:field==='keywords'?`Keyword: ${item.keyword}`:`Heading: ${item.heading?.text || 'Tagged heading'}`,outcome:item.status,method:item.method || 'embedding-screening',summary:item.reason,evidence:[...(item.heading?[item.heading]:[]),...(item.evidence || [])],comparison:{query:field==='keywords'?item.keyword:item.heading?.text,candidates:item.evidence || [],queryInput:item.queryInput,model:semantic.model},source:{path:`semantic.${field==='keywords'?'keywordItems':'sectionItems'}[${i}]`}});
+          add({id:`semantic:${field}:${hash(identity)}`,category:advisoryCategory(item),title:field==='keywords'?`Keyword: ${item.keyword}`:`Heading: ${item.heading?.text || 'Tagged heading'}`,outcome:item.status,method:item.method || 'embedding-screening',summary:item.reason,evidence:[...(item.heading?[item.heading]:[]),...(item.evidence || [])],comparison:{retrieval:item.retrieval,query:field==='keywords'?item.keyword:item.heading?.text,candidates:item.evidence || [],queryInput:item.queryInput,model:semantic.model},source:{path:`semantic.${field==='keywords'?'keywordItems':'sectionItems'}[${i}]`}});
         });
         const coverage=field==='keywords'?semantic.keywordCoverage:semantic.sectionCoverage;
         const skipped=field==='keywords'?coverage?.skippedTerms:coverage?.skippedPairs;
         if(skipped>0)add({id:`semantic:${field}:unassessed`,category:'unassessed',title:`Unassessed ${field}`,outcome:'not-assessed',method:'bounded-scope',summary:`${skipped} ${field==='keywords'?'terms/phrases':'supplied pairs'} were not screened within the selected bounds.`,comparison:{coverage},source:{path:`semantic.${field==='keywords'?'keywordCoverage':'sectionCoverage'}`}});
-      } else add({id:`semantic:${field}`,category:advisoryCategory(r),title:field==='titleAI'?'AI title relatedness (separate from identity rules)':`${field[0].toUpperCase()+field.slice(1)} screening`,outcome:r.status,method:r.method || 'embedding-screening',summary:r.reason,evidence:r.evidence || [],comparison:{metadata:report.metadata,candidates:r.evidence || [],model:semantic.model},source:{path:`semantic.${field}`}});
+      } else add({id:`semantic:${field}`,category:advisoryCategory(r),title:field==='titleAI'?'AI title relatedness (separate from identity rules)':`${field[0].toUpperCase()+field.slice(1)} screening`,outcome:r.status,method:r.method || 'embedding-screening',summary:r.reason,evidence:r.evidence || [],comparison:{retrieval:r.retrieval,metadata:report.metadata,candidates:r.evidence || [],model:semantic.model},source:{path:`semantic.${field}`}});
     }
   }
   const order={'required-defect':0,'required-indeterminate':1,'advisory-concern':2,uncertain:3,unassessed:4,success:5};

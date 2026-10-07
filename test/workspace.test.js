@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence } from '../src/review/workspace.js';
+import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupFigureFindings, reviewPriority } from '../src/review/workspace.js';
 
 describe('results presentation preserves independent outcomes', () => {
   it('separates missing evidence, tool scope and AI coverage from detected defects', () => {
@@ -200,4 +200,20 @@ it('distinguishes figure entries on the same page without changing their identit
   expect(findings.map(f => f.comparison.figureNumber)).toEqual([2, 1, 1]);
   expect(findings.find(f => f.id === 'figure:a').comparison.figure.alt).toBe('Coastal water chart');
   expect(new Set(findings.map(f => reviewTask(f).title)).size).toBe(3);
+});
+
+it('groups hundreds of figures into four review classes without changing member evidence or outcomes', () => {
+  const items = Array.from({length: 120}, (_, i) => ({id: `image:${i}`, category: i % 4 === 0 ? 'advisory-concern' : i % 4 === 1 ? 'success' : 'uncertain',
+    source: {path: `figureAlternatives.items[${i}]`}, targets: [{page:i+1}], comparison: {figure: {page:i+1, tagged:i%4<2, alt:i%4===1?'Description':null, decorative:i%4===3}}}));
+  const before = JSON.stringify(items);
+  const groups = groupFigureFindings(findingGroups(items));
+  const tasks = [...groups.problems, ...groups.uncertainty];
+  expect(tasks).toHaveLength(4);
+  expect(tasks.map(task=>task.members.length)).toEqual([30,30,30,30]);
+  expect(new Set(tasks.flatMap(task=>task.members.map(member=>member.id))).size).toBe(120);
+  expect(tasks.find(task=>task.figureGroup==='described').members.every(member=>member.category==='success')).toBe(true);
+  expect(reviewPriority(tasks.find(task=>task.figureGroup==='missing')).key).toBe('critical');
+  expect(tasks.filter(task=>task.figureGroup!=='missing').every(task=>reviewPriority(task).key==='manual')).toBe(true);
+  expect(JSON.stringify(items)).toBe(before);
+  expect(reviewTask(tasks.find(task=>task.figureGroup==='decorative')).title).toContain('(30)');
 });

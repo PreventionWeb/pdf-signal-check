@@ -7,6 +7,8 @@ const samples = [
   { file: 'partly-prepared.pdf', title: 'Partly prepared', description: 'Some metadata is wrong. Procedure tags read in the wrong order, and the figure description is missing.' },
   { file: 'poorly-prepared.pdf', title: 'Poorly prepared', description: 'Misleading metadata, no declared language, no text tags and no figure description.' },
   { file: 'missing-document-information.pdf', title: 'Missing document information', description: 'No saved title, subject or keywords, and no text tags. Try the repair-first screen.' },
+  { file: 'with-attachments.pdf', title: 'With attachments', description: 'An embedded CSV and text guide. Explore their filenames, descriptions, types and intended uses.' },
+  { file: 'graphics-and-decoration.pdf', title: 'Graphics and decoration', description: 'Explore unlabelled graphics, missing descriptions, saved descriptions and graphics marked as decorative.' },
 ];
 
 /** Labels describe authored preparation, not predicted analysis outcomes. */

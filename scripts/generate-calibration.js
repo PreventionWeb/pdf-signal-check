@@ -116,7 +116,8 @@ export async function generate(spec, outputDirectory = output) {
   text(0,'P', german ? 'Berichtszeitraum: Januar bis Dezember 2025.' : 'Reporting period: January to December 2025.', 310);
   text(0,'P', german ? 'Herausgeber: Hafenobservatorium, fiktive Forschungsgruppe.' : 'Publisher: Harbor Observatory, a fictional research group.', 284);
   if (spec.overviewFigure) {
-    semantic(0,'Figure', p => {
+    const overview = (draw, alt) => spec.unlabelledOverview ? draw(pages[0]) : semantic(0, 'Figure', draw, alt);
+    overview(p => {
       p.drawRectangle({x:48,y:75,width:499,height:173,color:pale});
       [2.8,3.1,3.4].forEach((v,i) => {
         p.drawRectangle({x:95+i*139,y:105,width:72,height:v*31,color:teal});
@@ -163,6 +164,18 @@ export async function generate(spec, outputDirectory = output) {
   wrapped(1,german ? 'Zusätzliche Wintermessungen durchführen. Messmethoden dokumentieren. Jahresvergleiche nur mit vollständigen Daten veröffentlichen.' : 'Collect additional winter observations. Document the sampling method. Publish annual comparisons only when the underlying series is complete.', 302);
   text(1,'H2',german ? 'Datengrundlage' : 'Data provenance', 214,17);
   wrapped(1,german ? 'Die Daten und das Logo sind Originale dieses Testprojekts. Das Dokument ist ein synthetisches Beispiel und keine wissenschaftliche Veröffentlichung.' : 'The data and logo were created for this test project. This document is a synthetic example and is not a scientific publication.', 182);
+  }
+  if (spec.imageReviewExamples) {
+    for (const [index, value] of [2.8, 3.4].entries()) {
+      const x = 48 + index * 260;
+      semantic(1, 'Figure', page => {
+        page.drawRectangle({ x, y: 160, width: 235, height: 160, color: pale });
+        page.drawRectangle({ x: x + 25, y: 185, width: 50, height: value * 31, color: teal });
+        page.drawText(`${value} m`, { x: x + 90, y: 235, size: 14, font: bold, color: ink });
+        page.drawText(index ? 'South station' : 'North station', { x: x + 90, y: 210, size: 11, font: regular, color: ink });
+      }, index === 0 ? 'North station: mean water visibility is 2.8 metres.' : undefined);
+      semantic(1, 'P', page => page.drawText(index === 0 ? 'Figure 2. Described station chart.' : 'Figure 3. Chart missing a description.', { x, y: 140, size: 10, font: regular, color: ink }));
+    }
   }
   if (tagged) {
     doc.set(PDFName.of('K'), context.obj(kids));

@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Details, Notice } from "../ui/react.jsx";
+import { Card, Notice } from "../ui/react.jsx";
 import { Help } from "../help/Help.jsx";
 export function AttachmentInventory({ inventory }) {
   return (
@@ -8,18 +8,11 @@ export function AttachmentInventory({ inventory }) {
         Files carried or referenced by this PDF
         <Help topic="attachments" />
       </h3>
-      <p className="model-note">
-        Inventory completeness:{" "}
-        {inventory?.inventoryComplete
-          ? "recovered inventory complete within inspection bounds"
-          : "not established; inspect limits and warnings"}
-        .
-      </p>
+      {!inventory?.inventoryComplete && <p className="model-note">The scan did not finish or some file information could not be read. This list may be incomplete.</p>}
       <p>
         This is an inventory of file declarations. Attached contents are not
         opened or analysed.
       </p>
-      <p>{inventory?.reason}</p>
       {inventory?.files?.map((file) => (
         <Card as="article" className="attachment-card" key={file.id}>
           <h4>
@@ -120,8 +113,7 @@ export function AttachmentInventory({ inventory }) {
           ))}
         </Notice>
       )}
-      <Details summary="Inventory scope and limits">
-        <p>{inventory?.scope}</p>
+      <section>
         {inventory?.warnings?.length > 0 && (
           <ul>
             {inventory.warnings.map((w, i) => (
@@ -131,7 +123,7 @@ export function AttachmentInventory({ inventory }) {
             ))}
           </ul>
         )}
-      </Details>
+      </section>
     </section>
   );
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Four visually identical fictional reports. Only machine metadata, tags and alternate text differ. Authored examples, not conformance certificates.",
+  "description": "Six fictional reports exploring metadata, tags, alternate text, decoration and embedded files. Authored examples, not conformance certificates.",
   "samples": [
     {
       "id": "well-prepared",
@@ -244,6 +244,166 @@
       ],
       "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
       "bytes": 5269
+    },
+    {
+      "id": "with-attachments",
+      "file": "with-attachments.pdf",
+      "title": "With attachments",
+      "description": "Two embedded files: fictional station data (CSV) and a note explaining its use. Explore filenames, types, descriptions and relationships.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "meaningful figure",
+        "figureAlt": true,
+        "embeddedFileCount": 2,
+        "declaredLanguage": "en-GB"
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "logicalHeadingOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "intentionalDefect": false,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 13105
+    },
+    {
+      "id": "graphics-and-decoration",
+      "file": "graphics-and-decoration.pdf",
+      "title": "Graphics and decoration",
+      "description": "Explore four review groups: an unlabelled chart, a described chart, a chart missing alt text, and an Artifact-marked logo and page furniture.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "meaningful figure",
+        "figureAlt": false,
+        "unlabelledChartPage": 1,
+        "decorativeArtifactsExcluded": true,
+        "declaredLanguage": "en-GB"
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "logicalHeadingOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "intentionalDefect": false,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "meaningful chart is not linked to a Figure tag or alternate text",
+        "one tagged chart has no alternate text"
+      ],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 11654
     }
   ]
 }

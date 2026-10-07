@@ -23,3 +23,26 @@ it('matched samples preserve visible text while metadata and recovered order dif
   // The figure is meaningful: correct tags alone must not waive profile limits.
   expect(reports[0].checks.find(c => c.id === 'supported-content').status).toBe('indeterminate');
 });
+
+it('attachment sample contains concrete embedded files with names, types and purpose', async () => {
+  const report=await analyzePdf(new Uint8Array(await readFile(new URL('../public/samples/with-attachments.pdf',import.meta.url))));
+  expect(report.attachments.inventoryComplete).toBe(true);
+  expect(report.attachments.files).toHaveLength(2);
+  expect(report.attachments.files.map(file=>file.filename).sort()).toEqual(['attachment-guide.txt','station-data.csv']);
+  expect(report.attachments.files.every(file=>file.embedded && file.payloads.length && file.description && file.relationship)).toBe(true);
+  expect(report.attachments.payloadsAnalyzed).toBe(false);
+});
+
+it('graphics sample retains the unlabelled chart but excludes the decorative logo and furniture', async () => {
+  const report = await analyzePdf(new Uint8Array(await readFile(new URL('../public/samples/graphics-and-decoration.pdf', import.meta.url))));
+  expect(report.figureAlternatives.items).toHaveLength(3);
+  expect(report.figureAlternatives.items).toEqual(expect.arrayContaining([
+    expect.objectContaining({ page: 1, tagged: false, alt: null, status: 'uncertain' }),
+    expect.objectContaining({ page: 2, tagged: true, status: 'present' }),
+    expect.objectContaining({ page: 2, tagged: true, alt: null, status: 'requires-review' }),
+  ]));
+  // The only retained regions are inside the chart; the logo is at y=643–681.
+  expect(report.pages[0].graphics.length).toBeGreaterThan(0);
+  expect(report.pages[0].graphics.every(graphic => graphic.quad.every(([, y]) => y >= 75 && y <= 248))).toBe(true);
+  expect(report.figureAlternatives.decorativeItems.map(item => item.page)).toEqual([1, 2]);
+});

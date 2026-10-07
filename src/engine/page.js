@@ -24,8 +24,9 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
   let nonArtifactGraphics = 0, invalidGlyphs = 0;
   const contentErrors = [], mcidOccurrences = new Set(), invisibleKeys = new Set();
   let invisibleTextOperations = 0, renderMode = 0; const renderModes = [];
-  const graphicRegions = [], matrices = []; let matrix = [1,0,0,1,0,0], formDepth = 0;
+  const graphicRegions = [], decorativeGraphics = [], matrices = []; let matrix = [1,0,0,1,0,0], formDepth = 0, formXObjectInvocations = 0;
   const usedKeys = new Set(), opStack = [];
+  const pageTextKeys = new Set(), reusedTextKeys = new Set();
   const graphics = new Set(['paintImageXObject', 'paintInlineImageXObject', 'paintImageMaskXObject',
     'paintImageXObjectRepeat', 'paintImageMaskXObjectRepeat', 'paintImageMaskXObjectGroup', 'paintSolidColorImageMask',
     'shadingFill', 'stroke', 'closeStroke', 'fill', 'eoFill', 'fillStroke', 'eoFillStroke',
@@ -36,7 +37,7 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
     if (fn === OPS.restore) { matrix = matrices.pop() || [1,0,0,1,0,0]; renderMode = renderModes.pop() ?? 0; }
     if (fn === OPS.setTextRenderingMode) renderMode = args[0];
     if (fn === OPS.transform) matrix = multiply(matrix, args);
-    if (fn === OPS.paintFormXObjectBegin) { matrices.push([...matrix]); renderModes.push(renderMode); formDepth++; if (args[0]) matrix = multiply(matrix,args[0]); }
+    if (fn === OPS.paintFormXObjectBegin) { formXObjectInvocations++; matrices.push([...matrix]); renderModes.push(renderMode); formDepth++; if (args[0]) matrix = multiply(matrix,args[0]); }
     if (fn === OPS.paintFormXObjectEnd) { matrix = matrices.pop() || [1,0,0,1,0,0]; renderMode = renderModes.pop() ?? 0; formDepth--; }
     if (fn === OPS.beginMarkedContent || fn === OPS.beginMarkedContentProps) {
       if (!formDepth && fn === OPS.beginMarkedContentProps && args[1] != null) {
@@ -56,12 +57,15 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
       const observedContent = graphics.has(fn) || (fn === OPS.constructPath && graphics.has(args[0])) ||
         (fn === OPS.showText && args[0].some(g => typeof g === 'object' && !!g.unicode));
       if (owner && observedContent) usedKeys.add(`${pageNumber}:${owner.mcid}`);
-      if (!artifact && (graphics.has(fn) || (fn === OPS.constructPath && graphics.has(args[0])))) {
-        nonArtifactGraphics++;
+      if (owner && fn === OPS.showText) (formDepth ? reusedTextKeys : pageTextKeys).add(`${pageNumber}:${owner.mcid}`);
+      if (graphics.has(fn) || (fn === OPS.constructPath && graphics.has(args[0]))) {
+        if (!artifact) nonArtifactGraphics++;
         let box = null;
         if (!formDepth && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
         if (!formDepth && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
-        graphicRegions.push({ key: !formDepth && owner ? `${pageNumber}:${owner.mcid}` : null, quad: box ? rectPoints(box,matrix) : null, label: box ? 'Non-artifact graphic; bounding region (clipping not resolved)' : 'Non-artifact graphic; no trustworthy region recovered' });
+        const region = { key: !formDepth && owner ? `${pageNumber}:${owner.mcid}` : null, quad: box ? rectPoints(box,matrix) : null, label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
+        if (artifact) { if (decorativeGraphics.length < 16) decorativeGraphics.push(region); }
+        else graphicRegions.push(region);
       }
       if (!artifact && fn === OPS.showText) {
         if (renderMode === 3 || renderMode === 7) { invisibleTextOperations++; if (owner) invisibleKeys.add(`${pageNumber}:${owner.mcid}`); }
@@ -72,6 +76,10 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
     }
   }
   if (opStack.length) contentErrors.push(`Page ${pageNumber}: ${opStack.length} marked-content sequence(s) lack a closing boundary.`);
+  // A numeric MCID may occur in several streams. Never use a mixed-scope key
+  // to locate text, even if some matching text also occurs directly on the page.
+  for (const block of blocks) block.locationSafe = formXObjectInvocations === 0 ||
+    (pageTextKeys.has(block.key) && !reusedTextKeys.has(block.key));
   const dangling = [...structure.refs.keys()].filter(k => k.startsWith(`${pageNumber}:`) && !usedKeys.has(k));
   const emptyContent = dangling.filter(k => mcidOccurrences.has(Number(k.split(':')[1])));
   const candidateNodes = structure.nodes.filter(n => n.page === pageNumber && /^H[1-6]?$/.test(n.role));
@@ -107,6 +115,8 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
   }
   const enrichedTree = enrich(tree);
   return { number: pageNumber, characters, untaggedCharacters, suspicious: suspicious + invalidGlyphs,
+    formXObjectInvocations,
+    evidenceGeometryScoped: true,
     contentErrors: [...new Set(contentErrors)], invisibleKeys: [...invisibleKeys], invisibleTextOperations,
-    nonArtifactGraphics, graphics: graphicRegions, dangling, emptyContent, blocks, logicalBlocks, candidates, structure: enrichedTree };
+    nonArtifactGraphics, graphics: graphicRegions, decorativeGraphics, dangling, emptyContent, blocks, logicalBlocks, candidates, structure: enrichedTree };
 }

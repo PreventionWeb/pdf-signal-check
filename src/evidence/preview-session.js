@@ -1,7 +1,7 @@
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
 import { readingOrderPlacement, hasUnsafePageScope } from "./reading-order-placement.js";
-import { cropBounds } from "./geometry.js";
+import { cropBounds, targetQuads } from "./geometry.js";
 import { point } from "../geometry.js";
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 /** Only canvas/SVG geometry is imperative. React owns all controls, text and layout. */
@@ -42,7 +42,6 @@ export class PreviewSession {
   }
   async load(file, report) {
     this.report = report;
-    this.unsafeScope = hasUnsafePageScope(report);
     const epoch = ++this.epoch;
     try {
       const data = new Uint8Array(await file.arrayBuffer());
@@ -77,8 +76,9 @@ export class PreviewSession {
   }
   select(target) {
     this.focusRegion = !!target.focusRegion;
+    target = { ...target, quads: targetQuads(this.report, target) };
     this.targets = target.quads?.length ? [target] : [];
-    if (this.unsafeScope) {
+    if (hasUnsafePageScope(this.report, target.page || this.pageNumber)) {
       this.targets = [];
       target = { ...target, quads: [] };
     }
@@ -162,14 +162,14 @@ export class PreviewSession {
     const page = this.report.pages.find((p) => p.number === this.pageNumber);
     if (!page) return;
     const regions = [];
-    if (this.unsafeScope) {
+    if (hasUnsafePageScope(this.report, this.pageNumber)) {
       this.message.textContent =
-        "Page locations are unavailable for reusable PDF content. Inspect the rendered page and recovered text.";
+        "This page uses reusable content whose locations this tool cannot resolve. Other pages may have located evidence.";
       return;
     }
     if (this.mode.value === "issues") {
       for (const b of page.blocks)
-        if (b.quad && (!b.connected || b.suspicious))
+        if (b.quad && (!page.evidenceGeometryScoped || b.locationSafe) && (!b.connected || b.suspicious))
           regions.push({ quad: b.quad, kind: "issue" });
       for (const g of page.graphics || [])
         if (g.quad) regions.push({ quad: g.quad, kind: "graphic" });
@@ -191,7 +191,7 @@ export class PreviewSession {
       polygon.setAttribute("points", pts.map((p) => p.join(",")).join(" "));
       polygon.setAttribute("class", `region ${r.kind}`);
       this.svg.append(polygon);
-      if (r.number) {
+      if (r.number && r.label) {
         const label = document.createElementNS(this.svg.namespaceURI, "text");
         label.setAttribute("x", pts[3][0]);
         label.setAttribute("y", pts[3][1] - 3);

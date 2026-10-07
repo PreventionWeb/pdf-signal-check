@@ -30,3 +30,12 @@ it('does not report reliable connections for broken structure or ambiguous neste
 it('does not invent graphics or figure findings on a text-only page',()=>{
  expect(inspectFigureAlternatives({nodes:[],errors:[]},[{number:1,graphics:[]}]).items).toEqual([]);
 });
+it('excludes graphics explicitly marked Artifact from figure review, while retaining unlabelled graphics',async()=>{
+ const {analyzePdf}=await import('../src/engine/analyze.js'); const {makePdf}=await import('./fixtures.js');
+ const decorative=await analyzePdf(await makePdf({graphic:true,artifactGraphic:true}));
+ expect(decorative.pages[0].graphics).toEqual([]);
+ expect(decorative.figureAlternatives.items).toEqual([]);
+ expect(decorative.figureAlternatives.decorativeItems).toEqual([expect.objectContaining({page:1,decorative:true})]);
+ const unlabelled=await analyzePdf(await makePdf({graphic:true,artifactGraphic:false}));
+ expect(unlabelled.figureAlternatives.items.some(item=>!item.tagged)).toBe(true);
+});

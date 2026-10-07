@@ -61,13 +61,14 @@ export function Preview({ file, report, selection }) {
   return (
     <section className="pdf-preview">
       <h3>{mode === "order" ? "Recovered reading order" : "Locate the evidence"}</h3>
+      {currentPage?.formXObjectInvocations > 0 && currentPage.evidenceGeometryScoped && <p className="model-note">This page contains reused objects, which are skipped. Numbers show only text whose page location is known.</p>}
       {mode === 'order' && !hasReadingOrder && <Notice variant="warning" headingLevel="h4" title="No machine-readable reading order found on this page">
         <p>The tool could not recover a sequence telling software which text to read first, next and last. The PDF’s structure labels may be missing or could not be read.</p>
         <p>In the source document, check the heading and paragraph structure, then export with PDF tags enabled. For an existing PDF, use a PDF accessibility editor to add or repair the reading order.</p>
       </Notice>}
       {mode === 'order' && hasReadingOrder && placement.located === 0 && <Notice variant="warning" headingLevel="h4" title="Reading-order text was recovered, but it could not be placed on this page">
         <p>No reading-order numbers can be shown on the image. Use the ordered text list below the page to compare the recovered sequence with the order you expect.</p>
-        {placement.unsafe && <p>This PDF uses reusable page content that this tool cannot reliably connect to page locations.</p>}
+        {placement.unsafe && <p>This page uses reusable content whose locations this tool cannot resolve. Other pages may have located evidence.</p>}
       </Notice>}
       {mode === 'order' && placement.located > 0 && placement.unlocated > 0 && <p className="model-note">{placement.located} of {placement.recovered} recovered text entries can be numbered on this page. {placement.unlocated} could not be placed; all recovered entries remain in the ordered text list.</p>}
       <div className="preview-controls mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">

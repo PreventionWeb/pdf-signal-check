@@ -1,6 +1,8 @@
+import { buildDocumentEvidence } from "../engine/topic-retrieval.js";
+import { SemanticEvidenceLab } from "./SemanticEvidenceLab.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Checks } from "../app/Checks.jsx";
-import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupHeadingFindings, reviewPriority } from "./workspace.js";
+import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupHeadingFindings, groupFigureFindings, reviewPriority } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
 import { findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
 import {
@@ -21,6 +23,7 @@ import { candidateBlocks } from "../geometry.js";
 import { MetadataGuidance } from "./MetadataGuidance.jsx";
 import { needsDocumentInformation } from "../runtime/screening-recovery.js";
 import { FigureContext } from "./FigureContext.jsx";
+import { FigureGroup } from "./FigureGroup.jsx";
 import { ResultHero } from "./ResultHero.jsx";
 import { ExportMenu } from "../export/ExportMenu.jsx";
 export function Review({ state, controller, exportRef, onReturnBatch }) {
@@ -35,7 +38,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     detailRef = useRef(null),
     listRef = useRef(null);
   const { category: storedCategory, issueId } = state.reviewCursor;
-  const groups = useMemo(() => groupHeadingFindings(findingGroups(normalized.findings)), [normalized]);
+  const groups = useMemo(() => groupFigureFindings(groupHeadingFindings(findingGroups(normalized.findings))), [normalized]);
   const overview = reviewSummary(report, groups);
   const category = !issueId && storedCategory === "problems" && !groups.problems.length
     ? groups.uncertainty.length ? "uncertainty" : groups.limits.length ? "limits" : "success"
@@ -46,7 +49,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     execution = screeningProvenance(report),
     method = finding && findingProvenance(finding, report),
     task = finding && reviewTask(finding);
-  const headingGroup = finding?.members ? groupedFindingProvenance(finding.members, report) : null;
+  const experimentEvidence = useMemo(() => state.semanticExperiment ? buildDocumentEvidence(report.pages) : null, [state.semanticExperiment, report.pages]);
+  const headingGroup = finding?.members && !finding.figureGroup ? groupedFindingProvenance(finding.members, report) : null;
   useEffect(() => {
     if (!state.modelBusy && !overview.tasks.some(item => item.id === controller.getSnapshot().reviewCursor.issueId) && overview.tasks[0]) {
       const first = overview.tasks[0];
@@ -133,6 +137,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         titleId={state.modelBusy ? undefined : "flow-title"}
         onChoose={() => controller.go("document")}
         onStart={overview.tasks.length > 0 && !finding ? () => choose(overview.tasks[0].id) : undefined} />
+      {experimentEvidence && <SemanticEvidenceLab key={state.sourceKey} report={report} documentEvidence={experimentEvidence} onInspect={inspect} />}
       {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
         <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
       <div className={`review-inbox ${overview.tasks.length ? "" : "review-inbox--empty"}`}>
@@ -174,7 +179,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             </div>
             <div className="review-item-meta">
             <Tag id={`review-status-${item.id}`} className={`review-status review-status--${priority.key}`}>{priority.label}</Tag>
-            <Checkbox className="review-item-check" id={`reviewed-${item.id}`} label="Reviewed"
+            <Checkbox className="review-item-check" id={`reviewed-${item.id}`} label={item.figureGroup ? 'Reviewed all' : 'Reviewed'}
               aria-describedby="reviewed-help" aria-label={`Reviewed: ${task.title}`} checked={item.members ? item.members.every(member => state.reviewed.has(member.id)) : state.reviewed.has(item.id)}
               onChange={() => {
                 const members = item.members || [item];
@@ -202,7 +207,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
           </h2>
           <Button className="review-list-back" onClick={() => { const heading = document.getElementById("review-tasks-title"); heading?.focus({ preventScroll: true }); heading?.scrollIntoView({ block: "start", behavior: "instant" }); }}>Back to review items</Button>
           <Notice variant={reviewPriority(finding).noticeVariant} icon={false}><p>{task.summary || finding.summary}</p></Notice>
-          {finding.members ? <section aria-label="Headings to review">
+          {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} reviewed={state.reviewed} onReviewed={id => controller.markReviewed(id)} onInspect={inspect} /> : finding.members ? <section aria-label="Headings to review">
             {headingGroup.sharedModel && <p className="model-note">Model used for these headings: {headingGroup.sharedModel.label || headingGroup.sharedModel.id}.</p>}
             {headingGroup.members.map(({ finding: member, method: memberMethod }) => <section key={member.id} className="heading-review-pair">
               <h3>{member.comparison?.query || member.title.replace(/^Heading: /, '')}</h3>

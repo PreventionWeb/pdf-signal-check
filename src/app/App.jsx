@@ -31,9 +31,10 @@ import {
   Actions,
   Loader,
   Icon,
+  Notice,
 } from "../ui/react.jsx";
 export function App() {
-  const [controller] = useState(() => createAppController()),
+  const [controller] = useState(() => createAppController({ semanticExperiment: new URLSearchParams(globalThis.location?.search).get("experiment") === "semantic-evidence" })),
     state = useSyncExternalStore(controller.subscribe, controller.getSnapshot),
     calibrationRef = useRef(null),
     exportRef = useRef(null),
@@ -129,6 +130,10 @@ export function App() {
               aria-label="Analysis report"
             >
               <div id="guided-flow">
+                {state.semanticExperiment && ["document", "setup"].includes(state.stage) && <Notice icon={false}>
+                  <h2>Semantic evidence experiment is on</h2>
+                  <p>Choose a PDF or sample. Below its results, you’ll find a new panel comparing saved descriptions and keywords with passages across the PDF. Word matches appear even without AI; AI comparisons require your existing model consent.</p>
+                </Notice>}
                 {title && (
                   <h1 className="flow-title" id="flow-title" tabIndex={-1}>
                     {title}
