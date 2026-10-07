@@ -57,6 +57,10 @@ Text-rendering modes 3 and 7 (invisible/clipping-only) produce a separate visibi
 
 A second bounded order clue examines at least three short, geometrically located headings on unrotated pages with one recovered left alignment and no recovered body-column spread beyond the simple-layout guard. A substantial upward move in tag order produces review evidence. Multi-column, rotated, missing-geometry and more complex layouts abstain from that spatial rule; no detected anomaly still remains Uncertain. The report names the numbered or spatial detector.
 
+## Drawing order versus tag order (advisory)
+
+When numbered steps (headings or list labels such as “1. …”, at least three) are in increasing order in the tag tree but drawn in a different order in the content stream, `readingOrder` records a `numbered-step-drawing-order` finding. Screen readers follow the tags and are unaffected. Tools that extract text in drawing order, as many AI pipelines do, read the steps out of sequence. This mirrors the GAR2025 extraction example in the UNDRR–OCHA guidance. The comparison marks the drawing lane, not the tag lane. The check is narrow: unnumbered prose, captions and labels drawn apart from their values are not detected.
+
 ## Hidden instructions for AI (advisory)
 
 `report.hiddenInstructions` screens text that readers cannot see but extraction and AI tools still read. It covers page text drawn with rendering mode 3 or 7, at an effective size under 1 pt, with a near-white fill (every channel at least `#f0`), or with its origin outside the page box. It also covers saved title, subject, keywords and authors, image alternate text and attachment descriptions. Text is NFKC-normalized, and zero-width and soft-hyphen characters are removed before matching. `src/engine/hidden-instructions.js` lists the instruction-like patterns:

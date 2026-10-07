@@ -11,7 +11,7 @@ const unavailable = reason => ({ available: false, reason });
 export function orderComparisonData(report) {
   const findings = report?.readingOrder?.findings || [];
   for (const finding of findings.slice(0, 8)) {
-    if (!['numbered-step-sequence', 'single-alignment-heading-geometry'].includes(finding.detector)) continue;
+    if (!['numbered-step-sequence', 'single-alignment-heading-geometry', 'numbered-step-drawing-order'].includes(finding.detector)) continue;
     const page = report.pages?.find(candidate => candidate.number === finding.page);
     const evidence = finding.evidence || [];
     if (!page || evidence.length < 3 || evidence.length > 200) continue;
@@ -30,11 +30,17 @@ export function orderComparisonData(report) {
         logicalPosition: logical.indexOf(matches[0]), y: Math.max(...draws.flatMap(draw => draw.item.quad.map(point => point[1]))) };
     });
     if (entries.some(entry => !entry) || entries.some((entry, index) => index && entry.logicalPosition <= entries[index - 1].logicalPosition)) continue;
-    const numbered = finding.detector === 'numbered-step-sequence';
+    const drawingDetector = finding.detector === 'numbered-step-drawing-order';
+    const numbered = finding.detector === 'numbered-step-sequence' || drawingDetector;
     if (numbered && entries.some(entry => entry.step === null || entry.step <= 0)) continue;
-    const anomalies = entries.flatMap((entry, index) => {
+    // For the drawing-order detector the anomaly lives in the drawing sequence, not the tags.
+    const sequence = drawingDetector ? [...entries].sort((a, b) => a.position - b.position) : entries;
+    const anomalies = sequence.flatMap((entry, index) => {
       if (!index) return [];
-      const previous = entries[index - 1];
+      const previous = sequence[index - 1];
+      if (drawingDetector) return entry.step < previous.step ? [{ from: previous.key, to: entry.key, lane: 'drawing',
+        text: `Drawing order jumps backwards: ${previous.step} → ${entry.step}.`,
+        plain: `Tools that read text in drawing order get step ${previous.step} before step ${entry.step}. Screen readers follow the tags and are fine here.` }] : [];
       if (numbered && entry.step <= previous.step) return [{ from: previous.key, to: entry.key,
         text: entry.step === previous.step ? `Tag-tree order repeats step ${entry.step}.` : `Tag-tree order jumps backwards: ${previous.step} → ${entry.step}.`,
         plain: entry.step === previous.step ? `Screen readers reach step ${entry.step} twice.` : `Screen readers jump from step ${previous.step} back to step ${entry.step}.` }];
@@ -49,7 +55,7 @@ export function orderComparisonData(report) {
       const label = numbered ? entry.text.replace(/^\d{1,3}[.)]\s+/, '') : entry.text;
       return { ...entry, shortText: label.length > 78 ? `${label.slice(0, 77)}…` : label, shortened: label.length > 78 };
     };
-    return { available: true, page: page.number, detector: finding.detector, numbered,
+    return { available: true, page: page.number, detector: finding.detector, numbered, anomalyLane: drawingDetector ? 'drawing' : 'tagged',
       tagged: selected.map(shorten), drawing: [...selected].sort((a, b) => a.position - b.position).map(shorten),
       anomalies: anomalies.filter(anomaly => selectedKeys.has(anomaly.from) && selectedKeys.has(anomaly.to)),
       omittedItems: entries.length - selected.length, omittedFindings: findings.length - 1 };

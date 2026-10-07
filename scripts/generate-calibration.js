@@ -1,5 +1,6 @@
 // Original synthetic documents. Run: node scripts/generate-calibration.js
-import { PDFDocument, StandardFonts, PDFName, PDFHexString, PDFOperator, rgb } from 'pdf-lib';
+import { PDFDocument, StandardFonts, PDFName, PDFHexString, PDFString, PDFOperator, PDFNumber, rgb } from 'pdf-lib';
+import { chartPng } from './png-chart.js';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
@@ -45,7 +46,7 @@ export async function generate(spec, outputDirectory = output) {
     pdf.setProducer('pdf-lib / original calibration corpus');
     pdf.setCreationDate(new Date('2026-01-01T00:00:00Z'));
     pdf.setModificationDate(new Date('2026-01-01T00:00:00Z'));
-    const xmp = `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title><rdf:Alt><rdf:li xml:lang="x-default">${xml(spec.xmpTitle || metadataTitle)}</rdf:li></rdf:Alt></dc:title>${spec.metadataAuthors ? `<dc:creator><rdf:Seq>${spec.metadataAuthors.map(a=>`<rdf:li>${xml(a)}</rdf:li>`).join('')}</rdf:Seq></dc:creator>` : ''}${spec.missingLanguage ? "" : `<dc:language><rdf:Bag><rdf:li>${language}</rdf:li></rdf:Bag></dc:language>`}${spec.metadataSubject ? `<dc:description><rdf:Alt><rdf:li xml:lang="x-default">${xml(spec.metadataSubject)}</rdf:li></rdf:Alt></dc:description>` : ""}${spec.metadataKeywords ? `<dc:subject><rdf:Bag>${spec.metadataKeywords.map(k => `<rdf:li>${xml(k)}</rdf:li>`).join("")}</rdf:Bag></dc:subject>` : ""}</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>`;
+    const xmp = `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title><rdf:Alt><rdf:li xml:lang="x-default">${xml(spec.xmpTitle || metadataTitle)}</rdf:li></rdf:Alt></dc:title>${spec.metadataAuthors ? `<dc:creator><rdf:Seq>${spec.metadataAuthors.map(a=>`<rdf:li>${xml(a)}</rdf:li>`).join('')}</rdf:Seq></dc:creator>` : ''}${spec.missingLanguage ? "" : `<dc:language><rdf:Bag><rdf:li>${language}</rdf:li></rdf:Bag></dc:language>`}${spec.metadataSubject ? `<dc:description><rdf:Alt><rdf:li xml:lang="x-default">${xml(spec.metadataSubject)}</rdf:li></rdf:Alt></dc:description>` : ""}${spec.metadataKeywords ? `<dc:subject><rdf:Bag>${spec.metadataKeywords.map(k => `<rdf:li>${xml(k)}</rdf:li>`).join("")}</rdf:Bag></dc:subject>` : ""}${spec.richMetadata ? `<dc:publisher><rdf:Bag><rdf:li>Harbor Observatory (fictional)</rdf:li></rdf:Bag></dc:publisher><dc:rights><rdf:Alt><rdf:li xml:lang="x-default">CC BY 4.0. Fictional sample data.</rdf:li></rdf:Alt></dc:rights><dc:date><rdf:Seq><rdf:li>2026-01-01</rdf:li></rdf:Seq></dc:date><dc:format>application/pdf</dc:format><dc:identifier>harbor-observatory-annual-report-2025</dc:identifier>` : ""}</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>`;
     pdf.catalog.set(PDFName.of('Metadata'), context.register(context.stream(new TextEncoder().encode(xmp), { Type: 'Metadata', Subtype: 'XML' })));
   } else {
     // PDFDocument.create adds a producer Info dictionary by default.
@@ -59,7 +60,7 @@ export async function generate(spec, outputDirectory = output) {
   const doc = context.obj({ Type: 'StructElem', S: 'Document', P: rootRef, K: [] });
   const docRef = context.register(doc);
   root.set(PDFName.of('K'), context.obj([docRef]));
-  const kids = [], parentPairs = [];
+  const kids = [], parentPairs = [], keyFigureLate = [];
   if (tagged) {
     pdf.catalog.set(PDFName.of('MarkInfo'), context.obj({ Marked: true }));
     pdf.catalog.set(PDFName.of('StructTreeRoot'), rootRef);
@@ -81,7 +82,8 @@ export async function generate(spec, outputDirectory = output) {
     page.pushOperators(PDFOperator.of('BMC', [PDFName.of('Artifact')]));
     draw(page); page.pushOperators(PDFOperator.of('EMC'));
   };
-  const text = (pi, role, value, y, size = 12) => semantic(pi, role, page => page.drawText(value, { x: 48, y, size, font: role.startsWith('H') ? bold : regular, color: ink }));
+  const headings = [];
+  const text = (pi, role, value, y, size = 12) => { if (/^H[12]$/.test(role)) headings.push({ title: value, pageIndex: pi, y: y + size }); return semantic(pi, role, page => page.drawText(value, { x: 48, y, size, font: role.startsWith('H') ? bold : regular, color: ink })); };
   const wrapped = (pi, value, y) => {
     const words = value.split(' '); let line = '', lines = [];
     for (const word of words) { const next = line ? `${line} ${word}` : word; if (regular.widthOfTextAtSize(next,12) > 490) { lines.push(line); line = word; } else line = next; }
@@ -117,7 +119,10 @@ export async function generate(spec, outputDirectory = output) {
   text(0,'P', german ? 'Herausgeber: Hafenobservatorium, fiktive Forschungsgruppe.' : 'Publisher: Harbor Observatory, a fictional research group.', 284);
   if (spec.overviewFigure) {
     const overview = (draw, alt) => spec.unlabelledOverview ? draw(pages[0]) : semantic(0, 'Figure', draw, alt);
-    overview(p => {
+    // Image-only chart: the values exist only as pixels, with no text layer for readers or extractors.
+    const chartImage = spec.chartImage ? await pdf.embedPng(chartPng()) : null;
+    if (chartImage) overview(p => p.drawImage(chartImage, { x: 48, y: 75, width: 499, height: 173 }), spec.missingAlt ? undefined : 'Mean water visibility: North 2.8 metres, Central 3.1 metres, South 3.4 metres.');
+    else overview(p => {
       p.drawRectangle({x:48,y:75,width:499,height:173,color:pale});
       [2.8,3.1,3.4].forEach((v,i) => {
         p.drawRectangle({x:95+i*139,y:105,width:72,height:v*31,color:teal});
@@ -135,13 +140,60 @@ export async function generate(spec, outputDirectory = output) {
     const startIndex=kids.length;
     const left=[['1. Prepare the sealed bottles',620,true],['Label each bottle before sampling.',592],['Keep bottles capped until needed.',573],['2. Collect a water sample',510,true],['Open the prepared bottle at the station.',482],['Fill it once; recap it immediately.',463]];
     const right=[['3. Store the collected sample',620,true],['Place the filled bottle in the cooler.',592],['Record the collection time.',573],['4. Analyze and record results',510,true],['Test the sample after transport.',482],['Attach the result to its bottle label.',463]];
-    left.forEach(([t,y,h])=>drawColumn(48,t,y,h));
+    // 'scrambled' drawing order: the right column is drawn first, but the tags keep the intended order.
+    // Screen readers follow the tags; many text extractors follow the drawing order.
+    const scrambled = spec.drawingOrder === 'scrambled';
+    (scrambled ? right : left).forEach(([t,y,h])=>drawColumn(scrambled ? 310 : 48,t,y,h));
     const splitIndex=kids.length;
-    right.forEach(([t,y,h])=>drawColumn(310,t,y,h));
+    (scrambled ? left : right).forEach(([t,y,h])=>drawColumn(scrambled ? 48 : 310,t,y,h));
     const endIndex=kids.length;
-    if(spec.readingOrder==='flawed')kids.splice(startIndex,endIndex-startIndex,...kids.slice(splitIndex,endIndex),...kids.slice(startIndex,splitIndex));
+    if(spec.readingOrder==='flawed' || scrambled)kids.splice(startIndex,endIndex-startIndex,...kids.slice(splitIndex,endIndex),...kids.slice(startIndex,splitIndex));
     text(1,'P','The procedure is fictional and is not laboratory safety advice.',350,10);
-    orderTruth={page:2,visualOrder:['1. Prepare the sealed bottles','2. Collect a water sample','3. Store the collected sample','4. Analyze and record results'],contentStreamOrder:[0,1,2,3],logicalHeadingOrder:spec.readingOrder==='flawed'?[2,3,0,1]:[0,1,2,3],intentionalDefect:spec.readingOrder==='flawed',fullCoverage:true, headingRole:'H2', contentKeys: { intended:['2:2','2:5','2:8','2:11'], actual:spec.readingOrder==='flawed'?['2:8','2:11','2:2','2:5']:['2:2','2:5','2:8','2:11'] }};
+    if (spec.keyFigure) {
+      // A headline number and its label. 'detached' draws them far apart in the content stream (label first,
+      // number last) while the tags keep them together; extraction then returns the number on its own.
+      const number = () => semantic(1, 'P', p => p.drawText('+0.7 m', { x: 48, y: 300, size: 26, font: bold, color: teal }));
+      const label = () => semantic(1, 'P', p => p.drawText('rise in mean water visibility since 2024, across all three stations', { x: 160, y: 307, size: 11, font: regular, color: ink }));
+      if (spec.keyFigure === 'detached') { const at = kids.length; label(); keyFigureLate.push(() => { number(); const numberRef = kids.pop(); kids.splice(at, 0, numberRef); }); }
+      else { number(); label(); }
+    }
+    if (spec.crossReference) {
+      const sentence = 'Station locations are shown in Map 2 in the annex.';
+      text(1, 'P', sentence, 266, 11);
+      if (spec.crossReference === 'linked') {
+        const start = 48 + regular.widthOfTextAtSize('Station locations are shown in ', 11);
+        const width = regular.widthOfTextAtSize('Map 2', 11);
+        pages[1].drawLine({ start: { x: start, y: 264 }, end: { x: start + width, y: 264 }, thickness: 0.8, color: teal });
+        const link = context.obj({ Type: 'Annot', Subtype: 'Link', Rect: [start, 262, start + width, 277], Border: [0, 0, 0],
+          Contents: PDFHexString.fromText('Map 2: station locations (annex)'), A: { Type: 'Action', S: 'URI', URI: PDFString.of('https://example.org/harbor-observatory/2025/annex#map-2') } });
+        pages[1].node.set(PDFName.of('Annots'), context.obj([context.register(link)]));
+      }
+    }
+    if (spec.dataTable) {
+      // A tagged data table that repeats the chart's values as text: Table > TR > TH/TD, header row first.
+      text(1, 'H2', 'Mean water visibility by station (data)', 232, 13);
+      const table = context.obj({ Type: 'StructElem', S: 'Table', P: docRef, K: [] });
+      const tableRef = context.register(table); kids.push(tableRef);
+      const rows = [['Station', 'Mean visibility (metres)'], ['North', '2.8'], ['Central', '3.1'], ['South', '3.4']];
+      const rowRefs = rows.map((cells, r) => {
+        const row = context.obj({ Type: 'StructElem', S: 'TR', P: tableRef, K: [] }); const rowRef = context.register(row);
+        const cellRefs = cells.map((value, c) => {
+          const mcid = mappings[1].length, role = r === 0 ? 'TH' : 'TD';
+          const cell = context.obj({ Type: 'StructElem', S: role, P: rowRef, Pg: pages[1].ref, K: mcid });
+          if (r === 0) cell.set(PDFName.of('A'), context.obj({ O: 'Table', Scope: 'Column' }));
+          const cellRef = context.register(cell); mappings[1].push(cellRef);
+          pages[1].pushOperators(PDFOperator.of('BDC', [PDFName.of(role), context.obj({ MCID: mcid })]));
+          pages[1].drawText(value, { x: 48 + c * 200, y: 206 - r * 20, size: 11, font: r === 0 ? bold : regular, color: ink });
+          pages[1].pushOperators(PDFOperator.of('EMC'));
+          return cellRef;
+        });
+        row.set(PDFName.of('K'), context.obj(cellRefs));
+        return rowRef;
+      });
+      table.set(PDFName.of('K'), context.obj(rowRefs));
+      artifact(pages[1], p => { p.drawLine({ start: { x: 48, y: 200 }, end: { x: 400, y: 200 }, thickness: 0.8, color: ink }); });
+    }
+    orderTruth={page:2,visualOrder:['1. Prepare the sealed bottles','2. Collect a water sample','3. Store the collected sample','4. Analyze and record results'],contentStreamOrder:scrambled?[2,3,0,1]:[0,1,2,3],logicalHeadingOrder:spec.readingOrder==='flawed'?[2,3,0,1]:[0,1,2,3],intentionalDefect:spec.readingOrder==='flawed',fullCoverage:true, headingRole:'H2', contentKeys: { intended:['2:2','2:5','2:8','2:11'], actual:spec.readingOrder==='flawed'?['2:8','2:11','2:2','2:5']:['2:2','2:5','2:8','2:11'] }};
   } else {
   text(1,'H1', german ? 'Ergebnisse und nächste Schritte' : 'Results and next steps', 738,23);
   text(1,'H2', german ? 'Stationsvergleich' : 'Station comparison', 690,17);
@@ -165,6 +217,7 @@ export async function generate(spec, outputDirectory = output) {
   text(1,'H2',german ? 'Datengrundlage' : 'Data provenance', 214,17);
   wrapped(1,german ? 'Die Daten und das Logo sind Originale dieses Testprojekts. Das Dokument ist ein synthetisches Beispiel und keine wissenschaftliche Veröffentlichung.' : 'The data and logo were created for this test project. This document is a synthetic example and is not a scientific publication.', 182);
   }
+  for (const late of keyFigureLate) late();
   if (spec.imageReviewExamples) {
     for (const [index, value] of [2.8, 3.4].entries()) {
       const x = 48 + index * 260;
@@ -182,6 +235,22 @@ export async function generate(spec, outputDirectory = output) {
     for (let pi=0; pi<2; pi++) parentPairs.push(pi, context.obj(mappings[pi]));
     root.set(PDFName.of('ParentTree'), context.register(context.obj({Nums: parentPairs})));
     root.set(PDFName.of('ParentTreeNextKey'), context.obj(2));
+  }
+  if (spec.bookmarks && headings.length) {
+    // Document outline: one bookmark per H1/H2, in reading order.
+    const outlines = context.obj({ Type: 'Outlines', Count: headings.length });
+    const outlinesRef = context.register(outlines);
+    const itemRefs = headings.map(() => context.nextRef());
+    headings.forEach((heading, index) => {
+      const item = context.obj({ Title: PDFHexString.fromText(heading.title), Parent: outlinesRef,
+        Dest: [pages[heading.pageIndex].ref, PDFName.of('XYZ'), PDFNumber.of(0), PDFNumber.of(heading.y + 8), PDFNumber.of(0)] });
+      if (index > 0) item.set(PDFName.of('Prev'), itemRefs[index - 1]);
+      if (index < headings.length - 1) item.set(PDFName.of('Next'), itemRefs[index + 1]);
+      context.assign(itemRefs[index], item);
+    });
+    outlines.set(PDFName.of('First'), itemRefs[0]); outlines.set(PDFName.of('Last'), itemRefs.at(-1));
+    pdf.catalog.set(PDFName.of('Outlines'), outlinesRef);
+    pdf.catalog.set(PDFName.of('PageMode'), PDFName.of('UseOutlines'));
   }
   const bytes = await pdf.save({useObjectStreams:false,addDefaultPage:false,updateFieldAppearances:false});
   await writeFile(`${outputDirectory}${spec.id}.pdf`,bytes);

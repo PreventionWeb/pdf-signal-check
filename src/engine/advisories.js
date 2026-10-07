@@ -33,8 +33,18 @@ export function inspectReadingOrder(pages) {
     const steps = (page.logicalBlocks || []).filter(b => /^(?:H[1-6]?|Lbl)$/.test(b.role || ''))
       .map(b => ({ ...located(b,page.number), step: Number(b.text.match(/^\s*(\d{1,3})[.)]\s+\S/)?.[1]) }))
       .filter(b => Number.isInteger(b.step) && b.step > 0);
-    if (steps.length >= 3 && steps.some((b,i) => i > 0 && b.step <= steps[i-1].step)) findings.push({ page: page.number, detector:'numbered-step-sequence',
+    const tagOrderBroken = steps.length >= 3 && steps.some((b,i) => i > 0 && b.step <= steps[i-1].step);
+    if (tagOrderBroken) findings.push({ page: page.number, detector:'numbered-step-sequence',
       reason: 'Numbered heading/list-label steps repeat or decrease in tag-tree order. This may indicate reordered procedures or a legitimate numbering restart.', evidence: steps });
+    // Tags in order, drawing out of order: screen readers follow the tags, but tools that extract text in the
+    // order it is drawn (common in AI pipelines) read the steps out of sequence.
+    if (!tagOrderBroken && steps.length >= 3) {
+      const drawn = steps.map(step => ({ step, position: (page.blocks || []).findIndex(block => block.key && step.keys?.includes(block.key)) }));
+      const allDrawn = drawn.every(item => item.position >= 0);
+      const drawnSteps = [...drawn].sort((a, b) => a.position - b.position).map(item => item.step.step);
+      if (allDrawn && drawnSteps.some((step, i) => i > 0 && step < drawnSteps[i - 1])) findings.push({ page: page.number, detector: 'numbered-step-drawing-order',
+        reason: `Numbered steps are tagged in order but drawn in the order ${drawnSteps.join(', ')}. Tools that extract text in drawing order may read them out of sequence.`, evidence: steps });
+    }
     // A very narrow top-down clue: at least three short headings share one left
     // alignment, have recoverable geometry, and no heading belongs to another column.
     const headings=(page.logicalBlocks || []).filter(b=>/^H[1-6]?$/.test(b.role || '') && b.text.length<=200).map(b=>{

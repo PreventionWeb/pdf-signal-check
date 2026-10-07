@@ -31,7 +31,7 @@ export function OrderComparison({ report, file, onInspect, compact = false }) {
               [
                 "drawing",
                 compact ? "Order the text is drawn" : "Page drawing order",
-                compact ? "Usually close to the visual order, but not guaranteed." : "Text recovered from drawing instructions; not intended order.",
+                compact ? data.anomalyLane === "drawing" ? "Many text-extraction and AI tools read in this order." : "Usually close to the visual order, but not guaranteed." : "Text recovered from drawing instructions; not intended order.",
                 data.drawing,
               ],
             ].map(([kind, label, description, entries]) => (
@@ -44,7 +44,7 @@ export function OrderComparison({ report, file, onInspect, compact = false }) {
                 <ul className="order-map-cards">
                   {entries.map((entry, index) => {
                     const anomaly =
-                      kind === "tagged" &&
+                      kind === (data.anomalyLane || "tagged") &&
                       data.anomalies.find((a) => a.to === entry.key);
                     return (
                       <li

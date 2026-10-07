@@ -7,6 +7,8 @@ const samples = [
   { id: 'missing-document-information', title: 'Missing document information', description: 'No saved title, description or keywords, and no tags. Shows the “fix these first” screen.' },
   { id: 'with-attachments', title: 'With attachments', description: 'Carries a CSV data file and a text guide. See how attached files are listed and described.' },
   { id: 'graphics-and-decoration', title: 'Graphics and decoration', description: 'Charts with and without descriptions, an unlabelled chart, and a logo marked as decoration.' },
+  { id: 'image-chart-scrambled-text', title: 'Chart as a picture, text out of order', description: 'Looks finished, but the chart is only pixels, a headline number is drawn apart from its label and the columns are drawn out of order.' },
+  { id: 'built-to-travel', title: 'Built to travel', description: 'Done well: a described chart with a data table, the data attached as CSV, schema.org metadata, a linked reference and bookmarks.' },
 ];
 
 /**
@@ -17,7 +19,7 @@ export function Samples({ disabled, onChoose }) {
   return (
     <section className="sample-section" aria-labelledby="sample-title">
       <h2 id="sample-title" tabIndex={-1}>Or try a sample report</h2>
-      <p className="sample-intro">The same fictional annual report, prepared six different ways.</p>
+      <p className="sample-intro">The same fictional annual report, prepared eight different ways.</p>
       <ul className="sample-cards">
         {samples.map(sample => (
           <li key={sample.id}>

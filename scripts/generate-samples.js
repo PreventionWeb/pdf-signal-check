@@ -37,6 +37,12 @@ const cases = [
   { ...common, id: 'graphics-and-decoration', name: 'Graphics and decoration', graphics: 'decorative', unlabelledOverview: true, imageReviewExamples: true,
     summary: 'Explore four review groups: an unlabelled chart, a described chart, a chart missing alt text, and an Artifact-marked logo and page furniture.',
     defects: ['meaningful chart is not linked to a Figure tag or alternate text', 'one tagged chart has no alternate text'] },
+  { ...common, id: 'image-chart-scrambled-text', name: 'Chart as a picture, text out of order', chartImage: true, missingAlt: true,
+    drawingOrder: 'scrambled', keyFigure: 'detached', crossReference: 'plain',
+    summary: 'A chart saved as a picture with no description, a headline number drawn apart from its label, columns drawn out of order and an unlinked cross-reference. The tags themselves are correct.',
+    defects: ['chart values exist only as pixels, with no description', 'headline number drawn apart from its label', 'procedure columns drawn right before left; tags in the intended order', 'cross-reference to Map 2 is plain text'] },
+  { ...common, id: 'built-to-travel', name: 'Built to travel', keyFigure: 'attached', crossReference: 'linked', dataTable: true, bookmarks: true, richMetadata: true, attachData: true,
+    summary: 'A described chart with a tagged data table, the data attached as CSV, schema.org metadata attached as JSON-LD, full document properties, a linked cross-reference and bookmarks.' },
 ];
 const samples = [];
 for (const spec of cases) {
@@ -49,6 +55,26 @@ for (const spec of cases) {
     await pdf.attach(new TextEncoder().encode('Sample attachment guide\n\nstation-data.csv contains fictional station names and visibility in metres. Use it to explore the attachment inventory. These are demonstration values, not real measurements or safety guidance.\n'), 'attachment-guide.txt', {
       mimeType: 'text/plain', afRelationship: AFRelationship.Supplement,
       description: 'Explains the columns and fictional status of station-data.csv. Supporting instructions for the sample attachment.' });
+    const bytes = await pdf.save({ useObjectStreams: false, updateFieldAppearances: false });
+    await writeFile(`${output}${sample.file}`, bytes);
+    sample.bytes = bytes.length;
+    sample.expectedProperties.embeddedFileCount = 2;
+  }
+  if (spec.attachData) {
+    // Exemplar: the chart's data travels with the PDF (PDF/A-3 style associated files), plus a schema.org description.
+    const pdf = await PDFDocument.load(await readFile(`${output}${sample.file}`), { updateMetadata: false });
+    await pdf.attach(new TextEncoder().encode('station,mean_visibility_metres\nNorth,2.8\nCentral,3.1\nSouth,3.4\n'), 'harbor-observatory-2025-station-visibility.csv', {
+      mimeType: 'text/csv', afRelationship: AFRelationship.Data,
+      description: 'The data behind Figure 1 and the station table: mean water visibility in metres at three fictional stations, 2025.' });
+    const jsonld = { '@context': 'https://schema.org', '@type': 'Report', name: 'Harbor Observatory Annual Report 2025',
+      description: common.metadataSubject, inLanguage: 'en-GB', datePublished: '2026-01-01', keywords: common.metadataKeywords,
+      author: common.visibleAuthors.map(name => ({ '@type': 'Person', name })), publisher: { '@type': 'Organization', name: 'Harbor Observatory (fictional)' },
+      license: 'https://creativecommons.org/licenses/by/4.0/',
+      hasPart: { '@type': 'Dataset', name: 'Mean water visibility by station, 2025', encodingFormat: 'text/csv', contentUrl: 'harbor-observatory-2025-station-visibility.csv',
+        variableMeasured: { '@type': 'PropertyValue', name: 'Mean water visibility', unitText: 'metres' } } };
+    await pdf.attach(new TextEncoder().encode(JSON.stringify(jsonld, null, 2)), 'harbor-observatory-2025-report.jsonld', {
+      mimeType: 'application/ld+json', afRelationship: AFRelationship.Supplement,
+      description: 'Machine-readable description of this report (schema.org Report and Dataset) for search engines and catalogues.' });
     const bytes = await pdf.save({ useObjectStreams: false, updateFieldAppearances: false });
     await writeFile(`${output}${sample.file}`, bytes);
     sample.bytes = bytes.length;

@@ -406,6 +406,166 @@
       ],
       "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
       "bytes": 11654
+    },
+    {
+      "id": "image-chart-scrambled-text",
+      "file": "image-chart-scrambled-text.pdf",
+      "title": "Chart as a picture, text out of order",
+      "description": "A chart saved as a picture with no description, a headline number drawn apart from its label, columns drawn out of order and an unlinked cross-reference. The tags themselves are correct.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "meaningful figure",
+        "figureAlt": false,
+        "declaredLanguage": "en-GB"
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            2,
+            3,
+            0,
+            1
+          ],
+          "logicalHeadingOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "intentionalDefect": false,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "chart values exist only as pixels, with no description",
+        "headline number drawn apart from its label",
+        "procedure columns drawn right before left; tags in the intended order",
+        "cross-reference to Map 2 is plain text"
+      ],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 16777
+    },
+    {
+      "id": "built-to-travel",
+      "file": "built-to-travel.pdf",
+      "title": "Built to travel",
+      "description": "A described chart with a tagged data table, the data attached as CSV, schema.org metadata attached as JSON-LD, full document properties, a linked cross-reference and bookmarks.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": "Harbor Observatory Annual Report 2025",
+        "xmpTitle": "Harbor Observatory Annual Report 2025",
+        "structure": "complete",
+        "titleRelationship": "match",
+        "graphics": "meaningful figure",
+        "figureAlt": true,
+        "embeddedFileCount": 2,
+        "declaredLanguage": "en-GB"
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": "Harbor Observatory Annual Report 2025",
+        "taggedByline": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": {
+          "page": 2,
+          "visualOrder": [
+            "1. Prepare the sealed bottles",
+            "2. Collect a water sample",
+            "3. Store the collected sample",
+            "4. Analyze and record results"
+          ],
+          "contentStreamOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "logicalHeadingOrder": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "intentionalDefect": false,
+          "fullCoverage": true,
+          "headingRole": "H2",
+          "contentKeys": {
+            "intended": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ],
+            "actual": [
+              "2:2",
+              "2:5",
+              "2:8",
+              "2:11"
+            ]
+          }
+        },
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 18425
     }
   ]
 }

@@ -205,6 +205,10 @@ export function fixCard(item, report = {}) {
   if (path === 'readingOrder' && item.outcome !== 'requires-review') return { ...card, title: 'Check the reading order',
     summary: 'The tool found no ordering problem, but it cannot confirm the order is right. Check that screen readers will read the page in the order you intend.',
     change: 'Open the reading order on the page and follow the numbers. If they jump around, ask the designer to fix the reading order. Then export again.' };
+  const drawingOnly = report.readingOrder?.findings?.length && report.readingOrder.findings.every(finding => finding.detector === 'numbered-step-drawing-order');
+  if (path === 'readingOrder' && item.outcome === 'requires-review' && drawingOnly) return { ...card, title: 'Text is drawn out of order',
+    summary: 'The hidden tags are in the right order, so screen readers are fine. But the text is drawn in a different order, and many text-extraction and AI tools follow the drawing order, so they may read it scrambled.',
+    change: 'Ask the designer to re-export from the source document with each column or section in one text frame, or fix the content order in a PDF editor (Acrobat: Content or Reading Order panel). Then export again.' };
   if (path === 'readingOrder' && item.outcome === 'requires-review') return { ...card, title: 'Text may be read in the wrong order',
     summary: 'Screen readers and AI tools may read this content in a different order from the page layout.',
     change: 'Ask the designer to fix the reading order: in the source document, or in Acrobat’s Reading Order or Tags panel. Then export again.' };

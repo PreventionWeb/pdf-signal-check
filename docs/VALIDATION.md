@@ -285,3 +285,11 @@ The landing page:
 - Intake tabs replaced by a drop zone followed by six native Mangrove horizontal book cards with original SVG covers.
 - The pdf-a-go-go sample preview, its vendored viewer and test removed.
 - agent-browser checked at 1440px and 390px: no tabs, six covers loaded, a card click opens setup, and no overflow.
+
+### Story samples (2026-10)
+
+Two samples were added for the educational story:
+- **Chart as a picture, text out of order:** a raster chart with no description, values only as pixels; “+0.7 m” drawn apart from its label; procedure columns drawn right before left with tags in the intended order; “Map 2” as plain text. `pdftotext -raw` returns steps 3–4 before 1–2 and the number on its own at the end.
+- **Built to travel:** a described vector chart, a tagged data table (Table/TR/TH/TD), the CSV attached (Data) with a schema.org Report/Dataset JSON-LD attached (Supplement), Dublin Core publisher, rights, date, format and identifier, a linked “Map 2” and heading bookmarks.
+
+Both were rendered and inspected. A new `numbered-step-drawing-order` detector flags the failure sample (tag lane 1–4, drawing lane 3, 4, 1, 2). Tests cover both samples through the engine and presentation. agent-browser confirmed the “Text is drawn out of order” item and lanes, and the exemplar’s “Nothing confirmed to fix” with both attachments listed.
