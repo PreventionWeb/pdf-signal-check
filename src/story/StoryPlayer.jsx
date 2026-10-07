@@ -115,9 +115,12 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
   useEffect(() => {
     const voice = audio.current, element = bed.current;
     if (!voice || !element || !music) return;
-    const duck = () => fadeTo(element, music.duck), lift = () => fadeTo(element, music.level);
+    // Lift only when the voice stays quiet, so a scene change (old clip pauses, new clip starts) doesn't pump.
+    let timer;
+    const duck = () => { clearTimeout(timer); fadeTo(element, music.duck); };
+    const lift = () => { clearTimeout(timer); timer = setTimeout(() => { if (voice.paused || voice.ended) fadeTo(element, music.level); }, 900); };
     voice.addEventListener('playing', duck); voice.addEventListener('pause', lift); voice.addEventListener('ended', lift);
-    return () => { voice.removeEventListener('playing', duck); voice.removeEventListener('pause', lift); voice.removeEventListener('ended', lift); };
+    return () => { clearTimeout(timer); voice.removeEventListener('playing', duck); voice.removeEventListener('pause', lift); voice.removeEventListener('ended', lift); };
   }, []);
 
   const go = next => { setIndex(Math.max(0, Math.min(scenes.length - 1, next))); };
@@ -134,10 +137,10 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
   return <section className="story-player" aria-label="Story" aria-roledescription="story player" onKeyDown={onKeyDown}>
     <StoryDefs />
     <div className="story-frame">
+      <div className="story-brand"><img className="story-logo" src={LOGO} alt="UNDRR" width="425" height="64" /></div>
       <div className="story-stage" ref={stage} role="group" aria-roledescription="scene" aria-label={`Scene ${index + 1} of ${scenes.length}: ${scene.label}`}>
         <div key={scene.id} className="story-scene">{scene.stage}</div>
         <p className="mg-u-sr-only">{scene.describe}</p>
-        <img className="story-logo" src={LOGO} alt="UNDRR" width="425" height="64" />
       </div>
       <div className="story-caption-row">
         <p id="story-caption" className="story-caption" aria-live="polite"><Caption key={scene.id} caption={scene.caption} /></p>
