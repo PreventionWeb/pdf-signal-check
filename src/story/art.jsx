@@ -233,7 +233,7 @@ export function Person({ kind, label, skin }) {
     {kind === 'listener' && <g stroke={C.mustard} strokeWidth="7" fill="none" strokeLinecap="round">
       <path d="M78 22 Q94 48 78 74" /><path d="M96 8 Q122 48 96 88" />
     </g>}
-    <At x={0} y={250}><g transform={`translate(${-stripWidth(label, 30, 16) / 2} 0)`}><Strip text={label} size={30} pad={16} /></g></At>
+    <At x={0} y={250}><g transform={`translate(${-stripWidth(label, 28, 13) / 2} 0)`}><Strip text={label} size={28} pad={13} /></g></At>
   </g>;
 }
 

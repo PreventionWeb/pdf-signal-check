@@ -53,37 +53,38 @@ export function scenes(data) {
         <A anim="drop" dur={650}><At x={190} y={440} s={1.05}><Chart labels={labels} /></At></A>
         <A anim="pop" delay={1000} dur={600} idle="1"><At x={500} y={358}><Bubble text={sentence} size={42} /></At></A>
         {[['reader', 'Reading'], ['listener', 'Screen reader'], ['assistant', 'AI assistant']].map(([kind, label], i) =>
-          <A key={kind} anim="right" delay={1500 + i * 180} dur={650} idle="0.7"><At x={820 + i * 220} y={440}><Person kind={kind} label={label} /></At></A>)}
-        {[0, 1, 2].map(i => <A key={i} anim="travel" delay={2500 + i * 260} dur={900} from={`${-320 - i * 220},${i === 1 ? 140 : 70}`}>
-          <At x={820 + i * 220} y={i === 1 ? 230 : 302}><Bubble text={sentence} size={24} /></At>
+          <A key={kind} anim="right" delay={1500 + i * 180} dur={650} idle="0.7"><At x={800 + i * 235} y={440}><Person kind={kind} label={label} /></At></A>)}
+        {[0, 1, 2].map(i => <A key={i} anim="travel" delay={2500 + i * 260} dur={900} from={`${-300 - i * 235},${i === 1 ? 140 : 70}`}>
+          <At x={800 + i * 235} y={i === 1 ? 230 : 302}><Bubble text={sentence} size={24} /></At>
         </A>)}
-        {[0, 1, 2].map(i => <A key={i} anim="pop" delay={3400 + i * 200} dur={420}><At x={900 + i * 220} y={570}><Tick r={28} /></At></A>)}
+        {[0, 1, 2].map(i => <A key={i} anim="pop" delay={3400 + i * 200} dur={420}><At x={880 + i * 235} y={570}><Tick r={28} /></At></A>)}
       </Stage>,
     },
     {
       describe: 'The report page lifts and fans out into three stacked sheets of paper. The top sheet, white, is “What people see”. The middle sheet, light blue, is “Text tools pull out”, shown as lines of plain text. The bottom sheet, yellow, is “Tags screen readers follow”, shown as numbered tags on a string.',
       stage: <Stage>
         {[
-          ['Tags screen readers follow', LAYER.tags, 380, 640, '-120,-490', <g>
-            <path d="M40 42 Q250 70 470 40" stroke={C.ink} strokeWidth="4" fill="none" />
-            {[1, 2, 3, 4].map((n, i) => <At key={n} x={90 + i * 110} y={44 + (i === 1 || i === 2 ? 8 : 2)} s={0.58}><StepTag n={n} fill={STEP_COLOUR[n]} /></At>)}
+          ['Tags screen readers follow', LAYER.tags, 380, 560, '-140,-360', <g>
+            <path d="M40 74 Q250 102 470 72" stroke={C.ink} strokeWidth="4" fill="none" />
+            {[1, 2, 3, 4].map((n, i) => <At key={n} x={90 + i * 110} y={76 + (i === 1 || i === 2 ? 8 : 2)} s={0.58}><StepTag n={n} fill={STEP_COLOUR[n]} /></At>)}
           </g>],
-          ['Text tools pull out', LAYER.text, 320, 395, '-60,-245', <g className="sp-mono" fontSize="24" fill={C.ink}>
-            <text x="36" y="52">Annual Report {coverYear}</text>
-            <text x="36" y="92">Mean water visibility</text>
-            <text x="36" y="132">{labels.slice(0, 4).join('  ')} …</text>
+          ['Text tools pull out', LAYER.text, 310, 380, '-70,-180', <g className="sp-mono" fontSize="24" fill={C.ink}>
+            <text x="36" y="84">Annual Report {coverYear}</text>
+            <text x="36" y="124">Mean water visibility</text>
+            <text x="36" y="164">{labels.slice(0, 4).join('  ')} …</text>
           </g>],
-          ['What people see', LAYER.see, 260, 150, null, <g>
+          ['What people see', LAYER.see, 240, 200, null, <g>
             <rect x="24" y="22" width="452" height="34" fill={C.teal} />
             <path d="M24 46 C140 34 300 64 476 44 V58 H24 Z" fill={C.purple} />
-            {[0, 1, 2].map(i => <rect key={i} x={40 + i * 46} y={142 - (i + 2) * 14} width="34" height={(i + 2) * 14} fill={[C.sky, C.teal, C.coral][i]} />)}
-            {[0, 1, 2].map(i => <rect key={i} x="210" y={84 + i * 22} width={[240, 200, 220][i]} height="10" rx="5" fill="#e3d7c2" />)}
+            {[0, 1, 2].map(i => <rect key={i} x={40 + i * 46} y={180 - (i + 2) * 22} width="34" height={(i + 2) * 22} fill={[C.sky, C.teal, C.coral][i]} />)}
+            <text x="210" y="104" className="sp-tile" fontSize="28" fill={C.ink}>Annual Report {coverYear}</text>
+            {[0, 1, 2].map(i => <rect key={i} x="210" y={126 + i * 20} width={[240, 200, 220][i]} height="10" rx="5" fill="#e3d7c2" />)}
           </g>],
         ].map(([label, fill, x, y, from, art], i) =>
           <A key={label} anim={from ? 'travel' : 'drop'} from={from} delay={from ? 900 + (2 - i) * 500 : 200} dur={from ? 900 : 700} idle="0.6">
-            <At x={x} y={y} r={[1.5, -1, 0.5][i]}><Sheet w={500} h={170} fill={fill} label={label}>{art}</Sheet></At>
+            <At x={x} y={y} r={[1.5, -1, 0.5][i]}><Sheet w={500} h={210} fill={fill} label={label}>{art}</Sheet></At>
           </A>)}
-        <A anim="pop" delay={2600} dur={500} idle="1.2"><At x={1420} y={150} r={10} s={0.8}><QMark fill={C.teal} /></At></A>
+        <A anim="pop" delay={2600} dur={500} idle="1.2"><At x={1400} y={170} r={10} s={0.8}><QMark fill={C.teal} /></At></A>
       </Stage>,
     },
     {
