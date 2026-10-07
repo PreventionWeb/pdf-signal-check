@@ -23,7 +23,7 @@
 - The audience includes people with limited technical proficiency. Lead results with a plain-language explanation and a clear next action. Keep technical terminology, method details and deeper controls secondary, with accessible ways to learn more.
 - The default results screen contains only things to fix or check. Everything about the tool’s own method sits behind the Technical evidence drawer or the Technical details tab. Undecided results go in Couldn’t check and are never presented as tasks.
 
-- Follow [docs/MANGROVE.md](docs/MANGROVE.md): pinned Mangrove 2.0 React components and documented native adaptations, semantic font roles, correctly wrapped sRGB tokens, and local bundled assets; no external startup scripts/fonts.
+- Follow [docs/MANGROVE.md](docs/MANGROVE.md): pinned Mangrove 2.0 React components and documented native adaptations, semantic font roles and correctly wrapped sRGB tokens. Load the Mangrove theme CSS, fonts and logos from the versioned UNDRR asset library (`assets.undrr.org`) with an integrity hash on the stylesheet; do not copy them into the repo. No other external startup scripts or fonts, and no request may carry PDF data.
 - Keep brand/theme adaptation separate from PDF outcomes. A future PreventionWeb change needs its pinned theme bundle, not a class on the UNDRR-only stylesheet.
 
 ## Repository and delivery

@@ -10,12 +10,12 @@ The implementation follows the [Mangrove guide](https://mangrove.undrr.org/llms.
 | --- | --- |
 | Cream/olive/orange application palette with a serif tagline | Existing layout uses published UNDRR interactive, neutral, positive, warning and negative color sources. The first pass mapped old declarations and used `src/ui/theme.css` for app-specific adaptation; the consolidation below removes that layer. |
 | System-font chrome and hardcoded Georgia/code faces | Local Roboto/Roboto Condensed and Mangrove semantic font roles; code uses the code role. Small labels remain readable. |
-| Custom identity mark and olive/orange favicon | Blue/white product favicon, local authentic UNDRR logo and documented four-part page-header decoration, alongside the unchanged PDF Signal Check name. No account or language features are implied. |
+| Custom identity mark and olive/orange favicon | Blue/white product favicon, authentic UNDRR logo from the UNDRR asset library and documented four-part page-header decoration, alongside the unchanged PDF Signal Check name. No account or language features are implied. |
 | Independently styled controls | Shared `src/ui/element.js` applies [button](https://mangrove.undrr.org/ai-components/components-buttons-buttons.json), select, checkbox, table and label classes across guided review, queue, calibration and exports. Dynamic state and listeners stay in their existing modules. |
 | Text-based help symbols and custom input arrows | Local Mangrove SVG-mask icons with meaningful button names and 40px help targets; hover, focus, click, Escape and placement behavior remain application-owned. |
 | Custom review-empty and completion presentation | Native app outcomes use Mangrove [empty-state](https://mangrove.undrr.org/ai-components/components-empty-state.json) and [notice](https://mangrove.undrr.org/ai-components/components-notice-notice.json) presentation. Status words and rule/AI attribution remain explicit. |
 | Unrelated export colors | PDF headings and dedicated PNG accents/background share `PRESENTATION_BRAND.exportPalette`; captured data, original crops and inference receipts stay unchanged. |
-| Potential CDN font/image requests | Pinned CSS and all referenced non-data assets are local, with relative URL rewrites and a provenance/hash manifest. No new runtime dependency. |
+| Potential CDN font/image requests | The theme CSS, fonts and logo load from the versioned UNDRR asset library (assets.undrr.org), which sends `Access-Control-Allow-Origin: *`. The stylesheet carries a Subresource Integrity hash, so a changed file fails closed rather than silently restyling the app. These requests carry no PDF data. |
 
 The native privacy dialog, actual-progress bars, step navigation, queue rows, publication cards, reading-order illustration and evidence crops remain app-specific components. There is no Mangrove JavaScript initializer or global DOM observer; a view rebuild cannot add independent listeners or replace ownership/cancellation policy. Model selection still makes no download request.
 
@@ -27,21 +27,22 @@ Color channels use `rgb(var(--mg-...))`; full-color exceptions such as button ba
 
 The bundled Noto Sans report font is a functional exception to Mangrove web typography. Retaining its tested embedding and Unicode/raster fallback protects report fidelity. PDF/PNG exports adopt colors, not a different font or an institutional certification mark.
 
-## Local assets, licenses and refresh
+## Asset loading, licenses and refresh
 
-`public/vendor/mangrove/2.0.0/manifest.json` records the upstream URL, size and SHA-256 for every asset. The official [UNDRR stylesheet](https://assets.undrr.org/mangrove/2.0.0/css/style.css) is preserved as `upstream.css`; derived `style.css` changes only CSS URL references to bundled paths. The complete vendored inventory is about 3.84 MB, including CSS source/copy and unused font variants; browsers request only the fonts used by rendered content.
+Since 2026-10 the theme is not copied into the repository. Earlier builds copied the CSS, fonts and logos into `public/vendor/mangrove`; that copy was removed because the files were unmodified apart from URL rewrites. `index.html` links the [UNDRR stylesheet](https://assets.undrr.org/mangrove/2.0.0/css/style.css) with `integrity` and `crossorigin="anonymous"`. `src/brand.js` (`PRESENTATION_BRAND`) holds the same stylesheet URL and the [horizontal UNDRR logo](https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg). Fonts and icon masks resolve from the stylesheet's own absolute URLs.
 
-| Asset | SHA-256 |
+| Asset | Integrity / hash |
 | --- | --- |
-| Original CSS | `1a6c63d258c88d6d4ef2e1e0cb5318dcc6e1f0ec7716803facc0c3d91b71bb76` |
-| Local CSS | `5fff59982c599768d828de4efd20c65b7fc3c892e527e9ac673db3d0f091d8fe` |
-| UNDRR blue logo | `e05a3b32ee677ac7d7ff5347eb0259e394b3e4a836966ee25e0e9556cc3b4e7c` |
+| Stylesheet (SRI) | `sha384-Lcz+c2JptHwxCU1/elBLGALjwHMFdEOMXKTZDeAZOMhJv+GnlS9Vi9vbSSqZygIM` |
+| Stylesheet (SHA-256) | `1a6c63d258c88d6d4ef2e1e0cb5318dcc6e1f0ec7716803facc0c3d91b71bb76` |
 
-Mangrove and the shipped Roboto fonts use Apache 2.0; full license text is bundled. Noto Arabic fonts use SIL OFL 1.1, with both exact family notices. The icon-font attribution includes Font Awesome and Entypo under SIL, plus the common full OFL legal text. See [third-party notices](../THIRD-PARTY-NOTICES.md). The [UNDRR logo usage guide](https://assets.undrr.org/logos/undrr/README.md) and source SVG are preserved separately: the institutional identity is provisional and is not represented as an MIT-licensed product logo. Future distribution must retain applicable institutional usage constraints and font notices.
+Licensing is recorded in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md): Mangrove and Roboto use Apache 2.0, and Noto Kufi Arabic uses SIL OFL 1.1. The UNDRR logo is an institutional asset, not relicensed.
 
-To refresh: deliberately select the version/theme in `scripts/vendor-mangrove.py`, run `python3 scripts/vendor-mangrove.py`, review source/derived hashes and license changes, then run tests/build and actual root/Pages-prefix desktop/mobile and export QA. Do not fetch presentation assets at runtime or copy upstream analytics scripts. Versioned CDN paths are pinned, but hashes provide the recorded byte identity if upstream content changes.
+Without network access to assets.undrr.org, the app still works but loses the theme styling and fonts. The bundled Noto Sans report font in `public/fonts` stays local, because PDF exports are generated on the device.
 
-For a future PreventionWeb build, set the script theme to `preventionweb`, refresh its pinned bundle/logo, then update `PRESENTATION_BRAND.id`, logo alternative text and export palette from that theme's official tokens. Keep the local stylesheet alias and deliberately select the appropriate logo aliases (`toolbar-logo.svg` for the current institutional toolbar). Review logo source, contrast, dimensions/crop and header decoration for the adopted identity. The current single-theme stylesheet has no runtime theme overrides: adding a `mg-theme-*` class alone does not switch brands. A runtime picker would need the all-theme bundle and separate UX work; it is not implemented.
+To refresh or change version: update the URL in `index.html` and `src/brand.js`, recompute the SRI with `openssl dgst -sha384 -binary style.css | openssl base64 -A`, and update the table above. Then run the tests and build, and check desktop, mobile and the repository-prefixed URL, plus a rendered export.
+
+For a future PreventionWeb build, point both at `style-preventionweb.css` and the PreventionWeb logo, recompute the SRI, then update `PRESENTATION_BRAND.id`, the logo alternative text and the export palette from that theme’s official tokens.
 
 ## Delivered scope and limits
 

@@ -88,8 +88,9 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
           <p>
             If you enable an AI model in setup, screening runs locally for each PDF. With your consent, it downloads model and
             tokenizer assets from external hosts; those requests do not include
-            your PDF text. The app and runtime assets load from the site hosting
-            this tool.
+            your PDF text. The app loads from the site hosting this tool, and its
+            styles, fonts and logo load from UNDRR’s asset library
+            (assets.undrr.org). Those requests never include your PDF.
           </p>
           <p>
             AI can make mistakes. This tool was built with AI assistance, and

@@ -259,3 +259,15 @@ The fix list is now shown on the PDF pages by default: numbered pins, a Document
 A crash on first toggling the reading order (a page rendered before the toggle had no overlay boxes yet) was found and fixed. The view has not yet been tried on a long real-world PDF.
 
 The separate List view was then removed. The pages view’s legend and shared detail cover it, and Show the whole PDF keeps access to pages without issues. agent-browser re-checked the two remaining tabs, keyboard selection in the legend, focus return from the preview, and the mobile detail and Back to the list flow at 390px with no overflow.
+
+### Mangrove from assets.undrr.org (2026-10)
+
+The repository copy of the Mangrove theme (`public/vendor/mangrove`, about 3.8 MB of unmodified CSS, fonts and logos) and its vendoring script were removed. The stylesheet now loads from `https://assets.undrr.org/mangrove/2.0.0/css/style.css` with a SHA-384 integrity hash, and the logo from the UNDRR logo library. The CDN copy matched the previously vendored upstream byte for byte. The CDN sends `Access-Control-Allow-Origin: *`.
+
+agent-browser checks on the dev server and on the production build served under `/pdf-signal-check/` both showed:
+- 2,061 stylesheet rules applied.
+- Roboto and Roboto Condensed loaded.
+- The 300px logo from the CDN.
+- No requests to the removed local paths.
+
+The privacy notice now names assets.undrr.org and states that those requests never include the PDF. Without access to assets.undrr.org the app works unstyled. The PDF report font stays bundled.
