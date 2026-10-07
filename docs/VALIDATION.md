@@ -306,3 +306,52 @@ agent-browser then verified, at 1280px and 390px:
 - arrow keys change scene, with the `?scene=` URL kept in sync
 - emulated reduced motion shows the note and runs no entry animations
 - no horizontal overflow
+
+### Story as a cut-paper collage, with optional audio (2026-10)
+
+`story.html` was rebuilt as an eight-scene, caption-led collage in the style of UNDRR's explainer animations. The art is hand-authored SVG: cream paper ground with grain and creases, torn and cut edges from `feTurbulence` + `feDisplacementMap`, paper grain and soft shadows as filters, and big torn letter tiles. The PDF's three hidden layers recur as coloured sheets. Motion is stop-motion "on twos" (12 frames a second, held keyframes) with overshoot, settle and an idle wobble, all through the Web Animations API. There are no new dependencies; the story script is about 16 KB gzipped. Scene lengths follow the narration: about 57 s in all. The script is in `docs/story-script.md`.
+
+Audio (all AI-generated, off until **Audio on** is checked):
+- Narration: ElevenLabs Multilingual v2, voice george, through OpenRouter. Seven voices were compared; two blind model-listening runs and the product owner chose george (owner's second choice: MAI-Voice-2.1 en-GB-Emily). See `docs/experiments/STORY-AUDIO.md`.
+- Music: Lyria 3 Pro through OpenRouter, the vocal-free one of two candidates, mixed about 9 dB under the voice and ducked a further 6 dB while a clip plays. Prompt and processing are in `public/story/audio/README.md`.
+- 808 KB of audio in total. OpenRouter spend for the whole exercise was about $0.45, including the listening panel.
+- `test/story-narration.test.js` fails if `src/story/script.js` and the clips drift apart, or if the audio exceeds 1 MB.
+
+agent-browser checks on the dev server and on the production build served under `/pdf-signal-check/`, at 1280px and 390px:
+- all eight scenes render; mid-motion frames show the held, stepped poses; no horizontal overflow
+- opens paused; Play advances; Pause freezes motion, narration and music; arrow keys and the slider change scene, with `?scene=` kept in sync
+- no MP3 is requested before Audio on is checked; with it checked, narration follows the scene, the bed plays at 0.5 under speech, and turning audio off stops both
+- emulated reduced motion shows the composed still for each scene, runs no animations and never loads the music
+- only the page's origin and assets.undrr.org (Mangrove stylesheet, fonts, logo) are requested
+- caption key words are bold and coloured, at 5.96:1 to 7.71:1 against the caption paper
+
+Two automated "listening" checks transcribed the final clips. They found no wrong words, and a retake fixed one line's choppy intonation. Model ratings are a screening aid; a person confirmed the voice by ear. Known limits: SVG labels are small on phones (the captions and transcript carry the same words), iOS ignores media volume so the bed's level is baked into the file, and the music loops with its fades if the story runs past 60 s.
+
+### Story revision after creative review (2026-10-08)
+
+An independent creative-director review scored the first collage 6/10 for fidelity and craft (tiles 8, figures and icons 4), mobile 5 and narration 6, and asked for a revision that keeps SVG, with a small AI-generated hybrid. Changes:
+- **Motion:** paper arrives fully opaque, from just beyond the visible stage edge (measured from each piece's laid-out position, so it also works on the cropped phone stage) or from scale. Only strings and marker lines fade.
+- **Hybrid art:** the three figures, tick, no sign, warning triangle, question marks, folder, passport and laptop are cut-paper images from Nano Banana 2 (Gemini 3.1 Flash Image) via OpenRouter: 9 generations, $0.61, 13 WebP files, about 180 KB. They were generated on a chroma-key background with the figure sheet as the style reference and keyed locally. Rejected takes: a white-background sheet, and a passport with a printed date and stamp. Model, prompts and date are in `public/story/images/README.md`. Remaining small SVG icons use a crisper "scissor" filter. Captions, strips, tiles, the chart, extracted text, step tags, the saved title, pins, the cameo headline and the stamps stay as code.
+- **Scenes:** scene 2's single bubble tours the three figures and leaves a tick with each; scene 4 shows only the chart, one empty frame with the no sign, and "Image."; scene 6 makes "+0.7 m" the hero and brings in the 2024 folder at the word "title"; scene 7 uses the passport image and moves the paper clip; scene 8 shows a torn screenshot with the real headline and two real pins.
+- **Backdrop:** stronger creases, a diagonal fold and a deeper vignette.
+- **Phones:** decorative extras drop out below 700px, and key pieces sit inside the central 4:3.
+- **Narration:** a beat before each key phrase, and a warmer-delivery request to ElevenLabs (stability 0.3, style 0.45). A model listening check rated it 7.8/10 with every key phrase emphasised. The effect of the settings alone could not be measured.
+- **Runtime:** 59.7 s. OpenRouter spend for the whole story is now $1.15 of the key's $12 limit.
+
+agent-browser checks at 1280px and 390px, on the dev server and the production build under `/pdf-signal-check/`:
+- all eight composed frames, and mid-motion frames showing the touring bubble and opaque entries
+- reduced motion shows stills with no animation and no music
+- keyboard and slider navigation, audio sync and ducking as before
+- only the page's origin and assets.undrr.org are requested
+
+`npm test` (292 tests) and `npm run build` pass.
+
+### Story final round after second review (2026-10-08)
+
+The second review recommended releasing the visuals (fidelity 8, craft 8, composition 7, typography 7, motion 8, story 8, mobile 7). It asked for two fixes: the scene 8 cameo's count, and the narration. Changes:
+- **Scene 8:** the result sheet is pasted over the laptop screen. On wide screens it lists all five real pins under “1 thing to fix, 4 to check”; on narrow screens it shows two rows and “+ 3 more to check”. The list never contradicts the headline count.
+- **Polish:** scene 4's listener and “Image.” are larger and centred; scene 6 loses the cover thumbnail and keeps the folder inside the phone crop; the passport pages have light grain; the backdrop creases are about 30% softer and fold differently per scene.
+- **Narration:** the inserted beats were removed. A consistent check (one model, one prompt, temperature 0, two runs in reversed order) compared george on default and expressive settings, MAI-Voice-2.1 Emily and Harry, and the earlier sets on clips 02, 05 and 06. Emily led on every clip (8.31 mean, against 7.19 to 7.31 for george) and is now the narrator. A transcript check of the final set found no errors. Alternatives are kept outside the repository for the product owner to compare by ear.
+- **Timing:** motion was re-timed to the new clips (scene 5's tags land on each spoken number; scene 6's folder arrives on “And the title”). The hold is now 0.9 s, for a 59.7 s total.
+
+`npm test` (292) and `npm run build` pass. agent-browser checked all eight scenes at 1280px and 390px on the production build under `/pdf-signal-check/`, including reduced-motion stills and the audio controls. Total OpenRouter spend for the story is now $1.25 of the key's $12 limit.

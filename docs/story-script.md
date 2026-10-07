@@ -1,0 +1,34 @@
+# Story script: “Your report says it. Does everyone understand it?”
+
+A caption-led, cut-paper collage explainer for `story.html`, about 60 seconds when played straight through. The audience commissions or writes reports in international organisations. The framing is always whether people and AI **understand** a PDF, never whether they “read” or “hear” it. The example is the fictional *Harbor Observatory Annual Report 2025*; no real publication is referenced.
+
+Captions are the primary channel: real HTML text, always visible, announced on scene change. Key words in square brackets are coloured and bold in the caption. Narration is optional (off until the viewer turns on **Audio on**) and may say a little more than the caption. Values marked † come from `src/story/snapshot.json`, real engine output on the synthetic samples.
+
+## Art direction
+
+UNDRR explainer collage: cream paper ground with grain and soft creases; flat cut-paper pieces: torn tiles, strips, sheets and stamps drawn in SVG with a ragged white rim and soft shadows, and AI-generated cut-paper figures and icons (see `public/story/images/README.md`) with a crisp shadow; magenta-purple, teal, coral, mustard and sky blue on cream (the four UNDRR decoration colours plus two friendly accents); big torn letter tiles with white letters; stop-motion movement on twos (about 12 frames a second): paper arrives fully opaque from beyond the stage edge or from scale, overshoots, settles and wobbles gently. The PDF’s three hidden layers (what people see, the text tools pull out, the tags screen readers follow) are three stacked sheets of coloured paper and recur as a small layer key in the problem scenes.
+
+## Scenes
+
+| # | Scene | Caption (kinetic type) | Narration | Visual and motion | Length |
+| - | ----- | ---------------------- | --------- | ----------------- | ------ |
+| 1 | Says it | Your report says it. Does [everyone] understand it? | Your report says it. But does everyone understand it? | The report cover († *Harbor Observatory Annual Report 2025*) drops onto the paper and settles. Word tiles “YOUR REPORT SAYS IT.” slap down; eight letter tiles spell EVERYONE one by one in five colours; paper question marks pop around them. | 4.7 s |
+| 2 | One finding | One finding should reach [everyone]: a person reading, a person using a screen reader and an AI assistant. | Here is one finding. South is highest. It should reach a person reading, a person using a screen reader, and an AI assistant. | A paper bar chart grows bar by bar († North 2.8 m, Central 3.1 m, South 3.4 m). Three cut-paper figures (a reader with a book, a listener with headphones, an assistant chat bubble) slide in. One “South is highest” † bubble appears over the tallest bar, then visits each figure in turn as the narration names them, leaving a tick with each. | 8.2 s |
+| 3 | Hidden layers | Every PDF has [hidden layers]: the page people see, the text tools pull out and the tags screen readers follow. | But every PDF has hidden layers: the text that tools pull out, and the tags that screen readers follow. | The page lifts and fans into three overlapping paper sheets: “What people see”, “Text tools pull out”, “Tags screen readers follow”, each with a torn label strip. | 6.5 s |
+| 4 | No description | The chart has [no description]. The finding never leaves the page. | Here, the chart has no description. So a screen reader just says “image”, and the finding never leaves the page. | Left, the chart as people see it, with its bubble. Right, the yellow tags sheet: one large empty dashed frame with a question mark, a blank “Description” line, and a red no sign. Then, larger and centred beneath both panels, the listener hears only “Image.” | 7.7 s |
+| 5 | Out of order | Hidden tags read the steps [3, 4, 1, 2]. | The hidden tags read the steps in the wrong order: three, four, one, two. | Left, the page with steps 1–4 in two columns. The step tags peel off the page and hang on a string in the hidden order † 3, 4, 1, 2, one per spoken number. The listener’s bubble says “3, 4, 1, 2 …”, a red marker arrow reads them in that order, and a warning triangle drops in. | 6.9 s |
+| 6 | Loose ends | [+0.7 m] ends up on its own. The saved title says [2024]. | Text drawn out of order leaves the headline number, plus zero point seven metres, on its own. And the title saved in the file? It still says twenty twenty-four. | Two extracted text strips † slide in; then “+0.7 m” † drops, big and centred, on its own, with a question mark. Only when the narration reaches “the title” does a manila folder, “Saved in the file”, slide in with the saved title † and a red ring round 2024, although the report is the 2025 edition. | 10.2 s |
+| 7 | Passport | Give your findings a [passport]: attached data, a schema.org description, real links and bookmarks. | So give your findings a passport. A well-built PDF carries its data, a schema.org description, real links and bookmarks. | An open paper passport. Four ink stamps thump onto its pages as they are named: DATA (with the CSV sheet † clipped beside it, station rows †), SCHEMA.ORG, LINKS (“Map 2” → annex), BOOKMARKS († 5 sections). The three figures reappear in a column, each with a tick. | 9.4 s |
+| 8 | Check | [Check] your own PDF. It runs in your browser, and the file stays on your device. | PDF Signal Check finds what is hidden, right in your browser. Check your own PDF. | Tiles spell CHECK. A paper laptop rises, and a torn-out screenshot of the real result is pasted over its screen: the headline † “1 thing to fix, 4 to check” and all five pins † (on phones, two rows and “+ 3 more to check”, so the list never contradicts the count). Paper pins with the same numbers drop onto a page beside it. A small torn strip below reads “Your PDF stays on your device”. The HTML buttons “Check your own PDF” and “Why PDFs need to work for AI” follow the caption. | 6.1 s |
+
+Scene lengths follow the narration clip lengths plus a short hold, so captions and audio stay in step whether or not audio is on. Measured lengths: 4.7, 8.2, 6.5, 7.7, 6.9, 10.2, 9.4 and 6.1 s (59.7 s). Narration in the table is the spoken form; the transcript writes numbers as figures (“+0.7 m”, “2024”).
+
+The words are code: `src/story/script.js` is the source of truth for captions and narration, with `speak` holding the spoken form where it differs (“plus zero point seven metres”).
+
+## Audio
+
+Off by default. Narration: MAI-Voice-2.1, voice en-GB-Emily, plain punctuation with no inserted pauses. Music: an ambient Lyria 3 Pro bed (music box, celesta, warm pads, slow acoustic guitar), about 9 dB under the voice and ducked while it speaks. Both are AI-generated; see `public/story/audio/README.md`.
+
+## Transcript and descriptions
+
+The page transcript lists, per scene, the caption, the narration and a plain description of the visual, built from the same snapshot values, so nothing is only in the pictures or only in the audio.
