@@ -1,3 +1,11 @@
+## Figure descriptions and clear scope — 7 October 2026
+
+Added deterministic Figure-tag and non-empty Alt checks, including descendant marked-content associations. Correct sample descriptions appear under What worked with their recovered text; missing/blank descriptions on declared figures warrant review. Untagged graphics stay uncertain because their meaningful/decorative role is not established. Broken or ambiguous tag connections are not credited as reliable associations. Pixels, chart values and description accuracy are not analysed.
+
+Scope limitations now appear under Uncertain / unchecked and are described as tool limits. Required text-profile acceptance and raw supported-scope status remain unchanged. Both the first-use home page and returning upload screen show a capabilities matrix explaining presence checks, bounded local AI, image-meaning exclusions and lack of certification or repair. Mobile table spacing avoids broken words. Change check settings is beside the current choice, following independent walkthrough feedback; unclassified evidence is labelled Graphic content and its guidance starts with establishing/tagging its role.
+
+Verification: 200 tests pass, production build passes, all three actual sample reports distinguish figure states, desktop/mobile and repository-prefixed browser checks, and a downloaded PDF report’s figure page rendered and inspected. Independent normal-user walkthrough found no blocking issues and reported zero mobile accessibility violations.
+
 ## Remembered settings and readable downloads — 7 October 2026
 
 Confirmed model/check settings and download consent are remembered in browser storage. Reload and home navigation open PDF upload and the three samples directly; Change check settings reopens model selection, with benchmark access retained. Settings are validated against the pinned model configuration; invalid settings require setup, and blocked storage retains session operation. Document language assumptions and PDF data are never stored.

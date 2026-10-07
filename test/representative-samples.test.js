@@ -16,6 +16,10 @@ it('matched samples preserve visible text while metadata and recovered order dif
   expect(reports[2].metadata.language).toBeNull();
   expect(reports[2].pages.every(page => page.logicalBlocks.length === 0)).toBe(true);
   expect(reports[2].checks.find(c => c.id === 'structure').status).toBe('fail');
+  expect(reports[0].figureAlternatives.items).toEqual(expect.arrayContaining([expect.objectContaining({tagged:true,status:'present',alt:expect.stringContaining('2.8')})]));
+  expect(reports[1].figureAlternatives.items).toEqual(expect.arrayContaining([expect.objectContaining({tagged:true,status:'requires-review',alt:null})]));
+  expect(reports[2].figureAlternatives.items).toEqual(expect.arrayContaining([expect.objectContaining({tagged:false,status:'uncertain',alt:null})]));
+  expect(reports.every(report=>report.figureAlternatives.meaningAssessed===false)).toBe(true);
   // The figure is meaningful: correct tags alone must not waive profile limits.
   expect(reports[0].checks.find(c => c.id === 'supported-content').status).toBe('indeterminate');
 });

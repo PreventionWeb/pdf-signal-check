@@ -1,3 +1,4 @@
+import { inspectFigureAlternatives } from './figures.js';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { PDFDocument, PDFName } from 'pdf-lib';
 import { inspectStructure, unsupportedFeatures } from './structure.js';
@@ -89,6 +90,7 @@ export async function analyzePdf(input, options = {}) {
     report.checks.push(check('coverage', 'Text coverage', untagged || !chars ? 'fail' : 'pass', untagged ? `${untagged.toLocaleString()} extracted characters lack a connected tag.` : !chars ? 'No relevant text to account for.' : 'All extracted non-artifact text is associated with a structure element.'));
     report.checks.push(check('supported-content', 'Supported content scope', unsupported.length ? 'indeterminate' : 'pass', unsupported.length ? 'Some content requires analysis outside this text profile.' : 'No excluded content features were detected.', [...new Set(unsupported)]));
     const candidates = report.pages.slice(0, 3).flatMap(p => p.candidates).filter((c, i, all) => all.findIndex(x => x.text === c.text) === i).slice(0, 12);
+    report.figureAlternatives = inspectFigureAlternatives(structure, report.pages);
     report.metadataConsistency = compareTitles(report.metadata, candidates);
     report.authorConsistency = compareAuthors(report.metadata, report.pages);
     report.readingOrder = inspectReadingOrder(report.pages);

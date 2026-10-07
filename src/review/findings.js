@@ -12,7 +12,9 @@ const guidance = {
   text:['Suspicious decoding can give machines text different from the visible glyphs.','Inspect affected extracted text against the page. Re-export with correct font/Unicode mappings where possible.'],
   structure:['Connected semantic tags let machines associate content with document relationships.','Inspect tag links and parent associations using the source authoring tool or a capable PDF tag editor; regenerate and recheck.'],
   coverage:['Unconnected text can disappear from structured extraction or lose its role.','Inspect highlighted untagged text and give meaningful content connected tags in the authoring source.'],
-  'supported-content':['Excluded features prevent this text profile from establishing coverage.','Inspect the named unsupported content with a suitable validator or workflow. An indeterminate result does not prove that content is defective.'],
+  'supported-content':['This is a limitation of the tool, not evidence that your figure or PDF is wrong. Figure tags and alternate-text presence are checked separately; image meaning is not analysed.','Review the listed scope limits. For figures, check that the alternate text or a nearby text/data equivalent conveys the important information. Use a suitable workflow for other excluded features.'],
+  figureUnknown:['The graphic’s purpose and tag association have not been established. It could be meaningful content or decoration.','Decide whether the graphic conveys information. If meaningful, connect it to a Figure tag and add a useful alternate description in the source authoring tool, or supply an appropriate text/data equivalent. If purely decorative, mark it as an artifact. Re-export and check again.'],
+  figure:['Machines need a text alternative for meaningful figures. A non-empty description can be detected without proving it accurately conveys the image.','If a meaningful figure has no alternate text, add a useful description to its Figure tag in the source authoring tool. For charts, include key values and relationships, or supply a nearby text/data equivalent. If a graphic is decorative, mark it as an artifact after confirming its purpose. Check the description against the image yourself.'],
   'content-integrity':['Repeated identifiers or broken boundaries make content ownership ambiguous.','Inspect the named marked-content identifiers/boundaries. Correct the producing tool or regenerate the source PDF.'],
   completion:['Incomplete processing cannot establish the required profile.','Inspect the error or limit. Retry if appropriate, or use a workflow that supports this document; do not treat partial evidence as a pass.'],
   attachments:['Important source data can be embedded or referenced rather than visible in the PDF pages. Missing guidance can make a machine overlook it or use it incorrectly.','Inspect each file’s declared name, type, description, relationship and association. In the source publishing tool, document the file’s purpose and how machines should use it. Review payloads separately with an appropriate workflow; this tool does not open or analyse them.'],
@@ -45,9 +47,20 @@ export function normalizeFindings(report) {
     if(c.id==='coverage' && c.status==='fail') evidence.push(...pages.flatMap(p=>p.blocks.filter(b=>!b.connected).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
     if(c.id==='text' && c.status==='fail') evidence.push(...pages.flatMap(p=>p.blocks.filter(b=>b.suspicious).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
     if(c.id==='supported-content' && c.status==='indeterminate') evidence.push(...pages.flatMap(p=>(p.graphics || []).map(g=>({...g,page:p.number,text:g.label}))));
-    add({id:`required:${c.id}`,category:c.status==='fail'?'required-defect':c.status==='pass'?'success':['not-applicable','not-assessed'].includes(c.status)?'unassessed':'required-indeterminate',
-      title:c.label,outcome:c.status,method:'profile-rules',summary:c.summary,evidence,
+    add({id:`required:${c.id}`,category:c.id==='supported-content' && c.status==='indeterminate'?'unassessed':c.status==='fail'?'required-defect':c.status==='pass'?'success':['not-applicable','not-assessed'].includes(c.status)?'unassessed':'required-indeterminate',
+      title:c.id==='supported-content' && c.status==='indeterminate' ? 'Content this tool cannot fully assess' : c.label,outcome:c.status,method:'profile-rules',summary:c.summary,evidence,
       comparison:c.id==='title'?{metadata:{infoTitle:report.metadata?.infoTitle,xmpTitles:report.metadata?.xmpTitles}}:{},source:{path:`checks.${c.id}`,checkId:c.id},kind:c.id});
+  }
+  for (const [index, figure] of (report.figureAlternatives?.items || []).entries()) {
+    const summary = !figure.tagged ? 'Graphic content was detected, but no unambiguous Figure tag was recovered for it. It may be meaningful or decorative; inspect its intended role.'
+      : !figure.alt ? 'A Figure tag was found, but its alternate text is missing or empty.'
+      : figure.status === 'uncertain' ? 'Alternate text is present, but tag connection problems prevent a reliable association with page content.'
+      : 'A connected Figure tag has non-empty alternate text. Its accuracy and the image’s meaning have not been analysed.';
+    add({id:`figure:${figure.id}`, category:figure.status==='requires-review'?'advisory-concern':figure.status==='present'?'success':'uncertain',
+      title:!figure.tagged?'Graphics without a recovered figure tag':figure.alt?'Figure alternate text present':'Figure alternate text missing',
+      outcome:figure.status, method:'figure-alternative-inspection', summary,
+      evidence:[...(figure.alt ? [`Alternate text: ${figure.alt}`] : []), {page:figure.page,keys:figure.keys,node:figure.node,quads:figure.quads,text:figure.tagged?'Figure content':'Graphic content'}],
+      comparison:{figure}, source:{path:`figureAlternatives.items[${index}]`}, kind:figure.tagged?'figure':'figureUnknown'});
   }
   const identity=(field,id,title,kind,comparison)=>{
     const r=report[field];if(!r)return;

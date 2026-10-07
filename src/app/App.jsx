@@ -1,3 +1,4 @@
+import { Capabilities } from './Capabilities.jsx';
 import { formatProgress } from '../ui/progress.js';
 import React, {
   StrictMode,
@@ -332,9 +333,9 @@ export function App() {
             <p>
               A Yes means every required check passed for the supported text
               profile. Metadata findings and reading-order review are separate.
-              Meaningful graphics, forms, annotations, attachments, and some
-              text replacements need deeper analysis and prevent acceptance in
-              this version.
+              Figure tags and alternate-text presence are checked, but image meaning is not.
+              Meaningful graphics and other excluded content keep the full text-profile
+              result unestablished in this version; this is a scope limit, not proof of a defective PDF.
             </p>
           </section>
         )}
@@ -432,6 +433,7 @@ function Welcome({ controller, onSamples, onBegin }) {
           </p>
         </Card>
       </div>
+      <Capabilities />
     </section>
   );
 }
@@ -441,6 +443,15 @@ function Entry({ state, controller, batch, batchBusy }) {
   return (
     <div className="document-intake">
       <p className="model-note">Current settings: {state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · compact English" : "Granite R2 · multilingual" : "No AI model · fallback"}. {state.settingsSaved ? "Your choice is remembered in this browser." : "Settings apply for this session; browser storage is unavailable."}</p>
+      <div className="flow-actions">
+        <Button
+          variant="secondary"
+          disabled={disabled}
+          onClick={() => controller.openSetup("document")}
+        >
+          Change check settings
+        </Button>
+      </div>
       <p className="step-intro">
         Select or drop a PDF to run text checks{state.aiEnabled ? " and local AI" : ""}. Selecting several files creates
         a batch queue.
@@ -524,15 +535,7 @@ function Entry({ state, controller, batch, batchBusy }) {
         disabled={disabled}
         onChoose={(path) => controller.loadSample(path)}
       />
-      <div className="flow-actions">
-        <Button
-          variant="secondary"
-          disabled={disabled}
-          onClick={() => controller.openSetup("document")}
-        >
-          Change check settings
-        </Button>
-      </div>
+      <Capabilities />
       <p className="privacy-note">
         Your PDF stays here. The structural analysis needs no AI model or
         account. Optional semantic screening downloads model assets, then runs

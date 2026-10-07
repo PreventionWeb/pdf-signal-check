@@ -61,7 +61,7 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
         let box = null;
         if (!formDepth && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
         if (!formDepth && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
-        graphicRegions.push({ quad: box ? rectPoints(box,matrix) : null, label: box ? 'Non-artifact graphic; bounding region (clipping not resolved)' : 'Non-artifact graphic; no trustworthy region recovered' });
+        graphicRegions.push({ key: !formDepth && owner ? `${pageNumber}:${owner.mcid}` : null, quad: box ? rectPoints(box,matrix) : null, label: box ? 'Non-artifact graphic; bounding region (clipping not resolved)' : 'Non-artifact graphic; no trustworthy region recovered' });
       }
       if (!artifact && fn === OPS.showText) {
         if (renderMode === 3 || renderMode === 7) { invisibleTextOperations++; if (owner) invisibleKeys.add(`${pageNumber}:${owner.mcid}`); }

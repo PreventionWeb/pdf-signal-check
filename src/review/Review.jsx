@@ -279,6 +279,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
           ) : (
             <>
               <p>{finding.summary}</p>
+              {finding.comparison?.figure?.alt && <div className="figure-alternative"><h3>Alternate text machines can read</h3><blockquote>{finding.comparison.figure.alt}</blockquote></div>}
               <Crop file={file} report={report} targets={targets} />
             </>
           )}

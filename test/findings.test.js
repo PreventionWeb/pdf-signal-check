@@ -5,8 +5,9 @@ import {makePdf} from './fixtures.js';
 const base=()=>({metadata:{infoTitle:'A title'},checks:[],pages:[],metadataConsistency:{status:'uncertain',reason:'No title evidence.',candidates:[]}});
 it('keeps concrete defects, unsupported scope and unresolved checks distinct without fabricated locations',()=>{
  const r=base();r.checks=[{id:'title',label:'Title',status:'fail',summary:'Missing title'},{id:'supported-content',label:'Scope',status:'indeterminate',summary:'Forms not supported'}];
- const out=normalizeFindings(r);expect(out.counts['required-defect']).toBe(1);expect(out.counts['required-indeterminate']).toBe(1);
- expect(out.reviewQueue).toHaveLength(2);expect(out.reviewQueue.every(f=>f.targets.length===0)).toBe(true);
+ const out=normalizeFindings(r);expect(out.counts['required-defect']).toBe(1);expect(out.counts['required-indeterminate']).toBe(0);
+ expect(out.findings.find(f=>f.id==='required:supported-content').category).toBe('unassessed');
+ expect(out.reviewQueue).toHaveLength(1);expect(out.reviewQueue.every(f=>f.targets.length===0)).toBe(true);
  expect(out.findings.find(f=>f.id==='identity:title').category).toBe('uncertain');
  expect(out.findings.find(f=>f.id==='semantic:unassessed').category).toBe('unassessed');
 });
