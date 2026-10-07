@@ -41,3 +41,16 @@ describe('travel-further presentation', () => {
     expect(normalizeFindings(report).findings.some(item => item.id.startsWith('travel:'))).toBe(false);
   });
 });
+
+it('treats untagged links as a travel-further suggestion, and the exemplar tags its link', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { analyzePdf } = await import('../src/engine/analyze.js');
+  const { normalizeFindings } = await import('../src/review/findings.js');
+  const { fixBucket, fixCard } = await import('../src/review/workspace.js');
+  const report = await analyzePdf(new Uint8Array(await readFile(new URL('../public/samples/built-to-travel.pdf', import.meta.url))), { fileName: 'built-to-travel.pdf' });
+  expect(report.links.linksTagged).toBe('all');
+  const untagged = { ...report, links: { ...report.links, linksTagged: 'none', taggedLinkElements: 0 } };
+  const finding = normalizeFindings(untagged).findings.find(item => item.id === 'travel:links');
+  expect(fixBucket(finding)).toBe('travel');
+  expect(fixCard(finding, untagged).title).toBe('Tag your links so screen readers announce them');
+});

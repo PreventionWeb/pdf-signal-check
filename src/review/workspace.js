@@ -414,6 +414,13 @@ function travelTask(finding) {
       : `This ${c.pages}-page PDF has no bookmarks. Bookmarks give readers a clickable outline, and help AI tools understand how the document is organised.`,
     'When saving as PDF from Word, tick “Create bookmarks using: Headings”. In InDesign, tick “Bookmarks” in the PDF export settings. Then export again.',
     'Bookmarks are a map of the document. Readers use them to move between sections, and tools use them to see which parts belong together.');
+  if (path === 'links' && finding.category === 'opportunity') {
+    const count = c.count || 0;
+    return task('Tag your links so screen readers announce them',
+      `This PDF has ${count} link${count === 1 ? '' : 's'}, but ${c.linksTagged === 'some' ? 'not all of them are' : count === 1 ? 'it isn’t' : 'they aren’t'} in the PDF’s tags. People using screen readers may hear the words without knowing they can follow them, and some tools may miss where they lead.`,
+      'Export again from the source document with tags turned on; Word and InDesign tag links automatically when they are real hyperlinks. In an existing PDF, use the Tags panel in Acrobat to add a Link tag for each link.',
+      'A link only helps people who know it is there. Tagging it lets screen readers announce it and lets tools connect the words to their destination. This tool doesn’t check where links lead.');
+  }
   if (path === 'machineMetadata' && finding.category === 'opportunity') {
     const missing = (c.missingPublication || []).map(field => PUBLICATION_DETAILS[field]).filter(Boolean);
     return task(missing.length ? 'Add publishing details' : 'Attach a description for catalogues and search engines',

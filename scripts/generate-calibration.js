@@ -60,7 +60,7 @@ export async function generate(spec, outputDirectory = output) {
   const doc = context.obj({ Type: 'StructElem', S: 'Document', P: rootRef, K: [] });
   const docRef = context.register(doc);
   root.set(PDFName.of('K'), context.obj([docRef]));
-  const kids = [], parentPairs = [], keyFigureLate = [];
+  const kids = [], parentPairs = [], keyFigureLate = [], linkParents = [];
   if (tagged) {
     pdf.catalog.set(PDFName.of('MarkInfo'), context.obj({ Marked: true }));
     pdf.catalog.set(PDFName.of('StructTreeRoot'), rootRef);
@@ -167,7 +167,16 @@ export async function generate(spec, outputDirectory = output) {
         artifact(pages[1], p => p.drawLine({ start: { x: start, y: 264 }, end: { x: start + width, y: 264 }, thickness: 0.8, color: teal }));
         const link = context.obj({ Type: 'Annot', Subtype: 'Link', Rect: [start, 262, start + width, 277], Border: [0, 0, 0],
           Contents: PDFHexString.fromText('Map 2: station locations (annex)'), A: { Type: 'Action', S: 'URI', URI: PDFString.of('https://example.org/harbor-observatory/2025/annex#map-2') } });
-        pages[1].node.set(PDFName.of('Annots'), context.obj([context.register(link)]));
+        const linkRef = context.register(link);
+        pages[1].node.set(PDFName.of('Annots'), context.obj([linkRef]));
+        if (tagged) {
+          // Tag the link: a Link element whose object reference points at the annotation, keyed in the parent tree.
+          const linkElem = context.obj({ Type: 'StructElem', S: 'Link', P: docRef, Pg: pages[1].ref,
+            K: [context.obj({ Type: 'OBJR', Obj: linkRef, Pg: pages[1].ref })], Alt: PDFHexString.fromText('Map 2: station locations (annex)') });
+          const linkElemRef = context.register(linkElem); kids.push(linkElemRef);
+          link.set(PDFName.of('StructParent'), context.obj(2));
+          linkParents.push(2, linkElemRef);
+        }
       }
     }
     if (spec.dataTable) {
@@ -234,8 +243,9 @@ export async function generate(spec, outputDirectory = output) {
   if (tagged) {
     doc.set(PDFName.of('K'), context.obj(kids));
     for (let pi=0; pi<2; pi++) parentPairs.push(pi, context.obj(mappings[pi]));
+    parentPairs.push(...linkParents);
     root.set(PDFName.of('ParentTree'), context.register(context.obj({Nums: parentPairs})));
-    root.set(PDFName.of('ParentTreeNextKey'), context.obj(2));
+    root.set(PDFName.of('ParentTreeNextKey'), context.obj(linkParents.length ? 3 : 2));
   }
   if (spec.bookmarks && headings.length) {
     // Document outline: one bookmark per H1/H2, in reading order.

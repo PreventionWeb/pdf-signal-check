@@ -59,7 +59,8 @@ function addTravelFindings(report, add) {
       ...(item.labelBlockIds?.length ? [{ page: item.page, keys: [item.labelKey], blockIds: item.labelBlockIds, text: item.label }] : [])]),
     comparison: { values: detached.findings.map(({ page, value, label }) => ({ page, value, label })) } }));
   const links = report.links;
-  if (links?.status === 'present') add(base('travel:links', 'links', links, { category: 'success', title: 'Links', method: 'link-annotation-inventory',
+  // Untagged links are an aspiration, not a defect: suggest tagging them so screen readers announce them as links.
+  if (links?.status === 'present') add(base('travel:links', 'links', links, { category: links.linksTagged === 'all' ? 'success' : 'opportunity', title: links.linksTagged === 'all' ? 'Links' : 'Untagged links', method: 'link-annotation-inventory',
     evidence: (links.links || []).slice(0, 50).map(link => `Page ${link.page}: ${link.target}${link.url ? ` ${link.url}` : ''}${link.contents ? ` (${link.contents})` : ''}`),
     comparison: { count: links.count, linksTagged: links.linksTagged } }));
   else unassessed('travel:links', 'links', links, 'Links not checked');
