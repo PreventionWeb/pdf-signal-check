@@ -95,6 +95,16 @@ export function Notice({ children, variant = "info", role = null, ...props }) {
     </PublishedNotice>
   );
 }
+/** Native Mangrove switch: a checkbox with role="switch"; the visible label names it. */
+export function Switch({ label, checked, onChange, className = "", ...props }) {
+  return (
+    <label className={`mg-switch ${className}`}>
+      <input role="switch" className="mg-switch__input" type="checkbox" checked={checked} onChange={onChange} {...props} />
+      <span className="mg-switch__track" aria-hidden="true"><span className="mg-switch__thumb"></span></span>
+      <span className="mg-switch__label">{label}</span>
+    </label>
+  );
+}
 export function Actions({ children, className = "" }) {
   return (
     <div className={`flow-actions mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100 ${className}`}>

@@ -50,7 +50,11 @@ The separate `hasUnchangedNoInputs` guard concerns a recorded AI attempt with th
 
 ## Review workspace
 
-The results screen has two tabs: **What to fix** (default) and **Technical details**. What to fix has a list on the left (about one third) and the selected item on the right (about two thirds), with independently scrollable panes on desktop. The first Fix item, or else the first Check item, opens automatically. Selecting another item resets the detail scroll and clears unrelated preview selection. Reset source-specific state when source identity changes.
+The results screen has three tabs: **What to fix** (default, the pages view), **List view** and **Technical details**. Selection is shared, so switching tabs keeps the selected item.
+
+**What to fix** places the fix list on the PDF. A sticky side panel holds a grouped legend (Fix / Check with numbered pins, Couldn’t check collapsed with no pins) above the selected item’s full detail, the same detail the list view shows. The pages column starts with a **Document properties** tile: the saved values, with pins beside related rows and an explanation when the description repeats the title. A **Whole document** sheet follows for issues with no reliable position. Then come the pages that have issues, each with numbered pins and dashed boxes and a Show larger action that opens the zoomable preview. A Mangrove switch overlays the recovered reading order and adds every page that has one. Pages render lazily, 20 at a time. Pins are buttons, and the legend is the complete text equivalent. Numbers match the list view and the PDF download. Entries without a trustworthy position are never given an invented pin.
+
+**List view** keeps the list-and-detail layout, with the list on the left (about one third) and the selected item on the right (about two thirds), in independently scrollable panes on desktop. It suits screen-reader users and small screens. The first Fix item, or else the first Check item, opens automatically. Selecting another item resets the detail scroll and clears unrelated preview selection. Reset source-specific state when source identity changes.
 
 ### Buckets
 

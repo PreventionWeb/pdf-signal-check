@@ -232,7 +232,7 @@ The evidence preview uses the existing documented native-dialog adaptation with 
 
 The technical analysis record now uses the pinned `.mg-accordion > details > summary + div` typography accordion pattern. Native disclosure behavior retains keyboard operation and does not add a script or change report ownership.
 
-The fix list uses native buttons with `aria-current` inside Fix / Check sections, with a native `details` for Couldn’t check. The selected item never relies on colour alone: it has a border, a background and `aria-current`. The Technical evidence drawer is a native modal `dialog` docked to the inline end, following the `PreviewDialog` focus and scroll-lock pattern. Results and technical record use the shared `Tabs` adapter.
+The fix list uses native buttons with `aria-current` inside Fix / Check sections, with a native `details` for Couldn’t check. The selected item never relies on colour alone: it has a border, a background and `aria-current`. The Technical evidence drawer is a native modal `dialog` docked to the inline end, following the `PreviewDialog` focus and scroll-lock pattern. Results and technical record use the shared `Tabs` adapter. On/off view options use the native `mg-switch` markup via the `Switch` adapter in `src/ui/react.jsx` (a checkbox with `role="switch"`).
 
 The publication-metadata advisory findings inside the technical record use a grouped native Mangrove accordion with one content wrapper per disclosure.
 

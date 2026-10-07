@@ -22,6 +22,7 @@ import { FigureContext } from "./FigureContext.jsx";
 import { FigureGroup } from "./FigureGroup.jsx";
 import { ResultHero } from "./ResultHero.jsx";
 import { ExportMenu } from "../export/ExportMenu.jsx";
+import { PagePins } from "./PagePins.jsx";
 
 const BUCKETS = {
   fix: { label: "Fix", intro: "Problems found in this PDF." },
@@ -35,7 +36,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     [selection, setSelection] = useState(null),
     [fullOpen, setFullOpen] = useState(false),
     [drawerOpen, setDrawerOpen] = useState(false),
-    [view, setView] = useState("fixes"),
+    [view, setView] = useState("pages"),
     focusFinding = useRef(false),
     titleRef = useRef(null),
     detailRef = useRef(null);
@@ -51,6 +52,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     task = finding && reviewTask(finding),
     card = finding && fixCard(finding, report),
     bucket = finding && fixBucket(finding);
+  const pinEntries = useMemo(() => [...buckets.fix, ...buckets.check].map((item, index) => ({ number: index + 1, item, bucket: fixBucket(item), ...fixCard(item, report) })), [groups, report]);
   const experimentEvidence = useMemo(() => state.semanticExperiment ? buildDocumentEvidence(report.pages) : null, [state.semanticExperiment, report.pages]);
   const headingGroup = finding?.members && !finding.figureGroup ? groupedFindingProvenance(finding.members, report) : null;
   useEffect(() => {
@@ -125,67 +127,43 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   const firstTarget = kind === "order" || finding?.figureGroup || finding?.members ? null : targets.find(t => t.page);
   const drawerTargets = finding?.members ? finding.members.flatMap(member => member.targets || []) : targets;
   const showOrder = kind === "order" && !finding.comparison?.readingSequenceMissing;
-  const fixes = <>
-    <div className={`review-inbox ${selectable.length || buckets.limits.length ? "" : "review-inbox--empty"}`}>
-      <nav className="fix-list" aria-labelledby="fix-list-title">
-        <h2 id="fix-list-title" className="mg-u-sr-only">Review list</h2>
-        {["fix", "check"].map(key => buckets[key].length > 0 && <section key={key} className={`fix-bucket fix-bucket--${key}`} aria-labelledby={`fix-bucket-${key}`}>
-          <h3 id={`fix-bucket-${key}`}>{BUCKETS[key].label} <span className="fix-bucket-count">({buckets[key].length})</span></h3>
-          <p className="fix-bucket-intro">{BUCKETS[key].intro}</p>
-          <FixCards items={buckets[key]} report={report} selected={finding} onChoose={choose} />
-        </section>)}
-        {!buckets.fix.length && !buckets.check.length && <p className="fix-bucket-empty">Nothing to fix or check was found automatically.</p>}
-        {(buckets.unknown.length > 0 || buckets.limits.length > 0) && <details className="fix-bucket fix-bucket--unknown" open={bucket === "unknown" || undefined}>
-          <summary className="fix-bucket-summary">{BUCKETS.unknown.label} <span className="fix-bucket-count">({buckets.unknown.length + buckets.limits.length})</span></summary>
-          <p className="fix-bucket-intro">{BUCKETS.unknown.intro}</p>
-          <FixCards items={buckets.unknown} report={report} selected={finding} onChoose={choose} />
-          {buckets.limits.length > 0 && <>
-            <h4 className="fix-limits-title">Not checked by this tool</h4>
-            <ul className="fix-limits">{buckets.limits.map(item => <li key={item.id}>{limitText(item)}</li>)}</ul>
-          </>}
-        </details>}
-        <p className="fix-list-note">This tool doesn’t change your PDF. Fix the source document, export again and check the new PDF.</p>
-      </nav>
-      <section id="selected-item-analysis" className="review-detail" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
-      {!finding ? <p className="model-note">{selectable.length ? "Choose an item to see what to change." : "Use Show the PDF to look through the pages yourself."}</p> : (
+  const detailArticle = finding && (
         <Card as="article" className="problem-frame" data-finding-id={finding.id}>
-          <Button className="review-list-back" onClick={() => { const current = document.querySelector('.fix-card[aria-current="true"]'); current?.scrollIntoView({ block: "center", behavior: "instant" }); current?.focus({ preventScroll: true }); }}>Back to the list</Button>
-          <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? ` · ${card.where}` : ""}</p>
-          <h2 className="review-detail-title" id="finding-title" tabIndex={-1} ref={titleRef}>{card.title}</h2>
-          <Notice variant={{ fix: "negative", check: "warning", unknown: "info" }[bucket]} icon={false}><p>{card.summary}</p></Notice>
-          {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
-          {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} onInspect={inspect} />
-            : finding.members ? <section aria-label="Headings" className="heading-review-list">
-              {finding.members.map(member => <section key={member.id} className="heading-review-pair">
-                <h3>{member.comparison?.query || member.title.replace(/^Heading: /, "")}</h3>
-                {member.comparison?.candidates?.[0]?.text && <p className="heading-review-excerpt"><span>Text below it:</span> {excerpt(member.comparison.candidates[0].text)}</p>}
-                {member.targets?.length > 0 && <Button onClick={() => inspect(member.targets[0])}>Show on page {member.targets[0].page}</Button>}
-              </section>)}
-            </section>
-            : kind === "title" || kind === "authors" ? <IdentityComparison kind={kind} report={report} file={file} targets={targets} onInspect={inspect} compact />
-            : showOrder ? <OrderComparison report={report} file={file} onInspect={inspect} compact />
-            : kind === "attachments" ? <AttachmentInventory inventory={report.attachments} compact />
-            : finding.source?.path?.startsWith("semantic.") ? <SemanticExcerpts finding={finding} />
-            : finding.comparison?.figure ? <FigureContext key={finding.id} finding={finding} file={file} report={report} targets={targets} onInspect={inspect} />
-            : kind === "order" ? null
-            : <Crop file={file} report={report} targets={targets} />}
-          {card.change && <section className="fix-change">
-            <h3>{bucket === "unknown" ? "To check it yourself" : "What to change"}</h3>
-            <p>{card.change}</p>
-          </section>}
-          <Actions className="fix-actions">
-            {firstTarget && <Button variant="primary" onClick={() => inspect(firstTarget)}>Show on page {firstTarget.page}</Button>}
-            <Button onClick={() => setDrawerOpen(true)}>Technical evidence</Button>
-          </Actions>
-          {(task.why || finding.whyItMatters) && <details className="fix-why">
-            <summary>Why this matters</summary>
-            <Guidance text={task.why || finding.whyItMatters} />
-          </details>}
-        </Card>
-      )}
-      <Button className="fix-show-pdf" onClick={() => { setSelection(null); setFullOpen(true); }}>Show the PDF</Button>
-      </section>
-    </div>
+      <Button className="review-list-back" onClick={() => { const current = document.querySelector('.fix-card[aria-current="true"], .page-pins-entry[aria-current="true"]'); current?.scrollIntoView({ block: "center", behavior: "instant" }); current?.focus({ preventScroll: true }); }}>Back to the list</Button>
+      <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? ` · ${card.where}` : ""}</p>
+      <h2 className="review-detail-title" id="finding-title" tabIndex={-1} ref={titleRef}>{card.title}</h2>
+      <Notice variant={{ fix: "negative", check: "warning", unknown: "info" }[bucket]} icon={false}><p>{card.summary}</p></Notice>
+      {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
+      {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} onInspect={inspect} />
+        : finding.members ? <section aria-label="Headings" className="heading-review-list">
+          {finding.members.map(member => <section key={member.id} className="heading-review-pair">
+            <h3>{member.comparison?.query || member.title.replace(/^Heading: /, "")}</h3>
+            {member.comparison?.candidates?.[0]?.text && <p className="heading-review-excerpt"><span>Text below it:</span> {excerpt(member.comparison.candidates[0].text)}</p>}
+            {member.targets?.length > 0 && <Button onClick={() => inspect(member.targets[0])}>Show on page {member.targets[0].page}</Button>}
+          </section>)}
+        </section>
+        : kind === "title" || kind === "authors" ? <IdentityComparison kind={kind} report={report} file={file} targets={targets} onInspect={inspect} compact />
+        : showOrder ? <OrderComparison report={report} file={file} onInspect={inspect} compact />
+        : kind === "attachments" ? <AttachmentInventory inventory={report.attachments} compact />
+        : finding.source?.path?.startsWith("semantic.") ? <SemanticExcerpts finding={finding} />
+        : finding.comparison?.figure ? <FigureContext key={finding.id} finding={finding} file={file} report={report} targets={targets} onInspect={inspect} />
+        : kind === "order" ? null
+        : <Crop file={file} report={report} targets={targets} />}
+      {card.change && <section className="fix-change">
+        <h3>{bucket === "unknown" ? "To check it yourself" : "What to change"}</h3>
+        <p>{card.change}</p>
+      </section>}
+      <Actions className="fix-actions">
+        {firstTarget && <Button variant="primary" onClick={() => inspect(firstTarget)}>Show on page {firstTarget.page}</Button>}
+        <Button onClick={() => setDrawerOpen(true)}>Technical evidence</Button>
+      </Actions>
+      {(task.why || finding.whyItMatters) && <details className="fix-why">
+        <summary>Why this matters</summary>
+        <Guidance text={task.why || finding.whyItMatters} />
+      </details>}
+    </Card>
+  );
+  const overlays = <>
     {drawerOpen && finding && <EvidenceDrawer title={card.title} onClose={() => setDrawerOpen(false)}>
       <section>
         <h3>Detailed steps</h3>
@@ -210,6 +188,38 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       {drawerTargets.length > 0 && <PageLocations targets={drawerTargets} onInspect={inspect} />}
     </EvidenceDrawer>}
     {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
+  </>;
+  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} limits={buckets.limits.map(limitText)} report={report} file={file}
+    selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })}
+    detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
+      {detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
+    </section>} />;
+  const fixes = <>
+    <div className={`review-inbox ${selectable.length || buckets.limits.length ? "" : "review-inbox--empty"}`}>
+      <nav className="fix-list" aria-labelledby="fix-list-title">
+        <h2 id="fix-list-title" className="mg-u-sr-only">Review list</h2>
+        {["fix", "check"].map(key => buckets[key].length > 0 && <section key={key} className={`fix-bucket fix-bucket--${key}`} aria-labelledby={`fix-bucket-${key}`}>
+          <h3 id={`fix-bucket-${key}`}>{BUCKETS[key].label} <span className="fix-bucket-count">({buckets[key].length})</span></h3>
+          <p className="fix-bucket-intro">{BUCKETS[key].intro}</p>
+          <FixCards items={buckets[key]} report={report} selected={finding} onChoose={choose} />
+        </section>)}
+        {!buckets.fix.length && !buckets.check.length && <p className="fix-bucket-empty">Nothing to fix or check was found automatically.</p>}
+        {(buckets.unknown.length > 0 || buckets.limits.length > 0) && <details className="fix-bucket fix-bucket--unknown" open={bucket === "unknown" || undefined}>
+          <summary className="fix-bucket-summary">{BUCKETS.unknown.label} <span className="fix-bucket-count">({buckets.unknown.length + buckets.limits.length})</span></summary>
+          <p className="fix-bucket-intro">{BUCKETS.unknown.intro}</p>
+          <FixCards items={buckets.unknown} report={report} selected={finding} onChoose={choose} />
+          {buckets.limits.length > 0 && <>
+            <h4 className="fix-limits-title">Not checked by this tool</h4>
+            <ul className="fix-limits">{buckets.limits.map(item => <li key={item.id}>{limitText(item)}</li>)}</ul>
+          </>}
+        </details>}
+        <p className="fix-list-note">This tool doesn’t change your PDF. Fix the source document, export again and check the new PDF.</p>
+      </nav>
+      <section id="selected-item-analysis" className="review-detail" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
+      {detailArticle || <p className="model-note">{selectable.length ? "Choose an item to see what to change." : "Use Show the PDF to look through the pages yourself."}</p>}
+      <Button className="fix-show-pdf" onClick={() => { setSelection(null); setFullOpen(true); }}>Show the PDF</Button>
+      </section>
+    </div>
   </>;
   const technical = <div className="technical-details">
     <section aria-labelledby="check-method-title">
@@ -249,9 +259,11 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
         <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
       <Tabs label="Results" value={view} onChange={setView} tabs={[
-        { value: "fixes", label: "What to fix", content: fixes },
+        { value: "pages", label: "What to fix", content: pagesView },
+        { value: "fixes", label: "List view", content: fixes },
         { value: "technical", label: "Technical details", content: technical },
       ]} />
+      {overlays}
       {state.batchId && <Actions><Button onClick={onReturnBatch}>Return to batch</Button></Actions>}
       </div>
     </>

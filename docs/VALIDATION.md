@@ -247,3 +247,13 @@ An agent-browser QA pass across all six samples with MiniLM, at 1440px and 390px
 - “Back to the list” restores focus to the opened card.
 
 A later pass found decorative outlines invisible. The outline was drawn in the same blue as a thin decorative rule and on top of it. Decorative crops now use a padded, dashed orange box, and preview selections get the same halo. This was confirmed by extracting the rendered crop and screenshotting the preview. The language dialog and the stop-screen property table now use plain wording; the table merges PDF-properties and XMP values into one row per property. A live MiniLM run confirmed the heading excerpts and the new language dialog.
+
+### Pages view as the default (2026-10)
+
+The fix list is now shown on the PDF pages by default: numbered pins, a Document properties tile, a Whole document sheet and an optional reading-order overlay. The previous layout stays as List view. In agent-browser (Partly prepared, Well prepared, Poorly prepared and Graphics and decoration, at 1440px and 390px), I checked:
+- Legend and pin selection, scrolling to the page, and the shared detail in the side panel: alt text, reading-order lanes, Technical evidence drawer.
+- Show larger, which opens the preview on the right page.
+- The reading-order switch (both instances synced, 27 regions on Well prepared).
+- Selection kept across tabs, focus moving to the detail on mobile, and no horizontal overflow.
+
+A crash on first toggling the reading order (a page rendered before the toggle had no overlay boxes yet) was found and fixed. The view has not yet been tried on a long real-world PDF.

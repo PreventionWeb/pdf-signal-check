@@ -39,5 +39,20 @@ export class EvidenceCropService {
       return {blob,width:crop.width,height:crop.height,page:target.page,pageContext:bounds.pageContext,caption:bounds.pageContext ? `Page ${target.page} · page context; the figure’s exact location could not be isolated.` : `Page ${target.page} · blue outline: one approximate located evidence region${quads.length>1?`; ${quads.length-1} additional regions remain in textual/full-page evidence`:''}.`,text:target.text || 'Located evidence'};
     } finally {if(canvas)canvas.width=canvas.height=0;if(crop)crop.width=crop.height=0;page?.cleanup();}
   }
+  /** Whole page image plus fractional boxes (0–1) for each group of quads; serialized with crops. */
+  renderPage(pageNumber,groups,maxWidth=900) {const task=this.queue.catch(()=>{}).then(()=>this.renderWholePage(pageNumber,groups,maxWidth));this.queue=task;return task;}
+  async renderWholePage(pageNumber,groups,maxWidth) {
+    let canvas,page;
+    try {
+      const doc=await this.load();page=await doc.getPage(pageNumber);throwIfAborted(this.signal);
+      const unit=page.getViewport({scale:1});const viewport=page.getViewport({scale:Math.min(2,maxWidth/unit.width)});
+      canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.floor(viewport.width));canvas.height=Math.max(1,Math.floor(viewport.height));
+      this.renderTask=page.render({canvasContext:canvas.getContext('2d'),viewport});await this.renderTask.promise;this.renderTask=null;throwIfAborted(this.signal);
+      const boxes=groups.map(quads=>{const pts=quads.flat().map(p=>point(viewport.transform,p));const xs=pts.map(([x])=>x),ys=pts.map(([,y])=>y);
+        return {x:Math.min(...xs)/canvas.width,y:Math.min(...ys)/canvas.height,width:(Math.max(...xs)-Math.min(...xs))/canvas.width,height:(Math.max(...ys)-Math.min(...ys))/canvas.height};});
+      const blob=await blobOf(canvas);throwIfAborted(this.signal);
+      return {blob,width:canvas.width,height:canvas.height,boxes};
+    } finally {if(canvas)canvas.width=canvas.height=0;page?.cleanup();}
+  }
   async destroy() {if(this.closed)return;this.closed=true;this.signal?.removeEventListener('abort',this.abort);this.renderTask?.cancel();await this.queue.catch(()=>{});await this.loadingTask?.destroy();this.doc=null;}
 }

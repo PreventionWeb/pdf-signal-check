@@ -773,3 +773,67 @@ details.fix-bucket--unknown { border-top: 1px solid rgb(var(--mg-color-neutral-3
 .attachment-summary { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 8px; }
 .attachment-summary li { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: var(--mg-card-border-radius); }
 .attachment-summary span { font-size: .9375rem; color: var(--muted); }
+
+/* Experimental page pins (?experiment=pins). */
+.page-pins { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 24px; align-items: start; margin-block: 24px; }
+/* Sticky side panel: the grouped legend (bounded) above the selected item's detail; both scroll inside the panel. */
+.page-pins-panel { position: sticky; top: 16px; max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; padding: 4px; display: grid; gap: 16px; align-content: start; }
+.page-pins-legend { max-height: 42dvh; overflow-y: auto; overscroll-behavior: contain; padding: 2px 4px 2px 2px; border-bottom: 1px solid rgb(var(--mg-color-neutral-300)); }
+.page-pins-legend .fix-bucket { margin-bottom: 16px; }
+.page-pins-detail-pane .problem-frame { margin: 0; }
+.page-pins-detail-pane:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
+.page-pin--unknown { background: rgb(var(--mg-color-neutral-500, 120 120 120)); }
+.page-pins-page-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.page-pins-page-header h3 { margin: 0; }
+.page-pins-list { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 6px; }
+.page-pins-entry { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: start; font: inherit; color: rgb(var(--mg-color-text)); padding: 8px 10px; min-height: 44px; cursor: pointer;
+  background: rgb(var(--mg-color-neutral-0)); border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: var(--mg-card-border-radius); }
+.page-pins-entry > span:last-child { display: grid; gap: 2px; }
+.page-pins-entry.is-selected { border: 2px solid rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .08); padding: 7px 9px; }
+.page-pins-entry:focus-visible, .page-pins-marker:focus-visible { outline: 3px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
+.page-pin { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 28px; height: 28px; padding: 0 6px; border-radius: 14px;
+  font-weight: 700; font-size: .875rem; color: #fff; border: 2px solid #fff; box-shadow: 0 1px 3px #0005; }
+.page-pin--fix { background: rgb(var(--mg-color-red-900)); }
+.page-pin--check { background: rgb(var(--mg-color-gold-800)); }
+.page-pins-pages { display: grid; gap: 28px; min-width: 0; }
+.page-pins-page h3 { font-size: 1rem; margin: 0 0 8px; }
+.page-pins-sheet { position: relative; background: #fff; box-shadow: 0 1px 3px #0002, 0 8px 25px #0001; min-height: 200px; }
+.page-pins-sheet img { display: block; width: 100%; height: auto; }
+.page-pins-sheet > .model-note { padding: 16px; }
+.page-pins-box { position: absolute; border: 2px dashed; border-radius: 3px; pointer-events: none; margin: -4px; padding: 4px; box-sizing: content-box; }
+.page-pins-box--fix { border-color: rgb(var(--mg-color-red-900)); }
+.page-pins-box--check { border-color: rgb(var(--mg-color-gold-800)); }
+.page-pins-box.is-selected { border-width: 3px; border-style: solid; background: rgb(var(--mg-color-interactive) / .08); }
+.page-pins-marker { position: absolute; transform: translate(calc(-100% - 6px), -50%); cursor: pointer; z-index: 1; }
+.page-pins-marker.is-selected { transform: translate(calc(-100% - 6px), -50%) scale(1.2); z-index: 2; outline: 3px solid rgb(var(--mg-color-interactive)); outline-offset: 1px; }
+/* Reading-order overlay on the pins view. */
+.page-pins-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.page-pins-toolbar .model-note { margin: 0; }
+.page-pins-docsheet-list .page-pins-order-toggle { margin-top: 8px; }
+.page-pins-order-box { position: absolute; border: 1px solid rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .06); pointer-events: none; }
+.page-pins-order-number { position: absolute; transform: translate(calc(-100% - 3px), 0); font: 700 11px/1 system-ui, sans-serif; color: #fff; background: rgb(var(--mg-color-interactive));
+  padding: 2px 4px; border-radius: 3px; pointer-events: none; }
+
+/* Document properties tile in the pins view. */
+.page-pins-docsheet .document-properties table { width: 100%; border-collapse: collapse; font-size: .9375rem; }
+.page-pins-docsheet .document-properties th, .page-pins-docsheet .document-properties td { text-align: start; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid rgb(var(--mg-color-neutral-200)); overflow-wrap: anywhere; white-space: pre-line; }
+.page-pins-property-pins { display: inline-flex; gap: 4px; margin-inline-start: 8px; vertical-align: middle; }
+.page-pins-docpin.is-selected { outline: 3px solid rgb(var(--mg-color-interactive)); outline-offset: 1px; }
+
+/* Page-like sheet for issues that cannot be pinned to a position. */
+.page-pins-docsheet { padding: clamp(20px, 4vw, 40px); min-height: 0; }
+.page-pins-docsheet-intro { margin: 0 0 20px; color: var(--muted); font-size: .9375rem; }
+.page-pins-docsheet-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+.page-pins-docsheet-list li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; padding: 12px; border: 2px dashed rgb(var(--mg-color-neutral-300)); border-radius: var(--mg-card-border-radius); }
+.page-pins-docsheet-list li.is-selected { border: 3px solid rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .05); padding: 11px; }
+.page-pins-docsheet-list h4 { margin: 2px 0 2px; font-size: 1rem; }
+.page-pins-docsheet-list p { margin: 0 0 6px; font-size: .9375rem; }
+.page-pins-docpin { cursor: pointer; }
+@media (max-width: 820px) {
+  .page-pins { grid-template-columns: minmax(0, 1fr); }
+  .page-pins-panel, .page-pins-legend { position: static; max-height: none; overflow: visible; }
+}
+.document-properties-note { margin-top: 16px; padding: 12px 16px; border-inline-start: 4px solid rgb(var(--mg-color-gold-800)); background: rgb(var(--mg-color-accent-100) / .15); border-radius: var(--mg-card-border-radius); }
+.document-properties-note h4 { margin: 0 0 6px; font-size: 1rem; }
+.document-properties-note p { margin: 0 0 8px; font-size: .9375rem; }
+.document-properties-note p:last-child { margin-bottom: 0; }
