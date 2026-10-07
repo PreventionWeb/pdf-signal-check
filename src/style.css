@@ -13,6 +13,8 @@
   outline: var(--mg-focus-ring-width) solid rgb(var(--mg-color-focus-ring));
   outline-offset: var(--mg-focus-ring-offset);
 }
+/* Absorbs the half-scrollbar overhang of the Mangrove full-bleed hero (its 100vw escape), as the hero docs advise. */
+html { overflow-x: clip; }
 body { -webkit-font-smoothing: antialiased; }
 .version, .eyebrow { font-family: var(--mg-font-family-ui); font-size: 14px; color: var(--muted); }
 .workspace { align-items: start; }
@@ -669,7 +671,7 @@ details.fix-bucket--unknown { border-top: 1px solid rgb(var(--mg-color-neutral-3
 .document-properties-note p:last-child { margin-bottom: 0; }
 
 /* Landing hero: shares the results hero treatment; value points sit in the media slot. */
-.intake-hero .mg-hero__split-grid { grid-template-columns: minmax(0, 3fr) minmax(220px, 2fr); gap: clamp(24px, 4vw, 48px); align-items: center; }
+.intake-hero .mg-hero__split-grid { grid-template-columns: minmax(0, 3fr) minmax(220px, 2fr); gap: clamp(24px, 4vw, 48px); align-items: center; padding-inline: 0; }
 .intake-hero .mg-hero__title { font-size: clamp(1.75rem, 3.2vw, 2.5rem); }
 .intake-hero .mg-hero__summaryText { font-size: 1.0625rem; line-height: 1.55; }
 .intake-hero-note { font-size: .875rem; opacity: .9; }
