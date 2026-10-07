@@ -1,3 +1,4 @@
+import { formatProgress } from '../ui/progress.js';
 import React, {
   forwardRef,
   useEffect,
@@ -82,6 +83,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
       <p>Testing {model.label} with sample text. Keep this tab open and visible.</p>
       <p role="status">{phase}</p>
       <progress aria-label={progressLabel} max={determinate ? progress.total : undefined} value={determinate ? progress.completed : undefined} />
+      {progress?.unit === "bytes" && Number.isFinite(progress.completed) && <p className="model-note">{formatProgress(progress)}</p>}
       <div className="flow-actions"><Button onClick={() => controller.cancel()}>Cancel benchmark</Button></div>
     </section>
   );

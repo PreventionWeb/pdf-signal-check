@@ -1,3 +1,4 @@
+import { formatProgress } from '../ui/progress.js';
 import React, {
   StrictMode,
   useEffect,
@@ -251,8 +252,7 @@ export function App() {
                         value={state.progress.completed}
                       />
                       <p className="model-note">
-                        {state.progress.completed} / {state.progress.total}{" "}
-                        {state.progress.unit || "units"}
+                        {formatProgress(state.progress)}
                         {state.progress.asset
                           ? ` · ${state.progress.asset}`
                           : ""}
@@ -440,6 +440,7 @@ function Entry({ state, controller, batch, batchBusy }) {
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
+      <p className="model-note">Current settings: {state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · compact English" : "Granite R2 · multilingual" : "No AI model · fallback"}. {state.settingsSaved ? "Your choice is remembered in this browser." : "Settings apply for this session; browser storage is unavailable."}</p>
       <p className="step-intro">
         Select or drop a PDF to run text checks{state.aiEnabled ? " and local AI" : ""}. Selecting several files creates
         a batch queue.
@@ -526,9 +527,10 @@ function Entry({ state, controller, batch, batchBusy }) {
       <div className="flow-actions">
         <Button
           variant="secondary"
-          onClick={() => controller.go("welcome")}
+          disabled={disabled}
+          onClick={() => controller.openSetup("document")}
         >
-          ← Back to welcome
+          Change check settings
         </Button>
       </div>
       <p className="privacy-note">

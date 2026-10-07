@@ -6,8 +6,8 @@ import { createDevicePreferences, rateDevice } from '../calibration/preferences.
 import { Card, Button, Radio, Actions } from '../ui/react.jsx';
 
 export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
-  const [step, setStep] = useState(1);
-  const [modelId, setModelId] = useState(() => controller.getSnapshot().aiEnabled ? controller.getSnapshot().evaluationModel : 'minilm');
+  const [step, setStep] = useState(() => controller.getSnapshot().setupComplete ? 2 : 1);
+  const [modelId, setModelId] = useState(() => controller.getSnapshot().setupComplete ? controller.getSnapshot().evaluationModel : 'minilm');
   const [receipt, setReceipt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [preferences] = useState(() => createDevicePreferences());
@@ -66,7 +66,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
           </table>
         </div>
       <p className="model-note">AI options also use runtime assets: approximately 26.86 MB uncompressed WASM, plus JavaScript. Transfer/cache cost varies. Token limits bound each excerpt; they do not describe whole-document coverage. Processing speed is a general estimate of AI overhead until that model is benchmarked on this device; actual speed varies with your PDF. A MiniLM benchmark does not rate Granite R2. Tagged heading comparisons can be enabled in check settings.</p>
-      <p>{modelId ? 'Continuing enables this model for every PDF in this session and permits its displayed model, tokenizer and runtime downloads if needed. AI findings are advisory and can be wrong.' : 'Fallback selected: AI comparisons will be skipped. Text, structure and metadata rules still run, without model downloads. Enable AI later in setup when it is available.'}</p>
+      <p>{modelId ? 'Continuing saves your model and check settings in this browser and permits the displayed model, tokenizer and runtime downloads for future PDF checks. You can change these settings on the PDF selection screen. AI findings are advisory and can be wrong.' : 'Fallback selected: this choice is saved in this browser. AI comparisons will be skipped. Text, structure and metadata rules still run, without model downloads. Enable AI later in setup when it is available.'}</p>
       <Actions>
         <Button variant="primary" disabled={batchBusy} onClick={() => controller.completeSetup(modelId)}>{modelId ? 'Use selected model and continue' : 'Continue without AI'}</Button>
         <Button disabled={batchBusy} onClick={() => setStep(1)}>Back to benchmark</Button>

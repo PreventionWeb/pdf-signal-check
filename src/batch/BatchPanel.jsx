@@ -1,3 +1,4 @@
+import { formatProgress } from '../ui/progress.js';
 import React, { useSyncExternalStore } from "react";
 import {
   Button,
@@ -78,8 +79,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
                 aria-label={`${item.name} progress`}
               />
               <p className="model-note">
-                {item.progress.completed} / {item.progress.total}{" "}
-                {item.progress.unit || "units"}
+                {formatProgress(item.progress)}
               </p>
             </>
           ) : (

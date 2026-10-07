@@ -1,3 +1,4 @@
+import { createEvaluationPreferences } from './preferences.js';
 import { buildScreeningRequest } from "../runtime/screening-request.js";
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from "../engine/models.js";
 /** DOM-free single-source owner. Construction does not fetch, create workers, or start inference. */
@@ -12,22 +13,25 @@ export function createAppController({
         }),
   fetcher = (...args) => fetch(...args),
   digest = (buffer) => crypto.subtle.digest("SHA-256", buffer),
+  preferences = createEvaluationPreferences(),
   baseUrl = globalThis.document?.baseURI || "http://localhost/",
 } = {}) {
+  const saved = preferences.load();
   let state = {
-    stage: "welcome",
+    stage: saved ? "document" : "welcome",
     file: null,
     report: null,
     example: null,
     batchId: null,
     sourceKey: 0,
-    setupComplete: false,
-    aiEnabled: false,
-    evaluationModel: "minilm",
+    setupComplete: Boolean(saved),
+    settingsSaved: Boolean(saved),
+    aiEnabled: Boolean(saved && saved.modelId !== null),
+    evaluationModel: saved ? saved.modelId : "minilm",
     setupDestination: "document",
-    selectedModel: null,
+    selectedModel: saved?.modelId || null,
     languageAssumption: null,
-    checks: ["title", "subject", "keywords"],
+    checks: saved?.checks || ["title", "subject", "keywords"],
     message: "",
     progress: null,
     analysisBusy: false,
@@ -75,6 +79,9 @@ export function createAppController({
     services.batch?.releaseIdleWorkers();
     return true;
   };
+  const saveSettings = () => {
+    if (state.setupComplete) emit({ settingsSaved: preferences.save({ modelId: state.evaluationModel, checks: state.checks }) });
+  };
   const controller = {
     getSnapshot: () => state,
     subscribe: (listener) => {
@@ -83,6 +90,10 @@ export function createAppController({
     },
     bindServices: (patch) => {
       services = { ...services, ...patch };
+      if (patch.batch && state.setupComplete) {
+        patch.batch.setSettings({ useAI: state.aiEnabled, modelId: state.evaluationModel || "minilm", checks: [...state.checks] });
+        patch.batch.setConsent(state.aiEnabled);
+      }
     },
     mount() {
       const epoch = ++mountEpoch;
@@ -114,7 +125,7 @@ export function createAppController({
     },
     go(stage) {
       if (stage !== "checks") services.calibration?.cancel();
-      emit({ stage });
+      emit({ stage: stage === "welcome" && state.setupComplete ? "document" : stage });
     },
     beginEvaluation(stage = "document") {
       if (state.setupComplete) controller.go(stage);
@@ -127,6 +138,7 @@ export function createAppController({
       services.batch?.setSettings({ useAI, modelId: modelId || "minilm", checks: [...state.checks] });
       services.batch?.setConsent(useAI);
       emit({ setupComplete: true, aiEnabled: useAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination });
+      saveSettings();
       if (useAI && state.stage === "checks" && state.report && supportsLanguage(getSemanticModel(modelId), state.languageAssumption || state.report.metadata.language)) controller.runScreening();
     },
     setModel(modelId) {
@@ -141,6 +153,7 @@ export function createAppController({
             }
           : null,
       });
+      saveSettings();
     },
     setLanguageAssumption(languageAssumption) {
       if (!state.report) return;
@@ -171,6 +184,7 @@ export function createAppController({
             }
           : null,
       });
+      saveSettings();
     },
     setReviewCursor(patch) {
       emit({ reviewCursor: { ...state.reviewCursor, ...patch } });

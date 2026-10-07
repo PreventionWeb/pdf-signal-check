@@ -1,3 +1,9 @@
+## Remembered settings and readable downloads — 7 October 2026
+
+Confirmed model/check settings and download consent are remembered in browser storage. Reload and home navigation open PDF upload and the three samples directly; Change check settings reopens model selection, with benchmark access retained. Settings are validated against the pinned model configuration; invalid settings require setup, and blocked storage retains session operation. Document language assumptions and PDF data are never stored.
+
+Model download counters use decimal KB/MB/GB in single, batch and device-test presentation, preserving numeric progress-bar values. Verified mobile home/reload/reconfiguration, production repository-prefix reload with no-AI fallback, 196 tests and production build.
+
 ## Model comparison clarity — 7 October 2026
 
 The model matrix uses bold Yes entries, including tagged heading comparisons (enabled in check settings). Processing speed uses Good / OK / Fast labels, with saved per-model benchmarks taking precedence over explicitly marked expectations. The no-AI fallback has no inference overhead; its speed label is not a guarantee for PDF parsing. Granite expectations are not presented as a MiniLM-derived device benchmark.
