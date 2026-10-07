@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" role="img" aria-hidden="true">
+<rect width="300" height="400" fill="#ffffff"/>
+<g>
+<rect width="300" height="96" fill="#004f91"/>
+<path d="M0 82 C60 64 120 100 180 82 S270 66 300 78 V96 H0 Z" fill="#066e74"/>
+<text x="24" y="34" font-family="Roboto, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#cfe2f3">HARBOR OBSERVATORY</text>
+<text x="24" y="132" font-family="Roboto Condensed, Arial, sans-serif" font-size="25" font-weight="700" fill="#1f3347">Annual Report</text>
+<text x="24" y="162" font-family="Roboto Condensed, Arial, sans-serif" font-size="25" font-weight="700" fill="#1f3347">2025</text>
+<text x="24" y="184" font-family="Roboto, Arial, sans-serif" font-size="11" fill="#8a97a6">Maya Chen · Leo Martin</text>
+<rect x="24" y="204" width="230" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="216" width="250" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="228" width="210" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="240" width="240" height="5" rx="2.5" fill="#d5dde6"/>
+</g>
+<g transform="translate(24 270)"><rect width="110" height="78" fill="#e6f1f2"/><rect x="12" y="38" width="20" height="32" fill="#066e74"/><rect x="44" y="24" width="20" height="46" fill="#066e74"/><rect x="76" y="12" width="20" height="58" fill="#066e74"/></g>
+<g transform="translate(150 270)"><circle cx="40" cy="38" r="34" fill="#004f91"/><path d="M40 38 L40 4 A34 34 0 0 1 72 50 Z" fill="#066e74"/></g>
+<rect x="18" y="264" width="122" height="90" fill="none" stroke="#b26b00" stroke-width="2" stroke-dasharray="5 4"/>
+<path d="M24 368 h252" stroke="#066e74" stroke-width="4"/><g fill="#b26b00"><circle cx="246" cy="128" r="6"/><circle cx="264" cy="140" r="4"/><circle cx="252" cy="152" r="3"/></g>
+<rect x="230" y="114" width="46" height="48" fill="none" stroke="#8a97a6" stroke-width="1.5" stroke-dasharray="3 3"/>
+</svg>

@@ -11,7 +11,6 @@ import React, {
 import { PageHeader } from "@undrr/undrr-mangrove/components/PageHeader.js";
 import { Footer } from "@undrr/undrr-mangrove/components/Footer.js";
 import { Samples } from "./Samples.jsx";
-import { Tabs } from "../ui/Tabs.jsx";
 import { createAppController } from "./controller.js";
 import { BatchController } from "../batch/controller.js";
 import { BatchPanel } from "../batch/BatchPanel.jsx";
@@ -40,7 +39,6 @@ export function App() {
     privacyRef = useRef(null),
     openerRef = useRef(null),
     previousStage = useRef(state.stage);
-  const [showSamples, setShowSamples] = useState(false);
   const [batch] = useState(
     () =>
       new BatchController({
@@ -110,8 +108,10 @@ export function App() {
         if (action === "about") { privacyRef.current?.open(opener); return; }
         if (action === "settings") { controller.openSetup(state.report ? "checks" : "document"); return; }
         if (action === "batch") { controller.beginEvaluation("batch"); return; }
-        setShowSamples(action === "sample");
         controller.go("document");
+        // Navigation scrolls to the intake section it names; there are no intake tabs to switch.
+        if (action === "sample") requestAnimationFrame(() => { const heading = document.getElementById("sample-title"); heading?.scrollIntoView({ block: "start" }); heading?.focus({ preventScroll: true }); });
+        if (action === "upload") requestAnimationFrame(() => { const zone = document.getElementById("drop-zone"); zone?.scrollIntoView({ block: "center" }); zone?.focus({ preventScroll: true }); });
         if (action === "capabilities") requestAnimationFrame(() => document.querySelector('[aria-label="Tool capabilities"]')?.scrollIntoView({ block: "start" }));
       }} />
       <PrivacyNotice ref={privacyRef} openerRef={openerRef} />
@@ -149,8 +149,6 @@ export function App() {
                     state={state}
                     controller={controller}
                     batchBusy={batch.busy}
-                    showSamples={showSamples}
-                    setShowSamples={setShowSamples}
                   />
                 )}
               {state.stage === "processing-analysis" && (
@@ -254,7 +252,7 @@ export function App() {
     </>
   );
 }
-function Entry({ state, controller, batchBusy, showSamples, setShowSamples }) {
+function Entry({ state, controller, batchBusy }) {
   const [dragging, setDragging] = useState(false),
     disabled = state.analysisBusy || batchBusy;
   return (
@@ -278,9 +276,6 @@ function Entry({ state, controller, batchBusy, showSamples, setShowSamples }) {
           </Button>
         </div>
       )}
-      <Tabs label="Choose a PDF source" value={showSamples ? "sample" : "upload"}
-        onChange={value => setShowSamples(value === "sample")} disabled={disabled}
-        tabs={[{ value: "upload", label: "Your PDF", content: (
           <Card
             className={`upload-card ${dragging ? "dragging" : ""}`}
             id="drop-zone"
@@ -319,9 +314,7 @@ function Entry({ state, controller, batchBusy, showSamples, setShowSamples }) {
               }}
             />
           </Card>
-        ) }, { value: "sample", label: "Try a sample", content: (
-          <Samples disabled={disabled} onChoose={path => controller.selectSample(path)} />
-        ) }]} />
+      <Samples disabled={disabled} onChoose={path => controller.selectSample(path)} />
       <div className="intake-settings">
         <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose your check settings when you select your first PDF."}</p>
       </div>

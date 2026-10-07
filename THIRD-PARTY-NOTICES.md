@@ -6,7 +6,7 @@ PDF Signal Check is independently authored by Ken Hawkins under the MIT license.
 
 [PDF-A-go-actionable](https://github.com/khawkins98/PDF-A-go-actionable), Ken Hawkins, MIT. Its browser-local analysis architecture and accessibility checks informed this project. No application modules were copied. Its evidence-to-preview interaction informed the independently authored viewer.
 
-[pdf-a-go-go](https://github.com/khawkins98/pdf-a-go-go), Ken Hawkins, MIT. Its PDF.js rendering and canvas resource management informed the independently authored evidence preview. The processing and reading-order context screens now embed its locally bundled 1.9.0 viewer, pinned to commit `02fb17120d36fc1afee9e260906cbf38694d44ff`. Bundle hashes, MIT license, embedded PDF.js Apache license and Lucide icon license are retained in `public/vendor/pdf-a-go-go/1.9.0`. No viewer scripts or fonts load from external hosts.
+[pdf-a-go-go](https://github.com/khawkins98/pdf-a-go-go), Ken Hawkins, MIT. Its PDF.js rendering and canvas resource management informed the independently authored evidence preview. The bundled pdf-a-go-go viewer that previously showed a sample preview was removed in 2026-10; sample reports are now illustrated with original SVG covers.
 
 ## Runtime dependencies
 

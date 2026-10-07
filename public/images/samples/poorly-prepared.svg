@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" role="img" aria-hidden="true">
+<rect width="300" height="400" fill="#ffffff"/>
+<g opacity="0.45">
+<rect width="300" height="96" fill="#004f91"/>
+<path d="M0 82 C60 64 120 100 180 82 S270 66 300 78 V96 H0 Z" fill="#066e74"/>
+<text x="24" y="34" font-family="Roboto, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#cfe2f3">HARBOR OBSERVATORY</text>
+<text x="24" y="132" font-family="Roboto Condensed, Arial, sans-serif" font-size="25" font-weight="700" fill="#1f3347">Annual Report</text>
+<text x="24" y="162" font-family="Roboto Condensed, Arial, sans-serif" font-size="25" font-weight="700" fill="#1f3347">2025</text>
+<text x="24" y="184" font-family="Roboto, Arial, sans-serif" font-size="11" fill="#8a97a6">Maya Chen · Leo Martin</text>
+<rect x="24" y="204" width="230" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="216" width="250" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="228" width="210" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="240" width="240" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="40" y="292" width="42" height="48" fill="#066e74"/>
+<rect x="100" y="278" width="42" height="62" fill="#066e74"/>
+<rect x="160" y="266" width="42" height="74" fill="#066e74"/>
+<line x1="24" y1="340" x2="230" y2="340" stroke="#1f3347" stroke-width="1.5"/>
+</g>
+<line x1="20" y1="122" x2="200" y2="150" stroke="#b3261e" stroke-width="3"/>
+<text x="24" y="232" font-family="Roboto, Arial, sans-serif" font-size="12" font-style="italic" fill="#b3261e">Mountain Observatory 2024</text>
+<g transform="translate(240 126)"><circle r="22" fill="#b3261e"/><text y="8" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="24" font-weight="700" fill="#fff">?</text></g>
+<rect x="20" y="372" width="260" height="14" fill="none" stroke="#b3261e" stroke-width="1.5" stroke-dasharray="3 3"/><text x="150" y="382" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="8" fill="#b3261e">hidden text</text>
+</svg>

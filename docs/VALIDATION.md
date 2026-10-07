@@ -273,3 +273,15 @@ agent-browser checks on the dev server and on the production build served under 
 - No requests to the removed local paths.
 
 The privacy notice now names assets.undrr.org and states that those requests never include the PDF. Without access to assets.undrr.org the app works unstyled. The PDF report font stays bundled.
+
+### Hidden instructions and landing page (2026-10)
+
+Hidden-instruction screening:
+- Unit tests cover the patterns, zero-width obfuscation, channel attribution and benign OCR-style hidden text.
+- End-to-end tests build PDFs with invisible (3 Tr), white, 0.4 pt and off-page instructions. Each is flagged with the right hiding method, and the same words in visible text are not flagged.
+- The Poorly prepared sample now carries a white footer instruction. agent-browser confirmed the Check item, its pin on the page 1 footer, the detail (hiding method, snippet, intent) and Show on page.
+
+The landing page:
+- Intake tabs replaced by a drop zone followed by six native Mangrove horizontal book cards with original SVG covers.
+- The pdf-a-go-go sample preview, its vendored viewer and test removed.
+- agent-browser checked at 1440px and 390px: no tabs, six covers loaded, a card click opens setup, and no overflow.
