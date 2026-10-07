@@ -2,7 +2,6 @@ import { selectTopicEvidence } from './topic-retrieval.js';
 import { compareTitles, normalizeTitle, publicationCandidates } from './titles.js';
 
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from './models.js';
-export const SEMANTIC_MODEL = getSemanticModel('minilm');
 export const SEMANTIC_LIMITS = Object.freeze({ titleCandidates: 8, excerptCount: 6,
   excerptCharacters: 800, metadataCharacters: 350, keywordCount: 12, sectionCount: 6, titleLow: 0.35, titleHigh: 0.75,
   topicLow: 0.20, topicHigh: 0.45 });

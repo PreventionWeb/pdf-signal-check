@@ -115,17 +115,3 @@ export function Actions({ children, className = "" }) {
 export function Icon({ name }) {
   return <span className={`mg-icon mg-icon-${name}`} aria-hidden="true" />;
 }
-export function EmptyState({
-  title,
-  children,
-  actions,
-  headingLevel: Heading = "h2",
-}) {
-  return (
-    <section className="mg-empty-state mg-empty-state--panel mg-empty-state--start mg-empty-state--compact">
-      <Heading className="mg-empty-state__title">{title}</Heading>
-      <div className="mg-empty-state__description">{children}</div>
-      {actions && <div className="mg-empty-state__actions">{actions}</div>}
-    </section>
-  );
-}

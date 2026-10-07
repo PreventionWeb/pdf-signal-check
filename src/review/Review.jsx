@@ -2,7 +2,7 @@ import { buildDocumentEvidence } from "../engine/topic-retrieval.js";
 import { SemanticEvidenceLab } from "./SemanticEvidenceLab.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Checks } from "../app/Checks.jsx";
-import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupHeadingFindings, groupFigureFindings, reviewPriority, fixCard, fixBucket } from "./workspace.js";
+import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupHeadingFindings, groupFigureFindings, fixCard, fixBucket } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
 import { findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
 import { Button, Card, Actions, Tag, Notice } from "../ui/react.jsx";

@@ -2,7 +2,6 @@ import { SiteNavigation } from "./SiteNavigation.jsx";
 import { Capabilities } from './Capabilities.jsx';
 import { formatProgress } from '../ui/progress.js';
 import React, {
-  StrictMode,
   useEffect,
   useRef,
   useState,
