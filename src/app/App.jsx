@@ -1,5 +1,6 @@
 import { SiteNavigation } from "./SiteNavigation.jsx";
 import { Capabilities } from './Capabilities.jsx';
+import { IntakeHero } from './IntakeHero.jsx';
 import { formatProgress } from '../ui/progress.js';
 import React, {
   useEffect,
@@ -80,8 +81,9 @@ export function App() {
     }
   }, [state.stage]);
   const title = {
-    setup: "Check a PDF",
-    document: "Check a PDF",
+    // The intake hero owns the heading for these stages.
+    setup: null,
+    document: null,
     batch: "Review several PDFs",
     checks: null,
     review: null,
@@ -257,12 +259,7 @@ function Entry({ state, controller, batchBusy, showSamples, setShowSamples }) {
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
-      <p className="privacy-note">
-        Your PDF stays here. The structural analysis needs no AI model or
-        account. Optional semantic screening downloads model assets, then runs
-        locally.
-      </p>
-      <p className="step-intro">Check metadata, language, text tags, reading order and figure descriptions. Local AI compares text; image and chart meaning still need human review.</p>
+      <IntakeHero />
       {state.report && (
         <Actions>
           <Button onClick={() => controller.go("review")}>

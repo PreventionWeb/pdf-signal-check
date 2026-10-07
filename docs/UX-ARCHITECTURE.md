@@ -30,7 +30,7 @@ Choose the workflow state before rendering content. A later section must not com
 
 | State | Primary information and action | Secondary information | Suppress or omit |
 | --- | --- | --- | --- |
-| Intake | “Check a PDF”; Mangrove tabs for Your PDF / Try a sample; upload or sample selection. Sample choices use horizontal button-and-description rows. | Local processing/capabilities explanation; Settings and Check several PDFs as separate actions. | Technical results, parser vocabulary and startup model downloads. |
+| Intake | A Mangrove split hero that says what the tool is for and why it matters (the H1), with three value points: problems shown on the pages, a fix list for the designer, private by design. Then Mangrove tabs for Your PDF / Try a sample; upload or sample selection. Sample choices use horizontal button-and-description rows. | Local processing/capabilities explanation; Settings and Check several PDFs as separate actions. | Technical results, parser vocabulary and startup model downloads. |
 | First-use setup | Model/no-AI choice, explicit download consent and clear continuation. | Supported languages, asset costs, device benchmark and its limitations. | PDF processing before setup completion; fake speed or cache certainty. |
 | Structural analysis | A checking heading and observed page progress. | Relevant preparation status and cancellation/recovery. | Provisional final results competing with ongoing work. |
 | AI analysis | “Checking your PDF”; a stable progress notice, plain stage text, visible small progress detail and Cancel AI checks. | Short explanation that cancellation retains completed checks. | Fix list, headline, exports and technical record while processing is active. |
