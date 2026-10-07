@@ -6,5 +6,7 @@ export default defineConfig({
   // Relative assets work at both a Pages project path and a custom domain.
   base: './',
   worker: { format: 'es' },
+  // Two pages: the app, and the standalone story while it is refined.
+  build: { rollupOptions: { input: { main: 'index.html', story: 'story.html' } } },
   test: { include: ['test/**/*.test.js'], testTimeout: 30000 },
 });

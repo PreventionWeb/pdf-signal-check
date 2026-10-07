@@ -293,3 +293,16 @@ Two samples were added for the educational story:
 - **Built to travel:** a described vector chart, a tagged data table (Table/TR/TH/TD), the CSV attached (Data) with a schema.org Report/Dataset JSON-LD attached (Supplement), Dublin Core publisher, rights, date, format and identifier, a linked “Map 2” and heading bookmarks.
 
 Both were rendered and inspected. A new `numbered-step-drawing-order` detector flags the failure sample (tag lane 1–4, drawing lane 3, 4, 1, 2). Tests cover both samples through the engine and presentation. agent-browser confirmed the “Text is drawn out of order” item and lanes, and the exemplar’s “Nothing confirmed to fix” with both attachments listed.
+
+### Story page (2026-10)
+
+`story.html` is a standalone page for “Your report says it. Does everyone understand it?”. It has seven SVG scenes animated with the Web Animations API and CSS 3D (the exploded layers in scene 2). There are no new dependencies; the story script is about 8 KB gzipped. Stage values come from `scripts/snapshot-story.js` output, real engine results on the well-prepared, partly-prepared, picture-chart and built-to-travel samples; the attached CSV is read with pdf-lib, because PDF.js returned no attachments. `test/story-snapshot.test.js` fails on drift.
+
+The first agent-browser pass found two defects: every entry animation frozen at frame 0, and SVG groups with a `transform` attribute jumping to the origin mid-animation. The first had two causes: pausing on mount, and React StrictMode running the guard effect twice. Both are fixed.
+
+agent-browser then verified, at 1280px and 390px:
+- all seven scenes render
+- Play advances and Pause holds
+- arrow keys change scene, with the `?scene=` URL kept in sync
+- emulated reduced motion shows the note and runs no entry animations
+- no horizontal overflow

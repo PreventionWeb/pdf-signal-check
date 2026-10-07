@@ -1,0 +1,90 @@
+/* Story page. Colours come from Mangrove tokens; teal matches the sample covers. */
+:root { --story-teal: 6 110 116; }
+.story-topbar { background: rgb(var(--mg-color-neutral-0)); border-bottom: 1px solid rgb(var(--mg-color-neutral-200)); padding-block: 12px; }
+.story-topbar a { font-weight: 600; }
+.story-hero .story-hero-grid { grid-template-columns: minmax(0, 1fr); }
+.story-player { margin-block: 24px 16px; }
+.story-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 12px; }
+.story-play { min-width: 7rem; }
+.story-scrubber { flex: 1 1 200px; display: flex; align-items: center; }
+.story-scrubber input { width: 100%; accent-color: rgb(var(--mg-color-interactive)); min-height: 44px; }
+.story-progress { font-size: .875rem; color: var(--muted); white-space: nowrap; }
+.story-note { font-size: .875rem; color: var(--muted); margin: 0 0 8px; }
+.story-stage { position: relative; aspect-ratio: 2 / 1; background: rgb(var(--mg-color-neutral-25)); border: 1px solid rgb(var(--mg-color-neutral-200)); border-radius: var(--mg-card-border-radius); overflow: hidden; }
+.story-scene, .story-scene > svg { width: 100%; height: 100%; display: block; }
+.story-caption-row { padding: 16px 4px 0; }
+.story-scene-title { font-size: 1.125rem; margin: 0 0 4px; }
+.story-caption { font-size: 1.125rem; line-height: 1.5; max-width: 70ch; margin: 0; }
+.story-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.story-transcript { margin-top: 24px; }
+.story-transcript ol { list-style: none; padding: 0; }
+.story-transcript h3 { font-size: 1rem; margin: 16px 0 4px; }
+.story-transcript p { margin: 0 0 4px; max-width: 70ch; }
+.story-describe { font-size: .9375rem; color: var(--muted); }
+.story-footnote { font-size: .875rem; color: var(--muted); margin-block: 8px 48px; }
+
+/* SVG palette by role. */
+.s-paper { fill: rgb(var(--mg-color-neutral-0)); filter: drop-shadow(0 2px 6px rgb(0 0 0 / .12)); }
+.s-band { fill: rgb(var(--mg-color-interactive)); }
+.s-teal { fill: rgb(var(--story-teal)); }
+.s-blue { fill: rgb(var(--mg-color-interactive)); }
+.s-blue-stroke { stroke: rgb(var(--mg-color-interactive)); fill: none; }
+.s-green { fill: rgb(27 127 59); }
+.s-line { fill: rgb(var(--mg-color-neutral-100)); }
+.s-pale { fill: rgb(var(--story-teal) / .08); }
+.s-soft { fill: rgb(var(--mg-color-neutral-0)); stroke: rgb(var(--mg-color-neutral-200)); }
+.s-ink { fill: rgb(var(--mg-color-neutral-800)); }
+.s-ink-stroke { stroke: rgb(var(--mg-color-neutral-800)); }
+.s-paper-stroke { stroke: rgb(var(--mg-color-neutral-0)); }
+.s-red-stroke { stroke: rgb(var(--mg-color-red-900)); fill: none; }
+.s-stop { fill: rgb(var(--mg-color-red-900)); }
+.s-fix { fill: rgb(var(--mg-color-red-900)); }
+.s-check { fill: rgb(var(--mg-color-gold-800)); }
+.s-chip { fill: rgb(var(--story-teal)); }
+.s-card { fill: rgb(var(--mg-color-neutral-0)); stroke: rgb(var(--mg-color-neutral-200)); }
+.s-code-box { fill: rgb(var(--mg-color-neutral-0)); stroke: rgb(var(--mg-color-neutral-200)); }
+.s-code-box--alert { stroke: rgb(var(--mg-color-red-900)); stroke-width: 2; stroke-dasharray: 6 4; }
+.story-stage text { font-family: var(--mg-font-family-ui, Roboto, sans-serif); fill: rgb(var(--mg-color-neutral-800)); }
+.story-stage .s-label { font-size: 15px; font-weight: 700; }
+.story-stage .s-small { font-size: 13px; }
+.story-stage .s-tiny { font-size: 9px; }
+.story-stage .s-muted { fill: rgb(var(--mg-color-neutral-600)); }
+.story-stage .s-chip-text { font-size: 14px; font-weight: 700; fill: rgb(var(--mg-color-neutral-0)); }
+.story-stage .s-pin-text { font-size: 12px; font-weight: 700; fill: rgb(var(--mg-color-neutral-0)); }
+.story-stage .s-code { font-family: var(--mg-font-family-code, monospace); font-size: 13px; }
+.story-stage .s-code--head { font-weight: 700; }
+.story-stage .s-alert-text { fill: rgb(var(--mg-color-red-900)); font-weight: 700; }
+.story-stage .s-big-number { font-size: 28px; font-weight: 700; fill: rgb(var(--story-teal)); }
+.story-stage .s-headline { font-family: var(--mg-font-family-display, inherit); font-size: 24px; font-weight: 700; }
+.story-stage .s-card-title { font-size: 14px; font-weight: 700; }
+.story-stage .s-link-text { fill: rgb(var(--mg-color-interactive)); font-weight: 700; }
+.story-stage .s-on-blue { fill: rgb(var(--mg-color-neutral-0)); font-weight: 700; }
+.story-stage .s-pixel { shape-rendering: crispEdges; }
+.story-stage .s-pixel-text { font-family: monospace; font-size: 11px; }
+
+/* Scene 2: exploded layers with CSS 3D. */
+.s-scene-split { display: grid; grid-template-columns: 2fr 3fr; height: 100%; }
+.s-layers { position: relative; perspective: 900px; perspective-origin: 50% 0; padding: 40px 32px 0 0; }
+.s-layer { position: absolute; inset-inline: 0 32px; top: 40px; height: 96px; background: rgb(var(--mg-color-neutral-0) / .96); border: 1px solid rgb(var(--mg-color-neutral-200)); border-radius: 6px; box-shadow: 0 6px 18px rgb(0 0 0 / .08); transform-origin: 50% 0; }
+.s-layer svg { width: 100%; height: 100%; display: block; }
+.s-layer-title { position: absolute; top: -10px; left: 12px; background: rgb(var(--mg-color-interactive)); color: rgb(var(--mg-color-neutral-0)); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+/* Scene 5: two answers. */
+.s-answers { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; gap: 16px 24px; height: 100%; padding: 32px; box-sizing: border-box; }
+.s-question { grid-column: 1 / -1; margin: 0; font-size: 1.25rem; font-weight: 700; text-align: center; }
+.s-answer { background: rgb(var(--mg-color-neutral-0)); border: 1px solid rgb(var(--mg-color-neutral-200)); border-radius: 12px; padding: 16px 20px; align-self: start; }
+.s-answer p { margin: 8px 0 0; font-size: 1.0625rem; line-height: 1.5; }
+.s-answer--weak { border-inline-start: 6px solid rgb(var(--mg-color-gold-800)); }
+.s-answer--strong { border-inline-start: 6px solid rgb(27 127 59); }
+.s-answer-from { font-size: .8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.s-illustration { grid-column: 1 / -1; margin: 0; font-size: .8125rem; color: var(--muted); text-align: center; }
+
+@media (max-width: 760px) {
+  .story-stage { aspect-ratio: auto; min-height: 0; }
+  .story-scene > svg { height: auto; }
+  .s-scene-split { grid-template-columns: 1fr; }
+  .s-layers { height: 360px; padding: 24px 12px 0; }
+  .s-layer { inset-inline: 12px; }
+  .s-answers { grid-template-columns: 1fr; padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .s-layer { transition: none; } }
