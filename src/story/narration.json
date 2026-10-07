@@ -8,66 +8,114 @@
     {
       "id": "says-it",
       "file": "01-says-it.mp3",
-      "text": "Your report says it. But does everyone understand it?",
+      "text": "Your report says it. … But does everyone understand it?",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 3.58
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 3.81
     },
     {
       "id": "finding",
       "file": "02-finding.mp3",
-      "text": "Take one finding: South is highest. It should reach a person reading, a person using a screen reader, and an AI assistant.",
+      "text": "Here is one finding. … South is highest! It should reach a person reading, a person using a screen reader… and an AI assistant.",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 7.94
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 7.85
     },
     {
       "id": "layers",
       "file": "03-layers.mp3",
-      "text": "But every PDF has hidden layers: the text that tools pull out, and the tags that screen readers follow.",
+      "text": "But every PDF has… hidden layers. The text that tools pull out. And the tags that screen readers follow.",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 6.59
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 7.38
     },
     {
       "id": "no-description",
       "file": "04-no-description.mp3",
-      "text": "Here, the chart has no description. A screen reader just says “image”. An AI assistant gets loose numbers, not the finding.",
+      "text": "Here, the chart has… no description. So a screen reader just says, “image”. And the finding never leaves the page.",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 8.13
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 7.15
     },
     {
       "id": "order",
       "file": "05-order.mp3",
-      "text": "The hidden tags read the steps in the wrong order: three, four, one, two.",
+      "text": "The hidden tags read the steps in the wrong order. … three… four… one… two.",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 5.06
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 6.04
     },
     {
       "id": "loose-ends",
       "file": "06-loose-ends.mp3",
-      "text": "Text drawn out of order leaves the headline number, plus zero point seven metres, on its own. And the title saved in the file still says 2024.",
+      "text": "Text drawn out of order leaves the headline number… plus zero point seven metres… on its own. And the title saved in the file? It still says 2024.",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 9.2
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 10.82
     },
     {
       "id": "passport",
       "file": "07-passport.mp3",
-      "text": "So give your findings a passport. A well-built PDF carries its data, a schema.org description, real links and bookmarks.",
+      "text": "So… give your findings a passport! A well-built PDF carries its data, a schema.org description, real links and bookmarks.",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 8.17
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 8.54
     },
     {
       "id": "check",
       "file": "08-check.mp3",
-      "text": "PDF Signal Check finds what is hidden, right in your browser. Check your own PDF.",
+      "text": "PDF Signal Check finds what is hidden, right in your browser. … Check your own PDF.",
       "model": "elevenlabs/eleven-multilingual-v2",
       "voice": "george",
-      "duration": 5.48
+      "settings": {
+        "stability": 0.3,
+        "similarity_boost": 0.8,
+        "style": 0.45,
+        "use_speaker_boost": true
+      },
+      "duration": 5.53
     }
   ],
   "music": {

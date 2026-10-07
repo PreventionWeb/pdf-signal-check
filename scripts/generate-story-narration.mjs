@@ -9,6 +9,8 @@ import { storyScript } from '../src/story/script.js';
 
 export const MODEL = 'elevenlabs/eleven-multilingual-v2';
 export const VOICE = 'george';
+// Warmer, more expressive delivery (lower stability, some style), passed to ElevenLabs as provider options.
+export const VOICE_SETTINGS = { stability: 0.3, similarity_boost: 0.8, style: 0.45, use_speaker_boost: true };
 const root = new URL('../', import.meta.url);
 const audioDir = fileURLToPath(new URL('public/story/audio/', root));
 const manifestPath = fileURLToPath(new URL('src/story/narration.json', root));
@@ -19,7 +21,7 @@ async function speak(text, attempt = 1) {
     response = await fetch('https://openrouter.ai/api/v1/audio/speech', {
       method: 'POST',
       headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: MODEL, voice: VOICE, input: text, response_format: 'mp3' }),
+      body: JSON.stringify({ model: MODEL, voice: VOICE, input: text, response_format: 'mp3', provider: { options: { elevenlabs: { voice_settings: VOICE_SETTINGS } } } }),
     });
   } catch (error) {
     // Connection failures cost nothing; retry a few times before giving up.
@@ -41,14 +43,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for (const [index, scene] of storyScript(data).entries()) {
     const text = scene.speak || scene.narration, file = `${String(index + 1).padStart(2, '0')}-${scene.id}.mp3`;
     const old = previous.clips?.find(clip => clip.id === scene.id);
-    if (old?.text === text && old.file === file && old.model === MODEL && old.voice === VOICE && existsSync(audioDir + file)) { clips.push(old); continue; }
+    if (old?.text === text && old.file === file && old.model === MODEL && old.voice === VOICE && JSON.stringify(old.settings) === JSON.stringify(VOICE_SETTINGS) && existsSync(audioDir + file)) { clips.push(old); continue; }
     const raw = `${audioDir}.${file}.raw.mp3`;
     writeFileSync(raw, await speak(text));
     characters += text.length;
     execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', raw, '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-ac', '1', '-ar', '44100', '-b:a', '48k', audioDir + file]);
     execFileSync('rm', [raw]);
     const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', audioDir + file]).toString().trim());
-    clips.push({ id: scene.id, file, text, model: MODEL, voice: VOICE, duration: Math.round(duration * 100) / 100 });
+    clips.push({ id: scene.id, file, text, model: MODEL, voice: VOICE, settings: VOICE_SETTINGS, duration: Math.round(duration * 100) / 100 });
     console.log(`${file}: ${duration.toFixed(2)} s`);
   }
   const generated = new Date().toISOString().slice(0, 10);
