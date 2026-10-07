@@ -14,8 +14,11 @@ it('keeps the narration audio in step with the story script (regenerate: scripts
     expect(clip.text).toBe(scene.speak || scene.narration);
     bytes += (await stat(new URL(`../public/story/audio/${clip.file}`, import.meta.url))).size;
   }
-  // Intranet budget: all narration together stays under 1 MB.
+  // Intranet budget: narration and the optional music bed stay under about 1 MB together.
+  if (narration.music) bytes += (await stat(new URL(`../public/story/audio/${narration.music.file}`, import.meta.url))).size;
   expect(bytes).toBeLessThan(1_000_000);
+  // The bed sits under the voice: ducking must lower it, never raise it.
+  if (narration.music) expect(narration.music.duck).toBeLessThan(narration.music.level);
 });
 
 it('keeps captions free of unmatched key-word markup', async () => {

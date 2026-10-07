@@ -69,5 +69,15 @@
       "voice": "george",
       "duration": 5.48
     }
-  ]
+  ],
+  "music": {
+    "file": "music-bed.mp3",
+    "level": 1,
+    "duck": 0.5,
+    "model": "google/lyria-3-pro-preview",
+    "generated": "2026-10-07",
+    "note": "Lyria 3 Pro, generated through OpenRouter",
+    "prompt": "Instrumental only, no vocals. One minute of soft, hopeful ambient background music for a paper-craft stop-motion explainer: gentle music-box and celesta notes over warm sustained pads and a light, slow acoustic guitar pattern, major key, around 80 BPM. Calm, curious and quietly optimistic, very understated so narration stays clear. Soft fade-in at the start and soft fade-out at the end. No percussion hits, no crescendos, no dramatic or cinematic moments.",
+    "processing": "Trimmed to 59.8 s, 1.5 s fade-in, 3 s fade-out, loudness-normalised to about -25 LUFS (about 9 dB under the narration), 64 kbit/s stereo MP3."
+  }
 }

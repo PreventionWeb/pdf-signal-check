@@ -25,6 +25,14 @@ const Caption = ({ caption }) => parseCaption(caption).map((part, i) =>
 /** Narration clip for a scene, if the static audio files were generated. */
 const clipFor = id => narration.clips?.find(clip => clip.id === id);
 const audioUrl = file => new URL(`story/audio/${file}`, document.baseURI).href;
+/** Optional music bed: { file, level, duck }. Its mix is also baked low into the file for browsers that ignore volume. */
+const music = narration.music;
+/** Ramp a media element's volume over a quarter second (no-op where volume is fixed, as on iOS). */
+function fadeTo(element, target) {
+  const start = element.volume, began = performance.now();
+  const step = now => { const t = Math.min(1, (now - began) / 250); element.volume = start + (target - start) * t; if (t < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 
 /**
  * Viewer-paced story player. Opens paused and never autoplays. Play advances scene by scene; Pause freezes motion,
@@ -37,7 +45,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
   const [playing, setPlaying] = useState(false);
   const [audioOn, setAudioOn] = useState(false);
   const [reduced, setReduced] = useState(prefersReducedMotion);
-  const stage = useRef(null), clock = useRef(null), audio = useRef(null);
+  const stage = useRef(null), clock = useRef(null), audio = useRef(null), bed = useRef(null);
   const live = useRef({ playing, audioOn });
   live.current = { playing, audioOn };
   const scene = scenes[index];
@@ -93,7 +101,24 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
   useEffect(() => {
     if (audioOn) playClip((clock.current?.currentTime || 0) / 1000); else audio.current?.pause();
   }, [audioOn]);
-  useEffect(() => () => audio.current?.pause(), []);
+  useEffect(() => () => { audio.current?.pause(); bed.current?.pause(); }, []);
+  // Music bed: plays only while the story plays with audio on, never on reduced-motion stills, and ducks under
+  // each narration clip.
+  useEffect(() => {
+    const element = bed.current;
+    if (!element || !music) return;
+    if (playing && audioOn && !reduced) {
+      if (!element.src) { element.src = audioUrl(music.file); element.volume = music.level; }
+      element.play().catch(() => {});
+    } else element.pause();
+  }, [playing, audioOn, reduced]);
+  useEffect(() => {
+    const voice = audio.current, element = bed.current;
+    if (!voice || !element || !music) return;
+    const duck = () => fadeTo(element, music.duck), lift = () => fadeTo(element, music.level);
+    voice.addEventListener('playing', duck); voice.addEventListener('pause', lift); voice.addEventListener('ended', lift);
+    return () => { voice.removeEventListener('playing', duck); voice.removeEventListener('pause', lift); voice.removeEventListener('ended', lift); };
+  }, []);
 
   const go = next => { setIndex(Math.max(0, Math.min(scenes.length - 1, next))); };
   const togglePlay = () => {
@@ -137,6 +162,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
       </label>}
     </div>
     {hasAudio && <audio ref={audio} preload="none" />}
+    {hasAudio && music && <audio ref={bed} preload="none" loop />}
     {reduced && <p className="story-note">Your device is set to reduce motion, so each scene is shown as a still. Play still moves through the scenes.</p>}
     <details className="mg-details story-transcript">
       <summary>Read the transcript</summary>
@@ -146,7 +172,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
         <p><strong>Narration:</strong> {item.narration}</p>
         <p className="story-describe"><strong>On screen:</strong> {item.describe}</p>
       </li>)}</ol>
-      {hasAudio && <p className="story-describe">The narration is a synthetic voice ({narration.voiceNote}).</p>}
+      {hasAudio && <p className="story-describe">The narration is a synthetic voice ({narration.voiceNote}).{music ? ` The background music is AI-generated (${music.note}).` : ''}</p>}
     </details>
   </section>;
 }

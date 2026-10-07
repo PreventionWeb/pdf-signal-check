@@ -1,14 +1,23 @@
-# Story narration (synthetic)
+# Story audio (AI-generated)
 
-These MP3 files are the optional narration for `story.html`. They are **synthetic speech**, not a recording of a person.
+Optional audio for `story.html`. Nothing here is a recording of a person or a performance by a musician: both the narration and the music are **AI-generated**.
 
-- Model: ElevenLabs Multilingual v2 (`elevenlabs/eleven-multilingual-v2`), called through OpenRouter's `/api/v1/audio/speech` endpoint
-- Voice: `alice` (clear British English)
+The page downloads none of these files until a viewer turns on **Audio on**, and the story never depends on them: every word is also in the captions and the transcript.
+
+## Narration: `01-…` to `08-….mp3`
+
+- Model: ElevenLabs Multilingual v2 (`elevenlabs/eleven-multilingual-v2`), through OpenRouter's `/api/v1/audio/speech`
+- Voice: `george` (British English, male). Chosen from seven candidates; see `docs/experiments/STORY-AUDIO.md`.
 - Generated: 2026-10-07
-- Script: `src/story/script.js` (`speak`, or else `narration`, for each scene); manifest with per-clip text and duration in `src/story/narration.json`
-- Processing: loudness-normalised to −16 LUFS, mono, 44.1 kHz, 48 kbit/s MP3 (about 356 KB for all eight clips)
-- Regenerate: `node --env-file=<path to .env with OPENROUTER_API_KEY> scripts/generate-story-narration.mjs`. Unchanged lines are kept, and `test/story-narration.test.js` fails if the script text and the clips drift apart.
+- Script: `src/story/script.js` (`speak`, or else `narration`, per scene). The manifest with each clip's text and duration is `src/story/narration.json`.
+- Processing: loudness-normalised to −16 LUFS, mono, 44.1 kHz, 48 kbit/s MP3
+- Regenerate: `node --env-file=<path to .env with OPENROUTER_API_KEY> scripts/generate-story-narration.mjs`. Unchanged lines are kept, and `test/story-narration.test.js` fails if the script and the clips drift apart.
 
-The page never downloads these files until a viewer turns on **Audio on**, and the story never depends on them: every word is also in the captions and the transcript.
+## Music bed: `music-bed.mp3`
 
-No music bed is included yet.
+- Model: Google Lyria 3 Pro (`google/lyria-3-pro-preview`), through OpenRouter chat completions with audio output
+- Generated: 2026-10-07 (the second of two candidates)
+- Prompt: “Instrumental only, no vocals. One minute of soft, hopeful ambient background music for a paper-craft stop-motion explainer: gentle music-box and celesta notes over warm sustained pads and a light, slow acoustic guitar pattern, major key, around 80 BPM. Calm, curious and quietly optimistic, very understated so narration stays clear. Soft fade-in at the start and soft fade-out at the end. No percussion hits, no crescendos, no dramatic or cinematic moments.”
+- Processing: trimmed to 59.8 s, 1.5 s fade-in, 3 s fade-out, loudness-normalised to about −25 LUFS (about 9 dB under the narration), 64 kbit/s stereo MP3 (479 KB)
+- Playback: plays only while the story plays with audio on, loops if the story runs longer, ducks a further 6 dB under each narration clip, pauses with Pause and never plays on the reduced-motion still frames.
+- Rights: generated output from Google's Lyria model under the provider's terms of use; no third-party samples were supplied.
