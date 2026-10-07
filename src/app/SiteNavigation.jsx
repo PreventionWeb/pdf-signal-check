@@ -9,7 +9,7 @@ const sections = [
   { title: 'Settings', bannerButton: { url: '#settings' } },
   { title: 'About', bannerHeading: 'Understand the signals',
     bannerDescription: 'Help AI and other tools understand your PDFs. Automated checks identify possible problems; they cannot guarantee accuracy or prevent AI hallucinations.',
-    items: [{ title: 'About this tool and AI', url: '#about' }, { title: 'What this tool checks', url: '#capabilities' }] },
+    items: [{ title: 'Why PDFs need to work for AI', url: '#about' }, { title: 'What this tool checks', url: '#capabilities' }, { title: 'AI and privacy', url: '#privacy' }] },
 ];
 /** Published menu owns disclosure/focus behavior; hash actions stay in the local app. */
 export function SiteNavigation({ onNavigate }) {
@@ -18,7 +18,7 @@ export function SiteNavigation({ onNavigate }) {
   const activate = event => {
     const link = event.target.closest('a');
     const action = link?.getAttribute('href')?.slice(1);
-    if (!['upload', 'sample', 'batch', 'settings', 'about', 'capabilities'].includes(action)) return;
+    if (!['upload', 'sample', 'batch', 'settings', 'about', 'capabilities', 'privacy'].includes(action)) return;
     event.preventDefault();
     const sidebar = link.closest('.mg-mega-mobile-sidebar');
     sidebar?.querySelector('.mg-mega-mobile-sidebar__close')?.click();

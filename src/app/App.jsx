@@ -1,6 +1,7 @@
 import { SiteNavigation } from "./SiteNavigation.jsx";
 import { Capabilities } from './Capabilities.jsx';
 import { IntakeHero } from './IntakeHero.jsx';
+import { AboutPage } from './AboutPage.jsx';
 import { formatProgress } from '../ui/progress.js';
 import React, {
   useEffect,
@@ -37,6 +38,20 @@ export function App() {
     privacyRef = useRef(null),
     openerRef = useRef(null),
     previousStage = useRef(state.stage);
+  // About is a separate page at #about so it can be linked and the browser back button returns to the app.
+  const [about, setAbout] = useState(() => globalThis.location?.hash === "#about");
+  useEffect(() => {
+    const sync = () => setAbout(location.hash === "#about");
+    addEventListener("popstate", sync);
+    return () => removeEventListener("popstate", sync);
+  }, []);
+  const showAbout = open => {
+    const onAbout = location.hash === "#about";
+    if (open && !onAbout) history.pushState(null, "", "#about");
+    if (!open && onAbout) history.replaceState(null, "", location.pathname + location.search);
+    setAbout(open);
+    if (open) requestAnimationFrame(() => { scrollTo({ top: 0, behavior: "instant" }); document.getElementById("about-title")?.focus({ preventScroll: true }); });
+  };
   const [batch] = useState(
     () =>
       new BatchController({
@@ -103,7 +118,9 @@ export function App() {
         logoCrop={PRESENTATION_BRAND.logoCrop}
       />
       <SiteNavigation onNavigate={(action, opener) => {
-        if (action === "about") { privacyRef.current?.open(opener); return; }
+        if (action === "privacy") { privacyRef.current?.open(opener); return; }
+        if (action === "about") { showAbout(true); return; }
+        showAbout(false);
         if (action === "settings") { controller.openSetup(state.report ? "checks" : "document"); return; }
         if (action === "batch") { controller.beginEvaluation("batch"); return; }
         controller.go("document");
@@ -118,7 +135,12 @@ export function App() {
       {state.awaitingLanguageDecision && (
         <LanguageDialog controller={controller} state={state} />
       )}
-      <main id="main" tabIndex={-1} className="mg-container mg-container--slim">
+      {about && <main id="main" tabIndex={-1} className="about-main">
+        <AboutPage onStart={() => { showAbout(false); requestAnimationFrame(() => { const zone = document.getElementById("drop-zone"); controller.go("document"); zone?.scrollIntoView({ block: "center" }); zone?.focus({ preventScroll: true }); }); }}
+          onPrivacy={event => privacyRef.current?.open(event?.currentTarget)} />
+      </main>}
+      {/* The app stays mounted while About is open, so an in-progress review is kept. */}
+      <main id={about ? undefined : "main"} tabIndex={-1} className="mg-container mg-container--slim" hidden={about}>
           <div
             className="workspace"
             data-stage={state.stage}
@@ -144,6 +166,7 @@ export function App() {
                 )}
                 {["document", "setup"].includes(state.stage) && (
                   <Entry
+                    onAbout={() => showAbout(true)}
                     state={state}
                     controller={controller}
                     batchBusy={batch.busy}
@@ -250,12 +273,12 @@ export function App() {
     </>
   );
 }
-function Entry({ state, controller, batchBusy }) {
+function Entry({ state, controller, batchBusy, onAbout }) {
   const [dragging, setDragging] = useState(false),
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
-      <IntakeHero />
+      <IntakeHero onAbout={onAbout} />
       {state.report && (
         <Actions>
           <Button onClick={() => controller.go("review")}>
