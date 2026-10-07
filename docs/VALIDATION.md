@@ -232,3 +232,7 @@ The Graphics and decoration sample now includes an unlabelled chart, a described
 ### Single-image review simplification
 
 Single-member groups omit their progress count, selector and navigation. Located crop captions remain available to screen readers without occupying visible space; missing-location previews retain a short visible explanation. Browser QA verified the single-image crop on desktop and 390px mobile and confirmed two-member groups retain their selector. All 266 tests and the production build pass. The accumulated work, including the URL-gated semantic-evidence experiment, is ready for the user-requested commit and push.
+
+### Fix-list review (2026-10)
+
+The results screen was rebuilt around a fix list: Fix / Check / Couldn’t check buckets, item detail with one “What to change” line, a Technical evidence drawer and a Technical details tab. The Reviewed checkbox and the hero percentage were removed. The metadata stop screen is unchanged. Headless Chromium QA at 1440px covered all six samples, and at 390px covered Partly prepared. It checked every card, opening the drawer and closing it with Escape, the Technical tab, the stop screen for Missing document information, and no horizontal page overflow. Visible text on the Partly prepared results dropped from about 740 to 240 words. QA ran without an AI model. AI-populated heading and keyword buckets are covered by unit tests, not browser QA. The PDF report export has not been redesigned as a fix sheet yet.

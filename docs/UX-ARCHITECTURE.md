@@ -12,16 +12,16 @@ Use this reference alongside [module ownership](ARCHITECTURE.md), [Mangrove inte
 | --- | --- |
 | Results should make sense to people with limited technical proficiency. | Describe the affected part of this PDF and its practical consequence before terminology, method or score. |
 | The result should be the headline; the filename stays small. | Use one outcome H1. Remove generic “Your PDF results” and introductory instructions that repeat the interface. |
-| Use an email-style inbox: actions on the left, analysis on the right. | Navigate by tasks a person can perform, rather than one row per detector output. Maintain a stable selected task. |
+| The person’s job is to open a PDF, see what is broken and hand a fix list back to the designer (2026-10 direction). | The default screen is a fix list, not a list of checks. A row is a change someone can make. Everything about the tool’s own method is reachable but not shown by default. |
 | Heading checks should be a general class of things to review. | Group heading/text pairs in one task, retaining each heading, comparison and underlying outcome inside the analysis. |
-| Reviewed should be a checkbox in the left column; remove previous/next and count instructions. | Selection and annotation are independent controls. **Reviewed means looked at, not fixed or passed.** |
+| Remove the Reviewed checkbox (2026-10). | No session annotations on review items. Selection is the only per-item state. |
 | Lead the analysis with a status-matched notice; explain saved properties plainly. | State the actual affected value or its absence. Explain uncertainty without presenting it as a confirmed error. |
 | Hide other analysis while AI runs; show progress details as small text. | Present one stable waiting surface with actual progress and cancellation, retaining results behind it. |
 | Missing document information should produce a repair-first stop screen. | Use a presentation gate, not an invented engine outcome; provide repair guidance and updated-file intake without a distracting checklist. |
 | Inspect should open a modal without scrolling the results. | Keep review position mounted; manage focus, scroll locking and preview resource disposal explicitly. |
 | Reading order must be visible or clearly unavailable; default zoom is the smaller of 100% and fit width. | Select the relevant overlay initially. State missing recovered sequence before the page image, not only below it. |
 | Omit zero page locations and irrelevant preview prose. | Absent optional evidence is omitted. Evidence absence essential to understanding the finding gets a short, explicit explanation. |
-| Keep correction guidance, method/evidence, why-it-matters and page locations out of details elements. Use accordions for review navigation; show the technical record directly. | Progressive disclosure is selective: correction guidance and essential evidence remain visible; optional technical inventories can collapse. |
+| Technical detail must stay available but must not be put in front of a semi-technical user (2026-10; supersedes the earlier “keep method, why and locations out of details elements” preference). | Three tiers: card → plain detail (summary, evidence picture, one “What to change” line, Show on page) → Technical evidence drawer (detailed steps, method/source, AI inputs, recovered sequences, page locations). “Why this matters” is a disclosure in the detail. The full technical record lives in a Technical details tab. |
 | Remove the custom gray body background; use Mangrove patterns. | Use the pinned theme and documented native adaptations, with custom layout only for application-specific needs. |
 
 ## Workflow and information hierarchy
@@ -50,24 +50,30 @@ The separate `hasUnchangedNoInputs` guard concerns a recorded AI attempt with th
 
 ## Review workspace
 
-On desktop, use approximately one third of the workspace for the task list and two thirds for analysis, with independently scrollable panes. The first useful task opens automatically. Selecting another task resets its analysis scroll, preserves list position and clears unrelated preview selection. Ordinary rerenders preserve selection, explicit disclosure choices and reviewed markers. Reset source-specific state when source identity changes.
+The results screen has two tabs: **What to fix** (default) and **Technical details**. What to fix has a list on the left (about one third) and the selected item on the right (about two thirds), with independently scrollable panes on desktop. The first Fix item, or else the first Check item, opens automatically. Selecting another item resets the detail scroll and clears unrelated preview selection. Reset source-specific state when source identity changes.
 
-Task labels describe actions: “Check the reading order”, “Check the PDF’s saved description”, or “Check that headings describe their sections”. A task may contain several findings, but grouping must preserve member evidence, outcomes and provenance. A grouped checkbox marks its original members reviewed together; do not overwrite their check results or falsely merge unlike severities. Grouping repeated headings is explicit policy; extending grouping to images, keywords or other findings requires assessing whether the same corrective action and evidence presentation remain clear.
+### Buckets
 
-Use the Mangrove flush accordion for review rows. Each summary can open **and close**. Collapsing the selected row's short guidance need not clear its analysis. Keep Reviewed outside the collapsing body and independently operable. Keyboard navigation and the selection cue must work without colour alone. Do not recreate previous/next controls or progress-count prose merely to explain a list people can already use.
+Items are grouped into three buckets, decided by recorded category and review priority (`fixBucket` in `src/review/workspace.js`), never by a confidence score:
 
-On mobile, stack the list above analysis, bound list scrolling, let analysis use document scrolling, and provide a reachable return to the list. Header actions wrap without obscuring the outcome. Long filenames, saved values and quoted excerpts wrap; tables and PDF geometry may scroll locally without widening the page.
+- **Fix** — confirmed defects: required-check failures, missing descriptions on labelled images, and an unrecovered reading sequence.
+- **Check** — suspected problems (advisory concerns such as a title or author mismatch, or an out-of-order sequence) and human-judgement tasks (image descriptions, unlabelled or decorative graphics, attachments).
+- **Couldn’t check** — collapsed by default. Undecided results (`uncertain`, `required-indeterminate`), AI results the model could not judge, and tool limits. These are never shown as tasks to fix. The intro says they are limits of the tool, not problems found in the PDF.
 
-### Selected analysis hierarchy
+The verb carries the certainty: Add / Set / Export for confirmed defects, “doesn’t match” or “may” for suspected ones, and “could not judge” for undecided ones. Do not flatten confirmed, suspected and undecided into one status.
 
-1. **Plain warning:** one notice matching the task’s status (red for Critical, yellow for Warning, blue for Needs manual check), stating what was found, what part/value is involved, and whether it is a confirmed problem, a possible mismatch or an unresolved comparison. Preserve a semantic heading for focus and assistive technology even when a duplicate visible task title is omitted.
-2. **Relevant comparison/evidence:** saved values beside the publication evidence; heading and checked excerpts for a grouped heading task; a located crop or reading-order illustration when meaningful. A visible title and a saved title are different facts.
-3. **How to address this:** a normal small heading with visible correction guidance. Secondary placement does not mean collapsed content; repair instructions on a blocked screen also remain visible.
-4. **Method and recorded evidence:** visible small heading, source label, useful recorded evidence and bounded AI comparison inputs. Do not repeat the same outcome/method in a second raw paragraph.
-5. **Why this matters:** visible small heading and a practical explanation, without a nested disclosure.
-6. **Page locations:** visible only when locations exist, with clear Inspect actions. Do not show a heading or “no trustworthy location” paragraph for zero locations.
+Grouping preserves member evidence, outcomes and provenance. Images group by corrective action. Headings split into suspected mismatches (Check) and pairs the AI could not judge (Couldn’t check).
 
-Avoid repeated boilerplate under each section. Explain reviewed-not-fixed, lack of automatic repair and re-export/recheck where the person needs the distinction; repetition is not a substitute for a clear action. This is a derived simplification rule, not authorization to remove these safeguards everywhere.
+### Item detail
+
+1. **Eyebrow and title:** the bucket and where to look (“Page 2”, “Pages 1, 2”, “Document properties”, “Whole document”), then a card title that names the change or the problem in plain words.
+2. **Plain notice:** one sentence that states the actual values where possible, such as “The title saved in the PDF is ‘…2024’, but the first page shows ‘…2025’.”
+3. **Evidence picture:** crop, saved value beside page text, or the reading-order comparison. Omit it when no reliable geometry exists.
+4. **What to change:** one sentence in authoring-tool terms. For undecided items, label it “To check it yourself”.
+5. **Actions:** Show on page (when located) and Technical evidence.
+6. **Why this matters:** a closed disclosure.
+
+The Technical evidence drawer is a native modal dialog docked to the side. It holds detailed steps, method and source labels, AI inputs and truncation receipts, recovered order sequences and page locations. Say “this tool doesn’t change your PDF” once under the list, not in every item.
 
 ### Copy rules
 
@@ -109,27 +115,27 @@ Network recovery belongs to the runtime/controller, not a cosmetic UI timer. The
 | --- | --- | --- |
 | `App`, `ReviewLoader`, app controller | Workflow state, filename/shell, setup/language decisions, retained report, lazy-interface recovery and stable cursor. | Structural rules or preview geometry. |
 | `workspace.js`, `findings.js`, `provenance.js` | Presentation summaries, plain tasks, grouping and accurate source attribution. | Raw outcomes, profile acceptance or claims of unrecorded inference. |
-| `Review`, comparison components, `MetadataGuidance` | Inbox, warning/evidence hierarchy, repair help, visible locations and session annotations. | Workers, asset downloads or alteration of report data. |
+| `Review`, `EvidenceDrawer`, comparison components, `MetadataGuidance` | Fix list, item detail, evidence drawer, Technical details tab and repair help. | Workers, asset downloads or alteration of report data. |
 | `Checks` with runtime/controller | Progress, eligible actions, recovery explanation, visible download consent/cost context. | New structural failure outcomes or implicit consent. |
 | `PreviewDialog`, `Preview`, `PreviewSession`, `Crop` | Modal lifecycle, original-page rendering, actual overlays, bounded crops and unavailable evidence. | Repairs, semantic interpretation of pixels or inferred intended order. |
 | `AdvancedReport`, export components | Secondary technical inventory and captured records, including successful checks. | A changing live snapshot relabelled as a fixed export. |
 | `src/ui`, brand configuration | Mangrove components/adaptations, tokens, semantic font roles and local assets. | Analysis policy, source ownership or model substitution. |
 
-Use published Mangrove 2.0 React components where their APIs fit. Use documented native buttons, `details/summary`, dialogs and tabs when package string/link APIs cannot own interactive application content. The technical analysis record and its finding collections use `mg-accordion`; review navigation uses `mg-accordion--flush`. React owns state; no external initializer or DOM observer may acquire parallel ownership. Use correctly wrapped sRGB tokens and bundled fonts/assets. A custom gray body background is not part of the requested presentation.
+Use published Mangrove 2.0 React components where their APIs fit. Use documented native buttons, `details/summary`, dialogs and tabs when package string/link APIs cannot own interactive application content. The technical analysis record and its finding collections use `mg-accordion`; the fix list uses native buttons inside bucket sections, with Couldn’t check as a native `details`. React owns state; no external initializer or DOM observer may acquire parallel ownership. Use correctly wrapped sRGB tokens and bundled fonts/assets. A custom gray body background is not part of the requested presentation.
 
 ## Non-negotiable boundaries
 
 PDF bytes, text, model inputs and results remain on the device. Model/tokenizer assets download only with explicit consent; opening help, a preview, a disclosure or a saved configuration must not start downloads. Costs, supported languages and limitations remain available and visible at the decision to run. External authoring-tool guidance links carry no PDF contents.
 
-Deterministic acceptance is independent of AI advisories, UI grouping and reviewed markers. An AI execution label requires recorded execution, not model selection. Retain source identity, attempt epochs, cancellation, stale-callback rejection and worker/document/canvas disposal. Exports capture a fixed source/report snapshot; simplifying the screen must not silently discard underlying evidence.
+Deterministic acceptance is independent of AI advisories and UI grouping. An AI execution label requires recorded execution, not model selection. Retain source identity, attempt epochs, cancellation, stale-callback rejection and worker/document/canvas disposal. Exports capture a fixed source/report snapshot; simplifying the screen must not silently discard underlying evidence.
 
 ## Open decisions and tradeoffs
 
 - **Gate scope:** the current all-metadata-absent gate is deliberately narrower than “every title defect” and independent of AI eligibility. Adding only keywords currently unblocks it. Whether a usable saved title should instead be required is unresolved product policy; do not change the threshold during a copy/layout audit.
 - **Gate wording:** “cannot be evaluated” is the requested stop headline, but parsing has already occurred and some checks may be possible. Supporting copy must make the application's repair prerequisite clear without asserting a universal PDF requirement.
-- **Disclosure exceptions:** “secondary information” is not permission to collapse everything. Correction guidance, method/evidence, why-it-matters, populated locations, limitation bullets and progress detail remain visible by explicit preference. The technical record remains visible; “How to address this” must not use a details element. Assess density by removing duplication, not by hiding the requested evidence.
+- **Disclosure:** correction guidance stays visible as one “What to change” line; full steps, method, AI inputs and locations sit one click away in the drawer. Repair instructions on the blocking metadata screen stay visible.
 - **Task grouping:** headings are explicitly grouped. Other repeated findings may benefit from grouping, but an audit should recommend the grouping boundary and preserve member contracts before changing it.
-- **Review priority:** sort required defects first (Critical), then advisory concerns (Warning), then uncertainty (Needs manual check). Grouped tasks use the highest urgency of their members. Match the detail notice to the row badge, preserve confirmed versus suspected versus unresolved wording, and never communicate status by colour alone. This UI priority does not change engine outcomes or acceptance.
+- **Review priority:** Fix, then Check, then Couldn’t check; within a bucket, Critical before Warning before manual. Grouped tasks use the highest urgency of their members. This presentation does not change engine outcomes or acceptance.
 
 ## Lightweight implementation review
 
@@ -137,7 +143,7 @@ For each changed surface, answer these questions using an actual document/state 
 
 1. Can a nontechnical person identify the outcome, affected document value and next action without opening technical details?
 2. Does the visible warning accurately distinguish a defect, uncertainty, unavailable check and scope limit?
-3. Does each task represent a useful action, with grouped members and reviewed-not-fixed semantics preserved?
+3. Does each Fix or Check item represent a change someone can make, with grouped members preserved and undecided results kept out of Fix and Check?
 4. Is evidence relevant and source-correct, with empty optional sections omitted and essential unavailable states explicit?
 5. Can the person collapse disclosures, use the keyboard, open/close inspection and return to the same review position?
 6. During processing and a stalled/failed download, is there one understandable state, a useful exit/recovery action and no stale updates?
@@ -148,18 +154,18 @@ Use the four public samples for well-prepared, partial, poor and missing-informa
 
 Advisory coverage information contains no model selectors, checkboxes or rerun/default-setting actions. Configure checks in the dedicated setup flow. The results headline has Choose another PDF; it has no Recheck this PDF action. Explicit failure recovery remains available when useful.
 
-“How this PDF was checked” and “AI coverage” use visible headings and bullet lists, without details boxes.
+“How this PDF was checked”, “AI coverage”, “What this tool cannot check” and the technical analysis record live in the Technical details tab.
 
-The results outcome uses a contained Mangrove split hero with a large required-check percentage and an explicit passed/applicable count. Exclude not-applicable and optional checks, retain unresolved checks in the denominator, and omit the score when analysis is incomplete or there are no applicable required checks. The percentage is presentation-only, rounded down; AI findings and Reviewed annotations cannot change it. It is not a letter grade, accessibility rating or certificate. The Select PDF / Results step navigation is removed; use Choose another PDF and the product home link for navigation.
+The results hero is a contained Mangrove hero with a count headline (“2 things to fix, 3 to check”; “Nothing confirmed to fix, 2 things to check”), the filename, at most one scope sentence, Choose another PDF and the report downloads. The required-check percentage is removed from the hero (2026-10); pass counts remain in the Technical details record. The Select PDF / Results step navigation is removed.
 
-Use “No problems auto-detected” for the no-detected-problem headline. Add a + to the check percentage only when applicable required checks remain unresolved and none failed. Explain that the + denotes checks that could not be confirmed; a fully confirmed score or any required failure keeps a plain percentage. The number remains the confirmed pass count, not a guarantee or an estimated final grade.
+Use “No problems auto-detected” only when nothing is in Fix or Check and no required check failed.
 
 An unrecovered machine-readable reading sequence in a completed analysis is a Critical review priority, with a red detail notice. Recovered sequences whose correctness remains uncertain stay manual checks. This explicit presentation policy preserves the underlying uncertain detector outcome and does not infer a missing sequence merely from an incomplete analysis.
 
-The filename and file size sit beneath the result headline inside the hero. PDF/JSON downloads are secondary hero actions with the captured-report/source ownership retained. If Critical review items exist, show their count instead of a large percentage. Offer no reading-order inspector when no sequence was recovered. The metadata gate explains that missing basic document information must be corrected before detailed analysis, rather than saying the PDF cannot be evaluated.
+The filename and file size sit beneath the result headline inside the hero. PDF/JSON downloads are secondary hero actions with the captured-report/source ownership retained. Offer no reading-order inspector when no sequence was recovered. The metadata gate stays (2026-10 decision) and explains that missing basic document information must be corrected before detailed analysis, rather than saying the PDF cannot be evaluated.
 
 Figure review starts with the numbered image/page, a located crop and its exact saved alt text or explicit missing-description message, before repair guidance. When geometry cannot isolate the figure, show labelled full-page context without fabricated highlights. Keep Inspect beside the preview/description and center a located region inside the modal. The processing-time PDF viewer is removed; the sample preview remains.
 
-Group image review by corrective action: missing descriptions have Critical review priority; saved descriptions, unlabelled graphics and graphics declared decorative require manual review. Keep source outcomes independent of this priority. A description-presence success still needs human review of its quality. Render one member at a time with previous/next, selection and next-unreviewed actions; retain individual reviewed marks and expose an explicit Reviewed all group control. Decorative content remains excluded from machine-readable coverage but has a separate review inventory, with safely located regions outlined in full-page context. Counts for unlabelled and decorative graphics represent pages, not inferred distinct images.
+Group image review by corrective action: missing descriptions have Critical review priority; saved descriptions, unlabelled graphics and graphics declared decorative require manual review. Keep source outcomes independent of this priority. A description-presence success still needs human review of its quality. Render one member at a time with previous/next and a selector. Decorative content remains excluded from machine-readable coverage but has a separate review inventory, with safely located regions outlined in full-page context. Counts for unlabelled and decorative graphics represent pages, not inferred distinct images.
 
 The pinned Mangrove MegaMenu contains the project wordmark/tagline and core local actions: Upload a PDF, Try a sample, Settings, Check several PDFs, About this tool and AI, and What this tool checks. Existing controller flows and the About modal remain owners; navigation does not start inference or authorize downloads. Mobile menu closes before opening another dialog and restores focus to a visible trigger. The tagline expresses assistance, not a promise to prevent hallucinations.
