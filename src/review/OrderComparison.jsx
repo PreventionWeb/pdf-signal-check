@@ -1,37 +1,37 @@
 import React from "react";
 import { orderComparisonData } from "./order-comparison.js";
-import { Details, Button } from "../ui/react.jsx";
+import { Button } from "../ui/react.jsx";
 import { HelpLabel } from "../help/Help.jsx";
 
-export function OrderComparison({ report, file, onInspect }) {
+export function OrderComparison({ report, file, onInspect, compact = false }) {
   const data = orderComparisonData(report);
   const recoveredTaggedText = report.pages?.some(page => page.logicalBlocks?.some(block => block.text?.trim()));
   if (!recoveredTaggedText) return null;
   return (
     <section className="order-map">
-      <h3 className="order-map-heading">{data.available ? 'Same page, two recovered sequences' : 'Reading-order evidence'}</h3>
+      <h3 className="order-map-heading">{compact ? data.available ? `Page ${data.page}` : 'Reading order' : data.available ? 'Same page, two recovered sequences' : 'Reading-order evidence'}</h3>
       {!data.available ? (
         <div className="order-map-unavailable">
           <p>{recoveredTaggedText ? 'Tagged text was recovered. Inspect its reading sequence on the page; a comparison diagram is unavailable.' : 'No machine-readable reading sequence was recovered. Inspect the page and check its structure labels.'}</p>
         </div>
       ) : (
         <>
-          <p className="order-map-intro">
+          {!compact && <p className="order-map-intro">
             Page {data.page} · The same recovered headings, connected by their
             PDF tags.
-          </p>
+          </p>}
           <div className="order-map-lanes">
             {[
               [
                 "tagged",
-                "Tag-tree order",
-                "Readers using tags may follow this sequence.",
+                compact ? "Order screen readers follow" : "Tag-tree order",
+                compact ? "From the PDF’s tags." : "Readers using tags may follow this sequence.",
                 data.tagged,
               ],
               [
                 "drawing",
-                "Page drawing order",
-                "Text recovered from drawing instructions; not intended order.",
+                compact ? "Order the text is drawn" : "Page drawing order",
+                compact ? "Usually close to the visual order, but not guaranteed." : "Text recovered from drawing instructions; not intended order.",
                 data.drawing,
               ],
             ].map(([kind, label, description, entries]) => (
@@ -85,18 +85,26 @@ export function OrderComparison({ report, file, onInspect }) {
               {data.omittedItems} additional items are in the full evidence.
             </p>
           )}
-          <p className="order-map-limitation">
+          {!compact && <p className="order-map-limitation">
             Neither recovered sequence proves the intended visual reading order.
             Inspect the page and the source document.
-          </p>
+          </p>}
         </>
       )}
-      <Button onClick={() => onInspect({ page: data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1, label: 'Recovered reading order', overlay: 'order' })}>Inspect reading order on the page</Button>
-      <p className="model-note">The recovered sequence does not prove the intended reading order is correct.</p>
-      <Details
-        summary="Recovered text and technical detail"
-        className="order-technical"
-      >
+      <Button variant={compact ? "primary" : "secondary"} onClick={() => onInspect({ page: data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1, label: 'Recovered reading order', overlay: 'order' })}>{compact ? `Show reading order on page ${data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1}` : 'Inspect reading order on the page'}</Button>
+      {!compact && <OrderTechnical report={report} onInspect={onInspect} />}
+    </section>
+  );
+}
+
+/** Recovered sequences and detector reasons: technical evidence behind the plain comparison. */
+export function OrderTechnical({ report, onInspect }) {
+  const data = orderComparisonData(report);
+  const recoveredTaggedText = report.pages?.some(page => page.logicalBlocks?.some(block => block.text?.trim()));
+  return (
+    <section className="order-technical">
+      <h3>Recovered reading order</h3>
+      <p className="model-note">Neither recovered sequence proves the intended visual reading order.</p>
         {!data.available && <p>{recoveredTaggedText ? 'A comparison diagram requires a supported reading-order concern with matching, located headings in both sequences. This finding does not provide such a comparison.' : 'Structure labels may be missing, empty or unrecoverable by this tool; the absence of a diagram does not establish which.'}</p>}
         {report.readingOrder?.findings?.map((f, i) => (
           <p key={i} className="order-anomaly">
@@ -146,7 +154,6 @@ export function OrderComparison({ report, file, onInspect }) {
           Bounded recovered text. The detailed JSON preserves full available
           evidence.
         </p>
-      </Details>
-    </section>
+          </section>
   );
 }

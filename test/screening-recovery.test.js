@@ -64,12 +64,10 @@ it('does not create another worker for unchanged no-input comparisons, but allow
   const request = worker.postMessage.mock.calls[0][0];
   const semantic = await assessSemantic(request, vi.fn());
   worker.onmessage({ data: { type: 'result', requestId: request.requestId, semantic } });
-  app.markReviewed('existing-finding');
   const retained = app.getSnapshot();
   app.runScreening();
   expect(workerFactory).toHaveBeenCalledTimes(1);
   expect(app.getSnapshot()).toBe(retained);
-  expect(app.getSnapshot().reviewed.has('existing-finding')).toBe(true);
   app.setChecks(['subject']); app.runScreening();
   expect(workerFactory).toHaveBeenCalledTimes(2);
   app.openCompletedReport(report(), { name: 'updated.pdf', size: 4 }, 'two');

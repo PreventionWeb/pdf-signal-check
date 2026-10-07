@@ -49,7 +49,7 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,onProg
     await heading('Findings and inspection guidance');const findings=snapshot.normalized.findings.slice(0,80);
     for(let i=0;i<findings.length;i++){
       throwIfAborted(signal);const f=findings[i];onProgress({completed:i,total:findings.length,unit:'findings'});
-      await heading(`${i+1}. ${f.title}`);await write(`${f.category} | ${f.outcome} | ${f.method}${snapshot.reviewed.includes(f.id)?' | User annotation: Reviewed (outcome unchanged)':''}`,{size:9});await write(bounded(f.summary));
+      await heading(`${i+1}. ${f.title}`);await write(`${f.category} | ${f.outcome} | ${f.method}`,{size:9});await write(bounded(f.summary));
       const comparisons=comparisonLines(f,report);for(const line of comparisons.slice(0,12))await write(bounded(line));if(comparisons.length>12)await write(`${comparisons.length-12} further comparison entries omitted; see JSON.`,{size:9});
       if(f.category==='success'){y-=8;continue;}
       const evidence=(f.evidence || []).slice(0,6);for(const e of evidence){const text=typeof e==='string'?e:`${e.page?`Page ${e.page}: `:''}${e.text || e.source || ''}`;if(text)await write(bounded(text));const input=e?.modelInput;if(input)await write(`Consumed ${input.consumedTokens}/${input.inputTokens} tokens${input.truncated?' (truncated)':''}; ${bounded(input.consumedText,350)}`,{size:9});}

@@ -8,7 +8,7 @@ export function FigureContext({ finding, file, report, targets, onInspect }) {
     <h3>{figure.decorative ? 'Graphics marked as decorative' : figure.tagged ? `Image ${finding.comparison.figureNumber || 1}` : 'Unlabelled graphics'} · page {figure.page}</h3>
     <Crop file={file} report={report} targets={targets} fallbackPage wholePage={!!figure.decorative} />
     {figure.tagged && <h4>Saved image description (alt text)</h4>}
-    {figure.alt ? <blockquote>{figure.alt}</blockquote> : <p>{figure.decorative ? 'Marked as decoration (Artifact). These graphics are excluded from the reading sequence. Preview regions are limited to 16 drawing operations per page.' : figure.tagged ? 'No text description is saved for this image.' : 'These graphics are not marked as decoration and could not be linked to an image label. They may be background shapes, borders or meaningful content.'}</p>}
+    {figure.alt ? <blockquote>{figure.alt}</blockquote> : <p>{figure.decorative ? 'Marked as decoration, so screen readers and AI tools skip these graphics.' : figure.tagged ? 'No text description is saved for this image.' : 'These graphics have no image label and are not marked as decoration. They may be background shapes, borders or meaningful content.'}</p>}
     {target && <Button onClick={() => onInspect({ ...target, focusRegion: true })}>Inspect {figure.tagged ? 'image' : 'graphics'} on page {figure.page}</Button>}
   </section>;
 }

@@ -1,9 +1,9 @@
 import { findingProvenance, screeningProvenance } from '../review/provenance.js';
 import { normalizeFindings } from '../review/findings.js';
-export function captureSnapshot({report,file,reviewed=[]}) {
+export function captureSnapshot({report,file}) {
   if(!report)throw new Error('Complete an analysis before exporting.');
   const copy=structuredClone(report);
-  return {report:copy,file,capturedAt:new Date().toISOString(),reviewed:[...reviewed],normalized:normalizeFindings(copy),source:{name:copy.file.name,bytes:copy.file.sourceBytes ?? file?.size,sha256:copy.file.sha256 || null}};
+  return {report:copy,file,capturedAt:new Date().toISOString(),normalized:normalizeFindings(copy),source:{name:copy.file.name,bytes:copy.file.sourceBytes ?? file?.size,sha256:copy.file.sha256 || null}};
 }
 export const safeFilename=name=>String(name || 'pdf').replace(/\.pdf$/i,'').replace(/[^\p{L}\p{N}._-]+/gu,'-').slice(0,100) || 'pdf';
 export function comparisonLines(finding,report) {

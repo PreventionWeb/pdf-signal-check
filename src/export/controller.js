@@ -60,9 +60,6 @@ export class ExportController {
                 ...snapshot.report,
                 exportReceipt: {
                   capturedAt: snapshot.capturedAt,
-                  reviewedFindingIds: snapshot.reviewed,
-                  annotationMeaning:
-                    "User inspection only; machine outcomes unchanged",
                 },
               },
               null,

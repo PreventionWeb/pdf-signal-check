@@ -224,7 +224,6 @@ it("captures completed state before generator loading and discards changed sourc
     report: report(),
     file,
     sourceKey: 1,
-    reviewed: new Set(["finding"]),
   };
   const controller = new ExportController(() => state, {
     download,
@@ -232,12 +231,10 @@ it("captures completed state before generator loading and discards changed sourc
   });
   const task = controller.run("png");
   state.report.file.name = "Changed";
-  state.reviewed.add("new");
   state = { ...state, sourceKey: 2 };
   gate.resolve({ createSummaryPng });
   await task;
   expect(createSummaryPng.mock.calls[0][0].report.file.name).toBe("same.pdf");
-  expect(createSummaryPng.mock.calls[0][0].reviewed).toEqual(["finding"]);
   expect(download).not.toHaveBeenCalled();
   expect(controller.getSnapshot().busy).toBe(false);
 });

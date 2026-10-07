@@ -47,7 +47,6 @@ export function createAppController({
     calibrationBusy: false,
     manifest: [],
     manifestError: false,
-    reviewed: new Set(),
     reviewCursor: { category: "problems", issueId: null },
   };
   let pendingIntake = null;
@@ -257,11 +256,6 @@ export function createAppController({
     setReviewCursor(patch) {
       emit({ reviewCursor: { ...state.reviewCursor, ...patch } });
     },
-    markReviewed(id) {
-      const reviewed = new Set(state.reviewed);
-      reviewed.has(id) ? reviewed.delete(id) : reviewed.add(id);
-      emit({ reviewed });
-    },
     calibrationBusy(value) {
       if (value) {
         if (!available() || state.analysisBusy) return false;
@@ -313,7 +307,6 @@ export function createAppController({
           sourceKey: ++job,
           languageAssumption: null,
           awaitingLanguageDecision: false,
-          reviewed: new Set(),
           reviewCursor: { category: "problems", issueId: null },
         });
       }
@@ -332,7 +325,6 @@ export function createAppController({
         example: null,
         languageAssumption: null,
         awaitingLanguageDecision: false,
-        reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         selectedModel: report.screeningSelection?.modelId || null,
         checks: report.screeningSelection?.checks || [
@@ -360,7 +352,6 @@ export function createAppController({
         screeningAttempt: null,
         sourceKey: currentJob,
         report: null,
-        reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         selectedModel: null,
         languageAssumption: null,
@@ -481,7 +472,6 @@ export function createAppController({
         batchId: null,
         screeningAttempt: null,
         sourceKey: currentJob,
-        reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         message: "Loading the example PDF…",
         awaitingLanguageDecision: false,

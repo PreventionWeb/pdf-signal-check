@@ -170,14 +170,12 @@ it("captures source bytes/hash, keeps completed batch report detached, and scope
     sha256: "0a0b",
   });
   expect(app.getSnapshot().selectedModel).toBe("minilm");
-  app.markReviewed("finding");
   const sourceKey = app.getSnapshot().sourceKey;
   const retained = report();
   app.openCompletedReport(retained, source, "batch-source");
   retained.file.name = "changed";
   expect(app.getSnapshot().report.file.name).toBe("source.pdf");
   expect(app.getSnapshot().sourceKey).not.toBe(sourceKey);
-  expect(app.getSnapshot().reviewed.size).toBe(0);
   app.dispose();
 });
 

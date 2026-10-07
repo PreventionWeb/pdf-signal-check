@@ -20,7 +20,6 @@ import { LanguageDialog } from "./LanguageDialog.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
 import { ReviewLoader } from "../review/ReviewLoader.jsx";
 import { needsDocumentInformation } from "../runtime/screening-recovery.js";
-import { AdvancedReport } from "../review/AdvancedReport.jsx";
 import {
   PRESENTATION_BRAND,
   PRODUCT_NAME,
@@ -217,12 +216,6 @@ export function App() {
                 </>
               )}
             </div>
-            {state.report && !needsDocumentInformation(state.report) && ["checks", "review"].includes(state.stage) && (
-              <section id="advanced-evidence" aria-labelledby="technical-record-title">
-                <h2 id="technical-record-title">Technical analysis record</h2>
-                <AdvancedReport report={state.report} />
-              </section>
-            )}
             {state.stage === "document" && state.message && (
               <p
                 role="status"

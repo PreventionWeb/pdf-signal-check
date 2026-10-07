@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupFigureFindings, reviewPriority } from '../src/review/workspace.js';
+import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupFigureFindings, reviewPriority, fixBucket, fixCard, fixList } from '../src/review/workspace.js';
 
 describe('results presentation preserves independent outcomes', () => {
   it('separates missing evidence, tool scope and AI coverage from detected defects', () => {
@@ -125,7 +125,7 @@ it('explains graphics scope without treating drawing operations as an image coun
   expect(reviewLimitEvidence('Attachment inventory was incomplete.')).toBe('Attachment inventory was incomplete.');
 });
 
-it('groups heading reviews once while preserving every member outcome and source finding', async () => {
+it('splits heading reviews into suspected mismatches and pairs the AI could not judge, preserving members', async () => {
   const { groupHeadingFindings } = await import('../src/review/workspace.js');
   const members = [
     { id: 'h1', category: 'advisory-concern', outcome: 'suspected-mismatch', source: { path: 'semantic.sectionItems[0]' } },
@@ -133,12 +133,50 @@ it('groups heading reviews once while preserving every member outcome and source
   ];
   const original = findingGroups(members);
   const grouped = groupHeadingFindings(original);
-  expect(grouped.problems).toHaveLength(1);
-  expect(grouped.uncertainty).toEqual([]);
-  expect(grouped.problems[0].members).toEqual(members);
+  expect(grouped.problems.map(item => item.members)).toEqual([[members[0]]]);
+  expect(grouped.uncertainty.map(item => item.members)).toEqual([[members[1]]]);
   expect(original.problems[0]).toBe(members[0]);
   expect(original.uncertainty[0]).toBe(members[1]);
-  expect(reviewTask(grouped.problems[0]).title).toBe('Check that headings describe their sections');
+  expect(fixBucket(grouped.problems[0])).toBe('check');
+  expect(fixBucket(grouped.uncertainty[0])).toBe('unknown');
+  expect(fixCard(grouped.uncertainty[0]).title).toBe('Headings the AI could not judge (1)');
+});
+
+describe('fix list buckets', () => {
+  const items = [
+    { id: 'defect', category: 'required-defect', outcome: 'fail', source: { checkId: 'language' } },
+    { id: 'title', category: 'advisory-concern', outcome: 'suspected-mismatch', source: { path: 'metadataConsistency' } },
+    { id: 'order', category: 'uncertain', outcome: 'uncertain', source: { path: 'readingOrder' } },
+    { id: 'indeterminate', category: 'required-indeterminate', outcome: 'indeterminate', source: { checkId: 'structure' } },
+    { id: 'scope', category: 'unassessed', source: { checkId: 'supported-content' } },
+  ];
+  it('keeps confirmed, suspected and undecided results in separate buckets without changing outcomes', () => {
+    const before = structuredClone(items);
+    const lists = fixList(findingGroups(items));
+    expect(lists.fix.map(item => item.id)).toEqual(['defect']);
+    expect(lists.check.map(item => item.id)).toEqual(['title']);
+    expect(lists.unknown.map(item => item.id).sort()).toEqual(['indeterminate', 'order']);
+    expect(lists.limits.map(item => item.id)).toEqual(['scope']);
+    expect(items).toEqual(before);
+  });
+  it('never puts an AI-uncertain or undecided result in the fix or check buckets', () => {
+    const uncertain = { id: 'kw', category: 'uncertain', outcome: 'uncertain', method: 'embedding-screening', source: { path: 'semantic.keywordItems[0]' } };
+    expect(fixBucket(uncertain)).toBe('unknown');
+    expect(fixBucket({ ...uncertain, category: 'advisory-concern', outcome: 'suspected-mismatch' })).toBe('check');
+  });
+  it('headlines the fix and check counts and never claims a pass for an incomplete check', () => {
+    const report = { analysisComplete: true, checks: [{ status: 'fail' }] };
+    expect(reviewSummary(report, findingGroups(items)).headline).toBe('1 thing to fix, 1 to check');
+    expect(reviewSummary(report, findingGroups(items.slice(1))).headline).toBe('Nothing confirmed to fix, 1 thing to check');
+    expect(reviewSummary({ ...report, analysisComplete: false }, findingGroups(items)).headline).toBe('The check could not finish');
+  });
+  it('shows the saved and page titles on a suspected title mismatch and points to document properties', () => {
+    const report = { metadata: { infoTitle: 'Annual Report 2024' }, metadataConsistency: { publicationCandidates: [{ page: 1, text: 'Annual Report 2025' }] } };
+    const card = fixCard(items[1], report);
+    expect(card.summary).toContain('“Annual Report 2024”');
+    expect(card.summary).toContain('“Annual Report 2025”');
+    expect(card.where).toBe('Document properties');
+  });
 });
 
 it('explains the saved subject using its actual value without promoting uncertainty to an error', () => {

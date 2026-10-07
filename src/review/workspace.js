@@ -15,19 +15,19 @@ export function findingGroups(findings) {
   }
   return groups;
 }
-/** One review task for heading/text pairs; original member outcomes remain available. */
+/** Heading/text pairs become at most two tasks: suspected mismatches to check, and pairs the AI could not judge.
+ * Original member outcomes remain available. */
 export function groupHeadingFindings(groups) {
   const headings = [...groups.problems, ...groups.uncertainty].filter(item => item.source?.path?.startsWith('semantic.sectionItems['));
   if (!headings.length) return groups;
   const ids = new Set(headings.map(item => item.id));
-  const destination = groups.problems.some(item => ids.has(item.id)) ? 'problems' : 'uncertainty';
-  const representative = headings[0];
-  const grouped = { ...representative, id: 'review:heading-pairs', title: 'Check that headings describe their sections',
-    source: { path: 'review.headingPairs' }, members: headings, targets: [], evidence: [], comparison: null };
+  const group = (id, members) => ({ ...members[0], id, title: 'Check that headings describe their sections',
+    source: { path: 'review.headingPairs' }, members, targets: [], evidence: [], comparison: null });
+  const concerns = headings.filter(item => item.category === 'advisory-concern');
+  const unresolved = headings.filter(item => item.category !== 'advisory-concern');
   return { ...groups,
-    problems: groups.problems.filter(item => !ids.has(item.id)),
-    uncertainty: groups.uncertainty.filter(item => !ids.has(item.id)),
-    [destination]: [...groups[destination].filter(item => !ids.has(item.id)), grouped],
+    problems: [...groups.problems.filter(item => !ids.has(item.id)), ...(concerns.length ? [group('review:heading-pairs', concerns)] : [])],
+    uncertainty: [...groups.uncertainty.filter(item => !ids.has(item.id)), ...(unresolved.length ? [group('review:heading-pairs:unresolved', unresolved)] : [])],
   };
 }
 /** Group all image review, including descriptions that passed the presence check. */
@@ -67,14 +67,38 @@ export function reviewPriority(finding) {
   return { rank: 2, key: 'manual', label: 'Needs manual check', noticeVariant: 'info' };
 }
 
+/**
+ * Fix-list bucket. Follows recorded categories and review priority, never a confidence score:
+ * fix = confirmed defects, check = suspected problems or human judgement, unknown = the tool could not decide.
+ */
+export function fixBucket(item) {
+  if (reviewPriority(item).key === 'critical') return 'fix';
+  if (item.figureGroup || item.source?.path === 'attachments') return 'check';
+  if (item.members) return item.members.some(member => member.category === 'advisory-concern') ? 'check' : 'unknown';
+  return item.category === 'advisory-concern' ? 'check' : 'unknown';
+}
+// Missing tags cause most other structural defects, so that fix comes first.
+const rootCause = item => item.source?.checkId === 'structure' ? 0 : 1;
+const byPriority = (a, b) => reviewPriority(a).rank - reviewPriority(b).rank || rootCause(a) - rootCause(b);
+/** Selectable review items by bucket, plus tool limits that only explain what was not checked. */
+export function fixList(groups) {
+  const lists = { fix: [], check: [], unknown: [], limits: [...groups.limits, ...groups.coverage] };
+  for (const item of [...groups.problems, ...groups.uncertainty].sort(byPriority)) lists[fixBucket(item)].push(item);
+  return lists;
+}
+const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
 /** Plain-language orientation, without promoting incomplete or scope-limited checks to a pass. */
 export function reviewSummary(report, groups) {
-  const tasks = [...groups.problems, ...groups.uncertainty].sort((a, b) => reviewPriority(a).rank - reviewPriority(b).rank);
-  const criticalCount = tasks.filter(item => reviewPriority(item).key === 'critical').length;
+  const tasks = [...groups.problems, ...groups.uncertainty].sort(byPriority);
+  const buckets = fixList(groups);
+  const criticalCount = buckets.fix.length;
+  const fix = buckets.fix.length, check = buckets.check.length;
   const headline = !report.analysisComplete ? 'The check could not finish'
-    : criticalCount || report.checks?.some(check => check.status === 'fail') ? 'This PDF needs work'
-      : groups.problems.length ? 'This PDF needs a closer look'
-      : 'No problems auto-detected';
+    : fix ? `${plural(fix, 'thing')} to fix${check ? `, ${check} to check` : ''}`
+      : check ? `Nothing confirmed to fix, ${plural(check, 'thing')} to check`
+        : report.checks?.some(check => check.status === 'fail') ? 'This PDF needs work'
+          : 'No problems auto-detected';
   const nextStep = tasks.length
     ? ''
     : 'Download a report to keep the results, including successful checks.';
@@ -83,12 +107,61 @@ export function reviewSummary(report, groups) {
     && unresolved[0].evidence?.length > 0
     && unresolved[0].evidence.every(value => /non-artifact graphic painting operations/.test(value));
   const scope = report.accepted
-    ? 'The PDF met this tool’s requirements for text and structure. You should still check important information yourself; this is not an accessibility certificate or a guarantee of AI accuracy.'
+    ? 'The PDF met this tool’s text and structure requirements. This is not an accessibility certificate.'
     : report.checks?.some(check => check.status === 'fail')
       ? ''
-      : graphicsOnly ? 'This PDF includes graphics. The tool checks for figure descriptions, but cannot judge image or chart meaning. It therefore cannot give a complete pass for this PDF.'
-        : 'This is a partial result: some checks could not give an answer. That may be a limit of this tool, rather than a problem with your PDF. The PDF has not met all of this tool’s requirements.';
-  return { headline, nextStep, scope, tasks, criticalCount };
+      : graphicsOnly ? 'This tool cannot judge image or chart meaning, so check those yourself.'
+        : 'This is a partial result: some checks could not give an answer, so the PDF has not met all of this tool’s requirements.';
+  return { headline, nextStep, scope, tasks, buckets, criticalCount };
+}
+
+const documentPaths = /^(metadataConsistency|deterministicTitle|authorConsistency|semantic\.(subject|keywords|keywordItems|title|titleAI)|checks\.(title|language))/;
+/** Where the person should look: pages, document properties, or the whole document. */
+export function fixLocation(item) {
+  const members = item.members || [item];
+  const pages = [...new Set(members.flatMap(member => [member.comparison?.figure?.page, ...(member.targets || []).map(target => target.page)]).filter(Number.isInteger))].sort((a, b) => a - b);
+  if (documentPaths.test(item.source?.path || '')) return 'Document properties';
+  if (pages.length) return pages.length === 1 ? `Page ${pages[0]}` : `Pages ${pages.slice(0, 5).join(', ')}${pages.length > 5 ? ` and ${pages.length - 5} more` : ''}`;
+  if (['structure', 'content-integrity', 'text'].includes(item.source?.checkId)) return 'Whole document';
+  return '';
+}
+const quote = value => { const text = String(value || '').trim(); return text.length > 120 ? `${text.slice(0, 119)}…` : text; };
+/** A short, concrete card: title, summary and the single change to make. The full guidance stays in reviewTask. */
+export function fixCard(item, report = {}) {
+  const task = reviewTask(item);
+  const card = { title: task.title, summary: task.summary || item.summary, change: task.action, where: fixLocation(item) };
+  const path = item.source?.path || '';
+  if ((path === 'metadataConsistency' || path === 'deterministicTitle') && item.outcome === 'suspected-mismatch') {
+    const saved = report.metadata?.infoTitle || report.metadata?.xmpTitles?.[0]?.text;
+    const page = report.metadataConsistency?.publicationCandidates?.[0]?.text;
+    return { ...card, title: 'Saved title doesn’t match the cover',
+      summary: saved && page ? `The title saved in the PDF is “${quote(saved)}”, but the first page shows “${quote(page)}”.` : card.summary,
+      change: 'In the source document’s properties, set the Title to the full publication title, including year and edition. Then export again.' };
+  }
+  if (path === 'authorConsistency' && item.outcome === 'suspected-mismatch') {
+    const saved = report.metadata?.author || report.metadata?.xmpAuthors?.join('; ');
+    const page = report.authorConsistency?.evidence?.[0]?.text;
+    return { ...card, title: 'Saved authors don’t match the page',
+      summary: saved && page ? `The authors saved in the PDF are “${quote(saved)}”, but the page lists “${quote(page)}”.` : card.summary,
+      change: 'In the source document’s properties, set the Author field to the publication’s authors. Then export again.' };
+  }
+  const failed = item.outcome === 'fail';
+  const check = item.source?.checkId;
+  if (failed && check === 'coverage' && item.summary !== 'No relevant text to account for.') return { ...card, title: 'Add the missing text to the tags' };
+  if (failed && check === 'language') return { ...card, title: 'Set the document language',
+    change: 'Set the document language, such as English, in the source document’s settings or a PDF editor. Then export again.' };
+  if (failed && check === 'title') return { ...card, title: 'Add a document title' };
+  if (failed && check === 'structure' && item.summary === 'No structure tree found.') return { ...card, title: 'Export the PDF with tags', where: 'Whole document',
+    change: 'In the source document, use heading, list and table styles, then export with PDF tags turned on (often called an accessible or tagged PDF).' };
+  if (path === 'readingOrder' && item.comparison?.readingSequenceMissing) return { ...card, where: 'Whole document' };
+  if (path === 'readingOrder' && item.outcome === 'requires-review') return { ...card, title: 'Text may be read in the wrong order',
+    summary: 'Screen readers and AI tools may read this content in a different order from the page layout.',
+    change: 'Fix the reading order of the tags in a PDF accessibility editor, or in the source document. Then export again.' };
+  if (item.members && !item.figureGroup && fixBucket(item) === 'unknown') return { ...card, title: `Headings the AI could not judge (${item.members.length})`,
+    summary: 'The AI could not tell whether these headings describe the text below them. This is not a problem found in your PDF.', change: '' };
+  if (item.members && !item.figureGroup) return { ...card, title: `Headings that may not match their sections (${item.members.length})`,
+    summary: 'The AI found little connection between these headings and the text below them. Read each one and decide.' };
+  return card;
 }
 
 export function reviewTask(finding) {
