@@ -1,9 +1,18 @@
-html,body { margin:0; height:100%; background:rgb(var(--mg-color-neutral-25)); font-family:var(--mg-font-family-text); }
-#viewer { height:calc(100% - 52px); }
+html,body { margin:0; height:100%; background:rgb(var(--mg-color-neutral-25)); font-family:var(--mg-font-family-text); overflow:hidden; }
+#viewer { height:calc(100% - 52px); width:100%; }
 .context-tools { display:flex; gap:8px; align-items:center; padding:6px 10px; height:52px; box-sizing:border-box; }
 .context-tools .mg-button { min-height:40px; padding:6px 12px; }
-.pdfagogo-container { height:440px; max-height:calc(100vh - 140px); }
+.pdfagogo-container { height:100%; width:100%; box-sizing:border-box; }
 :root { --pdfagogo-primary:rgb(var(--mg-color-interactive)); --pdfagogo-bg-toolbar:rgb(var(--mg-color-neutral-0)); --pdfagogo-text-primary:rgb(var(--mg-color-text)); }
 .pdfagogo-toolbar button { min-width:40px; min-height:40px; }
 .pdfagogo-toolbar button svg { width:18px; height:18px; flex-shrink:0; stroke:currentColor; fill:none; }
 .pdfagogo-scroll-container:focus-visible { outline:2px solid rgb(var(--mg-color-focus-ring)); outline-offset:-2px; }
+.pdfagogo-keyboard-shortcuts,
+.pdfagogo-a11y-instructions,
+details.pdfagogo-keyboard-shortcuts { display: none !important; }
+.is-preview .context-tools { display: none !important; }
+.is-preview #viewer { height: 100% !important; }
+.is-preview .pdfagogo-toolbar { display: none !important; }
+.is-preview .pdfagogo-container { border: none !important; background: transparent !important; height: 100% !important; max-height: 100% !important; }
+.is-preview .pdfagogo-scroll-container { padding: 6px !important; overflow: hidden !important; }
+.is-preview .pdfagogo-page-wrapper { margin: 0 auto !important; box-shadow: 0 1px 4px var(--pdfagogo-shadow) !important; }

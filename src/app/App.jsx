@@ -286,25 +286,17 @@ export function App() {
           <div className="mg-container mg-container--slim">
             <div className="mg-footer-bar__row">
               <p className="mg-footer-bar__text">
-                {PRODUCT_NAME} · A project by Ken Hawkins
+                {PRODUCT_NAME}
               </p>
               <p className="mg-footer-bar__text">Processed on your device · Early version / 0.8</p>
               <div className="mg-footer-bar__links">
                 <a href="#ai-info-dialog" id="about-ai" ref={openerRef} onClick={e => { e.preventDefault(); privacyRef.current?.open(e.currentTarget); }}>About AI &amp; privacy</a>
-
                 <a
-                  href="https://github.com/khawkins98/PDF-A-go-actionable"
+                  href="https://github.com/PreventionWeb/pdf-signal-check/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Reference: PDF-A-go-actionable ↗
-                </a>
-                <a
-                  href="https://github.com/khawkins98/pdf-a-go-go"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Reference: pdf-a-go-go ↗
+                  GitHub ↗
                 </a>
               </div>
             </div>
@@ -319,6 +311,11 @@ function Entry({ state, controller, batchBusy }) {
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
+      <p className="privacy-note">
+        Your PDF stays here. The structural analysis needs no AI model or
+        account. Optional semantic screening downloads model assets, then runs
+        locally.
+      </p>
       <p className="step-intro">Check metadata, language, text tags, reading order and figure descriptions. Local AI compares text; image and chart meaning still need human review.</p>
       {state.report && (
         <Actions>
@@ -389,12 +386,7 @@ function Entry({ state, controller, batchBusy }) {
         disabled={disabled}
         onChoose={(path) => controller.selectSample(path)}
       />
-      <Details summary="What this tool checks and its limits"><Capabilities /></Details>
-      <p className="privacy-note">
-        Your PDF stays here. The structural analysis needs no AI model or
-        account. Optional semantic screening downloads model assets, then runs
-        locally.
-      </p>
+      <Capabilities />
     </div>
   );
 }

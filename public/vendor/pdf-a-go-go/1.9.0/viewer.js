@@ -2,15 +2,22 @@
   let instance, pendingUrl, epoch = 0, requestedPage = 1;
   const api = pdfagogo.default;
   const root = document.getElementById('viewer');
+  const isInitialPreview = (location.search || '').includes('preview');
+  if (isInitialPreview) {
+    document.documentElement?.classList?.add('is-preview');
+    document.body?.classList?.add('is-preview');
+  }
   const fitWidth = () => {
+    const isPreview = (location.search || '').includes('preview') || document.body?.classList?.contains('is-preview');
     const width = root.querySelector?.('.pdfagogo-page-wrapper')?.offsetWidth;
     if (width > 0 && instance) {
       const page = instance.getCurrentPage();
-      instance.viewer?.setZoom((root.clientWidth - 28) / width, false);
+      const padding = isPreview ? 14 : 28;
+      instance.viewer?.setZoom((root.clientWidth - padding) / width, false);
       anchorPage(page);
     }
   };
-  document.getElementById('fit').addEventListener('click', fitWidth);
+  document.getElementById('fit')?.addEventListener('click', fitWidth);
   const anchorPage = page => {
     const scroller = root.querySelector?.('.pdfagogo-scroll-container');
     const sheet = root.querySelectorAll?.('.pdfagogo-page-wrapper')[page - 1];
@@ -46,6 +53,11 @@
     dispose();
     const attempt = epoch;
     pendingUrl = message.url;
+    const isPreview = (location.search || '').includes('preview') || !!message.preview;
+    if (isPreview) {
+      document.documentElement?.classList?.add('is-preview');
+      document.body?.classList?.add('is-preview');
+    }
     const container = document.createElement('div');
     container.id = `local-pdf-${attempt}`;
     container.className = 'pdfagogo-container';
@@ -54,7 +66,12 @@
       const loaded = await api.initializeContainer(container, {
         pdfUrl: message.url, workerUrl: new URL('pdf-a-go-go.worker.js', location.href).href,
         defaultPage: requestedPage, showShare: false, showDownload: false,
-        showFullscreen: false, showResizeGrip: false, fullpageCacheSize: 2,
+        showFullscreen: false, showResizeGrip: false,
+        showAccessibilityControlsVisibly: false,
+        showToolbar: !isPreview,
+        showSearch: !isPreview,
+        showPageSelector: !isPreview,
+        fullpageCacheSize: 2,
         textLayerCacheSize: 2,
         strings: { searchCounter: '{current} / {total} matching pages', prevMatch: 'Previous matching page', nextMatch: 'Next matching page' },
       });
