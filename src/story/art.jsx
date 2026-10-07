@@ -1,10 +1,11 @@
 import React from 'react';
 
 /*
- * Hand-authored cut-paper art for the story. Everything is SVG: torn and cut edges come from feTurbulence +
- * feDisplacementMap, paper grain from a fine fractal noise, and the drop shadows from a blurred offset alpha.
- * Letters and labels sit outside the filters so they stay crisp. Pieces are drawn in a 1600 × 900 stage whose
- * central 1200 × 900 is the safe area kept on narrow screens.
+ * Cut-paper art for the story. Tiles, strips, sheets, stamps, charts and tags are hand-authored SVG: torn and
+ * cut edges come from feTurbulence + feDisplacementMap, paper grain from a fine fractal noise, and the drop shadows
+ * from a blurred offset alpha. The figures and a few icons are AI-generated cut-paper images (public/story/images,
+ * see its README) placed with a crisp shadow. Letters and labels sit outside the filters so they stay crisp.
+ * Pieces are drawn in a 1600 × 900 stage whose central 1200 × 900 is the safe area kept on narrow screens.
  */
 
 export const C = {
@@ -49,6 +50,22 @@ export function StoryDefs() {
         <feOffset in="shade" dx="3" dy="7" result="shadow" />
         <feMerge><feMergeNode in="shadow" /><feMergeNode in="cut" /></feMerge>
       </filter>
+      {/* Scissor cut: a crisp, barely irregular edge and a tight shadow, for small SVG icons. */}
+      <filter id="sp-scissor" x="-12%" y="-12%" width="130%" height="135%" colorInterpolationFilters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="17" result="warp" />
+        <feDisplacementMap in="SourceGraphic" in2="warp" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="cut" />
+        <feGaussianBlur in="cut" stdDeviation="2" result="blur" />
+        <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.16  0 0 0 0 0.11  0 0 0 0 0.2  0 0 0 0.38 0" result="shade" />
+        <feOffset in="shade" dx="3" dy="5" result="shadow" />
+        <feMerge><feMergeNode in="shadow" /><feMergeNode in="cut" /></feMerge>
+      </filter>
+      {/* Lift: just the tight shadow, for the cut-paper images whose edges are already real. */}
+      <filter id="sp-lift" x="-10%" y="-10%" width="125%" height="125%" colorInterpolationFilters="sRGB">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+        <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.16  0 0 0 0 0.11  0 0 0 0 0.2  0 0 0 0.34 0" result="shade" />
+        <feOffset in="shade" dx="3" dy="6" result="shadow" />
+        <feMerge><feMergeNode in="shadow" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
       {/* Rubber stamp: patchy ink. */}
       <filter id="sp-stamp" x="-10%" y="-10%" width="120%" height="120%">
         <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="4" result="warp" />
@@ -67,8 +84,9 @@ export function StoryDefs() {
         <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.55  0 0 0 0 0.44  0 0 0 0 0.28  -0.9 0 0 0 0.5" />
       </filter>
       <filter id="sp-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6" /></filter>
+      <filter id="sp-crease" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="5" /></filter>
       <radialGradient id="sp-vignette" cx="50%" cy="45%" r="75%">
-        <stop offset="60%" stopColor="#7a5a2e" stopOpacity="0" /><stop offset="100%" stopColor="#7a5a2e" stopOpacity="0.2" />
+        <stop offset="55%" stopColor="#7a5a2e" stopOpacity="0" /><stop offset="100%" stopColor="#7a5a2e" stopOpacity="0.32" />
       </radialGradient>
     </defs>
   </svg>;
@@ -80,11 +98,17 @@ export function Backdrop({ tint = C.cream }) {
     <rect width="1600" height="900" fill={tint} />
     <rect width="1600" height="900" filter="url(#sp-mottle)" />
     <rect width="1600" height="900" filter="url(#sp-grain)" opacity="0.55" />
+    {/* a diagonal fold: one side a touch darker, a light ridge beside a shadow line */}
+    <path d="M330 -20 L1560 920 L1620 920 L1620 -20 Z" fill="#7a5a2e" opacity="0.035" />
+    <g filter="url(#sp-crease)" opacity="0.9">
+      <path d="M318 -20 L1548 920" stroke="#fffaf0" strokeWidth="10" strokeOpacity="0.55" fill="none" />
+      <path d="M332 -20 L1562 920" stroke="#a88c62" strokeWidth="6" strokeOpacity="0.45" fill="none" />
+    </g>
     {/* creases: a light ridge beside a soft shadow line */}
-    <g filter="url(#sp-soft)" opacity="0.5">
-      <path d="M-20 610 C420 560 900 640 1620 520" stroke="#fffaf0" strokeWidth="10" fill="none" />
+    <g filter="url(#sp-crease)" opacity="0.9">
+      <path d="M-20 610 C420 560 900 640 1620 520" stroke="#fffaf0" strokeWidth="10" strokeOpacity="0.55" fill="none" />
       <path d="M-20 622 C420 572 900 652 1620 532" stroke="#b49a72" strokeWidth="5" fill="none" opacity="0.6" />
-      <path d="M1040 -20 C1010 300 1080 600 1020 920" stroke="#fffaf0" strokeWidth="9" fill="none" />
+      <path d="M1040 -20 C1010 300 1080 600 1020 920" stroke="#fffaf0" strokeWidth="9" strokeOpacity="0.55" fill="none" />
       <path d="M1052 -20 C1022 300 1092 600 1032 920" stroke="#b49a72" strokeWidth="4" fill="none" opacity="0.5" />
     </g>
     <rect width="1600" height="900" fill="url(#sp-vignette)" />
@@ -123,35 +147,28 @@ export function Strip({ text, fill = C.paper, color = C.ink, size = 44, pad = 22
 }
 export const stripWidth = (text, size = 44, pad = 22) => Math.round(text.length * size * 0.54 + pad * 2);
 
-/** Paper question mark, cut from card. */
-export const QMark = ({ fill = C.mustard, size = 1 }) => <g transform={`scale(${size})`} filter="url(#sp-piece)">
-  <path d="M-30 -40 C-30 -78 30 -82 34 -44 C38 -10 6 -6 6 18 L6 26 L-12 26 L-12 12 C-12 -18 16 -20 14 -42 C12 -60 -10 -58 -10 -40 Z" fill={fill} />
-  <circle cx="-3" cy="50" r="13" fill={fill} />
-</g>;
+/** Pixel sizes of the cut-paper images in public/story/images, for their aspect ratios. */
+const IMAGES = {
+  reader: [363, 481], listener: [376, 492], assistant: [373, 344], tick: [296, 296], nosign: [325, 325], warning: [356, 323],
+  'q-purple': [222, 360], 'q-teal': [221, 360], 'q-coral': [220, 360], 'q-mustard': [222, 360],
+  folder: [900, 728], passport: [1000, 734], laptop: [688, 563],
+};
+export const imageHeight = (name, w) => Math.round(w * IMAGES[name][1] / IMAGES[name][0]);
+/** A cut-paper image, w wide, placed at its top-left (or centred on 0,0) with a crisp lift shadow. */
+export function Img({ name, w, x = 0, y = 0, center = false }) {
+  const h = imageHeight(name, w);
+  return <image href={`story/images/${name}.webp`} x={center ? -w / 2 : x} y={center ? -h / 2 : y} width={w} height={h} filter="url(#sp-lift)" />;
+}
 
+const QMARK = { [C.purple]: 'q-purple', [C.teal]: 'q-teal', [C.coral]: 'q-coral', [C.mustard]: 'q-mustard', [C.sky]: 'q-teal' };
+/** Paper question mark. */
+export const QMark = ({ fill = C.mustard }) => <Img name={QMARK[fill] || 'q-mustard'} w={82} center />;
 /** Red "no" sign. */
-export const NoSign = ({ r = 46 }) => <g filter="url(#sp-piece)">
-  <circle r={r} fill="#fff" /><circle r={r} fill="none" stroke={C.red} strokeWidth={r * 0.24} />
-  <path d={`M${-r * 0.68} ${r * 0.68} L${r * 0.68} ${-r * 0.68}`} stroke={C.red} strokeWidth={r * 0.24} />
-</g>;
-
-/** Tick in a green-teal disc; paired with words or position, never colour alone. */
-export const Tick = ({ r = 30 }) => <g filter="url(#sp-piece)">
-  <circle r={r} fill={C.teal} />
-  <path d={`M${-r * 0.45} 0 L${-r * 0.1} ${r * 0.35} L${r * 0.5} ${-r * 0.35}`} stroke="#fff" strokeWidth={r * 0.22} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-</g>;
-
-/** Cross in a red disc. */
-export const Cross = ({ r = 30 }) => <g filter="url(#sp-piece)">
-  <circle r={r} fill={C.red} />
-  <path d={`M${-r * 0.38} ${-r * 0.38} L${r * 0.38} ${r * 0.38} M${r * 0.38} ${-r * 0.38} L${-r * 0.38} ${r * 0.38}`} stroke="#fff" strokeWidth={r * 0.22} strokeLinecap="round" />
-</g>;
-
+export const NoSign = ({ r = 46 }) => <Img name="nosign" w={r * 2.1} center />;
+/** Tick on a teal disc; always paired with words or position, never colour alone. */
+export const Tick = ({ r = 30 }) => <Img name="tick" w={r * 2.1} center />;
 /** Warning triangle with an exclamation mark. */
-export const Warning = ({ s = 1 }) => <g transform={`scale(${s})`}>
-  <g filter="url(#sp-piece)"><path d="M0 -70 L72 56 L-72 56 Z" fill={C.mustard} stroke="#fff" strokeWidth="8" strokeLinejoin="round" /></g>
-  <path d="M0 -22 L0 18" stroke={C.ink} strokeWidth="14" strokeLinecap="round" /><circle cy="38" r="8" fill={C.ink} />
-</g>;
+export const Warning = ({ s = 1 }) => <Img name="warning" w={160 * s} center />;
 
 /** Report cover in the style of the sample covers. */
 export function Cover({ year = '2025', w = 300, h = 400 }) {
@@ -202,45 +219,21 @@ export function Bubble({ text, fill = C.purple, color = '#fff', size = 40, tail 
   </g>;
 }
 
-/** People and the assistant, each with a label strip below. */
-export function Person({ kind, label, skin }) {
-  const body = {
-    reader: <>
-      <path d="M-70 210 C-70 120 -40 92 0 92 C40 92 70 120 70 210 Z" fill={C.teal} />
-      <circle cy="40" r="44" fill={skin || C.skin[0]} />
-      <path d="M-46 30 C-46 -20 46 -20 46 30 C30 8 -20 2 -46 30 Z" fill={C.ink} />
-      {/* open booklet held in front */}
-      <path d="M-62 128 L0 142 L62 128 L62 196 L0 210 L-62 196 Z" fill={C.paper} />
-      <path d="M0 142 V210" stroke="#d9cbb2" strokeWidth="4" />
-      <path d="M-48 150 L-12 158 M-48 166 L-12 174 M12 158 L48 150 M12 174 L48 166" stroke="#c9b897" strokeWidth="5" strokeLinecap="round" />
-    </>,
-    listener: <>
-      <path d="M-70 210 C-70 120 -40 92 0 92 C40 92 70 120 70 210 Z" fill={C.purple} />
-      <circle cy="40" r="44" fill={skin || C.skin[1]} />
-      <path d="M-44 22 C-40 -14 40 -14 44 22 C26 6 -18 0 -44 22 Z" fill="#1b1424" />
-      <path d="M-50 44 C-56 -24 56 -24 50 44" stroke={C.ink} strokeWidth="9" fill="none" />
-      <rect x="-62" y="28" width="24" height="40" rx="10" fill={C.coral} />
-      <rect x="38" y="28" width="24" height="40" rx="10" fill={C.coral} />
-    </>,
-    assistant: <>
-      <path d="M-86 0 C-86 -48 -50 -70 0 -70 C50 -70 86 -48 86 0 C86 48 50 70 0 70 C-16 70 -30 68 -42 64 L-80 86 L-66 50 C-80 38 -86 20 -86 0 Z" transform="translate(0 110)" fill={C.sky} />
-      <path d="M0 62 L12 98 L48 110 L12 122 L0 158 L-12 122 L-48 110 L-12 98 Z" fill="#fff" />
-      <path d="M52 68 L57 82 L71 87 L57 92 L52 106 L47 92 L33 87 L47 82 Z" fill={C.mustard} />
-    </>,
-  }[kind];
+/** People and the assistant (cut-paper images), each with a label strip below. */
+export function Person({ kind, label }) {
+  const w = { reader: 200, listener: 196, assistant: 210 }[kind];
   return <g>
-    <g filter="url(#sp-piece)">{body}</g>
-    {kind === 'listener' && <g stroke={C.mustard} strokeWidth="7" fill="none" strokeLinecap="round">
-      <path d="M78 22 Q94 48 78 74" /><path d="M96 8 Q122 48 96 88" />
+    <Img name={kind} w={w} x={-w / 2} y={kind === 'assistant' ? 36 : -28} />
+    {kind === 'listener' && <g filter="url(#sp-scissor)" stroke={C.mustard} strokeWidth="9" fill="none" strokeLinecap="round">
+      <path d="M112 40 Q128 66 112 92" /><path d="M132 24 Q158 66 132 108" />
     </g>}
     <At x={0} y={250}><g transform={`translate(${-stripWidth(label, 28, 13) / 2} 0)`}><Strip text={label} size={28} pad={13} /></g></At>
   </g>;
 }
-
 /** A luggage-style tag with a number, hanging from the top. */
 export function StepTag({ n, fill, label }) {
   return <g>
-    <g filter="url(#sp-piece)">
+    <g filter="url(#sp-scissor)">
       <path d="M-50 22 L-28 0 L28 0 L50 22 L50 150 L-50 150 Z" fill={fill} />
       <circle cy="20" r="8" fill={C.cream} />
     </g>
@@ -249,17 +242,6 @@ export function StepTag({ n, fill, label }) {
   </g>;
 }
 
-/** Paper laptop for the tool cameo; children are drawn on the screen (600 × 360). */
-export function Laptop({ children }) {
-  return <g>
-    <g filter="url(#sp-piece)">
-      <rect x="-24" y="-24" width="648" height="408" rx="18" fill={C.ink} />
-      <path d="M-70 384 H670 L640 420 H-40 Z" fill="#4b4060" />
-    </g>
-    <rect width="600" height="360" rx="4" fill="#fff" />
-    {children}
-  </g>;
-}
 
 /** Ink stamp (patchy, rotated by the caller). */
 export function Stamp({ text, sub, color, w = 250 }) {
