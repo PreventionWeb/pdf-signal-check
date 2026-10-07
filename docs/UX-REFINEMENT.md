@@ -1,3 +1,9 @@
+## Model comparison clarity — 7 October 2026
+
+The model matrix uses bold Yes entries, including tagged heading comparisons (enabled in check settings). Processing speed uses Good / OK / Fast labels, with saved per-model benchmarks taking precedence over explicitly marked expectations. The no-AI fallback has no inference overhead; its speed label is not a guarantee for PDF parsing. Granite expectations are not presented as a MiniLM-derived device benchmark.
+
+Excerpt limit has the existing JavaScript help popover, explaining tokens as pieces of text, shorter versus longer passages, and per-input rather than whole-document coverage. Verified desktop and 390px mobile, popover viewport placement, Escape dismissal, all Yes cells using emphasis, and production build.
+
 # Results-first UX refinement
 
 ## Benchmark fine print — 7 October 2026

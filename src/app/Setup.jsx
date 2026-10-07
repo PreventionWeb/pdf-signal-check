@@ -20,17 +20,20 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
   const options = [...SEMANTIC_MODELS, { key: null, label: 'No AI model · fallback' }];
   const speed = model => {
     const measured = model.key === 'minilm' && receipt ? receipt : preferences.load(model.key)?.receipt;
-    return measured ? rateDevice(measured).label : 'Not benchmarked';
+    if (!measured) return <span><strong>{model.key === 'minilm' ? 'Good' : 'OK'}</strong><br /><small>Expected · not benchmarked</small></span>;
+    const rating = rateDevice(measured);
+    const label = { great: 'Good', ok: 'OK', slow: 'Not recommended', unrated: 'Check again' }[rating.key];
+    return <span><strong>{label}</strong><br /><small>Measured on this device</small></span>;
   };
   const features = [
     ['Best for', 'Text and structure review', 'English PDF comparisons', 'Multilingual PDF comparisons'],
     ['Text, structure and metadata rules', 'Yes', 'Yes', 'Yes'],
     ['AI title, subject and keyword comparisons', 'No', 'Yes', 'Yes'],
-    ['AI tagged heading comparisons', 'No', 'Available in check settings', 'Available in check settings'],
+    ['AI tagged heading comparisons', 'No', 'Yes', 'Yes'],
     ['AI language coverage', 'Not applicable', 'English', <span>52 supported languages <Help topic="ai" label="Granite R2 supported languages" extraText={SEMANTIC_MODELS[1].languages.map(code => new Intl.DisplayNames(['en'], { type: 'language' }).of(code)).join(', ')} /></span>],
     ['Model and tokenizer download', 'None', '23.68 MB', '123.16 MB'],
-    ['Excerpt limit per model input', 'Not applicable', '256 tokens', '512 tokens'],
-    ['Speed on this browser', 'No model to run', speed(SEMANTIC_MODELS[0]), speed(SEMANTIC_MODELS[1])],
+    [<span>Excerpt limit <Help topic="excerptLimit" label="What the excerpt limit means" /></span>, 'Not applicable', '256 tokens', '512 tokens'],
+    ['Processing speed', <span><strong>Fast</strong><br /><small>No AI processing</small></span>, speed(SEMANTIC_MODELS[0]), speed(SEMANTIC_MODELS[1])],
   ];
   return <div className="setup-screen">
     <nav className="flow-steps" aria-label="Setup steps"><ol>
@@ -59,10 +62,10 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
                 checked={modelId === option.key} disabled={batchBusy} onChange={() => setModelId(option.key)} />
               <p className="setup-product-note">{option.key === 'minilm' ? 'Recommended for English' : option.key ? 'For multilingual PDFs' : 'Fallback only'}</p>
             </th>)}</tr></thead>
-            <tbody>{features.map(([feature, ...values]) => <tr key={feature}><th scope="row">{feature}</th>{[values[1], values[2], values[0]].map((value, i) => <td key={i} className={modelId === options[i].key ? 'is-selected' : undefined}>{value}</td>)}</tr>)}</tbody>
+            <tbody>{features.map(([feature, ...values], rowIndex) => <tr key={rowIndex}><th scope="row">{feature}</th>{[values[1], values[2], values[0]].map((value, i) => <td key={i} className={modelId === options[i].key ? 'is-selected' : undefined}>{value === 'Yes' ? <strong>Yes</strong> : value}</td>)}</tr>)}</tbody>
           </table>
         </div>
-      <p className="model-note">AI options also use runtime assets: approximately 26.86 MB uncompressed WASM, plus JavaScript. Transfer/cache cost varies. Token limits bound each excerpt; they do not describe whole-document coverage. A MiniLM speed result does not rate Granite R2.</p>
+      <p className="model-note">AI options also use runtime assets: approximately 26.86 MB uncompressed WASM, plus JavaScript. Transfer/cache cost varies. Token limits bound each excerpt; they do not describe whole-document coverage. Processing speed is a general estimate of AI overhead until that model is benchmarked on this device; actual speed varies with your PDF. A MiniLM benchmark does not rate Granite R2. Tagged heading comparisons can be enabled in check settings.</p>
       <p>{modelId ? 'Continuing enables this model for every PDF in this session and permits its displayed model, tokenizer and runtime downloads if needed. AI findings are advisory and can be wrong.' : 'Fallback selected: AI comparisons will be skipped. Text, structure and metadata rules still run, without model downloads. Enable AI later in setup when it is available.'}</p>
       <Actions>
         <Button variant="primary" disabled={batchBusy} onClick={() => controller.completeSetup(modelId)}>{modelId ? 'Use selected model and continue' : 'Continue without AI'}</Button>
