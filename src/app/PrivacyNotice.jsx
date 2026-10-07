@@ -10,7 +10,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
       return false;
     }
   };
-  const [open, setOpen] = useState(false),
+  const [open, setOpen] = useState(() => !read()),
     [suppressed, setSuppressed] = useState(read),
     dialog = useRef(null),
     understand = useRef(null),
@@ -51,7 +51,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
     const target =
       returnFocus.current?.isConnected && returnFocus.current !== document.body
         ? returnFocus.current
-        : openerRef.current;
+        : document.getElementById("flow-title") || openerRef.current;
     target?.focus({ preventScroll: true });
   };
   return (
@@ -101,7 +101,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
         />
         <p id="ai-info-preference-note" className="model-note">
           This notice preference, your model and check settings, download consent and synthetic device benchmark results are saved in your browser. No PDF data are saved in local storage. You can reopen this information using “About AI &amp;
-          privacy.”
+          privacy” in the footer.
         </p>
         <Button
           variant="primary"

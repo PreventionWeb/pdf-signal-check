@@ -207,3 +207,13 @@ Reset refuses to run during analysis, inference, calibration or an active batch.
 | Native progress used the accent token | Native download/processing progress uses the same Mangrove interactive primary token as primary buttons. |
 
 Verification: 208 tests passed and build passed. Browser inspection confirmed Granite's default selection and correct reordered feature values. During an actual MiniLM benchmark, the computed progress colour and primary button background both resolved to `rgb(0, 79, 145)`. Benchmark ratings remain model-specific; no Granite speed result is inferred from MiniLM timings.
+
+## Secondary controls and first-visit notice — 7 October 2026
+
+| Before | After |
+| --- | --- |
+| Long visible benchmark methodology and receipt text | Compact, initially closed Benchmark details disclosure; result, speed bars and download costs stay visible. |
+| PNG export and secondary formats hidden in a disclosure | Primary PDF and secondary JSON buttons; PNG download removed from the interface. |
+| Privacy/version/local-processing controls in the header; initial notice absent | Plain footer text and privacy link. The notice opens automatically unless Don’t show again was saved. |
+
+Browser verification covered first-visit display, saved suppression across reload, manual reopening from the footer, keyboard disclosure operation, JSON download, repository-prefixed intake/results, and 390px viewport width. Build and all 212 tests passed.

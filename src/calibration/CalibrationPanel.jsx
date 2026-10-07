@@ -7,7 +7,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from "react";
-import { Button } from "../ui/react.jsx";
+import { Button, Details } from "../ui/react.jsx";
 import { getSemanticModel } from "../engine/models.js";
 import { rateDevice } from "./preferences.js";
 import { CalibrationController } from "./controller.js";
@@ -97,7 +97,6 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
           <div className="benchmark-timing-label"><span>{item.label}</span><span>{(item.ms / 1000).toFixed(2)} s{item.rating ? ` · ${item.rating.key === 'great' ? 'Great' : item.rating.key === 'ok' ? 'OK' : item.rating.key === 'slow' ? 'Not recommended' : 'Unrated'}` : ''}</span></div>
           <div className="benchmark-timing-track" aria-hidden="true"><span className={`benchmark-timing-fill ${item.rating ? `is-${item.rating.key}` : ''}`} style={{ width: `${100 * Math.max(0, 1 - item.ms / timingScale)}%` }} /></div>
         </div>)}
-        <p className="model-note">Bars use a 0–5 second scale: full at 0 seconds, empty at 5 seconds or more. AI speed is the median of three sample runs. Great: ≤ 1.5 s · OK: ≤ 5 s · Not recommended: &gt; 5 s. Startup varies with downloads and cache.</p>
       </div>}
       {receipt && <p className="model-note">{model.label} · {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString()}` : "Not saved on this browser"}. Speed guidance, not an accuracy or memory rating.</p>}
       <p className="model-note">Download if needed: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer assets, plus runtime (~26.86 MB uncompressed WASM and JavaScript).</p>
@@ -105,7 +104,10 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
         {receipt ? "Check again" : "Download assets and benchmark"}
       </Button></div>}
       {state.message && state.message !== "Device check complete." && <p role="status">{state.message}</p>}
-      <div className="benchmark-fine-print">
+      <Details summary="Benchmark details" className="benchmark-details">
+        <div className="benchmark-fine-print">
+        <p className="model-note">Bars use a 0–5 second scale: full at 0 seconds, empty at 5 seconds or more. AI speed is the median of three sample runs. Great: ≤ 1.5 s · OK: ≤ 5 s · Not recommended: &gt; 5 s. Startup varies with downloads and cache.</p>
+
         <p>We parse a synthetic two-page PDF, warm up the model, and time three runs of four fixed text inputs. The test has a five-minute limit and cannot run alongside PDF screening.</p>
         <p>Asset transfer/cache cost varies. Running or checking again permits the downloads listed above.</p>
         {receipt && <>
@@ -136,7 +138,8 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
           <p><a href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(receipt, null, 2))}`} download="synthetic-device-timing.json">Download device timing receipt</a></p>
           <p className="model-note">Rating guide: Great ≤ 1.5 seconds; OK ≤ 5 seconds; Not recommended above 5 seconds, for four fixed inputs. These are product responsiveness bands, not validated device requirements. Saved results expire after 30 days or when browser/model settings change.</p>
         </>}
-      </div>
+        </div>
+      </Details>
     </section>
   );
 });

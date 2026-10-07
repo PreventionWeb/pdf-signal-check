@@ -6,7 +6,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from "react";
-import { Button, Details } from "../ui/react.jsx";
+import { Button } from "../ui/react.jsx";
 import { ExportController } from "./controller.js";
 
 export const ExportMenu = forwardRef(function ExportMenu(
@@ -40,12 +40,9 @@ export const ExportMenu = forwardRef(function ExportMenu(
   );
   return (
     <section className="review-export-menu" aria-label="Download this report">
-      <div className="flow-actions mg-u-flex mg-u-flex-wrap mg-u-gap-100">
+      <div className="flow-actions mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
         <Button variant="primary" disabled={disabled || state.busy} onClick={() => controller.run('pdf')}>Download report (PDF)</Button>
-        <Details summary="Other download formats">
-          <Button disabled={disabled || state.busy} onClick={() => controller.run('png')}>Summary image (PNG)</Button>
-          <Button disabled={disabled || state.busy} onClick={() => controller.run('json')}>Detailed report (JSON)</Button>
-        </Details>
+        <Button disabled={disabled || state.busy} onClick={() => controller.run('json')}>Download detailed report (JSON)</Button>
         {state.busy && <Button onClick={() => controller.cancel()}>Cancel export</Button>}
       </div>
       <p className="model-note">This PDF and its results last only for this browser session. Download a report to keep them. Reports may contain document text and page images; downloads are generated on your device.</p>

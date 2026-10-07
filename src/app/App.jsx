@@ -29,7 +29,6 @@ import {
   Actions,
   Loader,
   Icon,
-  Tag,
 } from "../ui/react.jsx";
 export function App() {
   const [controller] = useState(() => createAppController()),
@@ -129,18 +128,6 @@ export function App() {
           >
             {PRODUCT_NAME}
           </a>
-          <Tag subtle className="app-version">
-            Early version / 0.8
-          </Tag>
-          <span className="app-local">Processed on your device</span>
-          <Button
-            className="app-privacy"
-            id="about-ai"
-            ref={openerRef}
-            onClick={(e) => privacyRef.current?.open(e.currentTarget)}
-          >
-            About AI &amp; privacy
-          </Button>
         </div>
       </section>
       <PrivacyNotice ref={privacyRef} openerRef={openerRef} />
@@ -301,7 +288,10 @@ export function App() {
               <p className="mg-footer-bar__text">
                 {PRODUCT_NAME} · A project by Ken Hawkins
               </p>
+              <p className="mg-footer-bar__text">Processed on your device · Early version / 0.8</p>
               <div className="mg-footer-bar__links">
+                <a href="#ai-info-dialog" id="about-ai" ref={openerRef} onClick={e => { e.preventDefault(); privacyRef.current?.open(e.currentTarget); }}>About AI &amp; privacy</a>
+
                 <a
                   href="https://github.com/khawkins98/PDF-A-go-actionable"
                   target="_blank"
