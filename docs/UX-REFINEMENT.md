@@ -1,3 +1,11 @@
+## Unified intake and modal setup — 7 October 2026
+
+First-time and returning users start on the same uploader/sample page; the former separate hero/orientation page is removed. Selecting a PDF, sample or multi-file intake on first use opens a native setup dialog for device benchmarking and model choice. The controller holds only the pending intake in memory and resumes it once after explicit setup completion. Closing/Escape cancels benchmarking and drops pending intake without reading or processing that PDF. Returning users apply saved settings directly; Change check settings reopens the same dialog with the current choice.
+
+The modal contains focus, restores the intake on close, keeps its Close action visible while scrolling and bounds its comparison matrix locally on mobile. Help popovers are portalled into the dialog’s accessible subtree so they remain usable rather than inheriting background inertness. Escape dismisses open help before dismissing setup.
+
+Verification: 203 tests pass, including deferred file reads, deferred sample fetching, queue admission after configuration, cancellation and single consumption. Build passes. Real desktop/mobile browser checks verified modal focus, Escape, tooltip accessibility, a selected local PDF retained through setup and processed afterward, and prefixed production sample continuation and saved-setting reload. Independent walkthrough found no blocking issues and reported zero modal accessibility violations. Its contrast feedback was incorporated: help icons keep their interactive blue colour over the pale hover background. No report/export behavior changed.
+
 ## Figure descriptions and clear scope — 7 October 2026
 
 Added deterministic Figure-tag and non-empty Alt checks, including descendant marked-content associations. Correct sample descriptions appear under What worked with their recovered text; missing/blank descriptions on declared figures warrant review. Untagged graphics stay uncertain because their meaningful/decorative role is not established. Broken or ambiguous tag connections are not credited as reliable associations. Pixels, chart values and description accuracy are not analysed.

@@ -41,11 +41,6 @@ body { background: rgb(var(--mg-color-neutral-25)); -webkit-font-smoothing: anti
 .upload-batch { margin-top: 16px; text-align: center; }
 .upload-batch .mg-button { width: 100%; }
 .about-profile { margin-block: 48px; }
-.welcome-screen { margin-bottom: 32px; }
-.welcome-pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
-.welcome-pillar-card { height: 100%; }
-.welcome-pillar-card .mg-card__title { margin: 0 0 8px; font-size: 1.15rem; text-wrap: balance; }
-.welcome-pillar-card p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
 .flow-steps ol { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; list-style: none; padding: 8px 0 16px; margin: 0; color: var(--muted); font-family: var(--mg-font-family-ui); font-size: .9rem; }
 .flow-steps li > span, .flow-step-link { display: inline-flex; align-items: center; min-height: 40px; }
 .flow-steps li[aria-current="step"] { font-weight: 600; color: rgb(var(--mg-color-neutral-900)); }
@@ -120,7 +115,7 @@ details.review-scope-details > summary, details.review-export-menu > summary { p
   .app-local { grid-column: 1; grid-row: 2; font-size: .8rem; }
   .app-privacy { grid-column: 2; grid-row: 2; padding-inline: 10px; }
   .flow-steps ol { gap: 0 16px; padding-bottom: 12px; font-size: .8rem; }
-  .workspace, .about-profile, .welcome-pillars { grid-template-columns: minmax(0, 1fr); }
+  .workspace, .about-profile { grid-template-columns: minmax(0, 1fr); }
   .output-column { grid-column: 1 / -1; }
   .flow-actions > button { flex: 1 1 160px; }
   .review-categories .mg-segmented-control__label { font-size: .8rem; padding-inline: 8px; }
@@ -381,7 +376,7 @@ progress {
 
 .help-trigger {display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;min-height:40px;margin:0;padding:0;border:0;background:transparent;color:rgb(var(--mg-color-interactive));font-size:13px;font-weight:700;cursor:pointer;}
 
-.help-trigger:hover {background:rgb(var(--mg-color-accent-400) / .08);border-radius:var(--mg-card-border-radius);}
+.help-trigger:hover {color:rgb(var(--mg-color-interactive));background:rgb(var(--mg-color-accent-400) / .08);border-radius:var(--mg-card-border-radius);}
 
 .help-label {display:inline-flex;align-items:center;gap:2px;}
 
@@ -553,4 +548,17 @@ progress {
 
 @media (max-width: 600px) {
   .tool-capabilities .mg-table th, .tool-capabilities .mg-table td { padding: 12px 8px; font-size: .875rem; overflow-wrap: normal; }
+}
+
+.setup-dialog { border: 0; border-radius: var(--mg-card-border-radius); padding: 24px; width: min(1120px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-text)); box-shadow: 0 10px 30px #0003; }
+.setup-dialog::backdrop { background: var(--mg-color-modal-scrim); }
+.setup-dialog-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.setup-dialog-header h1 { margin: 0; }
+@media (max-width: 600px) { .setup-dialog { padding: 16px; } }
+
+.setup-dialog-header { position: sticky; top: -24px; z-index: 3; padding-block: 16px; margin-top: -16px; background: rgb(var(--mg-color-neutral-0)); }
+.setup-dialog #setup-model-title { scroll-margin-top: 100px; }
+@media (max-width: 600px) {
+  .setup-dialog-header { top: -16px; padding-block: 12px; margin-top: -12px; }
+  .setup-dialog-header h1 { font-size: 1.625rem; }
 }

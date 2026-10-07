@@ -13,7 +13,12 @@ export function Help({ topic: topicKey, label, extraText }) {
     timer = useRef(null),
     pinned = useRef(false),
     quiet = useRef(0),
-    [open, setOpen] = useState(false);
+    [open, setOpen] = useState(false),
+    [portalHost, setPortalHost] = useState(() => document.body);
+  useEffect(() => {
+    // Keep help inside a modal’s accessible subtree rather than its inert background.
+    setPortalHost(root.current?.closest("dialog") || document.body);
+  }, []);
   const hide = () => {
     clearTimeout(timer.current);
     quiet.current = performance.now() + 350;
@@ -152,7 +157,7 @@ export function Help({ topic: topicKey, label, extraText }) {
             </a>
           ))}
         </div>,
-        document.body,
+        portalHost,
       )}
     </span>
   );

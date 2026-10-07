@@ -9,12 +9,11 @@ import React, {
 } from "react";
 import { PageHeader } from "@undrr/undrr-mangrove/components/PageHeader.js";
 import { Footer } from "@undrr/undrr-mangrove/components/Footer.js";
-import { Hero } from "@undrr/undrr-mangrove/components/Hero.js";
 import { Samples } from "./Samples.jsx";
 import { createAppController } from "./controller.js";
 import { BatchController } from "../batch/controller.js";
 import { BatchPanel } from "../batch/BatchPanel.jsx";
-import { Setup } from "./Setup.jsx";
+import { SetupDialog } from "./SetupDialog.jsx";
 import { Checks } from "./Checks.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
 import { Review } from "../review/Review.jsx";
@@ -23,8 +22,6 @@ import { GoGoViewer } from "../evidence/GoGoViewer.jsx";
 import {
   PRESENTATION_BRAND,
   PRODUCT_NAME,
-  PRODUCT_DESCRIPTOR,
-  PRODUCT_TAGLINE,
 } from "../brand.js";
 import {
   Button,
@@ -43,8 +40,7 @@ export function App() {
     calibrationRef = useRef(null),
     exportRef = useRef(null),
     privacyRef = useRef(null),
-    openerRef = useRef(null),
-    samplesRequested = useRef(false);
+    openerRef = useRef(null);
   const [batch] = useState(
     () =>
       new BatchController({
@@ -74,12 +70,7 @@ export function App() {
     };
   }, [controller, batch]);
   useEffect(() => {
-    if (state.stage === "document" && samplesRequested.current) {
-      samplesRequested.current = false;
-      const heading = document.getElementById("sample-title");
-      heading?.focus({ preventScroll: true });
-      heading?.scrollIntoView({ block: "start" });
-    } else if (state.stage !== "welcome") {
+    if (state.stage !== "setup") {
       const heading = document.getElementById("flow-title");
       heading?.focus({ preventScroll: true });
       heading?.scrollIntoView({ block: "start", behavior: "instant" });
@@ -98,7 +89,7 @@ export function App() {
           ["review", "3 · Review evidence"],
         ];
   const title = {
-    setup: "Set up PDF checks",
+    setup: "Select a PDF to check",
     document: "Select a PDF to check",
     batch: "Review several PDFs",
     checks: "Your PDF check results",
@@ -133,7 +124,7 @@ export function App() {
             aria-label="PDF Signal Check home"
             onClick={(e) => {
               e.preventDefault();
-              controller.go("welcome");
+              controller.go("document");
             }}
           >
             {PRODUCT_NAME}
@@ -153,8 +144,10 @@ export function App() {
         </div>
       </section>
       <PrivacyNotice ref={privacyRef} openerRef={openerRef} />
+      {state.stage === "setup" && <SetupDialog controller={controller} state={state} calibrationRef={calibrationRef}
+        batchBusy={batch.busy} canCalibrate={() => !batch.busy && !controller.getSnapshot().analysisBusy} />}
       <main id="main" tabIndex={-1} className="mg-container mg-container--slim">
-        {!["welcome", "setup"].includes(state.stage) && (<nav
+        <nav
           className="flow-steps"
           aria-label={inBatch ? "Batch review" : "Review stages"}
         >
@@ -162,6 +155,7 @@ export function App() {
             {steps.map(([key, label]) => {
               const isCurrent =
                 state.stage === key ||
+                (state.stage === "setup" && key === "document") ||
                 (state.stage.startsWith("processing") && key === "checks");
               const canNavigate =
                 key === "document" ||
@@ -188,17 +182,7 @@ export function App() {
               );
             })}
           </ol>
-        </nav>)}
-        {state.stage === "welcome" && (
-          <Welcome controller={controller} onBegin={stage => {
-            samplesRequested.current = false;
-            controller.beginEvaluation(stage);
-          }} onSamples={() => {
-            samplesRequested.current = true;
-            controller.beginEvaluation("document");
-          }} />
-        )}
-        {state.stage !== "welcome" && (
+        </nav>
           <div
             className="workspace"
             data-stage={state.stage}
@@ -218,13 +202,10 @@ export function App() {
                     {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
                   </p>
                 )}
-                {state.stage === "setup" && <Setup controller={controller} calibrationRef={calibrationRef} batchBusy={batch.busy}
-                  canCalibrate={() => !batch.busy && !controller.getSnapshot().analysisBusy} />}
-                {state.stage === "document" && (
+                {["document", "setup"].includes(state.stage) && (
                   <Entry
                     state={state}
                     controller={controller}
-                    batch={batch}
                     batchBusy={batch.busy}
                   />
                 )}
@@ -323,8 +304,7 @@ export function App() {
             )}
           </section>
         </div>
-      )}
-      {["welcome", "document"].includes(state.stage) && (
+      {state.stage === "document" && (
           <section className="about-profile mg-grid mg-grid__col-2">
             <div>
               <p className="eyebrow">What a Yes means</p>
@@ -370,91 +350,19 @@ export function App() {
     </>
   );
 }
-function Welcome({ controller, onSamples, onBegin }) {
-  return (
-    <section className="welcome-screen" aria-label="Welcome and tool orientation">
-      <Hero
-        contained
-        data={[
-          {
-            label: `${PRODUCT_DESCRIPTOR} · Experimental preflight`,
-            title: PRODUCT_TAGLINE,
-            summaryText:
-              "Find missing text structure, conflicting metadata, and reading-order concerns before using a PDF in AI workflows. Your PDF stays on this device; no account is needed.",
-            buttons: [
-              {
-                label: "Select a PDF",
-                type: "Primary",
-                onClick: (e) => {
-                  e.preventDefault();
-                  onBegin("document");
-                },
-              },
-              {
-                label: "Try a sample PDF",
-                type: "Secondary",
-                onClick: (e) => {
-                  e.preventDefault();
-                  onSamples();
-                },
-              },
-              {
-                label: "Check several PDFs",
-                type: "Secondary",
-                onClick: (e) => {
-                  e.preventDefault();
-                  onBegin("batch");
-                },
-              },
-            ],
-          },
-        ]}
-      />
-      <div className="welcome-pillars mg-grid mg-grid__col-3">
-        <Card className="welcome-pillar-card">
-          <h2 className="mg-card__title">Check text and structure</h2>
-          <p>
-            Check text, tags and metadata, with local AI comparisons if enabled.
-            Your PDF contents are never uploaded.
-          </p>
-        </Card>
-        <Card className="welcome-pillar-card">
-          <h2 className="mg-card__title">Review the evidence</h2>
-          <p>
-            Compare findings with publication text and page images. Make changes
-            in your authoring tool, then export and check the revised PDF.
-          </p>
-        </Card>
-        <Card className="welcome-pillar-card">
-          <h2 className="mg-card__title">Choose how to check</h2>
-          <p>
-            Benchmark your device, then choose a local AI model or continue
-            without AI. Review download costs before enabling a model.
-          </p>
-        </Card>
-      </div>
-      <Capabilities />
-    </section>
-  );
-}
-function Entry({ state, controller, batch, batchBusy }) {
+function Entry({ state, controller, batchBusy }) {
   const [dragging, setDragging] = useState(false),
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
-      <p className="model-note">Current settings: {state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · compact English" : "Granite R2 · multilingual" : "No AI model · fallback"}. {state.settingsSaved ? "Your choice is remembered in this browser." : "Settings apply for this session; browser storage is unavailable."}</p>
-      <div className="flow-actions">
-        <Button
-          variant="secondary"
-          disabled={disabled}
-          onClick={() => controller.openSetup("document")}
-        >
+      {state.setupComplete ? <p className="model-note">Current settings: {state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · compact English" : "Granite R2 · multilingual" : "No AI model · fallback"}. {state.settingsSaved ? "Your choice is remembered in this browser." : "Settings apply for this session; browser storage is unavailable."}</p> : <p>Find missing text tags, conflicting metadata and reading-order concerns before using a PDF in AI workflows. Your PDF stays on this device.</p>}
+      {state.setupComplete && <div className="flow-actions">
+        <Button variant="secondary" disabled={disabled} onClick={() => controller.openSetup("document")}>
           Change check settings
         </Button>
-      </div>
+      </div>}
       <p className="step-intro">
-        Select or drop a PDF to run text checks{state.aiEnabled ? " and local AI" : ""}. Selecting several files creates
-        a batch queue.
+        {state.setupComplete ? `Select or drop a PDF to run text checks${state.aiEnabled ? " and local AI" : ""}.` : "Select a PDF or sample to get started. We’ll guide you through device benchmarking and model selection before checking it."} Selecting several files creates a batch queue.
       </p>
       {state.report && (
         <Actions>
@@ -470,7 +378,7 @@ function Entry({ state, controller, batch, batchBusy }) {
         <div className="flow-actions">
           <Button
             disabled={disabled}
-            onClick={() => controller.analyze(state.file)}
+            onClick={() => controller.selectFiles([state.file])}
           >
             Retry this PDF
           </Button>
@@ -489,12 +397,7 @@ function Entry({ state, controller, batch, batchBusy }) {
           e.preventDefault();
           setDragging(false);
           const files = Array.from(e.dataTransfer.files || []);
-          if (files.length === 1) {
-            controller.analyze(files[0]);
-          } else if (files.length > 1) {
-            batch.add(files);
-            controller.go("batch");
-          }
+          controller.selectFiles(files);
         }}
       >
         <label className="drop-target" htmlFor="file-input">
@@ -515,16 +418,11 @@ function Entry({ state, controller, batch, batchBusy }) {
           onChange={(e) => {
             const files = Array.from(e.target.files || []);
             e.target.value = "";
-            if (files.length === 1) {
-              controller.analyze(files[0]);
-            } else if (files.length > 1) {
-              batch.add(files);
-              controller.go("batch");
-            }
+            controller.selectFiles(files);
           }}
         />
         <div className="upload-batch">
-          <Button onClick={() => controller.go("batch")}>
+          <Button onClick={() => controller.beginEvaluation("batch")}>
             Check several PDFs
           </Button>
         </div>
@@ -533,7 +431,7 @@ function Entry({ state, controller, batch, batchBusy }) {
         manifest={state.manifest}
         manifestError={state.manifestError}
         disabled={disabled}
-        onChoose={(path) => controller.loadSample(path)}
+        onChoose={(path) => controller.selectSample(path)}
       />
       <Capabilities />
       <p className="privacy-note">

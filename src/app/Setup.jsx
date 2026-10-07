@@ -12,7 +12,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
   const [busy, setBusy] = useState(false);
   const [preferences] = useState(() => createDevicePreferences());
   useEffect(() => {
-    const heading = document.getElementById(step === 2 ? "setup-model-title" : "flow-title");
+    const heading = document.getElementById(step === 2 ? "setup-model-title" : "setup-modal-title");
     heading?.focus({ preventScroll: true });
     heading?.scrollIntoView({ block: "start", behavior: "instant" });
   }, [step]);
@@ -47,7 +47,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       <Actions>
         <Button variant="primary" disabled={!ready || busy || batchBusy} onClick={() => setStep(2)}>Continue to model selection</Button>
         <Button disabled={busy || batchBusy} onClick={() => receipt ? calibrationRef.current?.start() : setStep(2)}>{receipt ? "Check again" : "Skip benchmark"}</Button>
-        <Button disabled={busy} onClick={() => controller.go('welcome')}>Back to welcome</Button>
+        <Button disabled={busy} onClick={() => controller.cancelSetup()}>Back to PDF selection</Button>
       </Actions>
       <p className="model-note">{receipt ? "Saved results contain synthetic timings only. The next step includes a no-AI fallback if needed." : "You can skip the benchmark. A no-AI fallback is available if local AI cannot run. Saved results contain synthetic timings only."}</p>
     </> : <>

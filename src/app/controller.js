@@ -18,7 +18,7 @@ export function createAppController({
 } = {}) {
   const saved = preferences.load();
   let state = {
-    stage: saved ? "document" : "welcome",
+    stage: "document",
     file: null,
     report: null,
     example: null,
@@ -29,6 +29,7 @@ export function createAppController({
     aiEnabled: Boolean(saved && saved.modelId !== null),
     evaluationModel: saved ? saved.modelId : "minilm",
     setupDestination: "document",
+    pendingSetupLabel: null,
     selectedModel: saved?.modelId || null,
     languageAssumption: null,
     checks: saved?.checks || ["title", "subject", "keywords"],
@@ -42,6 +43,7 @@ export function createAppController({
     reviewed: new Set(),
     reviewCursor: { category: "problems", issueId: null },
   };
+  let pendingIntake = null;
   let job = 0,
     modelRun = 0,
     analysisWorker = null,
@@ -116,6 +118,7 @@ export function createAppController({
         });
     },
     dispose() {
+      pendingIntake = null;
       ++mountEpoch;
       manifestAbort?.abort();
       manifestAbort = null;
@@ -125,13 +128,39 @@ export function createAppController({
     },
     go(stage) {
       if (stage !== "checks") services.calibration?.cancel();
-      emit({ stage: stage === "welcome" && state.setupComplete ? "document" : stage });
+      emit({ stage: stage === "welcome" ? "document" : stage });
     },
     beginEvaluation(stage = "document") {
       if (state.setupComplete) controller.go(stage);
       else emit({ setupDestination: stage, stage: "setup" });
     },
-    openSetup(stage = state.stage) { emit({ setupDestination: stage, stage: "setup" }); },
+    openSetup(stage = state.stage) {
+      pendingIntake = null;
+      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, stage: "setup" });
+    },
+    cancelSetup() {
+      pendingIntake = null;
+      services.calibration?.cancel();
+      emit({ stage: state.setupDestination, pendingSetupLabel: null });
+    },
+    selectFiles(files) {
+      if (!files.length || !available()) return;
+      const selection = [...files];
+      const start = () => {
+        if (selection.length === 1) return controller.analyze(selection[0]);
+        services.batch?.add(selection);
+        controller.go("batch");
+      };
+      if (state.setupComplete) return start();
+      pendingIntake = start;
+      emit({ stage: "setup", setupDestination: "document", pendingSetupLabel: selection.length === 1 ? selection[0].name : `${selection.length} PDFs` });
+    },
+    selectSample(path) {
+      if (!available()) return;
+      if (state.setupComplete) return controller.loadSample(path);
+      pendingIntake = () => controller.loadSample(path);
+      emit({ stage: "setup", setupDestination: "document", pendingSetupLabel: path.split("/").at(-1) });
+    },
     completeSetup(modelId) {
       const useAI = modelId !== null;
       if (useAI) getSemanticModel(modelId);
@@ -139,6 +168,10 @@ export function createAppController({
       services.batch?.setConsent(useAI);
       emit({ setupComplete: true, aiEnabled: useAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination });
       saveSettings();
+      const start = pendingIntake;
+      pendingIntake = null;
+      emit({ pendingSetupLabel: null });
+      if (start) { start(); return; }
       if (useAI && state.stage === "checks" && state.report && supportsLanguage(getSemanticModel(modelId), state.languageAssumption || state.report.metadata.language)) controller.runScreening();
     },
     setModel(modelId) {
