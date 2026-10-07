@@ -8,17 +8,25 @@ import { fileURLToPath } from 'node:url';
 import { storyScript } from '../src/story/script.js';
 
 export const MODEL = 'elevenlabs/eleven-multilingual-v2';
-export const VOICE = 'alice';
+export const VOICE = 'george';
 const root = new URL('../', import.meta.url);
 const audioDir = fileURLToPath(new URL('public/story/audio/', root));
 const manifestPath = fileURLToPath(new URL('src/story/narration.json', root));
 
-async function speak(text) {
-  const response = await fetch('https://openrouter.ai/api/v1/audio/speech', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: MODEL, voice: VOICE, input: text, response_format: 'mp3' }),
-  });
+async function speak(text, attempt = 1) {
+  let response;
+  try {
+    response = await fetch('https://openrouter.ai/api/v1/audio/speech', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: MODEL, voice: VOICE, input: text, response_format: 'mp3' }),
+    });
+  } catch (error) {
+    // Connection failures cost nothing; retry a few times before giving up.
+    if (attempt >= 4) throw error;
+    await new Promise(resolve => setTimeout(resolve, 3000 * attempt));
+    return speak(text, attempt + 1);
+  }
   if (!response.ok) throw new Error(`OpenRouter ${response.status}: ${(await response.text()).slice(0, 300)}`);
   return Buffer.from(await response.arrayBuffer());
 }
@@ -49,6 +57,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     model: MODEL, voice: VOICE, generated: previous.generated && characters === 0 ? previous.generated : generated,
     voiceNote: `synthetic speech: ${MODEL.split('/')[1]}, voice “${VOICE}”, generated through OpenRouter`,
     clips,
+    ...(previous.music ? { music: previous.music } : {}),
   }, null, 2)}\n`);
   console.log(`Characters sent this run: ${characters}`);
 }
