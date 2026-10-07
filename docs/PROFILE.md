@@ -80,3 +80,26 @@ A separate deterministic advisory inventories recovered Figure tags, including s
 Non-empty alternate text is shown as a presence success; absent or whitespace-only text on a declared Figure warrants review. This does not assess pixels, chart values, the accuracy/completeness of descriptions, or nearby equivalent text/data. Such structural presence checks follow [W3C PDF1](https://w3c.github.io/wcag/techniques/pdf/PDF1) without claiming its human accuracy test is automated.
 
 Required supported-scope outcomes and acceptance remain unchanged. Scope limitations are presented under Uncertain / unchecked rather than Problems; this presentation distinction does not turn an indeterminate required check into a pass. Figure advisories and source evidence are captured in exported reports.
+
+## Travel further: links, bookmarks, descriptions and data (advisory)
+
+`src/engine/travel.js` records six advisories. They are opportunities and review clues, not profile predicates: none adds a required check or changes `report.accepted`. No link is followed and no attachment is opened. Link annotations still make the supported-content scope indeterminate, as before.
+
+| Report field | What it records | Bounds and limits |
+| --- | --- | --- |
+| `links` | Link annotations from PDF.js `getAnnotations()`: page, rectangle, target kind (`uri`, `goto`, `named`, `attachment`, `none`), URL text and contents. Also the number of `Link` elements in the tag tree, as `linksTagged` (`all`, `some`, `none`). | 500 annotations per page, 2,000 links, 512-character URLs. The tag count does not show which annotation each `Link` element owns; `OBJR` references stay outside the profile. |
+| `crossReferences` | Wording that names another part of the document (“Figure 1”, “Table 3.2”, “Map 2”, “Annex IV”, “Section 3”, “see page 4”) in recovered text items, and whether a Link annotation rectangle overlaps it. Labels at the start of a caption, heading or list label (“Figure 1. …”) are not references. `requires-review` when any reference has no link. | 200 recorded references. The match position is estimated proportionally within its text item, not measured per glyph. Text split across items, hyphenated or reused from a Form XObject can be missed or left unplaced. References to other publications (“Section 3 of the Act”) cannot be told apart. `targetCheck` is a stub (see below). |
+| `outline` | Bookmarks from PDF.js `getOutline()`: count, depth, items with a target, titles, and how many tagged headings have a bookmark with the same wording. `opportunity` when there are no bookmarks and the PDF has at least two tagged headings or at least five pages. | 1,000 items, depth 16, 100 retained titles of 200 characters. Wording comparison ignores case and leading numbering. Bookmark destinations are not resolved to pages. |
+| `machineMetadata` | Which publication details are saved: title, creator, description, keywords and language (Info or XMP), and the Dublin Core XMP `publisher`, `rights`, `date` and `identifier`. Also attached machine-readable description files (schema.org JSON-LD, RDF or Turtle, by MIME type or extension). `present` needs all four publication details and one such file. | XMP properties are bounded to 24 values of 1,024 characters each (`metadata.xmpProperties`). Values are producer statements: a saved identifier or licence is not verified, and an attached file is not parsed. Unparseable XMP leaves the advisory not assessed. |
+| `figureData` | For each tagged, non-decorative Figure, whether a tagged `Table` has content on the same or an adjacent page, and whether a data file is attached (AFRelationship `Data`, or CSV, TSV, spreadsheet or JSON by type or name). `opportunity` when a figure has neither. | 100 tables. Being nearby, or attached, does not prove a table or file holds the figure’s values. Photos and illustrations need no data. Unlabelled graphics are not considered. |
+| `detachedValues` | A short value with a sign, unit, decimal, percentage or currency (“+0.7 m”, “12%”) whose adjacent tagged sentence is drawn at least one other tagged item away in the content stream. Screen readers follow the tags; tools that read text in drawing order can separate the number from what it measures. | 20 findings. Bare integers, headings, list labels and table cells are skipped. Untagged text, charts and labels that are not adjacent in tag order are not assessed. |
+
+### Planned checks
+
+These are recorded so they are not forgotten; none is implemented.
+
+- **Reference targets** (`crossReferences.targetCheck`, stub `inspectReferenceTargets`): check that a linked “Map 2” leads to the map it names, by resolving the GoTo destination or URI fragment and comparing it with nearby captions.
+- **Link structure ownership:** match each Link annotation to its `Link` tag through `OBJR` and `StructParent`, rather than comparing counts.
+- **Bookmark order and destinations:** resolve each bookmark to a page and position, and compare the order with the tagged heading order.
+- **Structured-data content:** parse an attached JSON-LD file in a sandboxed, size-bounded way and compare its name, date and publisher with the saved properties.
+- **Figure-to-data matching:** compare values in a nearby table, or an attached CSV, with values in the figure’s description.

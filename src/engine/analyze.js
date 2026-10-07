@@ -8,6 +8,7 @@ import { compareTitles } from './titles.js';
 import { compareAuthors, inspectReadingOrder, inspectTextVisibility } from './advisories.js';
 import { inspectHiddenInstructions } from './hidden-instructions.js';
 import { inspectAttachments } from './attachments.js';
+import { summarizeAnnotations, inspectLinks, inspectCrossReferences, inspectOutline, inspectMachineMetadata, inspectFigureData, inspectDetachedValues, inspectReferenceTargets } from './travel.js';
 
 export { pdfjs };
 export const PROFILE = 'text-actionability-0.3';
@@ -30,7 +31,8 @@ export async function analyzePdf(input, options = {}) {
     semantic: null, attachments: {status:'not-assessed',inventoryComplete:false,files:[],orphanStreams:[],warnings:[],payloadsAnalyzed:false,reason:'Document parsing did not complete; attachment inventory not assessed.'}, authorConsistency: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     readingOrder: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     textVisibility: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
-    hiddenInstructions: { status: 'not-assessed', reason: 'Analysis not completed.', matches: [] }, checks: [], pages: [], limitations: [
+    hiddenInstructions: { status: 'not-assessed', reason: 'Analysis not completed.', matches: [] },
+    ...Object.fromEntries(['links', 'crossReferences', 'outline', 'machineMetadata', 'figureData', 'detachedValues'].map(field => [field, { status: 'not-assessed', reason: 'Analysis not completed.' }])), checks: [], pages: [], limitations: [
       'This is a project-specific text profile, not PDF/UA or PDF/A validation.',
       'Decoding checks identify suspicious output; they do not prove glyph-to-text semantic correctness.',
       'Logical order and role meaning are not visually verified. Artifact declarations are trusted.',
@@ -69,6 +71,8 @@ export async function analyzePdf(input, options = {}) {
     report.checks.push(check('language', 'Document language', validLanguage ? 'pass' : 'fail', validLanguage ? `Language: ${report.metadata.language}` : 'A valid document language tag is required.'));
     if (report.metadata.xmpError) report.checks.push(check('xmp', 'XMP parsing', 'indeterminate', report.metadata.xmpError));
     let operatorCount = 0, textCount = 0;
+    // Advisory only: an unreadable annotation list leaves link and cross-reference checks not assessed.
+    let pageAnnotations = [];
     for (let i = 1; i <= doc.numPages; i++) {
       progress(`Inspecting page ${i} of ${doc.numPages}`, 10 + Math.round(80 * (i-1) / doc.numPages), {stage:'pages',state:'progress',completed:i-1,total:doc.numPages,unit:'pages'});
       const page = await doc.getPage(i);
@@ -77,6 +81,7 @@ export async function analyzePdf(input, options = {}) {
       operatorCount += operators.fnArray.length; textCount += text.items.length;
       if (operatorCount > limits.maxOperators || textCount > limits.maxTextItems) throw new Error('Document content exceeded the analysis limits.');
       const tree = await page.getStructTree();
+      if (pageAnnotations) try { pageAnnotations.push(summarizeAnnotations(await page.getAnnotations(), i)); } catch { pageAnnotations = null; }
       report.pages.push({...inspectPage(text, operators, tree, i, structure, pdfjs.OPS, page.view),rotation:page.rotate});
       page.cleanup();
       progress(`Inspected page ${i} of ${doc.numPages}`, 10 + Math.round(80 * i / doc.numPages), {stage:'pages',state:i===doc.numPages?'completed':'progress',completed:i,total:doc.numPages,unit:'pages'});
@@ -97,6 +102,15 @@ export async function analyzePdf(input, options = {}) {
     report.authorConsistency = compareAuthors(report.metadata, report.pages);
     report.readingOrder = inspectReadingOrder(report.pages);
     report.textVisibility = inspectTextVisibility(report.pages);
+    // "Travel further" advisories: opportunities and review clues, independent of profile acceptance.
+    report.links = inspectLinks(pageAnnotations, structure);
+    report.crossReferences = { ...inspectCrossReferences(report.pages, pageAnnotations), targetCheck: inspectReferenceTargets() };
+    let outline = null, outlineError = null;
+    try { outline = await doc.getOutline(); } catch (error) { outlineError = error?.message || 'unreadable outline'; }
+    report.outline = inspectOutline(outline, report.pages, undefined, outlineError);
+    report.machineMetadata = inspectMachineMetadata(report.metadata, report.attachments);
+    report.figureData = inspectFigureData(report.figureAlternatives, structure, report.attachments);
+    report.detachedValues = inspectDetachedValues(report.pages);
     report.hiddenInstructions = inspectHiddenInstructions({ pages: report.pages, metadata: report.metadata, figures: report.figureAlternatives?.items || [], attachments: report.attachments?.files || [] });
     // Hidden runs can be a whole OCR layer; keep only a summary in the report. Matches retain their own snippets.
     for (const page of report.pages) {
