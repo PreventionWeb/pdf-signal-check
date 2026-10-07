@@ -5,7 +5,7 @@
 // Paper is never translucent: pieces arrive fully opaque from beyond the stage edge or from scale. Only `fade`
 // (used for strings and marker lines) ramps opacity, and a piece waiting for its cue is simply not shown yet.
 export const FPS = 12;
-export const HOLD = 1100;          // minimum hold after the last entry motion before auto-advance
+export const HOLD = 900;           // minimum hold after the last entry motion before auto-advance
 export const REDUCED_DWELL = 6000; // still frames: time to read each scene when playing with reduced motion
 
 /** Deterministic jitter per element so a scene looks the same every time it plays. */

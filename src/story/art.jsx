@@ -92,24 +92,28 @@ export function StoryDefs() {
   </svg>;
 }
 
-/** Cream paper ground with grain, mottling, two soft creases and a vignette. */
-export function Backdrop({ tint = C.cream }) {
+/** Each scene folds the same sheet differently, so the creases never read as a tiled texture. */
+const FOLDS = ['', 'scale(-1 1) translate(-1600 0)', 'scale(1 -1) translate(0 -900)', 'rotate(180 800 450)'];
+/** Cream paper ground with grain, mottling, a diagonal fold, two soft creases and a vignette. */
+export function Backdrop({ tint = C.cream, variant = 0 }) {
   return <g aria-hidden="true">
     <rect width="1600" height="900" fill={tint} />
     <rect width="1600" height="900" filter="url(#sp-mottle)" />
     <rect width="1600" height="900" filter="url(#sp-grain)" opacity="0.55" />
+    <g transform={FOLDS[variant % FOLDS.length]}>
     {/* a diagonal fold: one side a touch darker, a light ridge beside a shadow line */}
-    <path d="M330 -20 L1560 920 L1620 920 L1620 -20 Z" fill="#7a5a2e" opacity="0.035" />
-    <g filter="url(#sp-crease)" opacity="0.9">
+    <path d="M330 -20 L1560 920 L1620 920 L1620 -20 Z" fill="#7a5a2e" opacity="0.03" />
+    <g filter="url(#sp-crease)" opacity="0.65">
       <path d="M318 -20 L1548 920" stroke="#fffaf0" strokeWidth="10" strokeOpacity="0.55" fill="none" />
       <path d="M332 -20 L1562 920" stroke="#a88c62" strokeWidth="6" strokeOpacity="0.45" fill="none" />
     </g>
     {/* creases: a light ridge beside a soft shadow line */}
-    <g filter="url(#sp-crease)" opacity="0.9">
+    <g filter="url(#sp-crease)" opacity="0.65">
       <path d="M-20 610 C420 560 900 640 1620 520" stroke="#fffaf0" strokeWidth="10" strokeOpacity="0.55" fill="none" />
       <path d="M-20 622 C420 572 900 652 1620 532" stroke="#b49a72" strokeWidth="5" fill="none" opacity="0.6" />
       <path d="M1040 -20 C1010 300 1080 600 1020 920" stroke="#fffaf0" strokeWidth="9" strokeOpacity="0.55" fill="none" />
       <path d="M1052 -20 C1022 300 1092 600 1032 920" stroke="#b49a72" strokeWidth="4" fill="none" opacity="0.5" />
+    </g>
     </g>
     <rect width="1600" height="900" fill="url(#sp-vignette)" />
   </g>;
