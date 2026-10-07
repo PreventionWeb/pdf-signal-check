@@ -669,10 +669,8 @@ progress {
 .figure-context h4 { margin-block: 16px 8px; }
 .figure-context blockquote { margin: 0 0 16px; padding-inline-start: 16px; border-inline-start: 3px solid rgb(var(--mg-color-neutral-200)); }
 .result-hero .result-hero-file { font-size: .875rem; overflow-wrap: anywhere; margin: 4px 0 8px; }
-.result-hero .result-hero-actions { align-items: flex-start; }
-.result-hero .review-export-menu, .result-hero .review-export-menu .flow-actions { margin: 0; }
-.result-hero .review-export-menu .model-note { margin-block: 6px 0; }
-.result-hero .review-export-menu .model-note { color: inherit; font-size: .8rem; }
+.result-hero .review-export-menu { margin-top: 16px; }
+.result-hero .review-export-menu .flow-actions { margin: 0; }
 .result-hero .review-export-menu p:empty { display: none; }
 .site-navigation { margin-bottom: 24px; }
 .site-navigation .mg-mega-topbar__logo-img { height: auto; width: 330px; max-width: 100%; }

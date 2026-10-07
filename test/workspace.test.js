@@ -154,8 +154,8 @@ describe('fix list buckets', () => {
     const before = structuredClone(items);
     const lists = fixList(findingGroups(items));
     expect(lists.fix.map(item => item.id)).toEqual(['defect']);
-    expect(lists.check.map(item => item.id)).toEqual(['title']);
-    expect(lists.unknown.map(item => item.id).sort()).toEqual(['indeterminate', 'order']);
+    expect(lists.check.map(item => item.id)).toEqual(['title', 'order']);
+    expect(lists.unknown.map(item => item.id)).toEqual(['indeterminate']);
     expect(lists.limits.map(item => item.id)).toEqual(['scope']);
     expect(items).toEqual(before);
   });
@@ -163,11 +163,13 @@ describe('fix list buckets', () => {
     const uncertain = { id: 'kw', category: 'uncertain', outcome: 'uncertain', method: 'embedding-screening', source: { path: 'semantic.keywordItems[0]' } };
     expect(fixBucket(uncertain)).toBe('unknown');
     expect(fixBucket({ ...uncertain, category: 'advisory-concern', outcome: 'suspected-mismatch' })).toBe('check');
+    // Reading order always needs a person to confirm it.
+    expect(fixBucket({ id: 'o', category: 'uncertain', outcome: 'uncertain', source: { path: 'readingOrder' } })).toBe('check');
   });
   it('headlines the fix and check counts and never claims a pass for an incomplete check', () => {
     const report = { analysisComplete: true, checks: [{ status: 'fail' }] };
-    expect(reviewSummary(report, findingGroups(items)).headline).toBe('1 thing to fix, 1 to check');
-    expect(reviewSummary(report, findingGroups(items.slice(1))).headline).toBe('Nothing confirmed to fix, 1 thing to check');
+    expect(reviewSummary(report, findingGroups(items)).headline).toBe('1 thing to fix, 2 to check');
+    expect(reviewSummary(report, findingGroups(items.slice(1))).headline).toBe('Nothing confirmed to fix, 2 things to check');
     expect(reviewSummary({ ...report, analysisComplete: false }, findingGroups(items)).headline).toBe('The check could not finish');
   });
   it('shows the saved and page titles on a suspected title mismatch and points to document properties', () => {

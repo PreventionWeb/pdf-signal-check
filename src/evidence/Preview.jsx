@@ -55,6 +55,24 @@ export function Preview({ file, report, selection }) {
     if (selection && session.current) session.current.select(selection);
     else session.current?.clearSelection();
   }, [selection]);
+  const pageCount = report.file.pages || 1;
+  const latestPage = useRef(view.page);
+  latestPage.current = view.page;
+  useEffect(() => {
+    // Left/Right and Page Up/Down change pages while the preview is open, except inside form controls.
+    const onKey = (event) => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.target.closest?.("input, select, textarea, [contenteditable]")) return;
+      const step = { ArrowLeft: -1, PageUp: -1, ArrowRight: 1, PageDown: 1 }[event.key];
+      if (!step) return;
+      const next = latestPage.current + step;
+      if (next < 1 || next > pageCount) return;
+      event.preventDefault();
+      session.current?.navigate(next);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [pageCount]);
   const currentPage = report.pages.find(page => page.number === view.page);
   const placement = readingOrderPlacement(report, view.page);
   const hasReadingOrder = placement.recovered > 0;
@@ -74,6 +92,8 @@ export function Preview({ file, report, selection }) {
       <div className="preview-controls mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
         <Button
           aria-label="Previous page"
+          aria-keyshortcuts="ArrowLeft PageUp"
+          title="Previous page (← or Page Up)"
           disabled={view.page === 1}
           onClick={() => session.current?.navigate(view.page - 1)}
         >
@@ -82,7 +102,9 @@ export function Preview({ file, report, selection }) {
         <span>{view.counter}</span>
         <Button
           aria-label="Next page"
-          disabled={view.page >= (report.file.pages || 1)}
+          aria-keyshortcuts="ArrowRight PageDown"
+          title="Next page (→ or Page Down)"
+          disabled={view.page >= pageCount}
           onClick={() => session.current?.navigate(view.page + 1)}
         >
           →

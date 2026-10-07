@@ -73,7 +73,8 @@ export function reviewPriority(finding) {
  */
 export function fixBucket(item) {
   if (reviewPriority(item).key === 'critical') return 'fix';
-  if (item.figureGroup || item.source?.path === 'attachments') return 'check';
+  // Reading order always needs a person to confirm it, even when the tool found no problem.
+  if (item.figureGroup || item.source?.path === 'attachments' || item.source?.path === 'readingOrder') return 'check';
   if (item.members) return item.members.some(member => member.category === 'advisory-concern') ? 'check' : 'unknown';
   return item.category === 'advisory-concern' ? 'check' : 'unknown';
 }
@@ -122,7 +123,7 @@ export function fixLocation(item) {
   const pages = [...new Set(members.flatMap(member => [member.comparison?.figure?.page, ...(member.targets || []).map(target => target.page)]).filter(Number.isInteger))].sort((a, b) => a - b);
   if (documentPaths.test(item.source?.path || '')) return 'Document properties';
   if (pages.length) return pages.length === 1 ? `Page ${pages[0]}` : `Pages ${pages.slice(0, 5).join(', ')}${pages.length > 5 ? ` and ${pages.length - 5} more` : ''}`;
-  if (['structure', 'content-integrity', 'text'].includes(item.source?.checkId)) return 'Whole document';
+  if (['structure', 'content-integrity', 'text'].includes(item.source?.checkId) || item.source?.path === 'readingOrder') return 'Whole document';
   return '';
 }
 const quote = value => { const text = String(value || '').trim(); return text.length > 120 ? `${text.slice(0, 119)}…` : text; };
@@ -147,13 +148,25 @@ export function fixCard(item, report = {}) {
   }
   const failed = item.outcome === 'fail';
   const check = item.source?.checkId;
-  if (failed && check === 'coverage' && item.summary !== 'No relevant text to account for.') return { ...card, title: 'Add the missing text to the tags' };
+  if (failed && check === 'coverage' && item.summary !== 'No relevant text to account for.') return { ...card, title: 'Add the missing text to the tags',
+    summary: 'Some text on the page is not in the PDF’s tags, so screen readers and AI tools may skip it or read it in the wrong place.',
+    change: 'Add the highlighted text to the tags as a heading, paragraph or other part of the document. If it is decorative, such as a page number, running header or background text, mark it as decoration (an artifact) instead. Then export again.' };
   if (failed && check === 'language') return { ...card, title: 'Set the document language',
     change: 'Set the document language, such as English, in the source document’s settings or a PDF editor. Then export again.' };
   if (failed && check === 'title') return { ...card, title: 'Add a document title' };
+  if (failed && check === 'structure' && item.summary !== 'No structure tree found.') {
+    const pages = [...new Set((item.evidence || []).map(text => /^Page (\d+):|^Content reference (\d+):/.exec(String(text))).filter(Boolean).map(match => Number(match[1] || match[2])))].sort((a, b) => a - b);
+    return { ...card, title: 'Re-export the PDF so its tags are complete',
+      where: pages.length ? `${pages.length === 1 ? 'Page' : 'Pages'} ${pages.slice(0, 5).join(', ')}${pages.length > 5 ? ` and ${pages.length - 5} more` : ''}` : 'Whole document',
+      summary: 'The PDF has tags (the hidden labels screen readers and AI tools use), but some are broken: they point to content that isn’t there, or content isn’t linked to a tag. This usually happens when a PDF is edited after it was exported.',
+      change: 'Export a fresh tagged PDF from the source document, for example in Word with “Document structure tags for accessibility” ticked, or in InDesign with “Create Tagged PDF”. Redo any edits made to the PDF in the source instead.' };
+  }
   if (failed && check === 'structure' && item.summary === 'No structure tree found.') return { ...card, title: 'Export the PDF with tags', where: 'Whole document',
     change: 'In the source document, use heading, list and table styles, then export with PDF tags turned on (often called an accessible or tagged PDF).' };
   if (path === 'readingOrder' && item.comparison?.readingSequenceMissing) return { ...card, where: 'Whole document' };
+  if (path === 'readingOrder' && item.outcome !== 'requires-review') return { ...card, title: 'Check the reading order',
+    summary: 'The tool found no ordering problem, but it cannot confirm the order is right. Check that screen readers will read the page in the order you intend.',
+    change: 'Open the reading order on the page and follow the numbers. If they jump around, ask the designer to fix the tag order. Then export again.' };
   if (path === 'readingOrder' && item.outcome === 'requires-review') return { ...card, title: 'Text may be read in the wrong order',
     summary: 'Screen readers and AI tools may read this content in a different order from the page layout.',
     change: 'Fix the reading order of the tags in a PDF accessibility editor, or in the source document. Then export again.' };

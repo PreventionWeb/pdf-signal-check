@@ -238,8 +238,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       <div hidden={state.modelBusy} inert={state.modelBusy || undefined}>
       <ResultHero overview={overview} file={file}
         exports={<ExportMenu ref={exportRef} getState={() => ({ report: controller.getSnapshot().report, file: controller.getSnapshot().file })} sourceKey={state.sourceKey} disabled={state.modelBusy} secondary compact />}
-        titleId={state.modelBusy ? undefined : "flow-title"}
-        onChoose={() => controller.go("document")} />
+        titleId={state.modelBusy ? undefined : "flow-title"} />
       {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
         <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
       <Tabs label="Results" value={view} onChange={setView} tabs={[

@@ -45,7 +45,7 @@ export const ExportMenu = forwardRef(function ExportMenu(
         <Button disabled={disabled || state.busy} onClick={() => controller.run('json')}>Download detailed report (JSON)</Button>
         {state.busy && <Button onClick={() => controller.cancel()}>Cancel export</Button>}
       </div>
-      <p className="model-note">{compact ? 'Download to keep these results. Reports may include PDF text and images; generated on your device.' : 'This PDF and its results last only for this browser session. Download a report to keep them. Reports may contain document text and page images; downloads are generated on your device.'}</p>
+      {!compact && <p className="model-note">{'This PDF and its results last only for this browser session. Download a report to keep them. Reports may contain document text and page images; downloads are generated on your device.'}</p>}
         <p role="status">{state.message}</p>
     </section>
   );

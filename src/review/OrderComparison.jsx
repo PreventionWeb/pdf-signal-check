@@ -12,7 +12,7 @@ export function OrderComparison({ report, file, onInspect, compact = false }) {
       <h3 className="order-map-heading">{compact ? data.available ? `Page ${data.page}` : 'Reading order' : data.available ? 'Same page, two recovered sequences' : 'Reading-order evidence'}</h3>
       {!data.available ? (
         <div className="order-map-unavailable">
-          <p>{recoveredTaggedText ? 'Tagged text was recovered. Inspect its reading sequence on the page; a comparison diagram is unavailable.' : 'No machine-readable reading sequence was recovered. Inspect the page and check its structure labels.'}</p>
+          <p>{compact ? 'Open the page to see the numbered order screen readers will follow.' : recoveredTaggedText ? 'Tagged text was recovered. Inspect its reading sequence on the page; a comparison diagram is unavailable.' : 'No machine-readable reading sequence was recovered. Inspect the page and check its structure labels.'}</p>
         </div>
       ) : (
         <>

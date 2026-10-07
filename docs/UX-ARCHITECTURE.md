@@ -57,7 +57,7 @@ The results screen has two tabs: **What to fix** (default) and **Technical detai
 Items are grouped into three buckets, decided by recorded category and review priority (`fixBucket` in `src/review/workspace.js`), never by a confidence score:
 
 - **Fix** — confirmed defects: required-check failures, missing descriptions on labelled images, and an unrecovered reading sequence.
-- **Check** — suspected problems (advisory concerns such as a title or author mismatch, or an out-of-order sequence) and human-judgement tasks (image descriptions, unlabelled or decorative graphics, attachments).
+- **Check** — suspected problems (advisory concerns such as a title or author mismatch, or an out-of-order sequence) and human-judgement tasks (image descriptions, unlabelled or decorative graphics, attachments). Reading order always appears here when a sequence exists, because the tool can never confirm intended order.
 - **Couldn’t check** — collapsed by default. Undecided results (`uncertain`, `required-indeterminate`), AI results the model could not judge, and tool limits. These are never shown as tasks to fix. The intro says they are limits of the tool, not problems found in the PDF.
 
 The verb carries the certainty: Add / Set / Export for confirmed defects, “doesn’t match” or “may” for suspected ones, and “could not judge” for undecided ones. Do not flatten confirmed, suspected and undecided into one status.
@@ -156,7 +156,7 @@ Advisory coverage information contains no model selectors, checkboxes or rerun/d
 
 “How this PDF was checked”, “AI coverage”, “What this tool cannot check” and the technical analysis record live in the Technical details tab.
 
-The results hero is a contained Mangrove hero with a count headline (“2 things to fix, 3 to check”; “Nothing confirmed to fix, 2 things to check”), the filename, at most one scope sentence, Choose another PDF and the report downloads. The required-check percentage is removed from the hero (2026-10); pass counts remain in the Technical details record. The Select PDF / Results step navigation is removed.
+The results hero is a contained Mangrove hero with a count headline (“2 things to fix, 3 to check”; “Nothing confirmed to fix, 2 things to check”), the filename, at most one scope sentence and the report downloads. Choosing another PDF uses the site navigation. The required-check percentage is removed from the hero (2026-10); pass counts remain in the Technical details record. The Select PDF / Results step navigation is removed.
 
 Use “No problems auto-detected” only when nothing is in Fix or Check and no required check failed.
 
