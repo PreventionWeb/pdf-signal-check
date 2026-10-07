@@ -175,7 +175,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
         <p><strong>Narration:</strong> {item.narration}</p>
         <p className="story-describe"><strong>On screen:</strong> {item.describe}</p>
       </li>)}</ol>
-      {hasAudio && <p className="story-describe">The narration is a synthetic voice ({narration.voiceNote}).{music ? ` The background music is AI-generated (${music.note}).` : ''}</p>}
+      <p className="story-describe">The figure and icon illustrations are AI-generated cut-paper images (Nano Banana 2).{hasAudio ? ` The narration is a synthetic voice (${narration.voiceNote}).` : ''}{hasAudio && music ? ` The background music is AI-generated (${music.note}).` : ''}</p>
     </details>
   </section>;
 }

@@ -326,3 +326,22 @@ agent-browser checks on the dev server and on the production build served under 
 - caption key words are bold and coloured, at 5.96:1 to 7.71:1 against the caption paper
 
 Two automated "listening" checks transcribed the final clips. They found no wrong words, and a retake fixed one line's choppy intonation. Model ratings are a screening aid; a person confirmed the voice by ear. Known limits: SVG labels are small on phones (the captions and transcript carry the same words), iOS ignores media volume so the bed's level is baked into the file, and the music loops with its fades if the story runs past 60 s.
+
+### Story revision after creative review (2026-10-08)
+
+An independent creative-director review scored the first collage 6/10 for fidelity and craft (tiles 8, figures and icons 4), mobile 5 and narration 6, and asked for a revision that keeps SVG, with a small AI-generated hybrid. Changes:
+- **Motion:** paper arrives fully opaque, from just beyond the visible stage edge (measured from each piece's laid-out position, so it also works on the cropped phone stage) or from scale. Only strings and marker lines fade.
+- **Hybrid art:** the three figures, tick, no sign, warning triangle, question marks, folder, passport and laptop are cut-paper images from Nano Banana 2 (Gemini 3.1 Flash Image) via OpenRouter: 9 generations, $0.61, 13 WebP files, about 180 KB. They were generated on a chroma-key background with the figure sheet as the style reference and keyed locally. Rejected takes: a white-background sheet, and a passport with a printed date and stamp. Model, prompts and date are in `public/story/images/README.md`. Remaining small SVG icons use a crisper "scissor" filter. Captions, strips, tiles, the chart, extracted text, step tags, the saved title, pins, the cameo headline and the stamps stay as code.
+- **Scenes:** scene 2's single bubble tours the three figures and leaves a tick with each; scene 4 shows only the chart, one empty frame with the no sign, and "Image."; scene 6 makes "+0.7 m" the hero and brings in the 2024 folder at the word "title"; scene 7 uses the passport image and moves the paper clip; scene 8 shows a torn screenshot with the real headline and two real pins.
+- **Backdrop:** stronger creases, a diagonal fold and a deeper vignette.
+- **Phones:** decorative extras drop out below 700px, and key pieces sit inside the central 4:3.
+- **Narration:** a beat before each key phrase, and a warmer-delivery request to ElevenLabs (stability 0.3, style 0.45). A model listening check rated it 7.8/10 with every key phrase emphasised. The effect of the settings alone could not be measured.
+- **Runtime:** 59.7 s. OpenRouter spend for the whole story is now $1.15 of the key's $12 limit.
+
+agent-browser checks at 1280px and 390px, on the dev server and the production build under `/pdf-signal-check/`:
+- all eight composed frames, and mid-motion frames showing the touring bubble and opaque entries
+- reduced motion shows stills with no animation and no music
+- keyboard and slider navigation, audio sync and ducking as before
+- only the page's origin and assets.undrr.org are requested
+
+`npm test` (292 tests) and `npm run build` pass.

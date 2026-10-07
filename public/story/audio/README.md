@@ -8,7 +8,8 @@ The page downloads none of these files until a viewer turns on **Audio on**, and
 
 - Model: ElevenLabs Multilingual v2 (`elevenlabs/eleven-multilingual-v2`), through OpenRouter's `/api/v1/audio/speech`
 - Voice: `george` (British English, male). Chosen from seven candidates; see `docs/experiments/STORY-AUDIO.md`.
-- Generated: 2026-10-07
+- Delivery: voice settings stability 0.3, similarity 0.8, style 0.45, speaker boost, sent as OpenRouter provider options, and a short beat (“…”) before each scene’s key phrase
+- Generated: 2026-10-07; regenerated with beats and warmer settings 2026-10-08
 - Script: `src/story/script.js` (`speak`, or else `narration`, per scene). The manifest with each clip's text and duration is `src/story/narration.json`.
 - Processing: loudness-normalised to −16 LUFS, mono, 44.1 kHz, 48 kbit/s MP3
 - Regenerate: `node --env-file=<path to .env with OPENROUTER_API_KEY> scripts/generate-story-narration.mjs`. Unchanged lines are kept, and `test/story-narration.test.js` fails if the script and the clips drift apart.
