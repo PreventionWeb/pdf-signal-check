@@ -76,13 +76,10 @@ The private repository is [PreventionWeb/pdf-signal-check](https://github.com/Pr
 
 ## Planning documents
 
-- [Feature roadmap](docs/features/README.md): delivered onboarding, issue review, exports, device calibration and foreground batch processing, with deferred capabilities identified separately.
-- [Delivery audit](docs/DELIVERY.md): implementation and verification evidence for the local V1 roadmap.
 - [Interface brand](docs/BRAND.md): working label, positioning, and evidence-focused result hierarchy.
-- [Mangrove presentation](docs/MANGROVE.md): pinned local UNDRR theme, component mapping, licenses, and future PreventionWeb migration.
-- [UX reference architecture](docs/UX-ARCHITECTURE.md): enduring principles, workflow hierarchy, component responsibilities and an implementation review rubric.
-- [UX application review](docs/UX-ARCHITECTURE-REVIEW.md): independent assessment against the reference, prioritized proposed changes and verification limits.
-- [UX refinement](docs/UX-REFINEMENT.md): results-first flow changes and desktop/mobile browser verification.
+- [Mangrove presentation](docs/MANGROVE.md): UNDRR theme loaded from assets.undrr.org, component mapping, licenses, and future PreventionWeb migration.
+- [UX reference architecture](docs/UX-ARCHITECTURE.md): the results design (fix list on the pages, buckets, evidence drawer), workflow hierarchy, component responsibilities and a review rubric.
+- [Validation record](docs/VALIDATION.md): browser, export and test verification, newest entries last.
 - [Naming options](docs/NAMING.md): UN-first, cross-industry naming recommendations and observed name conflicts.
 - [Implementation plan](docs/PLAN.md): scope, acceptance rules, architecture, milestones, and evaluation.
 - [Model options](docs/MODEL-OPTIONS.md): compact English and multilingual candidates, deployment considerations, and benchmark requirements.

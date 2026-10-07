@@ -128,19 +128,10 @@ Users select title, subject, individual keyword, and bounded tagged-heading/sect
 Calibrate each model against held-out document families and evaluate per-keyword/section false alarms before using semantic findings as operational gates. Section association is bounded and heuristic; it does not validate every heading role or reading order.
 
 
-## Guided single-PDF review in app 0.5
-
-The first slice follows [guided onboarding](features/01-guided-onboarding.md) and [issue review](features/02-issue-review.md): existing privacy acknowledgement, Document, Checks, Processing, and Review. Traditional analysis runs once after selection to discover language and produce findings. Users explicitly review without AI or authorize a supported recommendation with asset costs visible before the run; alternate models and check selection remain available.
-
-Evidence-backed findings distinguish required defects, required checks not established, advisory concerns, uncertainty/unassessed scope, and optional positives. Issue frames explain compared values, why to inspect them, and source-tool guidance; they do not repair PDFs. Session-only Reviewed annotations never change machine results. In the historical app 0.5 slice, full-page preview and highlights were the visual evidence MVP. App 0.6 adds bounded crops and PDF/PNG reports; revised-file comparison remains a follow-up. Full evidence and JSON remain accessible outside the queue.
-
-Back navigation retains the original file, preferences, completed results, and inspection state. Cancel explicitly stops active workers before leaving Processing. Progress uses actual completed page/batch units or download bytes when known; preparation stays indeterminate. Profile 0.2 semantics remain unchanged.
-
-
 ## Captured exports and bounded evidence in app 0.6
 
 Export/crop work is modular: `src/export` captures a completed report and source file together, produces a readable PDF/dedicated PNG summary/JSON receipt, and owns export cancellation. `src/evidence` renders a single original source page with the full PDF.js viewport matrix and crops one reliable region per finding. No application screenshot or current-preview canvas is used. Up to six PDF evidence images are capped at one megapixel each; page rendering retains 4096-side/eight-megapixel ceilings. Exact geometry failures and excluded Forms receive textual evidence rather than invented regions.
 
-Reports distinguish captured preference values from the model configuration that actually completed. Session review annotations do not change outcomes. Replacement aborts the old export; later model results cannot relabel its captured report. Names outside the bundled Noto Sans font use a labeled browser-raster fallback, with nonextractable-text/browser-font limitations and exact values in JSON. These exports are human analysis receipts, not repaired PDFs or conformance certificates.
+Reports distinguish captured preference values from the model configuration that actually completed. Replacement aborts the old export; later model results cannot relabel its captured report. Names outside the bundled Noto Sans font use a labeled browser-raster fallback, with nonextractable-text/browser-font limitations and exact values in JSON. These exports are human analysis receipts, not repaired PDFs or conformance certificates.
 
 Synthetic browser tests explicitly disclose model/tokenizer/runtime download costs and use public fixed input, never the user's PDF. The UI terminates an idle screening encoder when testing starts and cancels a test before screening begins, keeping completed results intact. Timing observations do not imply RAM requirements, universal device speed, or a document ETA.

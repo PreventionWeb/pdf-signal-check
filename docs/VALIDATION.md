@@ -1,5 +1,7 @@
 # Implementation validation record
 
+Entries are in date order and are not rewritten when the interface changes. Older entries describe interfaces since replaced: the inbox list, Reviewed checkboxes, the percentage hero and the repository copy of Mangrove. The latest entries describe the current fix-list-on-the-pages design.
+
 Recorded October 5, 2026 across app versions 0.1-0.3. The initial implementation receipts below are historical; later sections record subsequent profiles and features. These checks verify the implemented text profile and application flow, not full PDF conformance or real-world model accuracy.
 
 ## Automated checks

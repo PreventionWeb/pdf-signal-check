@@ -239,7 +239,7 @@ The publication-metadata advisory findings inside the technical record use a gro
 
 ### Results hero
 
-`src/review/ResultHero.jsx` uses the pinned native `mg-hero` split/contained markup with a text score in the media slot. This adaptation keeps React text escaping, a focusable outcome H1 and native action buttons; the published Hero exposes raw HTML title/summary/media and anchor actions. Local overrides provide the percentage typography and a single-column mobile layout. No generated bitmap or remote asset is required. Brand colour is consistent across outcomes; the finding notices retain their independent severity colours.
+`src/review/ResultHero.jsx` uses the native `mg-hero` split/contained markup in a single column: the count headline, filename, scope sentence and report downloads. This adaptation keeps React text escaping, a focusable outcome H1 and native action buttons; the published Hero exposes raw HTML title/summary/media and anchor actions. No generated bitmap or remote asset is required. Brand colour is consistent across outcomes; the finding notices retain their independent severity colours.
 
 ### Project mega menu
 
