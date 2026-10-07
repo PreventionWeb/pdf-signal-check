@@ -217,3 +217,9 @@ Verification: 208 tests passed and build passed. Browser inspection confirmed Gr
 | Privacy/version/local-processing controls in the header; initial notice absent | Plain footer text and privacy link. The notice opens automatically unless Don’t show again was saved. |
 
 Browser verification covered first-visit display, saved suppression across reload, manual reopening from the footer, keyboard disclosure operation, JSON download, repository-prefixed intake/results, and 390px viewport width. Build and all 212 tests passed.
+
+## Visible AI recovery — 7 October 2026
+
+AI attempts that cannot compare selected fields now show per-check reasons and next steps in the results workspace. Empty metadata, insufficient tagged section evidence and bounded input limits are distinguished from worker failures. Failed reruns show their message/error reference even when a previous successful AI receipt is retained; source changes clear the latest attempt. Repeated no-input runs explicitly explain that unchanged inputs will give the same result.
+
+An untagged-input bug was fixed: content-stream opening text lacked its page reference and was filtered out by the bounded first-two-page evidence policy. The fix preserves that bound and all deterministic profile outcomes. Four new tests cover actual input eligibility/inference, no-input explanations without model loading, failed reruns retaining prior inference, stale callbacks, and actionable skipped results. All 212 tests passed. Browser verification used four-page untagged synthetic PDFs: empty comparison metadata produced visible reasons, while a subject description produced actual MiniLM inference. Results accessibility audit reported zero violations. Build passed with the existing chunk-size warning.

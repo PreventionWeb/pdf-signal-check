@@ -39,6 +39,7 @@ export function createAppController({
     progress: null,
     analysisBusy: false,
     modelBusy: false,
+    screeningAttempt: null,
     calibrationBusy: false,
     manifest: [],
     manifestError: false,
@@ -269,6 +270,7 @@ export function createAppController({
       stopModel();
       emit({
         stage: "checks",
+        screeningAttempt: { status: "canceled", message: "You canceled the AI checks. Completed text checks and previous AI results are retained." },
         message:
           "AI screening canceled. Traditional results and any previous completed screening are retained.",
         progress: null,
@@ -287,6 +289,7 @@ export function createAppController({
           file: null,
           report: null,
           batchId: null,
+          screeningAttempt: null,
           sourceKey: ++job,
           languageAssumption: null,
           reviewed: new Set(),
@@ -303,6 +306,7 @@ export function createAppController({
         report,
         file,
         batchId: id,
+        screeningAttempt: null,
         sourceKey: job,
         example: null,
         languageAssumption: null,
@@ -330,6 +334,7 @@ export function createAppController({
         file,
         example,
         batchId: null,
+        screeningAttempt: null,
         sourceKey: currentJob,
         report: null,
         reviewed: new Set(),
@@ -445,6 +450,7 @@ export function createAppController({
         file: null,
         example: null,
         batchId: null,
+        screeningAttempt: null,
         sourceKey: currentJob,
         reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
@@ -501,6 +507,7 @@ export function createAppController({
         emit({
           stage: "checks",
           modelBusy: false,
+          screeningAttempt: { status: "error", message: e.message },
           message: `Semantic screening unavailable: ${e.message}. Traditional results are retained.`,
         });
         return;
@@ -512,14 +519,16 @@ export function createAppController({
         report,
         stage: "processing-model",
         modelBusy: true,
+        screeningAttempt: { status: "running" },
         message: "Preparing the selected checks…",
         progress: null,
       });
-      const fail = (message) => {
+      const fail = (message, detail = {}) => {
         if (!active()) return;
         stopModel();
         emit({
           stage: "checks",
+          screeningAttempt: { status: "error", message, stage: detail.stage || null, code: detail.code || null },
           message: `Semantic screening unavailable: ${message}. Traditional results and any previous completed screening are retained.`,
           progress: null,
         });
@@ -529,12 +538,13 @@ export function createAppController({
         if (!active() || data.requestId !== currentRun) return;
         if (data.type === "progress")
           emit({ message: data.message, progress: data.progress || null });
-        else if (data.type === "error") fail(data.message);
+        else if (data.type === "error") fail(data.message, data);
         else if (data.type === "result") {
           worker.terminate();
           modelWorker = null;
           emit({
             report: { ...state.report, semantic: data.semantic },
+            screeningAttempt: data.semantic.inferencePerformed ? { status: "completed" } : { status: "not-run", message: data.semantic.notRun?.reason || "The model found no eligible comparisons in the selected checks.", reasons: data.semantic.notRun?.checks || [] },
             modelBusy: false,
             stage: state.aiEnabled && !data.semantic.inferencePerformed ? "checks" : "review",
             message: state.aiEnabled && !data.semantic.inferencePerformed

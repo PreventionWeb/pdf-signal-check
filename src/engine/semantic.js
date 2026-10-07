@@ -106,6 +106,7 @@ export async function assessSemantic(input, embed) {
   if (!supportsLanguage(model, languageContext.screening)) {
     for (const field of allowed) if (requested(field) && !(field === 'title' && titleSettled)) result[field] = {
       ...uncertain(`The declared language is missing or outside ${model.label}'s explicit language coverage. No language detection or multilingual accuracy guarantee is provided.`), method: 'unsupported-language', inferencePerformed: false };
+    result.notRun = { code: "unsupported-language", reason: "The document language is missing or unsupported by the selected model.", checks: [] };
     return { ...result, assessment: result.title };
   }
   const texts = [], indices = new Map();
@@ -131,6 +132,17 @@ export async function assessSemantic(input, embed) {
     if (!h || !body || typeof h.text !== 'string' || typeof body.text !== 'string' || !/^H[1-6]?$/.test(h.role || '') || h.page !== body.page || !body.keys?.length || body.text?.length < 80 || words(h.text || '').length < 2) continue;
     if (/^(executive overview|introduction|conclusion|summary|references|results|discussion|methods)$/i.test(h.text.trim())) continue;
     addTask('section',h.text,[{...body,text:body.text.slice(0,800)}],{heading:h});
+  }
+  if (!tasks.length) {
+    const queryReason = (query, evidence, missing) => !query?.trim() ? missing : query.length > limits.metadataCharacters
+      ? `The metadata value exceeds the ${limits.metadataCharacters}-character screening limit.`
+      : !evidence.length ? 'No sufficient opening-page text was recovered for comparison.' : 'No eligible comparison was prepared.';
+    result.notRun = { code: 'no-comparable-inputs', reason: 'None of the selected checks had enough comparable input to run the AI model.', checks: checks.map(check => ({ check,
+      reason: check === 'title' ? titleSettled && !input.requireInference ? 'Title identity was settled by deterministic rules; model inference was not requested for this comparison.' : !rules.title ? 'The PDF has no title metadata to compare.' : words(rules.title).length < 2 ? 'The metadata title is too short for AI comparison.' : queryReason(rules.title, candidates, 'No title metadata was found.')
+        : check === 'subject' ? queryReason(metadata.subject, excerpts, 'The PDF has no subject description in its metadata.')
+        : check === 'keywords' ? !keywordTerms.length ? 'The PDF has no keyword metadata to compare.' : !excerpts.length ? 'No sufficient opening-page text was recovered for keyword comparison.' : 'No keyword fits the bounded screening limits.'
+        : 'No eligible tagged heading and following text were recovered. Generic or very short headings cannot be screened.'
+    })) };
   }
   if (tasks.length) {
     const embedded = await embed(texts,model);
