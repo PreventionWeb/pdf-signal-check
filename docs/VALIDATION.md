@@ -238,3 +238,12 @@ Single-member groups omit their progress count, selector and navigation. Located
 The results screen was rebuilt around a fix list: Fix / Check / Couldn’t check buckets, item detail with one “What to change” line, a Technical evidence drawer and a Technical details tab. The Reviewed checkbox and the hero percentage were removed. The metadata stop screen is unchanged. Headless Chromium QA at 1440px covered all six samples, and at 390px covered Partly prepared. It checked every card, opening the drawer and closing it with Escape, the Technical tab, the stop screen for Missing document information, and no horizontal page overflow. Visible text on the Partly prepared results dropped from about 740 to 240 words. A follow-up agent-browser pass with MiniLM checked the AI heading buckets (“Headings that may not match their sections” in Check, “Headings the AI could not judge” in Couldn’t check) and their drawer evidence.
 
 The PDF download is now a fix list. It contains the headline, numbered Fix and Check items with where to look, the actual values, what to change and a framed crop, then a Couldn’t check list. The previous analysis receipt follows as a technical appendix. The downloaded Partly prepared PDF was rendered and inspected. Its first pass placed crops apart from their items, so items now reserve space for their crop. Reading-order and decorative items carry no crop, because one region cannot show a sequence or page-wide decoration.
+
+An agent-browser QA pass across all six samples with MiniLM, at 1440px and 390px, led to further changes:
+- Saved titles and authors beside unmatched page text now go to Check.
+- Missing tags absorb their consequences into one fix.
+- AI items show the saved value and the text they were compared with.
+- Attachments show only names and descriptions.
+- “Back to the list” restores focus to the opened card.
+
+A later pass found decorative outlines invisible. The outline was drawn in the same blue as a thin decorative rule and on top of it. Decorative crops now use a padded, dashed orange box, and preview selections get the same halo. This was confirmed by extracting the rendered crop and screenshotting the preview. The language dialog and the stop-screen property table now use plain wording; the table merges PDF-properties and XMP values into one row per property. A live MiniLM run confirmed the heading excerpts and the new language dialog.

@@ -31,7 +31,7 @@ export function fixSheet(snapshot) {
   const summary=reviewSummary(report,groups);
   let number=0;
   const memberLine=member=>{const figure=member.comparison?.figure;
-    if(figure)return `${figure.decorative?'Decorative graphics':figure.tagged?`Image ${member.comparison.figureNumber || 1}`:'Unlabelled graphics'}, page ${figure.page}`;
+    if(figure)return `Page ${figure.page}, ${figure.decorative?'decorative graphics':figure.tagged?`image ${member.comparison.figureNumber || 1}`:'unlabelled graphics'}`;
     const page=member.targets?.[0]?.page;return `“${member.comparison?.query || member.title.replace(/^Heading: /,'')}”${page?`, page ${page}`:''}`;};
   const entry=(item,bucket)=>({number:++number,bucket,...fixCard(item,report),
     // A one-region crop cannot show a sequence or page-wide decoration; those stay text-only.

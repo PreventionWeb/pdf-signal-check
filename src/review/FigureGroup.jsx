@@ -9,7 +9,7 @@ export function FigureGroup({ finding, file, report, onInspect }) {
   return <section aria-label="Images in this group">
     {finding.members.length > 1 && <>
     <Select label={`Image ${index + 1} of ${finding.members.length}`} value={String(index)} onChange={event => setIndex(Number(event.target.value))}
-      options={finding.members.map((item, position) => ({ value: String(position), label: `${position + 1}. ${item.comparison.figure.tagged ? `Image ${item.comparison.figureNumber || 1}` : 'Graphics'} · page ${item.comparison.figure.page}` }))} />
+      options={finding.members.map((item, position) => ({ value: String(position), label: `${position + 1}. Page ${item.comparison.figure.page}, ${item.comparison.figure.decorative ? 'decorative graphics' : item.comparison.figure.tagged ? `image ${item.comparison.figureNumber || 1}` : 'graphics'}` }))} />
     <div className="figure-group-actions">
       <Button disabled={index === 0} onClick={() => setIndex(index - 1)}>Previous</Button>
       <Button disabled={index === finding.members.length - 1} onClick={() => setIndex(index + 1)}>Next</Button>

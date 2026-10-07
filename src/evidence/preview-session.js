@@ -191,6 +191,17 @@ export class PreviewSession {
       polygon.setAttribute("points", pts.map((p) => p.join(",")).join(" "));
       polygon.setAttribute("class", `region ${r.kind}`);
       this.svg.append(polygon);
+      if (r.kind === "selected") {
+        // A padded halo keeps the selection visible when the region is a thin rule or matches the outline colour.
+        const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), pad = 6;
+        const halo = document.createElementNS(this.svg.namespaceURI, "rect");
+        halo.setAttribute("x", Math.min(...xs) - pad);
+        halo.setAttribute("y", Math.min(...ys) - pad);
+        halo.setAttribute("width", Math.max(...xs) - Math.min(...xs) + pad * 2);
+        halo.setAttribute("height", Math.max(...ys) - Math.min(...ys) + pad * 2);
+        halo.setAttribute("class", "region-halo");
+        this.svg.append(halo);
+      }
       if (r.number && r.label) {
         const label = document.createElementNS(this.svg.namespaceURI, "text");
         label.setAttribute("x", pts[3][0]);

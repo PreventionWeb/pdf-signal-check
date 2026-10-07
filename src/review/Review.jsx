@@ -274,7 +274,7 @@ function limitText(item) {
   if (item.source?.checkId === "supported-content") return "Images and charts: this tool cannot judge what they mean.";
   if (item.source?.path === "semantic") return item.outcome === "error" ? "AI text comparisons: the AI check did not finish." : "AI text comparisons: not run for this PDF.";
   const skipped = /^semantic:(keywords|sections):unassessed$/.exec(item.id);
-  if (skipped) return `${skipped[1] === "keywords" ? "Keywords" : "Headings"}: ${String(item.summary || "").match(/\d+/)?.[0] || "some"} were not compared by the AI, because each check has a size limit.`;
+  if (skipped) return `${String(item.summary || "").match(/\d+/)?.[0] || "Some"} ${skipped[1] === "keywords" ? "keywords" : "headings"} were not compared by the AI. It only compares a limited number in each PDF.`;
   return `${item.title}: ${item.summary || "not checked"}`;
 }
 const excerpt = text => { const value = String(text || "").replace(/\s+/g, " ").trim(); return value.length > 220 ? `${value.slice(0, 219)}…` : value; };

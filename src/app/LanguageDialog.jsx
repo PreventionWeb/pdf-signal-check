@@ -49,30 +49,30 @@ export function LanguageDialog({ controller, state }) {
     >
       <div className="language-dialog-header">
         <h2 id="language-modal-title" ref={title} tabIndex={-1}>
-          AI is waiting for the document language
+          Is this PDF in English?
         </h2>
         <Button aria-label="Close dialog" onClick={handleContinueWithoutAI}>
           Close
         </Button>
       </div>
       <div className="language-dialog-body">
-        <p>Completed text checks are retained. You can inspect them while resolving AI coverage.</p>
-        <p>This PDF does not declare a document language in its metadata. Missing language declarations can confuse semantic models.</p>
+        <p>This PDF doesn’t say what language it is in. The AI checks need to know the language to compare text correctly.</p>
+        <p>The other checks have already finished. If the PDF is in English, the AI checks can run now.</p>
         <p className="model-note">
-          Choosing to assume English applies only to this PDF’s local AI checks; it does not fix the PDF’s metadata declaration or change the required rule defect.
+          This only applies to this check. The missing language setting is still listed as something to fix.
         </p>
         {model && (
           <p className="model-note">
-            {model.label}: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer if needed, plus runtime assets (approximately 26.86 MB uncompressed WASM and JavaScript). Running permits these downloads. Your PDF text stays on this device.
+            If {model.label} isn’t downloaded yet, this downloads about {((model.graphBytes + model.tokenizerBytes) / 1e6 + 26.86).toFixed(0)} MB once (the model and the files that run it). Your PDF stays on this device.
           </p>
         )}
       </div>
       <Actions className="language-dialog-actions">
         <Button variant="primary" onClick={handleAssumeEnglish}>
-          Assume English &amp; run AI checks
+          Yes, it’s in English
         </Button>
         <Button variant="secondary" onClick={handleContinueWithoutAI}>
-          Continue without AI checks
+          Skip AI checks
         </Button>
         <Button onClick={handleChangeSettings}>
           Change check settings

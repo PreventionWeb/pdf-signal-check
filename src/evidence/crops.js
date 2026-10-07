@@ -28,7 +28,13 @@ export class EvidenceCropService {
       crop=document.createElement('canvas');crop.width=Math.max(1,Math.floor(bounds.width*outputScale));crop.height=Math.max(1,Math.floor(bounds.height*outputScale));const ctx=crop.getContext('2d');
       ctx.drawImage(canvas,bounds.x,bounds.y,bounds.width,bounds.height,0,0,crop.width,crop.height);
       const outlines = target.wholePage ? quads.map(quad => quad.map(p => point(viewport.transform, p))) : !bounds.pageContext ? [bounds.points] : [];
-      for (const outline of outlines) { ctx.strokeStyle='#1767a6';ctx.fillStyle='rgba(23,103,166,.10)';ctx.lineWidth=2;ctx.beginPath();outline.forEach(([x,y],i)=>i?ctx.lineTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale):ctx.moveTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale));ctx.closePath();ctx.fill();ctx.stroke(); }
+      if (target.wholePage) {
+        // Decorative graphics are often thin rules in brand colours: draw a padded, dashed box so the outline does not merge with the graphic.
+        ctx.strokeStyle='#c2410c';ctx.lineWidth=3;ctx.setLineDash([8,5]);
+        for (const outline of outlines) { const xs=outline.map(([x])=>(x-bounds.x)*outputScale),ys=outline.map(([,y])=>(y-bounds.y)*outputScale),pad=8;
+          ctx.strokeRect(Math.min(...xs)-pad,Math.min(...ys)-pad,Math.max(...xs)-Math.min(...xs)+pad*2,Math.max(...ys)-Math.min(...ys)+pad*2); }
+        ctx.setLineDash([]);
+      } else for (const outline of outlines) { ctx.strokeStyle='#1767a6';ctx.fillStyle='rgba(23,103,166,.10)';ctx.lineWidth=2;ctx.beginPath();outline.forEach(([x,y],i)=>i?ctx.lineTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale):ctx.moveTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale));ctx.closePath();ctx.fill();ctx.stroke(); }
       const blob=await blobOf(crop);throwIfAborted(this.signal);
       return {blob,width:crop.width,height:crop.height,page:target.page,pageContext:bounds.pageContext,caption:bounds.pageContext ? `Page ${target.page} · page context; the figure’s exact location could not be isolated.` : `Page ${target.page} · blue outline: one approximate located evidence region${quads.length>1?`; ${quads.length-1} additional regions remain in textual/full-page evidence`:''}.`,text:target.text || 'Located evidence'};
     } finally {if(canvas)canvas.width=canvas.height=0;if(crop)crop.width=crop.height=0;page?.cleanup();}
