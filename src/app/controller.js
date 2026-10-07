@@ -29,7 +29,7 @@ export function createAppController({
     setupComplete: Boolean(saved),
     settingsSaved: Boolean(saved),
     aiEnabled: Boolean(saved && saved.modelId !== null),
-    evaluationModel: saved ? saved.modelId : "minilm",
+    evaluationModel: saved ? saved.modelId : "granite-r2",
     setupDestination: "document",
     pendingSetupLabel: null,
     selectedModel: saved?.modelId || null,
@@ -150,7 +150,7 @@ export function createAppController({
       services.batch?.releaseIdleWorkers();
       services.batch?.setSettings({ useAI: false, modelId: "minilm", checks: ["title", "subject", "keywords"] });
       services.batch?.setConsent(false);
-      emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "minilm", selectedModel: null, languageAssumption: null,
+      emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "granite-r2", selectedModel: null, languageAssumption: null,
         checks: ["title", "subject", "keywords"], pendingSetupLabel: null, message: settingsCleared && benchmarksCleared ? "Saved setup and speed tests reset. Choose settings for your next PDF." : "Setup reset for this session. Browser storage could not be cleared; saved settings may return after reload." });
       return true;
     },

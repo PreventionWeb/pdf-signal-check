@@ -175,7 +175,7 @@ details.review-scope-details > summary, details.review-export-menu > summary { p
 progress {
   width: 100%;
   height: 5px;
-  accent-color: rgb(var(--mg-color-accent-400));
+  accent-color: rgb(var(--mg-color-interactive));
   margin-top: 16px;
 }
 

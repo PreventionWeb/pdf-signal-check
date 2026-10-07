@@ -111,7 +111,7 @@ it('reset revokes saved consent and benchmarks and releases a deferred first-use
   expect(app.resetSetup()).toBe(true);
   expect(preferences.load()).toBeNull();
   expect(devicePreferences.clear).toHaveBeenCalledOnce();
-  expect(app.getSnapshot()).toMatchObject({ setupComplete: false, aiEnabled: false, settingsSaved: false, languageAssumption: null, checks: ['title', 'subject', 'keywords'] });
+  expect(app.getSnapshot()).toMatchObject({ setupComplete: false, aiEnabled: false, settingsSaved: false, evaluationModel: "granite-r2", languageAssumption: null, checks: ['title', 'subject', 'keywords'] });
   expect(createAppController({ preferences }).getSnapshot().setupComplete).toBe(false);
   const pdf = { name: 'deferred.pdf', size: 4, arrayBuffer: vi.fn() };
   app.selectFiles([pdf]);
@@ -129,4 +129,11 @@ it('refuses a reset while another owner is processing and leaves saved consent i
   expect(app.resetSetup()).toBe(false);
   expect(preferences.load().modelId).toBe('minilm');
   expect(devicePreferences.clear).not.toHaveBeenCalled();
+});
+
+it('recommends Granite on first use while preserving a previously confirmed compact choice', () => {
+  const preferences = createEvaluationPreferences({ storage: storage() });
+  expect(createAppController({ preferences }).getSnapshot().evaluationModel).toBe('granite-r2');
+  preferences.save({ modelId: 'minilm', checks: ['title'] });
+  expect(createAppController({ preferences }).getSnapshot()).toMatchObject({ evaluationModel: 'minilm', setupComplete: true });
 });

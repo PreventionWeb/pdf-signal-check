@@ -7,7 +7,7 @@ import { Card, Button, Radio, Actions } from '../ui/react.jsx';
 
 export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
   const [step, setStep] = useState(1);
-  const [modelId, setModelId] = useState(() => controller.getSnapshot().setupComplete ? controller.getSnapshot().evaluationModel : 'minilm');
+  const [modelId, setModelId] = useState(() => controller.getSnapshot().setupComplete ? controller.getSnapshot().evaluationModel : 'granite-r2');
   const [receipt, setReceipt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [resetStatus, setResetStatus] = useState('');
@@ -17,7 +17,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
     heading?.focus({ preventScroll: true });
     heading?.scrollIntoView({ block: "start", behavior: "instant" });
   }, [step, resetStatus]);
-  const options = [...SEMANTIC_MODELS, { key: null, label: 'No AI model' }];
+  const options = [SEMANTIC_MODELS[1], SEMANTIC_MODELS[0], { key: null, label: 'No AI model · fallback' }];
   const speed = model => {
     const measured = model.key === modelId && receipt ? receipt : preferences.load(model.key)?.receipt;
     if (!measured) return <span><strong>{model.key === 'minilm' ? 'Good' : 'OK'}</strong><br /><small>Expected · not benchmarked</small></span>;
@@ -53,16 +53,16 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       </Actions>
     </> : <>
       <h2 id="setup-model-title" tabIndex={-1}>Choose a model for your PDFs</h2>
-      <p>Use MiniLM for English PDFs, or Granite R2 for its supported languages. Both add local AI comparisons to text, structure and metadata checks. Choose no AI model if you prefer rule-based checks or local AI cannot run. Your PDFs stay on this device.</p>
+      <p>Granite R2 is recommended for its broader language coverage. For English PDFs, choose compact MiniLM when smaller downloads, a slower device or high processing volumes matter. Use no AI model only if local AI cannot run; it skips AI text comparisons. Your PDFs stay on this device.</p>
         <p className="matrix-scroll-hint">Scroll across to compare all three options.</p>
         <div className="mg-table-scroll-region setup-matrix-scroll" role="region" aria-label="Model feature comparison" tabIndex={0}>
           <table className="mg-table setup-matrix">
             <caption className="mg-u-sr-only">Features of MiniLM, Granite R2 and the no-AI fallback</caption>
             <thead><tr><th scope="col">Compare options</th>{options.map(option => <th scope="col" key={option.key || 'none'} className={modelId === option.key ? 'is-selected' : undefined}>
               <Radio id={`setup-${option.key || 'none'}`} name="setup-model" value={option.key || 'none'} label={option.label} checked={modelId === option.key} disabled={batchBusy} onChange={() => { setModelId(option.key); setReceipt(null); }} />
-              <p className="setup-product-note">{option.key === 'minilm' ? 'Recommended for English' : option.key ? 'For multilingual PDFs' : 'Without AI text comparisons'}</p>
+              <p className="setup-product-note">{option.key === 'granite-r2' ? 'Recommended · 52 languages' : option.key ? 'Compact option · English only' : 'Fallback · no AI comparisons'}</p>
             </th>)}</tr></thead>
-            <tbody>{features.map(([feature, ...values], rowIndex) => <tr key={rowIndex}><th scope="row">{feature}</th>{[values[1], values[2], values[0]].map((value, i) => <td key={i} className={modelId === options[i].key ? 'is-selected' : undefined}>{value === 'Yes' ? <strong>Yes</strong> : value}</td>)}</tr>)}</tbody>
+            <tbody>{features.map(([feature, ...values], rowIndex) => <tr key={rowIndex}><th scope="row">{feature}</th>{options.map(option => values[option.key === 'minilm' ? 1 : option.key === 'granite-r2' ? 2 : 0]).map((value, i) => <td key={i} className={modelId === options[i].key ? 'is-selected' : undefined}>{value === 'Yes' ? <strong>Yes</strong> : value}</td>)}</tr>)}</tbody>
           </table>
         </div>
       <p className="model-note">AI options also use runtime assets: approximately 26.86 MB uncompressed WASM, plus JavaScript. Transfer/cache cost varies. Token limits bound each excerpt; they do not describe whole-document coverage. Processing speed is a general estimate of AI overhead until that model is benchmarked on this device; actual speed varies with your PDF. A MiniLM benchmark does not rate Granite R2. Tagged heading comparisons can be enabled in check settings.</p>
@@ -73,7 +73,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       </Actions>
     </>}
     <div className="setup-reset">
-      <Button disabled={busy || batchBusy} onClick={() => { if (controller.resetSetup()) { setModelId('minilm'); setReceipt(null); setStep(1); setResetStatus(controller.getSnapshot().message); } }}>Reset saved setup</Button>
+      <Button disabled={busy || batchBusy} onClick={() => { if (controller.resetSetup()) { setModelId('granite-r2'); setReceipt(null); setStep(1); setResetStatus(controller.getSnapshot().message); } }}>Reset saved setup</Button>
       <p className="model-note">Forget model selection, download permission and saved speed tests. Your next PDF will ask you to set up again. Downloaded model files remain in the browser cache.</p>
     </div>
   </div>;

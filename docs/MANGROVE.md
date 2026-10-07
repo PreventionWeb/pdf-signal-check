@@ -198,3 +198,12 @@ Verification: 205 tests passed; production build passed with the existing large-
 | Saved setup could only be replaced | Reset saved setup revokes future download consent, clears model/check preferences and per-model speed receipts, and restores first-use setup. Cached model files and current document evidence are retained. |
 
 Reset refuses to run during analysis, inference, calibration or an active batch. It also releases deferred intake and reports storage-clear failures honestly. Verification: 207 tests passed, production build passed, desktop/mobile matrix selection and reset were exercised in-browser, and reload after reset reopened first-use setup. Mobile document/dialog widths stayed within the viewport; only the comparison table scrolls horizontally. The repository-prefixed production intake loaded successfully. No PDF export rendering changed.
+
+## Model recommendation and progress — 7 October 2026
+
+| Before | After |
+| --- | --- |
+| MiniLM selected first in new/reset setup | Granite R2 selected first and recommended for its 52-language coverage. Saved choices remain intact; MiniLM is the compact English option for smaller downloads, slower devices or high-volume processing. No AI is a last-resort fallback. |
+| Native progress used the accent token | Native download/processing progress uses the same Mangrove interactive primary token as primary buttons. |
+
+Verification: 208 tests passed and build passed. Browser inspection confirmed Granite's default selection and correct reordered feature values. During an actual MiniLM benchmark, the computed progress colour and primary button background both resolved to `rgb(0, 79, 145)`. Benchmark ratings remain model-specific; no Granite speed result is inferred from MiniLM timings.
