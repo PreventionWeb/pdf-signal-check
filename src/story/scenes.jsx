@@ -1,211 +1,223 @@
 import React from 'react';
+import { finding, stepNumber, storyScript, yearOf } from './script.js';
+import { A, At, Backdrop, Bubble, C, Chart, Cover, Laptop, NoSign, Person, QMark, Sheet, Stamp, StepTag, Strip, Tick, Tile, TILE_COLOURS, Torn, Warning, stripWidth } from './art.jsx';
 
 /*
- * Seven scenes for "Your report says it. Does everyone understand it?". Every text value shown on stage comes
- * from snapshot.json (real engine output on the synthetic samples), except the two illustrative assistant
- * answers in scene 5. Static markup is each scene's final frame; data-anim marks how an element enters.
+ * Eight scenes for "Your report says it. Does everyone understand it?". Text values on stage come from
+ * snapshot.json (real engine output on the synthetic samples). Static markup is each scene's composed final
+ * frame; <A anim> marks how a piece enters. Captions use [word|colour] for coloured key words.
  */
 
-const finding = data => (data.well.figureAlt || '').split('. ').pop().replace(/\.$/, '') || 'South is highest';
-/** Where on the miniature page a pin belongs, by what the item is about. */
-const pinSpot = title => /image|chart/i.test(title) ? [64, 226] : /order/i.test(title) ? [64, 146] : /Map 2|link/i.test(title) ? [64, 352]
-  : /\+0\.7|apart/i.test(title) ? [210, 352] : /decorative/i.test(title) ? [326, 80] : [326, 300];
-const stepNumber = text => text.match(/^(\d)/)?.[1];
-const stepLabel = text => text.replace(/^\d[.)]\s*/, '');
+const stepWord = text => text.replace(/^\d[.)]\s*/, '').split(' ')[0];
 
-/** A miniature report page in the sample-cover style. */
-function MiniPage({ x, y, w = 150, h = 200, label, children }) {
-  return <g transform={`translate(${x} ${y})`}>
-    <rect width={w} height={h} rx="3" className="s-paper" />
-    <rect width={w} height={h * 0.18} className="s-band" />
-    <path d={`M0 ${h * 0.16} C${w * 0.3} ${h * 0.12} ${w * 0.55} ${h * 0.21} ${w} ${h * 0.15} V${h * 0.18} H0 Z`} className="s-teal" />
-    {children}
-    {label && <text x={w / 2} y={h + 18} textAnchor="middle" className="s-label">{label}</text>}
-  </g>;
-}
-const Lines = ({ x, y, widths, gap = 10 }) => widths.map((w, i) => <rect key={i} x={x} y={y + i * gap} width={w} height="4" rx="2" className="s-line" />);
+// The three hidden layers, as coloured paper, recur across scenes.
+const LAYER = { see: C.paper, text: '#cfe9f7', tags: '#fbe3a6' };
+const STEP_COLOUR = { 1: C.teal, 2: C.sky, 3: C.coral, 4: C.purple };
 
-/** Reader icons, always paired with a text label: Mangrove has no screen reader or AI glyph. */
-function Reader({ x, y, kind, label, children }) {
-  const glyph = {
-    eye: <><path d="M-18 0 Q0 -14 18 0 Q0 14 -18 0 Z" className="s-ink-stroke" fill="none" strokeWidth="2.5" /><circle r="5" className="s-ink" /></>,
-    speaker: <><path d="M-14 -6 h7 l9 -8 v28 l-9 -8 h-7 Z" className="s-ink" /><path d="M7 -7 q6 7 0 14 M11 -11 q11 11 0 22" fill="none" className="s-ink-stroke" strokeWidth="2.5" strokeLinecap="round" /></>,
-    ai: <><rect x="-15" y="-15" width="30" height="30" rx="6" fill="none" className="s-ink-stroke" strokeWidth="2.5" /><path d="M0 -8 l2.5 5.5 5.5 2.5 -5.5 2.5 -2.5 5.5 -2.5 -5.5 -5.5 -2.5 5.5 -2.5 Z" className="s-ink" /></>,
-  }[kind];
-  return <g transform={`translate(${x} ${y})`}>
-    <circle r="30" className="s-soft" />{glyph}
-    <text y="52" textAnchor="middle" className="s-label">{label.split('\n').map((line, i) => <tspan key={line} x="0" dy={i ? 18 : 0}>{line}</tspan>)}</text>
-    {children}
-  </g>;
-}
-const Chip = ({ x, y, text, className = 's-chip', anim, delay, from, w }) => {
-  const width = w || text.length * 7.4 + 24;
-  return <g data-anim={anim} data-delay={delay} data-from={from} transform={`translate(${x} ${y})`}>
-    <rect x={-width / 2} y="-14" width={width} height="28" rx="14" className={className} />
-    <text textAnchor="middle" y="5" className="s-chip-text">{text}</text>
-  </g>;
-};
-function Chart({ x, y, labels, picture = false }) {
-  const values = labels.filter(text => /m$/.test(text)), names = labels.filter(text => !/m$/.test(text));
-  return <g transform={`translate(${x} ${y})`}>
-    <rect width="240" height="150" className="s-pale" />
-    {values.map((value, i) => {
-      const height = parseFloat(value) * 30;
-      return <g key={value} transform={`translate(${30 + i * 72} 0)`}>
-        <rect y={128 - height} width="44" height={height} className={picture ? 's-teal s-pixel' : 's-teal'} />
-        <text x="22" y={120 - height} textAnchor="middle" className={picture ? 's-pixel-text' : 's-small'}>{value}</text>
-        <text x="22" y="144" textAnchor="middle" className={picture ? 's-pixel-text' : 's-small'}>{names[i]}</text>
-      </g>;
-    })}
-  </g>;
-}
+const Stage = ({ children }) => <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><Backdrop />{children}</svg>;
+const Label = ({ x, y, text, fill = C.paper, size = 34, ...anim }) => <A anim="drop" {...anim}><At x={x} y={y}><Strip text={text} fill={fill} size={size} pad={16} /></At></A>;
 
 export function scenes(data) {
+  const words = storyScript(data);
   const sentence = finding(data);
-  const partlySteps = data.partly.tagSteps;
+  const cover = data.travel.title, saved = data.partly.savedTitle;
+  const coverYear = yearOf(cover), savedYear = yearOf(saved);
+  const hiddenOrder = data.partly.tagSteps;
   const drawn = data.scrambled.drawnLines;
-  const extracted = [...drawn.filter(line => /^\d\.\s/.test(line)), drawn.find(line => /^rise in/.test(line)), drawn.find(line => /Map 2/.test(line)), drawn.at(-1)].filter(Boolean);
-  const [header, ...rows] = data.travel.csvRows;
-  return [
+  const orphan = drawn.at(-1);
+  const beforeOrphan = drawn.slice(-3, -1);
+  const [, ...rows] = data.travel.csvRows;
+  const csvName = data.travel.attachments.find(file => /\.csv$/.test(file.name))?.name || 'data.csv';
+  const pins = data.scrambled.pins.slice(0, 4);
+  const labels = data.well.chartLabels;
+  const values = labels.filter(text => /m$/.test(text)), names = labels.filter(text => !/m$/.test(text));
+
+  const visuals = [
     {
-      id: 'finding', label: 'The sentence that matters', dwell: 0,
-      caption: `A report exists for its findings. Built well, one sentence like “${sentence}” reaches everyone: a person reading the page, a person using a screen reader and an AI assistant.`,
-      describe: `A bar chart of water visibility at three stations. The sentence “${sentence}” lifts off the chart and reaches three readers: a person reading, a person using a screen reader and an AI assistant.`,
-      stage: <svg viewBox="0 0 960 480" role="img" aria-labelledby="story-caption">
-        <Chart x={60} y={140} labels={data.well.chartLabels} />
-        <Chip x={180} y={100} text={sentence} anim="rise" delay="300" />
-        {[['eye', 'A person\nreading'], ['speaker', 'A person using\na screen reader'], ['ai', 'An AI\nassistant']].map(([kind, label], i) =>
-          <g key={kind} data-anim="fade" data-delay={150 * i}><Reader x={560 + i * 150} y={150} kind={kind} label={label} /></g>)}
-        {[0, 1, 2].map(i => <Chip key={i} x={560 + i * 150} y={300} text={sentence} anim="travel" delay={1100 + i * 220} dur="900" from={`${-380 - i * 150},-200`} />)}
-      </svg>,
+      describe: `The cover of the fictional “${cover}” drops onto a sheet of cream paper. Torn paper tiles spell out “Your report says it. Does EVERYONE understand it?”, with paper question marks around them.`,
+      stage: <Stage>
+        <A anim="drop" dur={800} idle="1"><At x={250} y={240} r={-6}><Cover year={coverYear} /></At></A>
+        <A anim="slap" delay={500} dur={500}><At x={620} y={150} r={-1.5}><Strip text="Your report says it." size={56} /></At></A>
+        <A anim="slap" delay={1100} dur={450}><At x={620} y={300} r={1.5}><Strip text="Does" size={56} fill={C.ink} color="#fff" /></At></A>
+        {'EVERYONE'.split('').map((ch, i) =>
+          <A key={i} anim="drop" delay={1450 + i * 110} dur={520} idle="0.8"><At x={612 + i * 98} y={420 + (i % 2) * 14} r={[-5, 4, -2, 6, -4, 3, -6, 2][i]}><Tile ch={ch} size={112} fill={TILE_COLOURS[i % TILE_COLOURS.length]} /></At></A>)}
+        <A anim="slap" delay={2500} dur={450}><At x={760} y={610} r={-1}><Strip text="understand it?" size={56} /></At></A>
+        <A anim="pop" delay={2500} dur={500} idle="1.4"><At x={1360} y={230} r={14}><QMark /></At></A>
+        <A anim="pop" delay={2600} dur={500} idle="1.4"><At x={520} y={180} r={-16} s={0.7}><QMark fill={C.sky} /></At></A>
+        <A anim="pop" delay={2700} dur={500} idle="1.4"><At x={1300} y={720} r={8} s={0.8}><QMark fill={C.coral} /></At></A>
+      </Stage>,
     },
     {
-      id: 'underneath', label: 'Same cover, different underneath', dwell: 3000,
-      caption: `These two PDFs look identical and print the same. Underneath, the second tells screen readers to read the steps as ${partlySteps.map(stepNumber).join(', ')}.`,
-      describe: `Two identical report covers. The second separates into three layers: the page people see, with steps 1 to 4; the text that tools extract; and the hidden tags that screen readers follow, which order the steps ${partlySteps.map(stepNumber).join(', ')}.`,
-      stage: <div className="s-scene-split">
-        <svg viewBox="0 0 380 480" role="img" aria-labelledby="story-caption">
-          <MiniPage x={20} y={110} label="Well prepared"><Lines x={14} y={56} widths={[110, 120, 90, 116, 100]} /></MiniPage>
-          <MiniPage x={200} y={110} label="Partly prepared"><Lines x={14} y={56} widths={[110, 120, 90, 116, 100]} /></MiniPage>
-        </svg>
-        <div className="s-layers" aria-hidden="true">
-          {[
-            ['What people see', <g>{[1, 2, 3, 4].map((n, i) => <g key={n} transform={`translate(${20 + (i > 1 ? 150 : 0)} ${30 + (i % 2) * 40})`}><circle r="11" className="s-blue" /><text y="4" textAnchor="middle" className="s-pin-text">{n}</text><rect x="18" y="-3" width="96" height="6" rx="3" className="s-line" /></g>)}</g>],
-            ['What text tools extract', <Lines x={20} y={20} widths={[230, 260, 200, 250, 220]} gap={14} />],
-            ['What screen readers follow', <g>{partlySteps.map((step, i) => <g key={step} transform={`translate(${24 + i * 70} 52)`}><circle r="13" className="s-blue" /><text y="5" textAnchor="middle" className="s-pin-text">{stepNumber(step)}</text></g>)}<path d="M37 52 H71 M107 52 H141 M177 52 H211" className="s-red-stroke" strokeWidth="2.5" pathLength="1" strokeDasharray="1" data-anim="draw" data-delay="1500" data-dur="900" /></g>],
-          ].map(([title, art], i) => <div key={title} className="s-layer" style={{ transform: `translate3d(0, ${i * 104}px, ${-i * 30}px) rotateX(18deg)` }} data-anim="unfold" data-delay={500 + i * 150} data-dur="900">
-            <span className="s-layer-title">{title}</span>
-            <svg viewBox="0 0 320 96">{art}</svg>
-          </div>)}
-        </div>
-      </div>,
+      describe: `A paper bar chart of water visibility at three stations: ${values.map((v, i) => `${names[i]} ${v}`).join(', ')}. A speech bubble saying “${sentence}” lifts off the tallest bar, and copies fly to three cut-paper figures: a person reading, a person using a screen reader with headphones, and an AI assistant chat bubble. Each gets a tick.`,
+      stage: <Stage>
+        <A anim="drop" dur={650}><At x={190} y={440} s={1.05}><Chart labels={labels} /></At></A>
+        <A anim="pop" delay={1000} dur={600} idle="1"><At x={500} y={358}><Bubble text={sentence} size={42} /></At></A>
+        {[['reader', 'Reading'], ['listener', 'Screen reader'], ['assistant', 'AI assistant']].map(([kind, label], i) =>
+          <A key={kind} anim="right" delay={1500 + i * 180} dur={650} idle="0.7"><At x={820 + i * 220} y={440}><Person kind={kind} label={label} /></At></A>)}
+        {[0, 1, 2].map(i => <A key={i} anim="travel" delay={2500 + i * 260} dur={900} from={`${-320 - i * 220},${i === 1 ? 140 : 70}`}>
+          <At x={820 + i * 220} y={i === 1 ? 230 : 302}><Bubble text={sentence} size={24} /></At>
+        </A>)}
+        {[0, 1, 2].map(i => <A key={i} anim="pop" delay={3400 + i * 200} dur={420}><At x={900 + i * 220} y={570}><Tick r={28} /></At></A>)}
+      </Stage>,
     },
     {
-      id: 'lost', label: 'The sentence that doesn’t make it', dwell: 0,
-      caption: 'This chart has no description. Its numbers survive as loose labels, but the sentence that explains them never leaves the page.',
-      describe: `The same chart with no saved description. Text tools extract only the loose labels ${data.well.chartLabels.join(', ')}. The sentence “${sentence}” reaches the person reading the page but stops before the screen reader user and the AI assistant.`,
-      stage: <svg viewBox="0 0 960 480" role="img" aria-labelledby="story-caption">
-        <Chart x={60} y={60} labels={data.well.chartLabels} />
-        <text x="60" y="250" className="s-label">What text tools extract</text>
-        {data.well.chartLabels.map((label, i) => <g key={label} data-anim="drop" data-delay={200 + i * 120}><rect x={60 + i * 62} y="262" width="56" height="26" rx="4" className="s-code-box" /><text x={88 + i * 62} y="280" textAnchor="middle" className="s-code">{label}</text></g>)}
-        <text x="60" y="330" className="s-small s-muted">No description saved, so “{sentence}” has nowhere to travel.</text>
-        {[['eye', 'A person\nreading', true], ['speaker', 'A person using\na screen reader', false], ['ai', 'An AI\nassistant', false]].map(([kind, label, reached], i) =>
-          <g key={kind}><Reader x={560 + i * 150} y={130} kind={kind} label={label} />
-            {reached ? <Chip x={560} y={270} text={sentence} anim="travel" delay="900" dur="900" from="-380,-160" />
-              : <g data-anim="pop" data-delay={1500 + i * 200}><circle cx={560 + i * 150} cy="270" r="18" className="s-stop" /><path d={`M${552 + i * 150} 262 l16 16 m0 -16 l-16 16`} className="s-paper-stroke" strokeWidth="3" /><text x={560 + i * 150} y="312" textAnchor="middle" className="s-small s-muted">Numbers only</text></g>}
-          </g>)}
-      </svg>,
+      describe: 'The report page lifts and fans out into three stacked sheets of paper. The top sheet, white, is “What people see”. The middle sheet, light blue, is “Text tools pull out”, shown as lines of plain text. The bottom sheet, yellow, is “Tags screen readers follow”, shown as numbered tags on a string.',
+      stage: <Stage>
+        {[
+          ['Tags screen readers follow', LAYER.tags, 380, 640, '-120,-490', <g>
+            <path d="M40 42 Q250 70 470 40" stroke={C.ink} strokeWidth="4" fill="none" />
+            {[1, 2, 3, 4].map((n, i) => <At key={n} x={90 + i * 110} y={44 + (i === 1 || i === 2 ? 8 : 2)} s={0.58}><StepTag n={n} fill={STEP_COLOUR[n]} /></At>)}
+          </g>],
+          ['Text tools pull out', LAYER.text, 320, 395, '-60,-245', <g className="sp-mono" fontSize="24" fill={C.ink}>
+            <text x="36" y="52">Annual Report {coverYear}</text>
+            <text x="36" y="92">Mean water visibility</text>
+            <text x="36" y="132">{labels.slice(0, 4).join('  ')} …</text>
+          </g>],
+          ['What people see', LAYER.see, 260, 150, null, <g>
+            <rect x="24" y="22" width="452" height="34" fill={C.teal} />
+            <path d="M24 46 C140 34 300 64 476 44 V58 H24 Z" fill={C.purple} />
+            {[0, 1, 2].map(i => <rect key={i} x={40 + i * 46} y={142 - (i + 2) * 14} width="34" height={(i + 2) * 14} fill={[C.sky, C.teal, C.coral][i]} />)}
+            {[0, 1, 2].map(i => <rect key={i} x="210" y={84 + i * 22} width={[240, 200, 220][i]} height="10" rx="5" fill="#e3d7c2" />)}
+          </g>],
+        ].map(([label, fill, x, y, from, art], i) =>
+          <A key={label} anim={from ? 'travel' : 'drop'} from={from} delay={from ? 900 + (2 - i) * 500 : 200} dur={from ? 900 : 700} idle="0.6">
+            <At x={x} y={y} r={[1.5, -1, 0.5][i]}><Sheet w={500} h={170} fill={fill} label={label}>{art}</Sheet></At>
+          </A>)}
+        <A anim="pop" delay={2600} dur={500} idle="1.2"><At x={1420} y={150} r={10} s={0.8}><QMark fill={C.teal} /></At></A>
+      </Stage>,
     },
     {
-      id: 'order', label: 'Drawn out of order', dwell: 0,
-      caption: 'Here the right column is drawn first and the headline number is drawn last of all. Text tools read it exactly as it was drawn.',
-      describe: `A page with a two-column procedure and a headline number, “+0.7 m”, next to its label. The text a tool extracts, in drawing order: ${extracted.join(' / ')}.`,
-      stage: <svg viewBox="0 0 960 480" role="img" aria-labelledby="story-caption">
-        <MiniPage x={40} y={40} w={300} h={400} label="What people see">
-          {data.scrambled.tagSteps.map((step, i) => <g key={step} transform={`translate(${24 + (i > 1 ? 140 : 0)} ${110 + (i % 2) * 70})`}><circle r="11" className="s-blue" /><text y="4" textAnchor="middle" className="s-pin-text">{stepNumber(step)}</text><text x="18" y="4" className="s-tiny">{stepLabel(step).slice(0, 18)}</text><Lines x={0} y={18} widths={[110, 96]} gap={9} /></g>)}
-          <text x="24" y="300" className="s-big-number">+0.7 m</text>
-          <text x="120" y="296" className="s-tiny">rise in mean water visibility</text>
-          <text x="120" y="308" className="s-tiny">since 2024, all three stations</text>
-          <text x="24" y="345" className="s-tiny">Station locations are shown in Map 2.</text>
-        </MiniPage>
-        <text x="420" y="58" className="s-label">What a text tool extracts</text>
-        {extracted.map((line, i) => {
-          const orphan = i === extracted.length - 1;
-          return <g key={line} data-anim="slide" data-delay={300 + i * 180}>
-            <rect x="420" y={72 + i * 40} width="500" height="32" rx="4" className={orphan ? 's-code-box s-code-box--alert' : 's-code-box'} />
-            <text x="436" y={93 + i * 40} className="s-code">{line.length > 62 ? `${line.slice(0, 61)}…` : line}</text>
-            {orphan && <text x="905" y={93 + i * 40} textAnchor="end" className="s-small s-alert-text">on its own</text>}
-          </g>;
+      describe: `Left: the chart as people see it, with the bubble “${sentence}”. Right: the tags that screen readers follow, where the chart is an empty dashed frame and its “Description” line is blank, marked with a red no sign. All that text tools pull out are loose labels, which tumble out: ${labels.join(', ')}. The screen reader user’s bubble says only “Image.” The AI assistant’s bubble holds the loose numbers and a question mark.`,
+      stage: <Stage>
+        <Label x={210} y={70} text="What people see" />
+        <A anim="drop" dur={600}><At x={200} y={200} s={0.84}><Chart labels={labels} animate={false} /></At></A>
+        <A anim="pop" delay={300} dur={500} idle="1"><At x={390} y={178}><Bubble text={sentence} size={32} /></At></A>
+        <Label x={690} y={70} text="Tags screen readers follow" fill={LAYER.tags} delay={500} />
+        <A anim="right" delay={700} dur={650}><At x={690} y={180}><Sheet w={560} h={250} fill={LAYER.tags}>
+          <rect x="30" y="34" width="220" height="180" rx="6" fill="none" stroke={C.inkSoft} strokeWidth="4" strokeDasharray="14 10" />
+          <text x="290" y="80" className="sp-label" fontSize="32" fill={C.ink}>Description:</text>
+          <path d="M290 132 H520" stroke={C.inkSoft} strokeWidth="4" strokeDasharray="10 8" />
+          <text x="290" y="190" className="sp-label" fontSize="26" fill={C.inkSoft}>(none saved)</text>
+        </Sheet></At></A>
+        <A anim="pop" delay={1300} dur={500} idle="1"><At x={830} y={305} s={0.9}><QMark fill={C.mustard} /></At></A>
+        <A anim="slap" delay={1600} dur={450}><At x={1210} y={410}><NoSign r={48} /></At></A>
+        {labels.map((label, i) => <A key={label} anim="drop" delay={2000 + i * 120} dur={560}>
+          <At x={700 + (i % 3) * 190} y={470 + Math.floor(i / 3) * 72} r={[-8, 5, -3, 9, -6, 4][i]}><Strip text={label} size={30} pad={14} fill={LAYER.text} cls="sp-mono" bold={false} /></At>
+        </A>)}
+        <A anim="left" delay={2900} dur={600}><At x={300} y={640} s={0.62}><Person kind="listener" label="Screen reader" /></At></A>
+        <A anim="pop" delay={3300} dur={500} idle="1"><At x={530} y={660}><Bubble text="“Image.”" size={34} fill={C.paper} color={C.ink} tail="left" /></At></A>
+        <A anim="right" delay={3600} dur={600}><At x={850} y={640} s={0.62}><Person kind="assistant" label="AI assistant" /></At></A>
+        <A anim="pop" delay={4000} dur={500} idle="1"><At x={1170} y={660}><Bubble text={`${labels[0]} ${labels[1]} ${labels[2]} … ?`} size={30} fill={C.paper} color={C.ink} tail="left" /></At></A>
+      </Stage>,
+    },
+    {
+      describe: `Left: the page people see, with steps 1 and 2 in the left column and 3 and 4 in the right. Right: the step tags peel off the page and hang on a string in the order the hidden tags give them: ${hiddenOrder.join('; ')}. A warning triangle drops beside them.`,
+      stage: <Stage>
+        <Label x={210} y={70} text="What people see" />
+        <A anim="drop" dur={650}><At x={210} y={200} r={-2}><g filter="url(#sp-piece)"><rect width="440" height="560" rx="6" fill={C.paper} /></g>
+          <rect x="30" y="30" width="380" height="18" rx="9" fill="#e3d7c2" />
+          {[1, 2, 3, 4].map((n, i) => <At key={n} x={36 + (n > 2 ? 200 : 0)} y={110 + ((n - 1) % 2) * 190}>
+            <circle cx="30" cy="30" r="30" fill={STEP_COLOUR[n]} /><text x="30" y="42" textAnchor="middle" className="sp-tile" fontSize="36" fill="#fff">{n}</text>
+            {[0, 1, 2, 3].map(k => <rect key={k} x="0" y={78 + k * 22} width={[160, 140, 150, 110][k]} height="10" rx="5" fill="#e3d7c2" />)}
+          </At>)}
+        </At></A>
+        <Label x={720} y={70} text="Tags screen readers follow" fill={LAYER.tags} delay={400} />
+        <A anim="fade" delay={700} dur={400}><path d="M720 230 Q1050 280 1390 226" stroke={C.ink} strokeWidth="5" fill="none" strokeLinecap="round" /></A>
+        {hiddenOrder.map((step, i) => {
+          const n = Number(stepNumber(step)), x = 800 + i * 170, y = 242 + (i === 1 || i === 2 ? 14 : 4);
+          const home = (n > 2 ? 476 : 276) - x, homeY = (n % 2 ? 300 : 490) - y;
+          return <A key={step} anim="travel" from={`${home},${homeY}`} delay={1200 + i * 380} dur={900} idle="1.6">
+            <At x={x} y={y}><StepTag n={n} fill={STEP_COLOUR[n]} label={stepWord(step)} /></At>
+          </A>;
         })}
-      </svg>,
+        <A anim="fade" delay={2900} dur={500}><g>
+          <path d="M790 470 C900 510 1180 510 1320 470" stroke={C.red} strokeWidth="5" fill="none" strokeDasharray="1" pathLength="1" data-anim="draw" data-delay="2900" data-dur="700" />
+          <path d="M1300 454 L1324 468 L1302 488" stroke={C.red} strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <text x="1055" y="550" textAnchor="middle" className="sp-label" fontSize="32" fill={C.ink}>Read in this order</text>
+        </g></A>
+        <A anim="left" delay={2900} dur={600}><At x={820} y={630} s={0.6}><Person kind="listener" label="Screen reader" /></At></A>
+        <A anim="pop" delay={3200} dur={500} idle="1"><At x={1080} y={650}><Bubble text={`“${hiddenOrder.map(stepNumber).join(', ')} …”`} size={34} fill={C.paper} color={C.ink} tail="left" /></At></A>
+        <A anim="drop" delay={3500} dur={550} idle="1.2"><At x={1340} y={700}><Warning s={0.85} /></At></A>
+      </Stage>,
     },
     {
-      id: 'answers', label: 'Two answers', dwell: 3000,
-      caption: 'Ask an AI assistant the same question about each version. One gets fragments. The other gets the finding.',
-      describe: 'Question: “How did water visibility change in 2025?” Answer from the scrambled PDF: “The report mentions a rise in visibility and, separately, +0.7 m. It does not say what was measured or where.” Answer from the well-built PDF: “Mean water visibility rose by 0.7 m since 2024 across all three stations. South is highest, at 3.4 m.” These answers are illustrations written for this example.',
-      stage: <div className="s-answers">
-        <p className="s-question" data-anim="fade">“How did water visibility change in 2025?”</p>
-        <div className="s-answer s-answer--weak" data-anim="rise" data-delay="500">
-          <span className="s-answer-from">From the scrambled PDF</span>
-          <p>The report mentions a rise in visibility and, separately, “+0.7 m”. It doesn’t say what was measured or where.</p>
-        </div>
-        <div className="s-answer s-answer--strong" data-anim="rise" data-delay="1100">
-          <span className="s-answer-from">From the well-built PDF</span>
-          <p>Mean water visibility rose by 0.7 m since 2024 across all three stations. {sentence}, at 3.4 m.</p>
-        </div>
-        <p className="s-illustration">Illustrative answers written for this example.</p>
-      </div>,
+      describe: `Left: lines of text as a tool pulls them out, in drawing order: “${beforeOrphan.join('”, “')}”, and then, on its own at the end, “${orphan}”, with a question mark. Right: the cover says “${cover}”, but the title saved in the file says “${saved}”, circled in red.`,
+      stage: <Stage>
+        <Label x={200} y={70} text="Text tools pull out" fill={LAYER.text} />
+        {beforeOrphan.map((line, i) => <A key={line} anim="left" delay={300 + i * 350} dur={600}>
+          <At x={200} y={190 + i * 110} r={[-1, 1][i]}><Strip text={line.length > 40 ? `${line.slice(0, 39)}…` : line} size={28} pad={16} fill={LAYER.text} cls="sp-mono" bold={false} width={700} /></At>
+        </A>)}
+        <A anim="drop" delay={1300} dur={700} idle="1.3"><At x={330} y={540} r={-9}><Torn w={260} h={120} fill={C.coral}><text x="130" y="86" textAnchor="middle" className="sp-tile" fontSize="76" fill="#fff">{orphan}</text></Torn></At></A>
+        <A anim="pop" delay={1900} dur={500} idle="1.5"><At x={690} y={600} r={12}><QMark fill={C.mustard} /></At></A>
+        <A anim="fade" delay={1700} dur={400}><path d="M330 530 C250 470 290 400 330 372" stroke={C.inkSoft} strokeWidth="4" strokeDasharray="8 8" fill="none" /></A>
+        <A anim="right" delay={2600} dur={650} idle="0.6"><At x={1010} y={110} r={5} s={0.72}><Cover year={coverYear} /></At></A>
+        <A anim="slap" delay={2900} dur={420}><At x={1220} y={130} r={-4}><Strip text="Cover" size={30} pad={14} /></At></A>
+        <A anim="right" delay={3400} dur={650}><At x={870} y={500} r={-2}>
+          <g filter="url(#sp-piece)"><path d="M0 30 Q0 0 30 0 H170 Q190 0 196 20 L206 46 H500 Q520 46 520 66 V250 H0 Z" fill="#e9c98b" /></g>
+          <text x="28" y="34" className="sp-label" fontSize="24" fill={C.ink}>Saved in the file</text>
+          <text x="28" y="118" className="sp-label" fontSize="32" fill={C.ink}>{saved.replace(/\s*\S+$/, '')}</text>
+          <text x="28" y="200" className="sp-tile" fontSize="72" fill={C.ink}>{savedYear}</text>
+          <ellipse cx="96" cy="176" rx="104" ry="54" fill="none" stroke={C.red} strokeWidth="6" pathLength="1" strokeDasharray="1" data-anim="draw" data-delay="4100" data-dur="700" transform="rotate(-6 96 176)" />
+        </At></A>
+      </Stage>,
     },
     {
-      id: 'check', label: 'What the check shows', dwell: 0,
-      caption: `PDF Signal Check finds this on your device: “${data.scrambled.headline}”, pinned on the pages, with a fix list to send to whoever made the PDF.`,
-      describe: `The check result for the scrambled PDF: ${data.scrambled.headline}. ${data.scrambled.pins.map(pin => `${pin.number}. ${pin.title} (${pin.where})`).join('; ')}.`,
-      stage: <svg viewBox="0 0 960 480" role="img" aria-labelledby="story-caption">
-        <MiniPage x={40} y={40} w={300} h={400}>
-          <Lines x={24} y={100} widths={[240, 220, 250, 200]} gap={14} />
-          <rect x="24" y="180" width="250" height="110" className="s-pale" />
-          <Lines x={24} y={310} widths={[230, 250, 180]} gap={14} />
-        </MiniPage>
-        {data.scrambled.pins.map(pin => pinSpot(pin.title)).map(([px, py], i) =>
-          <g key={i} data-anim="drop" data-delay={300 + i * 250} transform={`translate(${px} ${py})`}><circle r="15" className={data.scrambled.pins[i].bucket === 'fix' ? 's-fix' : 's-check'} /><text y="5" textAnchor="middle" className="s-pin-text">{i + 1}</text></g>)}
-        <text x="420" y="80" className="s-headline">{data.scrambled.headline}</text>
-        {data.scrambled.pins.map((pin, i) => <g key={pin.title} data-anim="slide" data-delay={800 + i * 200}>
-          <rect x="420" y={110 + i * 70} width="500" height="56" rx="6" className="s-card" />
-          <circle cx="448" cy={138 + i * 70} r="13" className={pin.bucket === 'fix' ? 's-fix' : 's-check'} /><text x="448" y={143 + i * 70} textAnchor="middle" className="s-pin-text">{pin.number}</text>
-          <text x="472" y={134 + i * 70} className="s-card-title">{pin.title}</text>
-          <text x="472" y={152 + i * 70} className="s-small s-muted">{pin.bucket === 'fix' ? 'Fix' : 'Check'} · {pin.where}</text>
-        </g>)}
-      </svg>,
+      describe: `A paper passport opens. Four stamps land on its pages: “Data” (the attached file ${csvName}, with rows ${rows.map(row => row.join(' ')).join(', ')}), “schema.org” (a description search engines understand), “Links” (“Map 2” leads to the annex) and “Bookmarks” (${data.travel.bookmarks.length} sections). The person reading, the screen reader user and the AI assistant each get a tick.`,
+      stage: <Stage>
+        <A anim="pop" dur={700}><At x={500} y={220}>
+          <g filter="url(#sp-piece)"><rect x="-18" y="-16" width="656" height="492" rx="18" fill={C.purple} /></g>
+          <g filter="url(#sp-piece)"><rect width="310" height="460" rx="6" fill="#fdf3e1" /><rect x="310" width="310" height="460" rx="6" fill="#fbeedd" /></g>
+          <path d="M310 6 V454" stroke="#d8c3a0" strokeWidth="3" />
+          <text x="155" y="48" textAnchor="middle" className="sp-label" fontSize="22" fill={C.purple} letterSpacing="3">FINDINGS PASSPORT</text>
+          <text x="465" y="48" textAnchor="middle" className="sp-label" fontSize="22" fill={C.purple} letterSpacing="3">{coverYear}</text>
+        </At></A>
+        {[['DATA', 'CSV attached', C.teal, 655, 380, -8], ['SCHEMA.ORG', 'described for search', C.purple, 655, 570, 6], ['LINKS', '“Map 2” → annex', C.sky, 965, 380, 5], ['BOOKMARKS', `${data.travel.bookmarks.length} sections`, C.coral, 965, 570, -5]].map(([text, sub, colour, x, y, r], i) =>
+          <A key={text} anim="slap" delay={900 + i * 520} dur={380}><At x={x} y={y} r={r}><Stamp text={text} sub={sub} color={colour} w={text.length > 6 ? 270 : 230} /></At></A>)}
+        <A anim="left" delay={600} dur={650} idle="0.8"><At x={215} y={300} r={-7}>
+          <g filter="url(#sp-piece)"><rect width="250" height="300" rx="4" fill="#fff" /></g>
+          <rect x="0" y="0" width="250" height="44" fill={C.teal} />
+          <text x="18" y="30" className="sp-label" fontSize="22" fill="#fff" fontWeight="700">{csvName.replace(/^harbor-observatory-2025-/, '')}</text>
+          {rows.map((row, i) => <text key={row[0]} x="22" y={96 + i * 52} className="sp-mono" fontSize="28" fill={C.ink}>{row.join(',')}</text>)}
+          <path d="M200 -26 V40 Q200 58 182 58 Q164 58 164 40 V-12" stroke="#8c8c9c" strokeWidth="6" fill="none" strokeLinecap="round" />
+        </At></A>
+        {[C.coral, C.teal, C.mustard].map((colour, i) => <A key={colour} anim="drop" delay={2900 + i * 150} dur={500} idle="1">
+          <At x={1070 + i * 26} y={200}><g filter="url(#sp-piece)"><path d={`M0 0 H20 V${110 - i * 24} L10 ${98 - i * 24} L0 ${110 - i * 24} Z`} fill={colour} /></g></At>
+        </A>)}
+        {[['reader'], ['listener'], ['assistant']].map(([kind], i) => <A key={kind} anim="right" delay={3400 + i * 200} dur={550}>
+          <At x={1260} y={170 + i * 230} s={0.55}><Person kind={kind} label={['Reading', 'Screen reader', 'AI assistant'][i]} /></At>
+          <At x={1370} y={220 + i * 230}><Tick r={24} /></At>
+        </A>)}
+      </Stage>,
     },
     {
-      id: 'passport', label: 'Give your findings a passport', dwell: 0, final: true,
-      caption: 'Built well, a PDF carries its own evidence: the data behind the chart, a description search engines understand, links that lead somewhere and bookmarks to every section.',
-      describe: `The well-built report opens like a folder. Attached: ${data.travel.attachments.map(file => file.name).join(' and ')}. The data rows: ${rows.map(row => row.join(' ')).join('; ')}. “Map 2” becomes a link. Bookmarks: ${data.travel.bookmarks.join('; ')}.`,
-      stage: <svg viewBox="0 0 960 480" role="img" aria-labelledby="story-caption">
-        <MiniPage x={40} y={40} w={300} h={400}>
-          <Lines x={24} y={100} widths={[240, 220, 250]} gap={14} />
-          <text x="24" y="170" className="s-tiny">Station locations are shown in <tspan className="s-link-text" textDecoration="underline">Map 2</tspan>.</text>
-          <g data-anim="pop" data-delay="1600"><rect x="24" y="180" width="118" height="18" rx="9" className="s-blue" /><text x="83" y="193" textAnchor="middle" className="s-tiny s-on-blue">Links to the annex</text></g>
-          <path d="M270 0 h22 v40 l-11 -9 -11 9 Z" className="s-green" data-anim="drop" data-delay="2000" />
-        </MiniPage>
-        <g data-anim="slide" data-delay="300">
-          <text x="420" y="58" className="s-label">Attached data</text>
-          <rect x="420" y="70" width="272" height={34 + rows.length * 26} rx="6" className="s-card" />
-          <text x="436" y="94" className="s-code s-code--head">{header?.join(',')}</text>
-          {rows.map((row, i) => <text key={row[0]} x="436" y={122 + i * 26} className="s-code">{row.join(',')}</text>)}
-        </g>
-        <g data-anim="slide" data-delay="800">
-          <text x="712" y="58" className="s-label">Described for search</text>
-          <rect x="712" y="70" width="214" height="90" rx="6" className="s-card" />
-          <text x="726" y="98" className="s-code">{'{ "@type": "Report",'}</text>
-          <text x="726" y="122" className="s-code">{'  "hasPart": "Dataset" }'}</text>
-          <text x="726" y="146" className="s-small s-muted">schema.org JSON-LD</text>
-        </g>
-        <g data-anim="slide" data-delay="1200">
-          <text x="420" y="250" className="s-label">Bookmarks</text>
-          {data.travel.bookmarks.map((title, i) => <text key={title} x="436" y={276 + i * 24} className="s-small">▸ {title}</text>)}
-        </g>
-      </svg>,
+      describe: `The real tool on a paper laptop, showing its result for the scrambled sample: “${data.scrambled.headline}”. Pins drop onto a page beside it: ${pins.map(pin => `${pin.number}. ${pin.title} (${pin.bucket === 'fix' ? 'fix' : 'check'})`).join('; ')}. A torn tile reads “Your PDF stays on your device”.`,
+      stage: <Stage>
+        {'CHECK'.split('').map((ch, i) => <A key={i} anim="drop" delay={i * 110} dur={500} idle="0.8"><At x={565 + i * 96} y={50 + (i % 2) * 10} r={[-4, 3, -2, 5, -3][i]}><Tile ch={ch} size={100} fill={TILE_COLOURS[(i + 1) % TILE_COLOURS.length]} /></At></A>)}
+        <A anim="rise" delay={500} dur={700}><At x={560} y={280}><Laptop>
+          <rect width="600" height="44" fill={C.teal} />
+          <text x="20" y="30" className="sp-label" fontSize="22" fill="#fff" fontWeight="700">PDF Signal Check</text>
+          <text x="24" y="94" className="sp-strip" fontSize="34" fontWeight="700" fill={C.ink}>{data.scrambled.headline}</text>
+          {pins.map((pin, i) => <A key={pin.number} anim="left" delay={1300 + i * 230} dur={450}><g>
+            <circle cx="44" cy={144 + i * 54} r="19" fill={pin.bucket === 'fix' ? C.red : C.mustard} />
+            <text x="44" y={152 + i * 54} textAnchor="middle" className="sp-label" fontSize="22" fontWeight="700" fill={pin.bucket === 'fix' ? '#fff' : C.ink}>{pin.number}</text>
+            <text x="76" y={152 + i * 54} className="sp-label" fontSize="23" fill={C.ink}>{pin.title.length > 40 ? `${pin.title.slice(0, 39)}…` : pin.title}</text>
+            <text x="580" y={152 + i * 54} textAnchor="end" className="sp-label" fontSize="18" fill={C.inkSoft}>{pin.bucket === 'fix' ? 'Fix' : 'Check'}</text>
+          </g></A>)}
+        </Laptop></At></A>
+        <A anim="left" delay={700} dur={650}><At x={230} y={340} r={-5}>
+          <g filter="url(#sp-piece)"><rect width="250" height="330" rx="4" fill={C.paper} /></g>
+          {[0, 1, 2, 3, 4, 5].map(k => <rect key={k} x="24" y={40 + k * 24} width={[190, 170, 200, 150, 180, 120][k]} height="10" rx="5" fill="#e3d7c2" />)}
+          <rect x="24" y="200" width="200" height="100" fill="#d8e9ef" />
+        </At></A>
+        {pins.map((pin, i) => <A key={pin.number} anim="drop" delay={1500 + i * 230} dur={480}>
+          <At x={[350, 266, 420, 300][i]} y={[580, 400, 420, 510][i]}>
+            <g filter="url(#sp-piece)"><path d="M0 0 C-22 -22 -22 -50 0 -50 C22 -50 22 -22 0 0 Z" fill={pin.bucket === 'fix' ? C.red : C.mustard} /></g>
+            <text y="-24" textAnchor="middle" className="sp-label" fontSize="22" fontWeight="700" fill={pin.bucket === 'fix' ? '#fff' : C.ink}>{pin.number}</text>
+          </At>
+        </A>)}
+        <A anim="slap" delay={2800} dur={450} idle="0.8"><At x={800 - stripWidth('Your PDF stays on your device', 36, 18) / 2} y={765} r={-1.5}><Strip text="Your PDF stays on your device" size={36} pad={18} fill={C.ink} color="#fff" /></At></A>
+      </Stage>,
     },
   ];
+  return words.map((item, i) => ({ ...item, ...visuals[i] }));
 }
