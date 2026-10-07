@@ -14,7 +14,7 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  * The fix list placed on the PDF pages. The grouped legend is the accessible equivalent of the page images; pins
  * are buttons. Numbers match the PDF download. The side panel shows the selected item's detail (passed in as `detail`).
  */
-export function PagePins({ entries, unknown = [], limits = [], report, file, selectedId, onSelect, detail, onShowPage, onShowAll }) {
+export function PagePins({ entries, unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect, detail, onShowPage, onShowAll }) {
   const { pages: pinnedPages, unlocated } = useMemo(() => pagePins(entries, report), [entries, report]);
   const [showOrder, setShowOrder] = useState(false);
   // With reading order on, every page with a recovered sequence is shown, not only pages with issues.
@@ -74,6 +74,19 @@ export function PagePins({ entries, unknown = [], limits = [], report, file, sel
             <ol className="page-pins-list">{items.map(legendEntry)}</ol>
           </section>;
         })}
+        {/* Opportunities, not problems: collapsed and unnumbered, so the default view stays a fix list. */}
+        {travel.length > 0 && <details className="fix-bucket fix-bucket--travel" open={travel.some(item => item.id === selectedId) || undefined}>
+          <summary className="fix-bucket-summary">Make it travel further <span className="fix-bucket-count">({travel.length})</span></summary>
+          <p className="fix-bucket-intro">{travelIntro}</p>
+          <ul className="page-pins-list">{travel.map(item => {
+            const current = item.id === selectedId, card = fixCard(item, report);
+            return <li key={item.id}><button type="button" className={`page-pins-entry ${current ? "is-selected" : ""}`} aria-current={current ? "true" : undefined}
+              aria-controls="selected-item-analysis" onClick={() => onSelect(item, mobile())}>
+              <span className="page-pin page-pin--travel" aria-hidden="true">+</span>
+              <span><span className="fix-card-title">{card.title}</span>{card.where && <span className="fix-card-where">{card.where}</span>}</span>
+            </button></li>;
+          })}</ul>
+        </details>}
         {(unknown.length > 0 || limits.length > 0) && <details className="fix-bucket fix-bucket--unknown" open={unknown.some(item => item.id === selectedId) || undefined}>
           <summary className="fix-bucket-summary">Couldn’t check <span className="fix-bucket-count">({unknown.length + limits.length})</span></summary>
           <p className="fix-bucket-intro">The tool could not decide these. They are limits of this tool, not problems found in your PDF.</p>

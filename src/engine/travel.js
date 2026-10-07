@@ -212,8 +212,9 @@ export function inspectDetachedValues(pages, limits = TRAVEL_LIMITS) {
       if (!label) return;
       const at = drawn.indexOf(block.key), labelAt = drawn.indexOf(label.key);
       if (at < 0 || labelAt < 0 || Math.abs(at - labelAt) < 2) return;
-      const blockIds = (page.blocks || []).filter(item => item.key === block.key).map(item => item.id);
-      findings.push({ page: page.number, value: text, label: label.text.trim().slice(0, 160), key: block.key, labelKey: label.key, blockIds,
+      const idsFor = key => (page.blocks || []).filter(item => item.key === key).map(item => item.id).slice(0, 16);
+      findings.push({ page: page.number, value: text, label: label.text.trim().slice(0, 160), key: block.key, labelKey: label.key,
+        blockIds: idsFor(block.key), labelBlockIds: idsFor(label.key),
         drawnApartBy: Math.abs(at - labelAt) - 1 });
     });
   }

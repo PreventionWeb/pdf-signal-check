@@ -1,6 +1,6 @@
 /** Presentation only: preserve every recorded outcome and the independent profile receipt. */
 export function findingGroups(findings) {
-  const groups = { problems: [], uncertainty: [], limits: [], success: [], coverage: [] };
+  const groups = { problems: [], uncertainty: [], limits: [], success: [], coverage: [], opportunities: [] };
   for (const finding of findings) {
     // An incomplete scan is a tool limit, not evidence of an attachment to review.
     // Keep the normalized finding in technical records and exports.
@@ -9,6 +9,7 @@ export function findingGroups(findings) {
     const semantic = finding.source?.path?.startsWith('semantic');
     if (semantic && finding.category === 'unassessed') groups.coverage.push(finding);
     else if (finding.source?.checkId === 'supported-content' && finding.category !== 'success' && finding.category !== 'required-defect') groups.limits.push(finding);
+    else if (finding.category === 'opportunity') groups.opportunities.push(finding);
     else if (['required-defect', 'advisory-concern'].includes(finding.category)) groups.problems.push(finding);
     else if (finding.category === 'success') groups.success.push(finding);
     else groups.uncertainty.push(finding);
@@ -72,6 +73,8 @@ export function reviewPriority(finding) {
  * fix = confirmed defects, check = suspected problems or human judgement, unknown = the tool could not decide.
  */
 export function fixBucket(item) {
+  // Opportunities are improvements, not problems: they never enter Fix or Check.
+  if (item.category === 'opportunity') return 'travel';
   if (reviewPriority(item).key === 'critical') return 'fix';
   // Reading order always needs a person to confirm it, even when the tool found no problem.
   if (item.figureGroup || item.source?.path === 'attachments' || item.source?.path === 'readingOrder') return 'check';
@@ -86,7 +89,7 @@ const identityPaths = /^(metadataConsistency|deterministicTitle|authorConsistenc
 const byPriority = (a, b) => reviewPriority(a).rank - reviewPriority(b).rank || rootCause(a) - rootCause(b);
 /** Selectable review items by bucket, plus tool limits that only explain what was not checked. */
 export function fixList(groups) {
-  const lists = { fix: [], check: [], unknown: [], limits: [...groups.limits, ...groups.coverage] };
+  const lists = { fix: [], check: [], unknown: [], limits: [...groups.limits, ...groups.coverage], travel: [...(groups.opportunities || [])] };
   for (const item of [...groups.problems, ...groups.uncertainty].sort(byPriority)) lists[fixBucket(item)].push(item);
   // Without any tags, untagged text and a missing reading order are consequences of the same fix.
   const noTags = lists.fix.find(item => item.source?.checkId === 'structure' && item.outcome === 'fail' && item.summary === 'No structure tree found.');
@@ -126,14 +129,14 @@ export function reviewSummary(report, groups) {
   return { headline, nextStep, scope, tasks, buckets, criticalCount };
 }
 
-const documentPaths = /^(metadataConsistency|deterministicTitle|authorConsistency|semantic\.(subject|keywords|keywordItems|title|titleAI)|checks\.(title|language))/;
+const documentPaths = /^(metadataConsistency|deterministicTitle|authorConsistency|machineMetadata|semantic\.(subject|keywords|keywordItems|title|titleAI)|checks\.(title|language))/;
 /** Where the person should look: pages, document properties, or the whole document. */
 export function fixLocation(item) {
   const members = item.members || [item];
   const pages = [...new Set(members.flatMap(member => [member.comparison?.figure?.page, ...(member.targets || []).map(target => target.page)]).filter(Number.isInteger))].sort((a, b) => a - b);
   if (documentPaths.test(item.source?.path || '')) return 'Document properties';
   if (pages.length) return pages.length === 1 ? `Page ${pages[0]}` : `Pages ${pages.slice(0, 5).join(', ')}${pages.length > 5 ? ` and ${pages.length - 5} more` : ''}`;
-  if (['structure', 'content-integrity', 'text'].includes(item.source?.checkId) || item.source?.path === 'readingOrder') return 'Whole document';
+  if (['structure', 'content-integrity', 'text'].includes(item.source?.checkId) || ['readingOrder', 'outline', 'links'].includes(item.source?.path)) return 'Whole document';
   return '';
 }
 const quote = value => { const text = String(value || '').trim(); return text.length > 120 ? `${text.slice(0, 119)}…` : text; };
@@ -370,6 +373,8 @@ export function reviewTask(finding) {
     : 'An embedded-file declaration was found, but the tool could not recover its filename or purpose.',
     'Check the listed files and their purpose with the publisher or source document. Make sure the PDF explains how to use them. Review each attachment separately; this tool does not open or analyse its contents.',
     'Important information may be in an attached file rather than on the PDF pages. A filename or description alone does not establish what the attachment contains.');
+  const travel = travelTask(finding);
+  if (travel) return travel;
   const checks = {
     load: ['Check that the PDF can be opened', 'Read the file error and try a fresh PDF export if needed.'],
     completion: ['Complete the PDF check', 'Some checks did not finish. Read the reason and decide whether to retry or use another tool.'],
@@ -380,6 +385,51 @@ export function reviewTask(finding) {
     : finding.category === 'advisory-concern'
       ? 'Compare the evidence with the page to decide whether this needs a correction.'
       : uncertain ? 'Inspect the evidence: the tool could not confirm this automatically.' : 'Review the recorded evidence and limitations.' };
+}
+
+const listed = values => values.length <= 2 ? values.join(' and ') : `${values.slice(0, -1).join(', ')} and ${values.at(-1)}`;
+const PUBLICATION_DETAILS = { publisher: 'who published it', rights: 'how it may be reused (its licence)', date: 'when it was published', identifier: 'an identifier such as a DOI or ISBN' };
+/** Plain copy for links, bookmarks, publication details and figure data. Success and unassessed results keep the default. */
+function travelTask(finding) {
+  const path = finding.source?.path, c = finding.comparison || {};
+  const task = (title, summary, detailAction, why) => ({ title, summary, action: detailAction.split(/(?<=\.) /)[0], detailAction, why });
+  if (path === 'crossReferences' && finding.category === 'advisory-concern') {
+    const refs = c.references || [], first = refs[0];
+    const pages = [...new Set(refs.map(ref => ref.page))];
+    return task(refs.length === 1 ? `“${quote(first.text)}” isn’t a link` : `${refs.length} cross-references aren’t links`,
+      refs.length === 1 ? `The text on page ${first.page} mentions “${quote(first.text)}”, but there’s no link to it. Readers can’t jump to it, and AI tools can’t connect the mention to what it refers to.`
+        : `The text mentions ${listed(refs.slice(0, 3).map(ref => `“${quote(ref.text)}”`))}${refs.length > 3 ? ` and ${refs.length - 3} more` : ''} on page${pages.length === 1 ? '' : 's'} ${pages.slice(0, 5).join(', ')}, without links. Readers can’t jump to them, and AI tools can’t connect each mention to what it refers to.`,
+      'In the source document, turn each mention into a link to the figure, table, map or section it names, for example with Word’s Cross-reference or InDesign’s Hyperlinks panel, then export again. If a mention refers to another publication, a link to that publication helps too.',
+      'Links let people jump straight to what a sentence refers to, and let tools connect a mention with the content it names. This check looks for words such as “Figure 1”, “Map 2” or “see page 4”. It can’t tell whether a mention refers to this PDF or another publication.');
+  }
+  if (path === 'detachedValues') {
+    const values = c.values || [], first = values[0];
+    return task(values.length === 1 ? `“${quote(first.value)}” is drawn apart from its label` : `${values.length} numbers are drawn apart from their labels`,
+      `The tags keep ${values.length === 1 ? `“${quote(first.value)}” next to “${quote(first.label)}”` : 'these numbers next to their labels'}, so screen readers read them together. But the PDF draws them separately, so AI and text-extraction tools that follow the drawing order may get the number without what it measures.`,
+      'Ask the designer to keep each number and its label in one text frame, or fix the content order in a PDF editor (Acrobat: Content or Reading Order panel), then export again.',
+      'Many tools read a PDF in the order its text is drawn, not the order of its tags. A headline number separated from its label loses its meaning. This check looks only at short values next to a tagged sentence.');
+  }
+  if (path === 'outline' && finding.category === 'opportunity') return task('Add bookmarks for the headings',
+    c.headings >= 2 ? `This PDF has ${c.headings} headings but no bookmarks. Bookmarks give readers a clickable outline, and help AI tools understand how the document is organised.`
+      : `This ${c.pages}-page PDF has no bookmarks. Bookmarks give readers a clickable outline, and help AI tools understand how the document is organised.`,
+    'When saving as PDF from Word, tick “Create bookmarks using: Headings”. In InDesign, tick “Bookmarks” in the PDF export settings. Then export again.',
+    'Bookmarks are a map of the document. Readers use them to move between sections, and tools use them to see which parts belong together.');
+  if (path === 'machineMetadata' && finding.category === 'opportunity') {
+    const missing = (c.missingPublication || []).map(field => PUBLICATION_DETAILS[field]).filter(Boolean);
+    return task(missing.length ? 'Add publishing details' : 'Attach a description for catalogues and search engines',
+      missing.length ? `The PDF’s saved properties don’t say ${listed(missing)}${c.structuredData ? '' : ', and no description for catalogues and search engines is attached'}. These details help libraries, search engines and AI tools find, cite and reuse it correctly.`
+        : 'The publishing details are saved, but no description in a standard format, such as schema.org JSON-LD, is attached. Catalogues and search engines can read one directly.',
+      'Add the publisher, licence, publication date and identifier in the source document’s properties or your publishing system, then export again. Your web or publishing team can also attach a schema.org description (a JSON-LD file).',
+      'Search engines, library catalogues and AI tools use saved details to identify a document and say where it came from. Without them, they guess from the page text and may get it wrong. This tool doesn’t check that saved details are correct.');
+  }
+  if (path === 'figureData' && finding.category === 'opportunity') {
+    const pages = [...new Set(c.figures || [])], count = (c.figures || []).length;
+    return task(`Share the data behind charts (${count})`,
+      `${count === 1 ? `The image labelled as a figure on page ${pages[0]} has` : `${count} images labelled as figures, on page${pages.length === 1 ? '' : 's'} ${pages.join(', ')}, have`} no data table nearby and no data file attached. If ${count === 1 ? 'it is a chart' : 'they are charts'}, people and AI tools can’t read exact values from a picture.`,
+      'For charts, add the values as a table near the chart, or attach the data as a CSV file when you export. Photos and illustrations don’t need this.',
+      'A data table or file gives screen-reader users, search and AI tools the exact values. A description can summarise a chart, but numbers travel best as data. This check doesn’t confirm that a nearby table holds the chart’s values.');
+  }
+  return null;
 }
 
 /** A drawing-operation count does not establish the number of distinct images. */

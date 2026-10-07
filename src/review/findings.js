@@ -24,6 +24,7 @@ const guidance = {
   orderUnconfirmed:['Recovered tags do not establish the intended reading order of the whole document.','Compare the recovered tagged text with the intended order on each page, especially across columns, paragraphs and figures. Inspect and correct the tag tree in your authoring tool where necessary.'],
   hiddenInstructions:['AI tools read text that people cannot see. Hidden instructions can steer AI summaries, reviews, search results or decisions about the document.','Ask whoever produced the PDF why the text is there. If it is not meant to be in the document, remove it from the source and export again.'],
   visibility:['Invisible extracted text can differ from content people see.','Compare extracted text with the rendered page; invisible OCR/accessibility text can be legitimate. Color, clipping and occlusion remain unverified.'],
+  travel:['Links, bookmarks, saved publication details and data help people and tools find, understand and reuse a PDF. These are opportunities, separate from the required text checks.','Read the recorded evidence and the limits of each advisory. Make changes in the source document or publishing system, export again and recheck.'],
   semantic:['Topical relatedness is evidence to inspect, not proof of identity or truth.','Compare the bounded excerpts and metadata/heading. Check token truncation, later sections, alternate wording and the provisional model policy before changing source content.'],
 };
 const target = e => {
@@ -33,6 +34,57 @@ const target = e => {
   return {page:e.page,keys,blockIds,node:e.node || null,text:e.text || '',...(e.quads?.length?{quads:e.quads}:e.quad?{quads:[e.quad]}:{})};
 };
 const targets = evidence => evidence.map(target).filter(Boolean);
+
+/**
+ * "Travel further" advisories. Unlinked cross-references and detached values are suspected problems (Check);
+ * missing bookmarks, publication details and figure data are opportunities, never defects.
+ */
+function addTravelFindings(report, add) {
+  const base = (id, field, result, extra) => ({ id, outcome: result.status, summary: result.reason, source: { path: field }, kind: 'travel', ...extra });
+  const unassessed = (id, field, result, title) => result?.status === 'not-assessed' && report.analysisComplete === true &&
+    add(base(id, field, result, { category: 'unassessed', title, method: 'travel-advisory' }));
+  const refs = report.crossReferences;
+  if (refs?.status === 'requires-review' || refs?.status === 'present') {
+    const unlinked = (refs.references || []).filter(reference => reference.linked !== true);
+    add(base('travel:cross-references', 'crossReferences', refs, { category: unlinked.length ? 'advisory-concern' : 'success',
+      title: unlinked.length ? 'Cross-references without links' : 'Cross-references are linked', method: 'cross-reference-pattern-and-link-overlap',
+      evidence: (unlinked.length ? unlinked : refs.references).map(reference => ({ page: reference.page, blockIds: [reference.blockId], ...(reference.quad ? { quad: reference.quad } : {}), text: reference.text })),
+      comparison: { references: unlinked.map(({ page, text, context }) => ({ page, text, context })), linked: refs.linked, found: refs.found } }));
+  } else unassessed('travel:cross-references', 'crossReferences', refs, 'Cross-references not checked');
+  const detached = report.detachedValues;
+  if (detached?.status === 'requires-review') add(base('travel:detached-values', 'detachedValues', detached, { category: 'advisory-concern',
+    title: 'Values drawn apart from their labels', method: 'tag-and-drawing-order-comparison',
+    // The number first (crops use the first target), then its label, so the page pin spans both.
+    evidence: detached.findings.flatMap(item => [{ page: item.page, keys: [item.key], blockIds: item.blockIds, text: item.value },
+      ...(item.labelBlockIds?.length ? [{ page: item.page, keys: [item.labelKey], blockIds: item.labelBlockIds, text: item.label }] : [])]),
+    comparison: { values: detached.findings.map(({ page, value, label }) => ({ page, value, label })) } }));
+  const links = report.links;
+  if (links?.status === 'present') add(base('travel:links', 'links', links, { category: 'success', title: 'Links', method: 'link-annotation-inventory',
+    evidence: (links.links || []).slice(0, 50).map(link => `Page ${link.page}: ${link.target}${link.url ? ` ${link.url}` : ''}${link.contents ? ` (${link.contents})` : ''}`),
+    comparison: { count: links.count, linksTagged: links.linksTagged } }));
+  else unassessed('travel:links', 'links', links, 'Links not checked');
+  const outline = report.outline;
+  if (outline?.status === 'opportunity' || outline?.status === 'present') add(base('travel:outline', 'outline', outline, {
+    category: outline.status === 'present' ? 'success' : 'opportunity', title: outline.status === 'present' ? 'Bookmarks' : 'No bookmarks', method: 'outline-inspection',
+    evidence: (outline.titles || []).slice(0, 50).map(title => `Bookmark: ${title}`), comparison: { headings: outline.headings, count: outline.count, pages: report.file?.pages } }));
+  else unassessed('travel:outline', 'outline', outline, 'Bookmarks not checked');
+  const machine = report.machineMetadata;
+  if (machine?.status === 'opportunity' || machine?.status === 'present') add(base('travel:metadata', 'machineMetadata', machine, {
+    category: machine.status === 'present' ? 'success' : 'opportunity', title: 'Publication details for catalogues and search', method: 'metadata-property-inventory',
+    evidence: [`Saved: ${machine.present.join(', ') || 'none'}`, `Not saved: ${machine.missing.join(', ') || 'none'}`, ...machine.structuredData.map(file => `Attached description: ${file.name || file.id} (${file.mediaTypes.join(', ') || 'type not declared'}; relationship ${file.relationship || 'not set'})`)],
+    comparison: { missingPublication: machine.missingPublication, structuredData: machine.structuredData.length } }));
+  else unassessed('travel:metadata', 'machineMetadata', machine, 'Publication details not checked');
+  const data = report.figureData;
+  if (data?.status === 'opportunity' || data?.status === 'present') {
+    const without = data.items.filter(item => !item.hasEquivalent);
+    add(base('travel:figure-data', 'figureData', data, { category: without.length ? 'opportunity' : 'success',
+      title: without.length ? 'Figures without a data table or data file' : 'Figures have a data table or data file', method: 'figure-table-and-data-file-inventory',
+      evidence: [...(without.length ? without : data.items).map(item => ({ page: item.page, keys: item.keys, node: item.node, quads: item.quads, text: 'Figure' })),
+        ...data.tables.map(table => `Tagged table on page ${table.pages.join(', ') || 'unknown'}${table.headerCells ? ' with header cells' : ''}`),
+        ...data.dataFiles.map(file => `Attached data file: ${file.name || file.id} (relationship ${file.relationship || 'not set'})`)],
+      comparison: { figures: without.map(item => item.page), total: data.items.length } }));
+  }
+}
 
 /** Normalizes completed reports only. Review annotations never modify engine outcomes. */
 export function normalizeFindings(report) {
@@ -83,6 +135,7 @@ export function normalizeFindings(report) {
     outcome:hidden.status,method:'hidden-text-pattern-screening',summary:hidden.reason,comparison:{matches:hidden.matches || [],scanned:hidden.scanned},source:{path:'hiddenInstructions'},kind:'hiddenInstructions',
     evidence:(hidden.matches || []).map(match=>match.quads?.length && match.page ? {page:match.page,quads:match.quads,text:match.text} : `${match.field || match.kind}: ${match.text}`)});
   if(report.attachments){const a=report.attachments,files=a.files || [],evidence=files.map(file=>`File: ${file.unicodeFilename || file.filename || `Unnamed (${file.id})`}; ${file.embedded?(file.payloads?.length?'located embedded payload stream(s)':'embedded-file declaration; no payload stream located'):'associated reference only'}; declared media type: ${(file.payloads || []).map(p=>p.mediaType || 'not declared').join(', ') || 'not declared'}; description: ${file.description || 'not set'}; declared relationship: ${file.relationship || 'not set'}; related filename declarations: ${(file.payloads || []).map(p=>p.relatedFilename).filter(Boolean).join(', ') || 'none recovered'}; guidance: ${(file.guidanceIssues || []).map(i=>typeof i==='string'?i:i.message || JSON.stringify(i)).join('; ') || 'no missing-declaration issue recorded; instruction usability is not verified'}.`);evidence.push(...(a.orphanStreams || []).map(stream=>`Unlinked embedded payload declaration: ${stream.origin || 'unknown origin'}; reference ${stream.streamRef || 'not recovered'}; declared media type ${stream.mediaType || 'not declared'}; encoded size ${stream.encodedBytes ?? 'unknown'} bytes; context ${stream.path || 'not recovered'}. It is not established as an active attachment.`));evidence.push(...(a.warnings || []).map(w=>typeof w==='string'?w:w.message || JSON.stringify(w)));add({id:'advisory:attachments',category:a.status==='none'&&a.inventoryComplete===true?'success':a.status==='requires-review'?'advisory-concern':a.status==='not-assessed'?'unassessed':'uncertain',title:'Embedded and associated files',outcome:a.status,method:'attachment-metadata-inspection',summary:a.reason,evidence,comparison:{inventory:a},source:{path:'attachments'},kind:'attachments'});}
+  addTravelFindings(report, add);
   const semantic=report.semantic;
   if(!semantic) add({id:'semantic:unassessed',category:'unassessed',title:'AI screening not completed',outcome:'not-assessed',method:'not-requested',summary:'No completed model screening is available.',source:{path:'semantic'}});
   else if(semantic.status==='skipped')add({id:'semantic:skipped',category:'unassessed',title:'Requested AI screening skipped',outcome:'skipped',method:semantic.skipReason||'screening-skipped',summary:semantic.reason||'The requested optional screening was not performed.',comparison:{model:semantic.model||null,requestedChecks:semantic.requestedChecks||[],skipReason:semantic.skipReason||null},source:{path:'semantic'},kind:'semanticError'});
@@ -104,7 +157,7 @@ export function normalizeFindings(report) {
       } else add({id:`semantic:${field}`,category:advisoryCategory(r),title:field==='titleAI'?'AI title relatedness (separate from identity rules)':`${field[0].toUpperCase()+field.slice(1)} screening`,outcome:r.status,method:r.method || 'embedding-screening',summary:r.reason,evidence:r.evidence || [],comparison:{retrieval:r.retrieval,metadata:report.metadata,candidates:r.evidence || [],model:semantic.model},source:{path:`semantic.${field}`}});
     }
   }
-  const order={'required-defect':0,'required-indeterminate':1,'advisory-concern':2,uncertain:3,unassessed:4,success:5};
+  const order={'required-defect':0,'required-indeterminate':1,'advisory-concern':2,uncertain:3,opportunity:4,unassessed:5,success:6};
   findings.sort((a,b)=>order[a.category]-order[b.category] || a.id.localeCompare(b.id));
   const counts=Object.fromEntries(Object.keys(order).map(category=>[category,findings.filter(f=>f.category===category).length]));
   return {findings,reviewQueue:findings.filter(f=>['required-defect','required-indeterminate','advisory-concern'].includes(f.category)),counts};

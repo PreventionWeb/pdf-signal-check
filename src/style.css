@@ -561,7 +561,7 @@ progress {
 .fix-bucket-intro, .fix-list-note, .fix-bucket-empty { font-size: .875rem; color: var(--muted); margin: 0 0 8px; }
 .fix-card-title { font-weight: 600; font-size: .9375rem; }
 .fix-card-where { font-size: .8125rem; color: var(--muted); }
-details.fix-bucket--unknown { border-top: 1px solid rgb(var(--mg-color-neutral-300)); padding-top: 12px; }
+details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid rgb(var(--mg-color-neutral-300)); padding-top: 12px; }
 .fix-bucket-summary { cursor: pointer; font-weight: 700; min-height: 44px; display: list-item; padding-block: 8px; }
 .fix-limits { font-size: .875rem; padding-inline-start: 1.25rem; margin-block: 12px 0; }
 .fix-detail-eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: .875rem; font-weight: 600; color: var(--muted); }
@@ -569,6 +569,7 @@ details.fix-bucket--unknown { border-top: 1px solid rgb(var(--mg-color-neutral-3
 .fix-dot--fix { background: rgb(var(--mg-color-red-900)); }
 .fix-dot--check { background: rgb(var(--mg-color-gold-800)); }
 .fix-dot--unknown { background: rgb(var(--mg-color-neutral-300)); }
+.fix-dot--travel { background: rgb(var(--mg-color-interactive)); }
 .fix-change { margin-block: 20px 12px; padding: 12px 16px; background: rgb(var(--mg-color-neutral-25)); border-radius: var(--mg-card-border-radius); }
 .fix-change h3 { font-size: 1rem; margin: 0 0 4px; }
 .fix-change p { margin: 0; }
@@ -627,6 +628,7 @@ details.fix-bucket--unknown { border-top: 1px solid rgb(var(--mg-color-neutral-3
   font-weight: 700; font-size: .875rem; color: #fff; border: 2px solid #fff; box-shadow: 0 1px 3px #0005; }
 .page-pin--fix { background: rgb(var(--mg-color-red-900)); }
 .page-pin--check { background: rgb(var(--mg-color-gold-800)); }
+.page-pin--travel { background: rgb(var(--mg-color-interactive)); }
 .page-pins-pages { display: grid; gap: 28px; min-width: 0; }
 .page-pins-page h3 { font-size: 1rem; margin: 0 0 8px; }
 .page-pins-sheet { position: relative; background: #fff; box-shadow: 0 1px 3px #0002, 0 8px 25px #0001; min-height: 200px; }

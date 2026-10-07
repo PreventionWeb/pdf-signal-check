@@ -58,11 +58,17 @@ The results screen has two tabs: **What to fix** (the pages view) and **Technica
 
 ### Buckets
 
-Items are grouped into three buckets, decided by recorded category and review priority (`fixBucket` in `src/review/workspace.js`), never by a confidence score:
+Items are grouped into four buckets, decided by recorded category and review priority (`fixBucket` in `src/review/workspace.js`), never by a confidence score:
 
 - **Fix** — confirmed defects: required-check failures, missing descriptions on labelled images, and an unrecovered reading sequence.
 - **Check** — suspected problems (advisory concerns such as a title or author mismatch, or an out-of-order sequence) and human-judgement tasks (image descriptions, unlabelled or decorative graphics, attachments). Reading order always appears here when a sequence exists, because the tool can never confirm intended order.
 - **Couldn’t check** — collapsed by default. Undecided results (`uncertain`, `required-indeterminate`), AI results the model could not judge, and tool limits. These are never shown as tasks to fix. The intro says they are limits of the tool, not problems found in the PDF.
+
+- **Make it travel further** — collapsed by default, after Check and before Couldn’t check. Opportunities, not problems (`category: 'opportunity'`, `fixBucket` → `travel`): no bookmarks, missing publication details or attached schema.org description, and figures with no nearby data table or attached data file. The intro says they are not problems. Entries carry a “+” marker instead of a number, get no page pins, and never count towards the headline, so the numbered Fix and Check list and the PDF download keep their numbering. Each card uses “Add” or “Share” and one authoring-tool step.
+
+Two of the travel-further advisories are suspected problems and go under **Check** with page pins: a cross-reference that isn’t a link (“‘Map 2’ isn’t a link”, pinned on the estimated position of the words) and a short value drawn apart from its tagged label (“‘+0.7 m’ is drawn apart from its label”, pinned across the value and its label). Successful link, bookmark, metadata and figure-data results stay in the technical record.
+
+Not yet done: the fix-list PDF download does not list Make it travel further entries, and the Technical evidence drawer shows them through the generic method/evidence view, without a dedicated link or bookmark inventory.
 
 The verb carries the certainty: Add / Set / Export for confirmed defects, “doesn’t match” or “may” for suspected ones, and “could not judge” for undecided ones. Do not flatten confirmed, suspected and undecided into one status.
 

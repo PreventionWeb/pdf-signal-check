@@ -29,6 +29,7 @@ const BUCKETS = {
   fix: { label: "Fix", intro: "Problems found in this PDF." },
   check: { label: "Check", intro: "Possible problems. Look at each one and decide." },
   unknown: { label: "Couldn’t check", intro: "The tool could not decide these. They are limits of this tool, not problems found in your PDF." },
+  travel: { label: "Make it travel further", intro: "Not problems. Changes that help people and AI tools find, understand and reuse this PDF." },
 };
 
 export function Review({ state, controller, exportRef, onReturnBatch }) {
@@ -45,7 +46,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   const groups = useMemo(() => groupFigureFindings(groupHeadingFindings(findingGroups(normalized.findings))), [normalized]);
   const overview = reviewSummary(report, groups);
   const { buckets } = overview;
-  const selectable = [...buckets.fix, ...buckets.check, ...buckets.unknown];
+  const selectable = [...buckets.fix, ...buckets.check, ...buckets.unknown, ...buckets.travel];
   const defaultItem = buckets.fix[0] || buckets.check[0];
   const finding = selectable.find(item => item.id === issueId) || defaultItem,
     execution = screeningProvenance(report),
@@ -133,7 +134,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       <Button className="review-list-back" onClick={() => { const current = document.querySelector('.page-pins-entry[aria-current="true"]'); current?.scrollIntoView({ block: "center", behavior: "instant" }); current?.focus({ preventScroll: true }); }}>Back to the list</Button>
       <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? ` · ${card.where}` : ""}</p>
       <h2 className="review-detail-title" id="finding-title" tabIndex={-1} ref={titleRef}>{card.title}</h2>
-      <Notice variant={{ fix: "negative", check: "warning", unknown: "info" }[bucket]} icon={false}><p>{card.summary}</p></Notice>
+      <Notice variant={{ fix: "negative", check: "warning", unknown: "info", travel: "info" }[bucket]} icon={false}><p>{card.summary}</p></Notice>
       {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
       {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} onInspect={inspect} />
         : finding.members ? <section aria-label="Headings" className="heading-review-list">
@@ -191,7 +192,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     </EvidenceDrawer>}
     {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
   </>;
-  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} limits={buckets.limits.map(limitText)} report={report} file={file}
+  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(limitText)} report={report} file={file}
     selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })} onShowAll={() => { setSelection(null); setFullOpen(true); }}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
