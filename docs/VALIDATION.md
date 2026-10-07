@@ -306,3 +306,23 @@ agent-browser then verified, at 1280px and 390px:
 - arrow keys change scene, with the `?scene=` URL kept in sync
 - emulated reduced motion shows the note and runs no entry animations
 - no horizontal overflow
+
+### Story as a cut-paper collage, with optional audio (2026-10)
+
+`story.html` was rebuilt as an eight-scene, caption-led collage in the style of UNDRR's explainer animations. The art is hand-authored SVG: cream paper ground with grain and creases, torn and cut edges from `feTurbulence` + `feDisplacementMap`, paper grain and soft shadows as filters, and big torn letter tiles. The PDF's three hidden layers recur as coloured sheets. Motion is stop-motion "on twos" (12 frames a second, held keyframes) with overshoot, settle and an idle wobble, all through the Web Animations API. There are no new dependencies; the story script is about 16 KB gzipped. Scene lengths follow the narration: about 57 s in all. The script is in `docs/story-script.md`.
+
+Audio (all AI-generated, off until **Audio on** is checked):
+- Narration: ElevenLabs Multilingual v2, voice george, through OpenRouter. Seven voices were compared; two blind model-listening runs and the product owner chose george (owner's second choice: MAI-Voice-2.1 en-GB-Emily). See `docs/experiments/STORY-AUDIO.md`.
+- Music: Lyria 3 Pro through OpenRouter, the vocal-free one of two candidates, mixed about 9 dB under the voice and ducked a further 6 dB while a clip plays. Prompt and processing are in `public/story/audio/README.md`.
+- 808 KB of audio in total. OpenRouter spend for the whole exercise was about $0.45, including the listening panel.
+- `test/story-narration.test.js` fails if `src/story/script.js` and the clips drift apart, or if the audio exceeds 1 MB.
+
+agent-browser checks on the dev server and on the production build served under `/pdf-signal-check/`, at 1280px and 390px:
+- all eight scenes render; mid-motion frames show the held, stepped poses; no horizontal overflow
+- opens paused; Play advances; Pause freezes motion, narration and music; arrow keys and the slider change scene, with `?scene=` kept in sync
+- no MP3 is requested before Audio on is checked; with it checked, narration follows the scene, the bed plays at 0.5 under speech, and turning audio off stops both
+- emulated reduced motion shows the composed still for each scene, runs no animations and never loads the music
+- only the page's origin and assets.undrr.org (Mangrove stylesheet, fonts, logo) are requested
+- caption key words are bold and coloured, at 5.96:1 to 7.71:1 against the caption paper
+
+Two automated "listening" checks transcribed the final clips. They found no wrong words, and a retake fixed one line's choppy intonation. Model ratings are a screening aid; a person confirmed the voice by ear. Known limits: SVG labels are small on phones (the captions and transcript carry the same words), iOS ignores media volume so the bed's level is baked into the file, and the music loops with its fades if the story runs past 60 s.
