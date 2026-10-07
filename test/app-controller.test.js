@@ -305,8 +305,13 @@ it("automatic screening pauses for missing language and keeps the PDF defect", a
   await app.analyze(file());
   workers[0].worker.onmessage({ data: { type: 'result', report: { ...report(), accepted: false, metadata: { language: null } } } });
   expect(workers).toHaveLength(1);
-  expect(app.getSnapshot()).toMatchObject({ stage: 'checks', selectedModel: 'minilm', languageAssumption: null });
+  expect(app.getSnapshot()).toMatchObject({ stage: 'checks', selectedModel: 'minilm', languageAssumption: null, awaitingLanguageDecision: true });
+  app.dismissLanguageDecision();
+  expect(app.getSnapshot().awaitingLanguageDecision).toBe(false);
+  app.promptLanguageDecision();
+  expect(app.getSnapshot().awaitingLanguageDecision).toBe(true);
   app.setLanguageAssumption('en');
+  expect(app.getSnapshot().awaitingLanguageDecision).toBe(false);
   app.runScreening();
   expect(workers[1].worker.postMessage.mock.calls[0][0]).toMatchObject({ languageAssumption: 'en', requireInference: true });
   expect(app.getSnapshot().report.accepted).toBe(false);

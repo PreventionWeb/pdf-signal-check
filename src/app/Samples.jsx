@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Actions, Button, Loader } from '../ui/react.jsx';
+import { Button, Loader } from '../ui/react.jsx';
 import { GoGoViewer } from '../evidence/GoGoViewer.jsx';
 
 const samples = [
@@ -9,7 +9,7 @@ const samples = [
 ];
 
 /** Labels describe authored preparation, not predicted analysis outcomes. */
-export function Samples({ disabled, onChoose }) {
+export function Samples({ disabled, onChoose, onBack }) {
   const [sampleFile, setSampleFile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +35,14 @@ export function Samples({ disabled, onChoose }) {
 
   return (
     <section className="sample-section" aria-labelledby="sample-title">
-      <h2 id="sample-title" tabIndex={-1}>Try a sample</h2>
+      <div className="sample-header">
+        <h2 id="sample-title" tabIndex={-1}>Try a sample</h2>
+        {onBack && (
+          <Button variant="secondary" disabled={disabled} onClick={onBack}>
+            or drop a PDF
+          </Button>
+        )}
+      </div>
       <div className="sample-layout">
         <div className="sample-preview">
           {sampleFile ? (
@@ -48,27 +55,20 @@ export function Samples({ disabled, onChoose }) {
         </div>
         <div className="sample-details">
           <p className="sample-intro">The same fictional report, with different metadata, tags and figure descriptions.</p>
-          <Actions className="sample-actions">
+          <div className="sample-options">
             {samples.map(sample => (
-              <Button
-                key={sample.file}
-                disabled={disabled}
-                aria-label={`Check sample: ${sample.title}`}
-                onClick={() => onChoose(`./samples/${sample.file}`)}
-              >
-                {sample.title}
-              </Button>
-            ))}
-          </Actions>
-          <div className="sample-descriptions">
-            {samples.map(sample => (
-              <div className="sample-description-item" key={sample.file}>
-                <strong>{sample.title}</strong>
+              <div className="sample-option" key={sample.file}>
+                <Button
+                  disabled={disabled}
+                  aria-label={`Check sample: ${sample.title}`}
+                  onClick={() => onChoose(`./samples/${sample.file}`)}
+                >
+                  {sample.title}
+                </Button>
                 <p>{sample.description}</p>
               </div>
             ))}
           </div>
-          <p className="model-note">Samples illustrate preparation levels; they are not accessibility certificates.</p>
         </div>
       </div>
     </section>

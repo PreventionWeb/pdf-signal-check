@@ -34,6 +34,7 @@ export function createAppController({
     pendingSetupLabel: null,
     selectedModel: saved?.modelId || null,
     languageAssumption: null,
+    awaitingLanguageDecision: false,
     checks: saved?.checks || ["title", "subject", "keywords"],
     message: "",
     progress: null,
@@ -151,7 +152,7 @@ export function createAppController({
       services.batch?.releaseIdleWorkers();
       services.batch?.setSettings({ useAI: false, modelId: "minilm", checks: ["title", "subject", "keywords"] });
       services.batch?.setConsent(false);
-      emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "granite-r2", selectedModel: null, languageAssumption: null,
+      emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "granite-r2", selectedModel: null, languageAssumption: null, awaitingLanguageDecision: false,
         checks: ["title", "subject", "keywords"], pendingSetupLabel: null, message: settingsCleared && benchmarksCleared ? "Saved setup and speed tests reset. Choose settings for your next PDF." : "Setup reset for this session. Browser storage could not be cleared; saved settings may return after reload." });
       return true;
     },
@@ -183,13 +184,20 @@ export function createAppController({
       if (useAI) getSemanticModel(modelId);
       services.batch?.setSettings({ useAI, modelId: modelId || "minilm", checks: [...state.checks] });
       services.batch?.setConsent(useAI);
-      emit({ setupComplete: true, aiEnabled: useAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination });
+      emit({ setupComplete: true, aiEnabled: useAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination, awaitingLanguageDecision: false });
       saveSettings();
       const start = pendingIntake;
       pendingIntake = null;
       emit({ pendingSetupLabel: null });
       if (start) { start(); return; }
-      if (useAI && state.stage === "checks" && state.report && supportsLanguage(getSemanticModel(modelId), state.languageAssumption || state.report.metadata.language)) controller.runScreening();
+      if (useAI && ["checks", "review"].includes(state.stage) && state.report) {
+        const lang = state.languageAssumption || state.report.metadata?.language;
+        if (supportsLanguage(getSemanticModel(modelId), lang)) {
+          controller.runScreening();
+        } else if (!state.report.metadata?.language || !String(state.report.metadata.language).trim()) {
+          emit({ awaitingLanguageDecision: true });
+        }
+      }
     },
     setModel(modelId) {
       services.calibration?.cancel();
@@ -214,11 +222,18 @@ export function createAppController({
       emit({
         languageAssumption,
         selectedModel,
+        awaitingLanguageDecision: false,
         report: {
           ...state.report,
           screeningSelection: { modelId: selectedModel, checks: [...state.checks], languageAssumption },
         },
       });
+    },
+    dismissLanguageDecision() {
+      emit({ awaitingLanguageDecision: false });
+    },
+    promptLanguageDecision() {
+      emit({ awaitingLanguageDecision: true });
     },
     setChecks(checks) {
       emit({
@@ -270,6 +285,7 @@ export function createAppController({
       stopModel();
       emit({
         stage: "checks",
+        awaitingLanguageDecision: false,
         screeningAttempt: { status: "canceled", message: "You canceled the AI checks. Completed text checks and previous AI results are retained." },
         message:
           "AI screening canceled. Traditional results and any previous completed screening are retained.",
@@ -292,6 +308,7 @@ export function createAppController({
           screeningAttempt: null,
           sourceKey: ++job,
           languageAssumption: null,
+          awaitingLanguageDecision: false,
           reviewed: new Set(),
           reviewCursor: { category: "problems", issueId: null },
         });
@@ -310,6 +327,7 @@ export function createAppController({
         sourceKey: job,
         example: null,
         languageAssumption: null,
+        awaitingLanguageDecision: false,
         reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         selectedModel: report.screeningSelection?.modelId || null,
@@ -341,6 +359,7 @@ export function createAppController({
         reviewCursor: { category: "problems", issueId: null },
         selectedModel: null,
         languageAssumption: null,
+        awaitingLanguageDecision: false,
         message: "Preparing local analysis…",
         progress: null,
         stage: "processing-analysis",
@@ -407,18 +426,23 @@ export function createAppController({
               selectedModel = "granite-r2";
             worker.terminate();
             analysisWorker = null;
+            const isMissingLanguage = !report.metadata?.language || !String(report.metadata.language).trim();
+            const willAwaitDecision = Boolean(state.aiEnabled && isMissingLanguage && !state.languageAssumption);
             emit({
               report,
               selectedModel: state.setupComplete ? state.evaluationModel : selectedModel,
               analysisBusy: false,
               error: false,
               stage: state.setupComplete && !state.aiEnabled ? "review" : "checks",
-              message: "Analysis complete. Your file was processed locally.",
+              message: willAwaitDecision
+                ? "Text checks completed. AI is waiting for the document language."
+                : "Analysis complete. Your file was processed locally.",
               progress: null,
+              awaitingLanguageDecision: willAwaitDecision,
             });
             if (state.aiEnabled && supportsLanguage(getSemanticModel(state.selectedModel), report.metadata.language)) {
               controller.runScreening();
-            } else if (state.aiEnabled) {
+            } else if (state.aiEnabled && !willAwaitDecision) {
               emit({ message: "Text checks completed. AI screening needs a supported language before this evaluation can finish." });
             }
           }

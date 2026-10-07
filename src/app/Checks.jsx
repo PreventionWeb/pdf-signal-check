@@ -29,6 +29,7 @@ export function Checks({ state, controller, batchBusy, coverage = [] }) {
       {state.aiEnabled && !missing && !eligible && <p>Declared language: {declared}. Choose a supported model or correct the declaration in your source document.</p>}
       {state.aiEnabled && model && <p className="model-note">{model.label}: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer if needed, plus runtime assets (approximately 26.86 MB uncompressed WASM and JavaScript). Running permits these downloads.</p>}
       {state.aiEnabled && eligible && <Button variant="primary" disabled={busy || !state.checks.length} onClick={() => controller.runScreening()}>Run local AI checks</Button>}
+      {state.aiEnabled && missing && !state.languageAssumption && <Button disabled={busy} onClick={() => controller.promptLanguageDecision()}>Decide document language…</Button>}
       <Button disabled={busy} onClick={() => controller.openSetup('checks')}>Change check settings</Button>
     </Notice>}
     <Details summary="Check coverage and AI settings">

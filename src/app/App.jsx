@@ -14,6 +14,7 @@ import { createAppController } from "./controller.js";
 import { BatchController } from "../batch/controller.js";
 import { BatchPanel } from "../batch/BatchPanel.jsx";
 import { SetupDialog } from "./SetupDialog.jsx";
+import { LanguageDialog } from "./LanguageDialog.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
 import { Review } from "../review/Review.jsx";
 import { AdvancedReport } from "../review/AdvancedReport.jsx";
@@ -133,43 +134,48 @@ export function App() {
       <PrivacyNotice ref={privacyRef} openerRef={openerRef} />
       {state.stage === "setup" && <SetupDialog controller={controller} state={state} calibrationRef={calibrationRef}
         batchBusy={batch.busy} canCalibrate={() => !batch.busy && !controller.getSnapshot().analysisBusy} />}
+      {state.awaitingLanguageDecision && (
+        <LanguageDialog controller={controller} state={state} />
+      )}
       <main id="main" tabIndex={-1} className="mg-container mg-container--slim">
-        <nav
-          className="flow-steps"
-          aria-label={inBatch ? "Batch review" : "Review stages"}
-        >
-          <ol id="flow-steps">
-            {steps.map(([key, label]) => {
-              const isCurrent =
-                state.stage === key ||
-                (state.stage === "setup" && key === "document") ||
-                (["checks", "processing-analysis", "processing-model"].includes(state.stage) && key === "review");
-              const canNavigate =
-                key === "document" ||
-                (key === "batch" && !batch.busy) ||
-                (key === "checks" && state.report) ||
-                (key === "review" && state.report);
-              return (
-                <li
-                  key={key}
-                  aria-current={isCurrent ? "step" : undefined}
-                >
-                  {!isCurrent && canNavigate ? (
-                    <button
-                      type="button"
-                      className="flow-step-link"
-                      onClick={() => controller.go(key)}
-                    >
-                      {label}
-                    </button>
-                  ) : (
-                    <span>{label}</span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
+        {!["document", "setup"].includes(state.stage) && (
+          <nav
+            className="flow-steps"
+            aria-label={inBatch ? "Batch review" : "Review stages"}
+          >
+            <ol id="flow-steps">
+              {steps.map(([key, label]) => {
+                const isCurrent =
+                  state.stage === key ||
+                  (state.stage === "setup" && key === "document") ||
+                  (["checks", "processing-analysis", "processing-model"].includes(state.stage) && key === "review");
+                const canNavigate =
+                  key === "document" ||
+                  (key === "batch" && !batch.busy) ||
+                  (key === "checks" && state.report) ||
+                  (key === "review" && state.report);
+                return (
+                  <li
+                    key={key}
+                    aria-current={isCurrent ? "step" : undefined}
+                  >
+                    {!isCurrent && canNavigate ? (
+                      <button
+                        type="button"
+                        className="flow-step-link"
+                        onClick={() => controller.go(key)}
+                      >
+                        {label}
+                      </button>
+                    ) : (
+                      <span>{label}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
+        )}
           <div
             className="workspace"
             data-stage={state.stage}
@@ -308,6 +314,7 @@ export function App() {
 }
 function Entry({ state, controller, batchBusy }) {
   const [dragging, setDragging] = useState(false),
+    [showSamples, setShowSamples] = useState(false),
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
@@ -335,44 +342,65 @@ function Entry({ state, controller, batchBusy }) {
           </Button>
         </div>
       )}
-      <Card
-        className={`upload-card ${dragging ? "dragging" : ""}`}
-        id="drop-zone"
-        tabIndex={-1}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging(false);
-          const files = Array.from(e.dataTransfer.files || []);
-          controller.selectFiles(files);
-        }}
-      >
-        <label className="drop-target" htmlFor="file-input">
-          <span className="document-icon">
-            <Icon name="file-alt" />
-          </span>
-          <strong>Drop your PDF here</strong>
-          <span className="drop-subtext">or choose PDFs from your device</span>
-          <span className="drop-limit">Up to 50 MB · 200 pages</span>
-        </label>
-        <input
-          className="mg-u-sr-only"
-          type="file"
-          id="file-input"
-          accept="application/pdf,.pdf"
-          multiple
+      {!showSamples ? (
+        <>
+          <Card
+            className={`upload-card ${dragging ? "dragging" : ""}`}
+            id="drop-zone"
+            tabIndex={-1}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              const files = Array.from(e.dataTransfer.files || []);
+              controller.selectFiles(files);
+            }}
+          >
+            <label className="drop-target" htmlFor="file-input">
+              <span className="document-icon">
+                <Icon name="file-alt" />
+              </span>
+              <strong>Drop your PDF here</strong>
+              <span className="drop-subtext">or choose PDFs from your device</span>
+              <span className="drop-limit">Up to 50 MB · 200 pages</span>
+            </label>
+            <input
+              className="mg-u-sr-only"
+              type="file"
+              id="file-input"
+              accept="application/pdf,.pdf"
+              multiple
+              disabled={disabled}
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                e.target.value = "";
+                controller.selectFiles(files);
+              }}
+            />
+          </Card>
+          <div className="intake-or-sample">
+            <Button
+              variant="secondary"
+              disabled={disabled}
+              onClick={() => setShowSamples(true)}
+            >
+              or try a sample
+            </Button>
+          </div>
+        </>
+      ) : (
+        <Samples
+          manifest={state.manifest}
+          manifestError={state.manifestError}
           disabled={disabled}
-          onChange={(e) => {
-            const files = Array.from(e.target.files || []);
-            e.target.value = "";
-            controller.selectFiles(files);
-          }}
+          onChoose={(path) => controller.selectSample(path)}
+          onBack={() => setShowSamples(false)}
         />
-      </Card>
+      )}
       <div className="intake-settings">
         <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose your check settings when you select your first PDF."}</p>
         <Actions>
@@ -380,12 +408,6 @@ function Entry({ state, controller, batchBusy }) {
           <Button disabled={disabled} onClick={() => controller.beginEvaluation("batch")}>Check several PDFs</Button>
         </Actions>
       </div>
-      <Samples
-        manifest={state.manifest}
-        manifestError={state.manifestError}
-        disabled={disabled}
-        onChoose={(path) => controller.selectSample(path)}
-      />
       <Capabilities />
     </div>
   );
