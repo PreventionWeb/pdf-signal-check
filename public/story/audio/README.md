@@ -6,11 +6,11 @@ The page downloads none of these files until a viewer turns on **Audio on**, and
 
 ## Narration: `01-…` to `08-….mp3`
 
-- Model: ElevenLabs Multilingual v2 (`elevenlabs/eleven-multilingual-v2`), through OpenRouter's `/api/v1/audio/speech`
-- Voice: `george` (British English, male). Chosen from seven candidates; see `docs/experiments/STORY-AUDIO.md`.
-- Delivery: voice settings stability 0.3, similarity 0.8, style 0.45, speaker boost, sent as OpenRouter provider options, and a short beat (“…”) before each scene’s key phrase
-- Generated: 2026-10-07; regenerated with beats and warmer settings 2026-10-08
-- Script: `src/story/script.js` (`speak`, or else `narration`, per scene). The manifest with each clip's text and duration is `src/story/narration.json`.
+- Model: Microsoft MAI-Voice-2.1 (`microsoft/mai-voice-2.1`), through OpenRouter's `/api/v1/audio/speech`
+- Voice: `en-GB-Emily` (British English, female)
+- Generated: 2026-10-08. Earlier passes used ElevenLabs Multilingual v2 with the voice george, first plain and then with inserted beats; reviewers found them flat, then forced.
+- Choice: clips 02, 05 and 06 were read with identical text by george (default and expressive settings), MAI Emily and MAI Harry, then scored by one model with one prompt over two runs in reversed order, with the earlier sets as references. Emily led on every clip (8.3 mean, against 7.2 to 7.3 for george) and was the product owner's second pick by ear. Details: `docs/experiments/STORY-AUDIO.md`.
+- Script: `src/story/script.js` (`speak`, or else `narration`, per scene), with plain punctuation and no inserted pauses. Numbers and years are spelled out for the voice. The manifest with each clip's text and duration is `src/story/narration.json`.
 - Processing: loudness-normalised to −16 LUFS, mono, 44.1 kHz, 48 kbit/s MP3
 - Regenerate: `node --env-file=<path to .env with OPENROUTER_API_KEY> scripts/generate-story-narration.mjs`. Unchanged lines are kept, and `test/story-narration.test.js` fails if the script and the clips drift apart.
 

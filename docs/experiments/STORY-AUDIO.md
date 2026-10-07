@@ -4,9 +4,9 @@ Recorded 2026-10-07 while making the audio for `story.html`. Use this as a start
 
 ## Outcome
 
-- **Narration:** ElevenLabs Multilingual v2, voice **george** (British, male, measured). The product owner listened to the candidates and agreed it was best. Their **second choice was Microsoft MAI-Voice-2.1, `en-GB-Emily`**.
+- **Narration (final):** Microsoft MAI-Voice-2.1, voice **en-GB-Emily**: the product owner's second pick by ear, and the clear winner of a consistent listening check in round 3 (below). The first two passes used ElevenLabs Multilingual v2, voice **george**, which the owner first preferred on a single test line.
 - **Music:** Google Lyria 3 Pro (`google/lyria-3-pro-preview`), the second of two candidates (music box, celesta, pads and slow acoustic guitar).
-- **Spend:** about $0.45 in total: music $0.16 (two songs at $0.08), voice about $0.14 (test lines, two full narration passes and one retake), and about $0.15 for an audio-capable model used as a listening panel.
+- **Spend:** $1.15 by the end of round 2 and $1.25 after round 3 (see `docs/VALIDATION.md`). Round 1 was about $0.45: music $0.16 (two songs at $0.08), voice about $0.14 (test lines, two full narration passes and one retake), and about $0.15 for an audio-capable model used as a listening panel.
 
 ## Voice comparison
 
@@ -25,4 +25,6 @@ The same test line was read by seven voices: ElevenLabs Multilingual v2 (alice, 
 - **Making a flat read livelier (2026-10-08):** a reviewer scored the first pass 6/10, “clear but flat”. What helped most was the script: a beat (“…”) before each key phrase, an exclamation on the finding, and splitting lists (“three… four… one… two”). ElevenLabs voice settings (stability 0.3, style 0.45) were sent as `provider.options.elevenlabs.voice_settings`; their effect could not be confirmed, because pitch spread was about the same before and after (3.2 semitones). Eleven v3 with audio tags (“[warmly]”) did not sound better in a blind check. A model listening check rated the revised set 7.8/10 with every key phrase emphasised.
 - **Model listening checks are unreliable:** one run of Gemini 3.1 Pro silently ignored the attached audio and answered from the prompt; Gemini 3.8 Flash worked. Ask the model to reply “NO AUDIO” if it cannot hear, and treat ratings as screening, not judgement.
 - **Wording trap:** “Take one finding” was heard by a model as a recording slate (“take one”). Avoid production words in narration.
+- **Round 3 (2026-10-08): a consistent check beats one-off ratings.** The second review heard the inserted “…” beats as forced gaps and still found no lift on the finding. The beats were removed. Clips 02, 05 and 06 were then read with identical text by four voices: george on default settings, george with stability 0.3 and style 0.45, MAI Emily and MAI Harry. Each clip's six versions (adding the v1 and v2 sets as references) were scored by Gemini 3.8 Flash at temperature 0, with one fixed JSON prompt (warmth, naturalness, emphasis, clarity), in two runs with the order reversed. Means: Emily 8.31, v2 george with beats 7.31, george default 7.21, george expressive 7.19, v1 george 7.00, Harry 6.97. Emily led on every clip in both runs. Its one flag, “2024” heard as “twenty and twenty-four” in one run, was fixed by spelling the year out for the voice. Lesson: one listening check on its own is noise; fix the model, prompt, temperature and order, and repeat.
+- **Take-to-take variance is real:** one Emily take of clip 05 came back at 8.4 s with long gaps, while a retake of the same text ran 6.2 s. Check durations and pauses (`silencedetect`) before accepting a take.
 - **Keys:** pass the key with `node --env-file=<path>`; scripts read `process.env` and never echo it.

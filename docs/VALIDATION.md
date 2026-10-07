@@ -345,3 +345,13 @@ agent-browser checks at 1280px and 390px, on the dev server and the production b
 - only the page's origin and assets.undrr.org are requested
 
 `npm test` (292 tests) and `npm run build` pass.
+
+### Story final round after second review (2026-10-08)
+
+The second review recommended releasing the visuals (fidelity 8, craft 8, composition 7, typography 7, motion 8, story 8, mobile 7). It asked for two fixes: the scene 8 cameo's count, and the narration. Changes:
+- **Scene 8:** the result sheet is pasted over the laptop screen. On wide screens it lists all five real pins under “1 thing to fix, 4 to check”; on narrow screens it shows two rows and “+ 3 more to check”. The list never contradicts the headline count.
+- **Polish:** scene 4's listener and “Image.” are larger and centred; scene 6 loses the cover thumbnail and keeps the folder inside the phone crop; the passport pages have light grain; the backdrop creases are about 30% softer and fold differently per scene.
+- **Narration:** the inserted beats were removed. A consistent check (one model, one prompt, temperature 0, two runs in reversed order) compared george on default and expressive settings, MAI-Voice-2.1 Emily and Harry, and the earlier sets on clips 02, 05 and 06. Emily led on every clip (8.31 mean, against 7.19 to 7.31 for george) and is now the narrator. A transcript check of the final set found no errors. Alternatives are kept outside the repository for the product owner to compare by ear.
+- **Timing:** motion was re-timed to the new clips (scene 5's tags land on each spoken number; scene 6's folder arrives on “And the title”). The hold is now 0.9 s, for a 59.7 s total.
+
+`npm test` (292) and `npm run build` pass. agent-browser checked all eight scenes at 1280px and 390px on the production build under `/pdf-signal-check/`, including reduced-motion stills and the audio controls. Total OpenRouter spend for the story is now $1.25 of the key's $12 limit.
