@@ -57,6 +57,12 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     [controller, model.key],
   );
   const receipt = state.receipt, rating = rateDevice(receipt);
+  const resultTitle = {
+    great: 'Your device: great for local AI',
+    ok: 'Your device: OK for local AI',
+    slow: 'Your device: not recommended for local AI',
+    unrated: 'Your device: check again',
+  }[rating.key];
   const timings = receipt ? [
     { label: "PDF preparation", ms: receipt.fixture.parseMs },
     { label: "AI model startup", ms: receipt.load.loadAndInitMs },
@@ -83,7 +89,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
   );
   return (
     <section className="calibration-panel">
-      <h2 className="mg-card__title">{receipt ? rating.label : "Benchmark your device"}</h2>
+      <h2 className="mg-card__title">{receipt ? resultTitle : "Benchmark your device"}</h2>
       <p>{receipt ? rating.description : "Run a short sample test to see how quickly this model works on your device. Your PDFs are not used."}</p>
       {receipt && <div className="benchmark-timings" aria-label="Measured benchmark times">
         <p className="model-note">Relative speed · longer bars are faster</p>
