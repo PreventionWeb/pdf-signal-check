@@ -35,3 +35,16 @@ it('captures the screening assumption without replacing the source language or r
  expect(screeningReceipt(captured.report)).toContain('English (explicit user assumption)');
  expect(screeningReceipt(captured.report)).toContain('PDF language declaration remains missing');
 });
+
+it('shows full-page figure context without inventing a crop when geometry is unavailable', async () => {
+  const { evidenceCropBounds } = await import('../src/evidence/geometry.js');
+  const report = { checks: [], pages: [{ number: 1, blocks: [] }] };
+  const viewport = { width: 100, height: 100, transform: [1,0,0,1,0,0] };
+  const target = { page: 1, quads: [] };
+  expect(evidenceCropBounds(report, target, viewport)).toBeNull();
+  expect(evidenceCropBounds(report, { ...target, contextPage: true }, viewport)).toMatchObject({ pageContext: true, points: [], width: 100, height: 100 });
+  const located = { page: 1, contextPage: true, quads: [[[10,10],[20,10],[20,20],[10,20]]] };
+  expect(evidenceCropBounds(report, located, viewport).pageContext).toBe(false);
+  const unsafe = { ...report, checks: [{ evidence: ['Form XObjects are unsupported.'] }] };
+  expect(evidenceCropBounds(unsafe, located, viewport)).toMatchObject({ pageContext: true, points: [] });
+});

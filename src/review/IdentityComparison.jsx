@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, Button } from "../ui/react.jsx";
-import { Help, HelpLabel } from "../help/Help.jsx";
+import { Help } from "../help/Help.jsx";
+import { identitySavedValues } from "./identity-values.js";
 import { Crop } from "../evidence/Crop.jsx";
 export function IdentityComparison({ kind, report, file, targets, onInspect }) {
   const result =
@@ -9,50 +10,33 @@ export function IdentityComparison({ kind, report, file, targets, onInspect }) {
       kind === "title"
         ? result?.publicationCandidates || []
         : result?.evidence || [];
-  const fields =
-    kind === "title"
-      ? [
-          ["Info metadata", "info", [["Title", report.metadata.infoTitle]]],
-          [
-            "XMP metadata",
-            "xmp",
-            report.metadata.xmpTitles?.length
-              ? report.metadata.xmpTitles.map((t) => [
-                  `Title (${t.lang || "unspecified language"})`,
-                  t.text,
-                ])
-              : [["Title", null]],
-          ],
-        ]
-      : [
-          ["Info metadata", "info", [["Authors", report.metadata.author]]],
-          [
-            "XMP metadata",
-            "xmp",
-            [
-              [
-                "Authors",
-                (
-                  result?.metadataAuthors?.xmp ||
-                  report.metadata.xmpAuthors ||
-                  []
-                ).join("; "),
-              ],
-            ],
-          ],
-        ];
+  const saved = identitySavedValues(kind, report);
+  const property = kind === 'title' ? 'document title' : 'author names';
   return (
     <div className="identity-comparison">
+      <Card className="identity-source identity-saved">
+        <h3>Saved {property}</h3>
+        <p className="model-note">This information is stored in the PDF’s document properties.</p>
+        {saved.values.length > 1 && <p>The PDF contains different saved versions. Compare each with the publication{kind === 'title' ? '; language versions may be intentional' : ''}.</p>}
+        {saved.values.map((item, i) => <div className="comparison-evidence" key={i}>
+          {saved.values.length > 1 && <h4>Saved version {i + 1}</h4>}
+          <p className="identity-saved-value">{item.value}</p>
+          <h4>Recorded source{item.sources.length > 1 ? 's' : ''}</h4>
+          <ul className="model-note">{item.sources.map((source, j) => <li key={j}>{source.source} <Help topic={source.topic} label={`About ${source.source}`} /></li>)}</ul>
+        </div>)}
+        {!saved.values.length && <p>{kind === 'title' ? 'No document title was found' : 'No author names were found'} in the PDF’s document properties.</p>}
+        {saved.missing.length > 0 && <p className="model-note">Not set in: {saved.missing.map(item => item.source).join('; ')}.</p>}
+      </Card>
       <Card className="identity-source identity-publication">
-        <h3>From the publication</h3>
+        <h3>{kind === 'title' ? 'Possible title found on the page' : 'Possible author names found on the page'}</h3>
         <div className="finding-crop-slot">
           <Crop file={file} report={report} targets={targets} />
         </div>
-        <h4>Recovered publication text</h4>
+        <h4>Text found on the first page</h4>
         <p className="model-note">
           {kind === "title"
-            ? "Recovered first-page title candidates; candidacy is heuristic."
-            : "Explicit first-page byline candidates; candidacy does not authenticate authorship."}
+            ? "The tool found possible title text on the first page. Check it against the full title, including the year and edition."
+            : "The tool found a possible author line on the first page. Check these names yourself; this does not verify authorship."}
         </p>
         {evidence.slice(0, 8).map((item, i) => (
           <div className="comparison-evidence" key={i}>
@@ -86,8 +70,7 @@ export function IdentityComparison({ kind, report, file, targets, onInspect }) {
         ))}
         {!evidence.length && (
           <p className="identity-unavailable">
-            No comparable publication candidate was recovered. Missing evidence
-            is not a match.
+            No {kind === 'title' ? 'possible title' : 'possible author line'} was found on the first page. Compare the saved information with the PDF yourself.
           </p>
         )}
         {evidence.length > 8 && (
@@ -97,27 +80,7 @@ export function IdentityComparison({ kind, report, file, targets, onInspect }) {
           </p>
         )}
       </Card>
-      {fields.map(([label, key, values]) => (
-        <Card className={`identity-source identity-${key}`} key={key}>
-          <HelpLabel as="h3" topic={key}>
-            {label}
-          </HelpLabel>
-          <dl className="identity-values">
-            {values.map(([field, value], i) => (
-              <React.Fragment key={i}>
-                <dt>{field}</dt>
-                <dd
-                  className={
-                    value && String(value).trim() ? "" : "identity-unavailable"
-                  }
-                >
-                  {value && String(value).trim() ? value : "Not set"}
-                </dd>
-              </React.Fragment>
-            ))}
-          </dl>
-        </Card>
-      ))}
+
     </div>
   );
 }

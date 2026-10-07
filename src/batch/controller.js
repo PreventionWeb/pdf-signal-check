@@ -36,7 +36,7 @@ export class BatchController {
     this.settings = {
       useAI: false,
       modelId: "minilm",
-      checks: ["title", "subject", "keywords"],
+      checks: ["title", "subject", "keywords", "sections"],
     };
     this.consent = false;
     this.message = "";

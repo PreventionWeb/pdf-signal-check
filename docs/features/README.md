@@ -1,6 +1,6 @@
 # Guided PDF review feature plan
 
-Requested October 6, 2026. The guided single-PDF slice shipped in app 0.5; app 0.6 added human-readable PDF and dedicated PNG exports, cropped evidence, opt-in device calibration, and a labeled semantic evaluation harness. App 0.7 delivers the independently validated bounded foreground batch queue. The text profile remains 0.2. These briefs distinguish delivered behavior from deferred capabilities; see the [delivery audit](../DELIVERY.md).
+Requested October 6, 2026. The guided single-PDF slice shipped in app 0.5; app 0.6 added human-readable PDF and dedicated PNG exports, cropped evidence, opt-in device calibration, and a labeled semantic evaluation harness. App 0.7 delivers the independently validated bounded foreground batch queue. The current app is 0.8.0 with text profile 0.3. PDF and JSON downloads are exposed in the current interface; the dedicated PNG generator remains available internally. Earlier delivery receipts below record the interface at that time. These briefs distinguish delivered behavior from deferred capabilities; see the [delivery audit](../DELIVERY.md).
 
 The product should guide someone from understanding the tool to inspecting the problems in their PDF, with the clarity of a tax-software interview. The interface should ask for one useful decision at a time, retain earlier choices, and make the evidence and next action concrete.
 

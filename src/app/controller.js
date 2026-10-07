@@ -1,5 +1,6 @@
 import { createDevicePreferences } from '../calibration/preferences.js';
 import { createEvaluationPreferences } from './preferences.js';
+import { hasUnchangedNoInputs } from "../runtime/screening-recovery.js";
 import { buildScreeningRequest } from "../runtime/screening-request.js";
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from "../engine/models.js";
 /** DOM-free single-source owner. Construction does not fetch, create workers, or start inference. */
@@ -35,7 +36,7 @@ export function createAppController({
     selectedModel: saved?.modelId || null,
     languageAssumption: null,
     awaitingLanguageDecision: false,
-    checks: saved?.checks || ["title", "subject", "keywords"],
+    checks: saved?.checks || ["title", "subject", "keywords", "sections"],
     message: "",
     progress: null,
     analysisBusy: false,
@@ -150,10 +151,10 @@ export function createAppController({
       const settingsCleared = preferences.clear?.();
       const benchmarksCleared = devicePreferences.clear();
       services.batch?.releaseIdleWorkers();
-      services.batch?.setSettings({ useAI: false, modelId: "minilm", checks: ["title", "subject", "keywords"] });
+      services.batch?.setSettings({ useAI: false, modelId: "minilm", checks: ["title", "subject", "keywords", "sections"] });
       services.batch?.setConsent(false);
       emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "granite-r2", selectedModel: null, languageAssumption: null, awaitingLanguageDecision: false,
-        checks: ["title", "subject", "keywords"], pendingSetupLabel: null, message: settingsCleared && benchmarksCleared ? "Saved setup and speed tests reset. Choose settings for your next PDF." : "Setup reset for this session. Browser storage could not be cleared; saved settings may return after reload." });
+        checks: ["title", "subject", "keywords", "sections"], pendingSetupLabel: null, message: settingsCleared && benchmarksCleared ? "Saved setup and speed tests reset. Choose settings for your next PDF." : "Setup reset for this session. Browser storage could not be cleared; saved settings may return after reload." });
       return true;
     },
     cancelSetup() {
@@ -276,6 +277,7 @@ export function createAppController({
         analysisBusy: false,
         progress: null,
         report: null,
+        awaitingLanguageDecision: false,
         stage: "document",
         message:
           "Analysis canceled. Your selected file is retained; retry or choose another PDF.",
@@ -335,6 +337,7 @@ export function createAppController({
           "title",
           "subject",
           "keywords",
+          "sections",
         ],
         analysisBusy: false,
         stage: "review",
@@ -479,6 +482,7 @@ export function createAppController({
         reviewed: new Set(),
         reviewCursor: { category: "problems", issueId: null },
         message: "Loading the example PDF…",
+        awaitingLanguageDecision: false,
         languageAssumption: null,
         progress: null,
       });
@@ -511,7 +515,8 @@ export function createAppController({
         state.modelBusy ||
         state.calibrationBusy ||
         !state.selectedModel ||
-        !state.checks.length
+        !state.checks.length ||
+        hasUnchangedNoInputs(state.report, { modelId: state.selectedModel, checks: state.checks, languageAssumption: state.languageAssumption })
       )
         return;
       const currentJob = job,

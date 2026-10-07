@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { EvidenceCropService } from "./crops.js";
 import { targetQuads } from "./geometry.js";
-export function Crop({ file, report, targets = [] }) {
+export function Crop({ file, report, targets = [], fallbackPage = false }) {
   const [result, setResult] = useState(null);
+  const target = targets.find(t => targetQuads(report, t).length) || (fallbackPage ? targets.find(t => t.page) : null);
   useEffect(() => {
-    const target =
-      targets.find((t) => targetQuads(report, t).length) || targets[0];
     if (!file || !target) {
       setResult(null);
       return;
@@ -16,16 +15,16 @@ export function Crop({ file, report, targets = [] }) {
       active = true;
     setResult({ caption: "Rendering one located source region…" });
     service
-      .crop(target)
+      .crop({ ...target, contextPage: fallbackPage })
       .then((value) => {
         if (!active) return;
         if (value.blob) url = URL.createObjectURL(value.blob);
-        setResult({ ...value, url });
+        setResult(value.blob ? { ...value, url } : null);
       })
       .catch((e) => {
         if (active && !abort.signal.aborted)
           setResult({
-            caption: `Crop unavailable: ${e.message}. Use textual evidence or the full-page preview.`,
+            caption: "Preview unavailable.",
           });
       })
       .finally(() => service.destroy());
@@ -35,20 +34,14 @@ export function Crop({ file, report, targets = [] }) {
       service.destroy();
       if (url) URL.revokeObjectURL(url);
     };
-  }, [file, report.pages, targets]);
-  if (!result)
-    return (
-      <p className="model-note">
-        No trustworthy source region is available for a crop. Recovered text and
-        metadata remain available below.
-      </p>
-    );
+  }, [file, report.pages, targets, fallbackPage]);
+  if (!file || !target || !result) return null;
   return (
     <figure className="evidence-crop">
       {result.url && (
         <img
           src={result.url}
-          alt={`Source PDF page ${result.page}: ${result.text}. Approximate evidence outlined in blue.`}
+          alt={result.pageContext ? `Full PDF page ${result.page}. The figure location could not be isolated.` : `Source PDF page ${result.page}: ${result.text}. Approximate evidence outlined in blue.`}
           width={result.width}
           height={result.height}
         />

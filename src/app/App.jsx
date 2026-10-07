@@ -1,3 +1,4 @@
+import { SiteNavigation } from "./SiteNavigation.jsx";
 import { Capabilities } from './Capabilities.jsx';
 import { formatProgress } from '../ui/progress.js';
 import React, {
@@ -10,15 +11,16 @@ import React, {
 import { PageHeader } from "@undrr/undrr-mangrove/components/PageHeader.js";
 import { Footer } from "@undrr/undrr-mangrove/components/Footer.js";
 import { Samples } from "./Samples.jsx";
+import { Tabs } from "../ui/Tabs.jsx";
 import { createAppController } from "./controller.js";
 import { BatchController } from "../batch/controller.js";
 import { BatchPanel } from "../batch/BatchPanel.jsx";
 import { SetupDialog } from "./SetupDialog.jsx";
 import { LanguageDialog } from "./LanguageDialog.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
-import { Review } from "../review/Review.jsx";
+import { ReviewLoader } from "../review/ReviewLoader.jsx";
+import { needsDocumentInformation } from "../runtime/screening-recovery.js";
 import { AdvancedReport } from "../review/AdvancedReport.jsx";
-import { GoGoViewer } from "../evidence/GoGoViewer.jsx";
 import {
   PRESENTATION_BRAND,
   PRODUCT_NAME,
@@ -26,7 +28,6 @@ import {
 import {
   Button,
   Card,
-  Details,
   Actions,
   Loader,
   Icon,
@@ -39,6 +40,7 @@ export function App() {
     privacyRef = useRef(null),
     openerRef = useRef(null),
     previousStage = useRef(state.stage);
+  const [showSamples, setShowSamples] = useState(false);
   const [batch] = useState(
     () =>
       new BatchController({
@@ -74,28 +76,18 @@ export function App() {
     if (state.stage !== "setup" && !staysInResults) {
       const heading = document.getElementById("flow-title");
       heading?.focus({ preventScroll: true });
-      heading?.scrollIntoView({ block: "start", behavior: "instant" });
+      if (["document", "batch"].includes(state.stage)) window.scrollTo({ top: 0, behavior: "instant" });
+      else heading?.scrollIntoView({ block: "start", behavior: "instant" });
     }
   }, [state.stage]);
-  const inBatch =
-      state.stage === "batch" || (state.stage === "review" && state.batchId),
-    steps = inBatch
-      ? [
-          ["batch", "1 · Batch queue"],
-          ["review", "2 · PDF evidence"],
-        ]
-      : [
-          ["document", "1 · Select PDF"],
-          ["review", "2 · Results"],
-        ];
   const title = {
     setup: "Check a PDF",
     document: "Check a PDF",
     batch: "Review several PDFs",
-    checks: "Your PDF results",
-    review: "Your PDF results",
+    checks: null,
+    review: null,
     "processing-analysis": "Checking text, tags, and metadata",
-    "processing-model": "Your PDF results",
+    "processing-model": null,
   }[state.stage];
   return (
     <>
@@ -113,24 +105,14 @@ export function App() {
         logoHeight={PRESENTATION_BRAND.logoHeight}
         logoCrop={PRESENTATION_BRAND.logoCrop}
       />
-      <section
-        className="mg-container mg-container--slim mg-container--padded"
-        aria-label="PDF Signal Check controls"
-      >
-        <div className="app-toolbar">
-          <a
-            className="app-home mg-u-font-size-500"
-            href="./"
-            aria-label="PDF Signal Check home"
-            onClick={(e) => {
-              e.preventDefault();
-              controller.go("document");
-            }}
-          >
-            {PRODUCT_NAME}
-          </a>
-        </div>
-      </section>
+      <SiteNavigation onNavigate={(action, opener) => {
+        if (action === "about") { privacyRef.current?.open(opener); return; }
+        if (action === "settings") { controller.openSetup(state.report ? "checks" : "document"); return; }
+        if (action === "batch") { controller.beginEvaluation("batch"); return; }
+        setShowSamples(action === "sample");
+        controller.go("document");
+        if (action === "capabilities") requestAnimationFrame(() => document.querySelector('[aria-label="Tool capabilities"]')?.scrollIntoView({ block: "start" }));
+      }} />
       <PrivacyNotice ref={privacyRef} openerRef={openerRef} />
       {state.stage === "setup" && <SetupDialog controller={controller} state={state} calibrationRef={calibrationRef}
         batchBusy={batch.busy} canCalibrate={() => !batch.busy && !controller.getSnapshot().analysisBusy} />}
@@ -138,44 +120,6 @@ export function App() {
         <LanguageDialog controller={controller} state={state} />
       )}
       <main id="main" tabIndex={-1} className="mg-container mg-container--slim">
-        {!["document", "setup"].includes(state.stage) && (
-          <nav
-            className="flow-steps"
-            aria-label={inBatch ? "Batch review" : "Review stages"}
-          >
-            <ol id="flow-steps">
-              {steps.map(([key, label]) => {
-                const isCurrent =
-                  state.stage === key ||
-                  (state.stage === "setup" && key === "document") ||
-                  (["checks", "processing-analysis", "processing-model"].includes(state.stage) && key === "review");
-                const canNavigate =
-                  key === "document" ||
-                  (key === "batch" && !batch.busy) ||
-                  (key === "checks" && state.report) ||
-                  (key === "review" && state.report);
-                return (
-                  <li
-                    key={key}
-                    aria-current={isCurrent ? "step" : undefined}
-                  >
-                    {!isCurrent && canNavigate ? (
-                      <button
-                        type="button"
-                        className="flow-step-link"
-                        onClick={() => controller.go(key)}
-                      >
-                        {label}
-                      </button>
-                    ) : (
-                      <span>{label}</span>
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-          </nav>
-        )}
           <div
             className="workspace"
             data-stage={state.stage}
@@ -190,7 +134,7 @@ export function App() {
                     {title}
                   </h1>
                 )}
-                {state.file && state.stage !== "batch" && state.stage !== "document" && (
+                {state.file && state.stage !== "batch" && state.stage !== "document" && (!["checks", "review"].includes(state.stage) || needsDocumentInformation(state.report)) && (
                   <p className="flow-file">
                     {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
                   </p>
@@ -200,6 +144,8 @@ export function App() {
                     state={state}
                     controller={controller}
                     batchBusy={batch.busy}
+                    showSamples={showSamples}
+                    setShowSamples={setShowSamples}
                   />
                 )}
               {state.stage === "processing-analysis" && (
@@ -241,11 +187,10 @@ export function App() {
                   >
                     Cancel and go back
                   </Button>
-                  <GoGoViewer file={state.file} title="Your PDF while checks run" />
                 </>
               )}
               {["checks", "review", "processing-model"].includes(state.stage) && state.report && (
-                <Review
+                <ReviewLoader
                   key={state.sourceKey}
                   state={{ ...state, batchBusy: batch.busy }}
                   controller={controller}
@@ -267,13 +212,11 @@ export function App() {
                 </>
               )}
             </div>
-            {state.report && ["checks", "review"].includes(state.stage) && (
-              <Details
-                id="advanced-evidence"
-                summary="Technical analysis record"
-              >
+            {state.report && !needsDocumentInformation(state.report) && ["checks", "review"].includes(state.stage) && (
+              <section id="advanced-evidence" aria-labelledby="technical-record-title">
+                <h2 id="technical-record-title">Technical analysis record</h2>
                 <AdvancedReport report={state.report} />
-              </Details>
+              </section>
             )}
             {state.stage === "document" && state.message && (
               <p
@@ -312,9 +255,8 @@ export function App() {
     </>
   );
 }
-function Entry({ state, controller, batchBusy }) {
+function Entry({ state, controller, batchBusy, showSamples, setShowSamples }) {
   const [dragging, setDragging] = useState(false),
-    [showSamples, setShowSamples] = useState(false),
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
@@ -342,8 +284,9 @@ function Entry({ state, controller, batchBusy }) {
           </Button>
         </div>
       )}
-      {!showSamples ? (
-        <>
+      <Tabs label="Choose a PDF source" value={showSamples ? "sample" : "upload"}
+        onChange={value => setShowSamples(value === "sample")} disabled={disabled}
+        tabs={[{ value: "upload", label: "Your PDF", content: (
           <Card
             className={`upload-card ${dragging ? "dragging" : ""}`}
             id="drop-zone"
@@ -382,31 +325,11 @@ function Entry({ state, controller, batchBusy }) {
               }}
             />
           </Card>
-          <div className="intake-or-sample">
-            <Button
-              variant="secondary"
-              disabled={disabled}
-              onClick={() => setShowSamples(true)}
-            >
-              or try a sample
-            </Button>
-          </div>
-        </>
-      ) : (
-        <Samples
-          manifest={state.manifest}
-          manifestError={state.manifestError}
-          disabled={disabled}
-          onChoose={(path) => controller.selectSample(path)}
-          onBack={() => setShowSamples(false)}
-        />
-      )}
+        ) }, { value: "sample", label: "Try a sample", content: (
+          <Samples disabled={disabled} onChoose={path => controller.selectSample(path)} />
+        ) }]} />
       <div className="intake-settings">
         <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose your check settings when you select your first PDF."}</p>
-        <Actions>
-          <Button disabled={disabled} onClick={() => controller.openSetup("document")}>Settings</Button>
-          <Button disabled={disabled} onClick={() => controller.beginEvaluation("batch")}>Check several PDFs</Button>
-        </Actions>
       </div>
       <Capabilities />
     </div>

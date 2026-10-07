@@ -10,7 +10,7 @@ The aim is to reduce avoidable extraction errors, misleading context, and wasted
 
 Early implementation, app version 0.8.0 with text actionability profile 0.3. The product is PDF Signal Check; the local repository and package are named `pdf-signal-check`. Created October 5, 2026 as a fresh project with independent application code and git history.
 
-Follow a guided single-PDF review: choose a document, inspect optional screening choices, then review concrete problems and uncertain scope against the rendered page. Traditional analysis runs once before model selection; “Review without AI” is always available. Full evidence and JSON export remain accessible without finishing the review queue. Optional [local semantic screening](docs/SEMANTIC.md) offers pinned MiniLM and multilingual Granite choices, selectable title/subject/per-keyword checks, and bounded tagged-heading/section comparisons. PDF processing stays on the user's device. Model and runtime assets download only when screening is requested. The model picker explains language support, model/tokenizer downloads, and limitations before an explicit run. Per-model advisory thresholds require calibration; opt-in fixed-workload browser tests report observed timings without hardware or document-speed guarantees.
+Follow a guided single-PDF review: choose your PDF or an example through the intake tabs, confirm check settings on first use, then review concrete problems and uncertain scope against the rendered page. Settings opens a dialog; batch review is a separate workflow. Traditional analysis runs before optional screening; choosing no AI model is always available. Setup recommends multilingual Granite R2, with MiniLM as the compact English option. Missing document language prompts an explicit, source-specific decision before AI can run. Full evidence and JSON export remain accessible without finishing the review queue. Optional [local semantic screening](docs/SEMANTIC.md) offers pinned MiniLM and multilingual Granite choices, selectable title/subject/per-keyword checks, and bounded tagged-heading/section comparisons. PDF processing stays on the user's device. Model and runtime assets download only when screening is requested. The model picker explains language support, model/tokenizer downloads, and limitations before an explicit run. Per-model advisory thresholds require calibration; opt-in fixed-workload browser tests report observed timings without hardware or document-speed guarantees.
 
 Batch queues remain in this browser session only. Traditional checks are the default; optional AI downloads require explicit authorization. Closing or reloading loses queue data. A serialized report budget is an estimate, not a browser RAM limit. See [architecture and lifetimes](docs/ARCHITECTURE.md).
 
@@ -39,10 +39,10 @@ The project prioritizes machine consumption over a full human accessibility audi
 - A SHA-256 receipt of original input bytes where browser cryptography is available.
 - Interactive term explanations with reference links, and finding-source labels separating extracted rules, heuristics, completed local AI, and unassessed checks.
 - Data-driven reading-order illustrations compare matched headings from tag-tree and page-drawing sequences, with detected jumps and explicit uncertainty.
-- Captured PDF signal-check reports, dedicated PNG summaries, and detailed JSON exports generated locally; cancel exports without losing analysis.
+- Captured PDF signal-check reports and detailed JSON exports generated locally; cancel exports without losing analysis.
 - Bounded source evidence crops shared by guided review and PDF reports, independent of preview state.
 - Optional synthetic browser timing tests with explicit download costs; timings are observations, never hardware grades or document estimates.
-- Three simple examples and [twenty representative calibration PDFs](docs/CALIBRATION.md), including original logos, charts, metadata defects, title mismatches, German text, and embedded spreadsheets/Word files with and without declared guidance.
+- Four simple examples (including a PDF with missing document information) and [twenty representative calibration PDFs](docs/CALIBRATION.md), including original logos, charts, metadata defects, title mismatches, German text, and embedded spreadsheets/Word files with and without declared guidance.
 - Bounded embedded/associated-file inventory records declared names, media types, descriptions, relationships, and unresolved payload contexts without opening attachments. Payloads and incomplete inventories prevent text-profile acceptance.
 
 Meaningful graphics, forms, annotations, Form XObjects, optional layers, and ActualText replacements currently prevent acceptance because their analysis is outside the supported profile. A No in these cases means not established, rather than a defect in the PDF. Extracted Unicode indicators do not establish visually correct text; reading order and tag meaning are not proven correct by structural checks. Author and order findings are bounded advisories, not universal identity/order validation.
@@ -72,7 +72,7 @@ Version 1 is intended for GitHub Pages. [The workflow](.github/workflows/pages.y
 
 Vite uses relative asset URLs so the build works under a repository project path or a custom domain. PDF.js assets are bundled with the site. Optional models use Hugging Face for pinned model/tokenizer files; the inference runtime is bundled with the site. No backend or API key is required.
 
-The private repository is [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check). `main` is an empty baseline; the initial implementation lives on `feature/initial-implementation` for a squash pull request. GitHub Pages has not been deployed. See [AGENTS.md](AGENTS.md) for concise contributor instructions.
+The private repository is [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check). `main` is an empty baseline; the initial implementation lives on `feature/initial-implementation` for [draft PR #1](https://github.com/PreventionWeb/pdf-signal-check/pull/1), intended for a squash merge. GitHub Pages has not been deployed. See [AGENTS.md](AGENTS.md) for concise contributor instructions.
 
 ## Planning documents
 
@@ -80,6 +80,8 @@ The private repository is [PreventionWeb/pdf-signal-check](https://github.com/Pr
 - [Delivery audit](docs/DELIVERY.md): implementation and verification evidence for the local V1 roadmap.
 - [Interface brand](docs/BRAND.md): working label, positioning, and evidence-focused result hierarchy.
 - [Mangrove presentation](docs/MANGROVE.md): pinned local UNDRR theme, component mapping, licenses, and future PreventionWeb migration.
+- [UX reference architecture](docs/UX-ARCHITECTURE.md): enduring principles, workflow hierarchy, component responsibilities and an implementation review rubric.
+- [UX application review](docs/UX-ARCHITECTURE-REVIEW.md): independent assessment against the reference, prioritized proposed changes and verification limits.
 - [UX refinement](docs/UX-REFINEMENT.md): results-first flow changes and desktop/mobile browser verification.
 - [Naming options](docs/NAMING.md): UN-first, cross-industry naming recommendations and observed name conflicts.
 - [Implementation plan](docs/PLAN.md): scope, acceptance rules, architecture, milestones, and evaluation.
@@ -115,4 +117,4 @@ The visual evidence viewer also draws on [pdf-a-go-go](https://github.com/khawki
 
 Profile 0.3 extends the earlier marked-content integrity checks with bounded embedded-file inventory and conservative attachment scope handling. Profile results remain separate from metadata, author, reading-order, and visibility advisories. Known example ground-truth labels appear only for examples loaded through the app, never inferred from an uploaded filename.
 
-A first-visit notice explains local processing, external asset downloads, AI limitations, and AI-assisted development. “I understand” or Escape dismisses it; an optional browser-local preference suppresses future automatic notices. The header’s “About AI & privacy” control reopens it. Only that preference is saved, not PDF content.
+A first-visit notice explains local processing, external asset downloads, AI limitations, and AI-assisted development. “I understand” or Escape dismisses it; an optional browser-local preference suppresses future automatic notices. The footer’s “About AI & privacy” link reopens it. Notice preferences, confirmed check settings/download consent, and synthetic benchmark receipts may be saved locally; PDF content and document-specific language assumptions are not saved. A failed notice-preference save produces visible feedback.

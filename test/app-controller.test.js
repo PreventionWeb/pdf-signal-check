@@ -325,7 +325,7 @@ it('an explicit no-model setup persists for this session and runs no model worke
   app.beginEvaluation();
   app.completeSetup(null);
   expect(app.getSnapshot()).toMatchObject({ setupComplete: true, aiEnabled: false, selectedModel: null });
-  expect(batch.setSettings).toHaveBeenCalledWith({ useAI: false, modelId: 'minilm', checks: ['title', 'subject', 'keywords'] });
+  expect(batch.setSettings).toHaveBeenCalledWith({ useAI: false, modelId: 'minilm', checks: ['title', 'subject', 'keywords', 'sections'] });
   expect(batch.setConsent).toHaveBeenCalledWith(false);
   app.go('welcome'); app.beginEvaluation();
   expect(app.getSnapshot().stage).toBe('document');
@@ -333,5 +333,27 @@ it('an explicit no-model setup persists for this session and runs no model worke
   workers[0].worker.onmessage({ data: { type: 'result', report: report() } });
   expect(workers).toHaveLength(1);
   expect(app.getSnapshot()).toMatchObject({ stage: 'review', selectedModel: null });
+  app.dispose();
+});
+
+it('clears a pending language decision while a replacement sample loads and after cancellation', async () => {
+  const pending = deferred();
+  const { app, workers } = setup({ fetcher: () => pending.promise });
+  app.completeSetup('minilm');
+  await app.analyze(file());
+  workers[0].worker.onmessage({ data: { type: 'result', report: { ...report(), metadata: { language: null } } } });
+  expect(app.getSnapshot().awaitingLanguageDecision).toBe(true);
+  const loading = app.loadSample('./samples/well-prepared.pdf');
+  expect(app.getSnapshot()).toMatchObject({ report: null, awaitingLanguageDecision: false, stage: 'processing-analysis' });
+  app.cancelAnalysis();
+  pending.resolve({ ok: true, blob: async () => new Blob(['sample']) });
+  await loading;
+  expect(workers).toHaveLength(1);
+  expect(app.getSnapshot()).toMatchObject({ report: null, awaitingLanguageDecision: false, stage: 'document' });
+  // Cancellation also closes a decision attached to an already completed source.
+  app.openCompletedReport({ ...report(), metadata: { language: null } }, file(), 'missing');
+  app.promptLanguageDecision();
+  app.cancelAnalysis();
+  expect(app.getSnapshot().awaitingLanguageDecision).toBe(false);
   app.dispose();
 });

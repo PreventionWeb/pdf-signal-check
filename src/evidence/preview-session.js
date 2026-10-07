@@ -1,15 +1,13 @@
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
+import { readingOrderPlacement, hasUnsafePageScope } from "./reading-order-placement.js";
+import { cropBounds } from "./geometry.js";
 import { point } from "../geometry.js";
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 /** Only canvas/SVG geometry is imperative. React owns all controls, text and layout. */
 export class PreviewSession {
   constructor({ canvas, svg, scroller, sheet, onState }) {
     Object.assign(this, { canvas, svg, scroller, sheet, onState });
-    this.root = {
-      scrollIntoView: () =>
-        scroller.scrollIntoView({ behavior: "instant", block: "nearest" }),
-    };
     let message = "";
     this.message = {
       set textContent(value) {
@@ -44,11 +42,7 @@ export class PreviewSession {
   }
   async load(file, report) {
     this.report = report;
-    this.unsafeScope =
-      report.limitations?.some((l) => l.includes("Form XObjects")) &&
-      report.checks.some((c) =>
-        c.evidence.some((e) => e.includes("Form XObjects")),
-      );
+    this.unsafeScope = hasUnsafePageScope(report);
     const epoch = ++this.epoch;
     try {
       const data = new Uint8Array(await file.arrayBuffer());
@@ -82,19 +76,18 @@ export class PreviewSession {
     if (this.doc) this.render();
   }
   select(target) {
+    this.focusRegion = !!target.focusRegion;
     this.targets = target.quads?.length ? [target] : [];
     if (this.unsafeScope) {
       this.targets = [];
       target = { ...target, quads: [] };
     }
+    if (target.page) this.navigate(target.page, true);
     this.message.textContent = target.page
-      ? `Page ${target.page}: ${target.label}${target.quads?.length ? "" : " · No trustworthy region recovered."}`
+      ? `Page ${target.page}: ${target.label}${target.quads?.length || target.overlay === "order" ? "" : " · No trustworthy region recovered."}`
       : `${target.label} · Document-level finding; no page location.`;
     this.selectionMessage = this.message.textContent;
-    if (target.page) {
-      this.navigate(target.page, true);
-    } else this.draw();
-    this.root.scrollIntoView({ behavior: "instant", block: "nearest" });
+    if (!target.page) this.draw();
   }
   clearSelection() {
     this.targets = [];
@@ -118,7 +111,7 @@ export class PreviewSession {
       const unit = page.getViewport({ scale: 1 });
       let scale =
         this.zoom.value === "fit"
-          ? Math.max(0.1, (this.scroller.clientWidth - 24) / unit.width)
+          ? Math.min(1, Math.max(0.1, (this.scroller.clientWidth - 24) / unit.width))
           : Number(this.zoom.value);
       scale = Math.min(scale, 4096 / Math.max(unit.width, unit.height));
       const vp = page.getViewport({ scale });
@@ -147,8 +140,17 @@ export class PreviewSession {
       this.next.disabled = number === this.doc.numPages;
       this.message.textContent =
         this.selectionMessage ||
-        `Page ${number}. Select an evidence row to locate it.`;
+        (this.mode.value === 'order' ? `Page ${number}. Numbers show the recovered tagged reading sequence.` : `Page ${number}. Select an evidence row to locate it.`);
       this.draw();
+      if (this.focusRegion) {
+        const quad = this.targets[0]?.quads?.[0];
+        const bounds = quad && cropBounds(quad, vp, 0);
+        if (bounds) {
+          this.scroller.scrollTop = Math.max(0, bounds.y + bounds.height / 2 - this.scroller.clientHeight / 2);
+          this.scroller.scrollLeft = Math.max(0, bounds.x + bounds.width / 2 - this.scroller.clientWidth / 2);
+        }
+        this.focusRegion = false;
+      }
     } catch (e) {
       if (epoch === this.epoch && e.name !== "RenderingCancelledException")
         this.message.textContent = `Preview unavailable: ${e.message}`;
@@ -162,7 +164,7 @@ export class PreviewSession {
     const regions = [];
     if (this.unsafeScope) {
       this.message.textContent =
-        "Form XObjects detected: page-scoped tag locations and overlays are unavailable. Inspect the rendered page; stream-scoped joining is outside this profile.";
+        "Page locations are unavailable for reusable PDF content. Inspect the rendered page and recovered text.";
       return;
     }
     if (this.mode.value === "issues") {
@@ -172,13 +174,7 @@ export class PreviewSession {
       for (const g of page.graphics || [])
         if (g.quad) regions.push({ quad: g.quad, kind: "graphic" });
     } else if (this.mode.value === "order") {
-      page.logicalBlocks.forEach((b, i) =>
-        page.blocks
-          .filter((x) => x.key === b.key && x.quad)
-          .forEach((x) =>
-            regions.push({ quad: x.quad, kind: "order", number: i + 1 }),
-          ),
-      );
+      regions.push(...readingOrderPlacement(this.report, this.pageNumber).regions);
     }
     for (const t of this.mode.value === "none" ? [] : this.targets)
       if (t.page === page.number)

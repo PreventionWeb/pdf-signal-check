@@ -97,12 +97,15 @@ export function AdvancedReport({ report }) {
         <p>
           {execution.label}. {execution.detail}
         </p>
+        <div className="mg-accordion">
         {normalized.findings
           .filter((f) => !f.category.startsWith("required"))
           .map((f) => {
             const proof = findingProvenance(f, report);
             return (
-              <Details key={f.id} summary={`${f.title}: ${f.outcome}`}>
+              <details key={f.id}>
+                <summary>{f.title}: {f.outcome}</summary>
+                <div>
                 <p>
                   Source: {proof.label}. {proof.detail}
                 </p>
@@ -113,9 +116,11 @@ export function AdvancedReport({ report }) {
                   .map((e, i) => (
                     <p key={i}>{e}</p>
                   ))}
-              </Details>
+                </div>
+              </details>
             );
           })}
+        </div>
       </Card>
       <h3>Inspect extracted evidence</h3>
       <Card>

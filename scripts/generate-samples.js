@@ -1,4 +1,4 @@
-// Three visually matched, original reports. The larger calibration corpus is
+// Four visually matched, original reports. The larger calibration corpus is
 // retained for developer tests; it is not the public sample picker.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { generate } from './generate-calibration.js';
@@ -27,6 +27,10 @@ const cases = [
     tags: 'none', missingLanguage: true, missingAlt: true,
     summary: 'Misleading title, year, authors, description and keywords; missing language, text tags and figure description.',
     defects: ['misleading metadata identity, description and keywords', 'language not declared', 'no semantic text tags', 'no tagged reading sequence', 'figure alternate text missing'] },
+  { ...common, id: 'missing-document-information', name: 'Missing document information',
+    metadata: 'none', tags: 'none', missingAlt: true,
+    summary: 'No saved title, subject or keywords, and no text tags. Document information must be added before evaluation can continue.',
+    defects: ['no title, subject or keyword metadata', 'no semantic text tags', 'no eligible AI comparison inputs'] },
 ];
 const samples = [];
 for (const spec of cases) {
@@ -36,5 +40,5 @@ for (const spec of cases) {
     groundTruth: spec.tags === 'none' ? { ...sample.groundTruth, taggedPublicationTitle: null, taggedByline: null, readingOrder: null } : sample.groundTruth,
     expectedProperties: { ...sample.expectedProperties, graphics: 'meaningful figure', figureAlt: !spec.missingAlt && spec.tags !== 'none', declaredLanguage: spec.missingLanguage ? null : 'en-GB' } });
 }
-await writeFile(`${output}manifest.json`, JSON.stringify({ schemaVersion: 1, description: 'Three visually identical fictional reports. Only machine metadata, tags and alternate text differ. Authored examples, not conformance certificates.', samples }, null, 2) + '\n');
+await writeFile(`${output}manifest.json`, JSON.stringify({ schemaVersion: 1, description: 'Four visually identical fictional reports. Only machine metadata, tags and alternate text differ. Authored examples, not conformance certificates.', samples }, null, 2) + '\n');
 console.log(`Generated ${samples.length} matched sample PDFs.`);

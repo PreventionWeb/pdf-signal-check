@@ -223,3 +223,23 @@ Browser verification covered first-visit display, saved suppression across reloa
 AI attempts that cannot compare selected fields now show per-check reasons and next steps in the results workspace. Empty metadata, insufficient tagged section evidence and bounded input limits are distinguished from worker failures. Failed reruns show their message/error reference even when a previous successful AI receipt is retained; source changes clear the latest attempt. Repeated no-input runs explicitly explain that unchanged inputs will give the same result.
 
 An untagged-input bug was fixed: content-stream opening text lacked its page reference and was filtered out by the bounded first-two-page evidence policy. The fix preserves that bound and all deterministic profile outcomes. Four new tests cover actual input eligibility/inference, no-input explanations without model loading, failed reruns retaining prior inference, stale callbacks, and actionable skipped results. All 212 tests passed. Browser verification used four-page untagged synthetic PDFs: empty comparison metadata produced visible reasons, while a subject description produced actual MiniLM inference. Results accessibility audit reported zero violations. Build passed with the existing chunk-size warning.
+
+## Intake tabs — 7 October 2026
+
+Your PDF and Try a sample use the pinned horizontal Tab rail, scroll, list and panel structures. `src/ui/Tabs.jsx` adapts the published pattern to React-owned interactive content because the package Tab accepts HTML strings. No Mangrove DOM initializer runs. Native buttons implement tab/tabpanel relationships, roving focus, Left/Right and Home/End selection; Settings and batch remain independent actions.
+
+The evidence preview uses the existing documented native-dialog adaptation with bundled Mangrove controls, theme surface/radius/scrim tokens, responsive dimensions and native focus containment. It replaces the inline expanding preview without changing PDF rendering ownership.
+
+The technical analysis record now uses the pinned `.mg-accordion > details > summary + div` typography accordion pattern. Native disclosure behavior retains keyboard operation and does not add a script or change report ownership.
+
+Review-list rows use `.mg-accordion.mg-accordion--flush` with a React-controlled selected item that can also be collapsed without changing the analysis. The native summary retains keyboard activation; arrow/Home/End navigation selects rows. Independent reviewed checkboxes remain outside the disclosures and visible for closed rows.
+
+The publication-metadata advisory findings inside the technical record use a grouped native Mangrove accordion with one content wrapper per disclosure.
+
+### Results hero
+
+`src/review/ResultHero.jsx` uses the pinned native `mg-hero` split/contained markup with a text score in the media slot. This adaptation keeps React text escaping, a focusable outcome H1 and native action buttons; the published Hero exposes raw HTML title/summary/media and anchor actions. Local overrides provide the percentage typography and a single-column mobile layout. No generated bitmap or remote asset is required. Brand colour is consistent across outcomes; the finding notices retain their independent severity colours.
+
+### Project mega menu
+
+`SiteNavigation.jsx` uses the published pinned MegaMenu, including desktop mega panels and the progressive mobile sidebar. Its local SVG wordmark carries the project title/tagline. Native local-action interception maps documented anchor targets to existing controller flows; the published component owns hover, keyboard behavior, mobile focus trapping and disclosure state. Scoped adaptations hide desktop items on mobile and place panels below the taller wordmark. No external navigation initializer, fonts or assets are added.

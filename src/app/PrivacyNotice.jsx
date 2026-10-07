@@ -12,6 +12,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
   };
   const [open, setOpen] = useState(() => !read()),
     [suppressed, setSuppressed] = useState(read),
+    [storageMessage, setStorageMessage] = useState(""),
     dialog = useRef(null),
     understand = useRef(null),
     returnFocus = useRef(null);
@@ -41,10 +42,11 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
       suppressed
         ? localStorage.setItem(KEY, "1")
         : localStorage.removeItem(KEY);
+      setStorageMessage("");
     } catch {
-      onStorageFailure(
-        "Notice preference could not be saved. You can continue; this notice may appear again.",
-      );
+      const message = "Notice preference could not be saved. You can continue; this notice may appear again.";
+      setStorageMessage(message);
+      onStorageFailure(message);
     }
     setOpen(false);
     dialog.current.close();
@@ -55,6 +57,8 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
     target?.focus({ preventScroll: true });
   };
   return (
+    <>
+    {storageMessage && <p role="status" className="mg-container mg-container--slim model-note">{storageMessage}</p>}
     <dialog
       ref={dialog}
       id="ai-info-dialog"
@@ -113,5 +117,6 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
         </Button>
       </div>
     </dialog>
+    </>
   );
 }

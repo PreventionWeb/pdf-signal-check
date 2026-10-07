@@ -84,7 +84,7 @@ export async function assessSemantic(input, embed) {
   const limits = { ...SEMANTIC_LIMITS, ...model.thresholds };
   const { metadata, candidates, excerpts, deterministicTitle } = prepareSemanticInput(input);
   const languageContext = resolveScreeningLanguage(metadata.language, input.languageAssumption);
-  const checks = [...new Set(input.checks || ['title','subject','keywords'])];
+  const checks = [...new Set(input.checks || ['title','subject','keywords','sections'])];
   const allowed = ['title','subject','keywords','sections'];
   if (checks.some(c => !allowed.includes(c))) throw new Error('Unknown semantic check requested.');
   const requested = field => checks.includes(field);

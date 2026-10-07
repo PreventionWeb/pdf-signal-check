@@ -123,3 +123,84 @@ Independent Pages-prefix QA admitted 15 files: calibration fixtures 01–12, two
 Focused failure/pressure QA injected a model-initialization error to verify explicit Retry versus Continue without AI, and padded reports to approximately 12 MB to exercise the serialized-budget boundary. Pending detail was exported as actual JSON before an explicit release/retain decision; compact summaries remained. These controlled injections test recovery and retention behavior, not an observed production download failure or browser RAM ceiling.
 
 Final root verification passed 122 tests across 14 files and the production build (`index-CBTdKkCd`, `report-HcTO1w05`). Independent root/Pages narrow smoke verified accurate started/completed queue status. Rules-only title screening and unsupported German subject screening retained requested MiniLM settings while reporting `actualModel: null` and no inference; no model/tokenizer/ONNX requests occurred. Earlier full export/mobile/adversarial receipts remain applicable; no export geometry or rendering policy changed in this final refinement.
+
+
+## Intake tabs, recovery and startup loading — 7 October 2026
+
+All 213 tests across 27 files, the production build and `git diff --check` passed. A controller regression covers replacing a source during a pending language decision, canceling the replacement and rejecting its late response. Current-language decisions are cleared on source replacement and analysis cancellation.
+
+Browser verification covered desktop and 390px intake tabs, Left/Right and Home/End selection with focus retained on the selected tab, sample selection, Settings dialog, missing-language decision/continue-without-AI, and batch entry. Controlled preview failures showed a usable unavailable message and successful retry after restoring fetch. Held preview fetches were aborted when the sample tab unmounted, including StrictMode cleanup. A controlled local-storage write failure showed feedback after closing the notice and restored focus to the footer link.
+
+Production assets `index-D6Sl47gh`, `Review-DaSXAiNo` and `report-DNLAQJ8h` were checked under `/pdf-signal-check/`. The intake loaded only the entry JavaScript; the results renderer loaded after analysis. Entry JavaScript fell from 944.86 kB / 290.93 kB gzip to 413.75 kB / 129.60 kB gzip. This moves renderer cost to review; parser, inference and export chunks remain large, and no measured load-time claim follows. No external asset requests were observed in the no-AI flow. Mobile results and the author evidence crop rendered with no horizontal page overflow. Screenshots: `/tmp/pdf-signal-fixes-tabs-desktop.png`, `/tmp/pdf-signal-fixes-tabs-mobile.png` and `/tmp/pdf-signal-fixes-crop-mobile.png`.
+
+An intentionally blocked review chunk showed the results-interface fallback while retaining completed analysis. Its JSON download preserved the source filename, SHA-256, profile and all nine checks. Since browsers may retain failed module imports, the fallback offers a record download before reload and a route back to intake. PDF report generation/layout was unchanged and was not re-rendered in this pass; no new inference or accuracy evaluation was performed. Changes remain local for draft PR #1; this pass did not publish or deploy the app.
+
+
+## Plain-language inbox and focused AI waiting — 7 October 2026
+
+All 216 tests across 27 files and the production build passed. Presentation regressions verify priority ordering without changing acceptance, incomplete versus complete reports, graphics-only explanations and abstention when other scope/completion exclusions also exist. Final assets are `index-9E7Jcg8K`, `Review-Bx0_2M0e`, `index-3knvbLOG.css` and `report-_iQA4UIb`. A final prefixed production smoke verified the well-prepared sample’s single outcome heading and selected-row inset indicator; selected rows have a stronger fill/edge than pointer hover.
+
+Real-browser checks verified the small filename above the single outcome H1, automatic first-item selection, mouse selection, arrow-key navigation with list focus retained, independent desktop scrolling, explicit reviewed/unreviewed state, mobile Back to review items, crops and full-page preview. At 390px the page had no horizontal overflow. Final prefixed production checks used the poor sample and rendered the inbox under `/pdf-signal-check/`; artifacts include `/tmp/pdf-signal-inbox-production-desktop.png`, `/tmp/pdf-signal-inbox-mobile.png` and `/tmp/pdf-signal-inbox-wait-mobile.png`.
+
+Actual MiniLM screening completed through the unchanged development worker. A controlled model-worker post failure on rerun kept the completed inference receipt and exposed the new error. A separately held request verified that the inbox was not visible or interactive while AI ran and that cancel restored the selected reading-order item plus the earlier reviewed author marker. Model/engine policy, report generation and export layout were unchanged. PDF exports were not re-rendered in this presentation pass; the earlier export-layout receipts remain historical evidence.
+
+## Plain-language findings and modal evidence inspection — 7 October 2026
+
+The presentation pass explains missing versus broken PDF structure labels, saved metadata versus page text, bounded AI comparisons, uncertain reading order, hidden text and graphic descriptions. Inbox actions stay short; the analysis pane supplies explanation and practical steps. Keyword comparisons explicitly compare meaning against opening excerpts rather than exact word presence. Both redundant result-introduction paragraphs and the full findings browser were removed; complete results remain available in JSON and the existing concise PDF report. No outcome policy or export generation changed.
+
+Page locations, method evidence and why-it-matters text are visible. Inspect opens a native modal with the selected page and evidence overlay; Close/Escape restore trigger focus without moving the underlying page. Preview sessions dispose on modal unmount. Desktop, 390 px mobile and a production `/pdf-signal-check/` URL were exercised. Actual MiniLM inference supplied semantic findings for the copy review. Desktop scroll coordinates stayed unchanged before opening and after closing; mobile dialog width stayed within the viewport. All 222 tests and the production build passed; existing large-chunk warnings remain. This receipt verifies the implemented presentation and resource/focus behavior, not real-world AI accuracy.
+
+The subsequent inbox refinement replaces previous/next and mark-reviewed buttons with independent Mangrove checkboxes in the left-hand items. Checking an unselected item preserves the selected analysis; Space toggles the checkbox, and arrow keys still navigate the review items. The reviewed-count instruction was removed. The tool-limit section now remains visible under a normal heading. Desktop and 390 px mobile browser checks passed, as did all 222 tests and the build.
+
+The result-header actions now align beside the headline on desktop and stack below it on mobile. Scope exclusions use bullet lists; graphic drawing-operation counts are not presented as counts of distinct images. The technical record uses the pinned Mangrove accordion markup, initially collapsed, with Space toggling checked in-browser. All 223 tests and the production build pass; desktop/mobile widths remain within the viewport.
+
+The review list now uses flush accordion rows. Mouse selection and ArrowUp switch the open row and analysis together; checking a closed row leaves selection unchanged. Reviewed checkboxes stay visible for all rows. Desktop and 390 px mobile layouts were visually checked without horizontal overflow. All 223 tests and the build passed.
+
+Accordion collapse is independent of review selection: mouse and Space can close/reopen the selected row while preserving its analysis and reviewed checkbox. Changing a checkbox does not reopen a collapsed row. Mouse and mobile collapse were exercised. Technical metadata/advisory disclosures now use grouped Mangrove accordion styling with native expand/collapse. Desktop/mobile widths remain within the viewport; all 223 tests and build passed.
+
+
+### Repair-first metadata screen and fourth sample
+
+226 tests across 28 files pass; production build passes with the existing large-chunk warning. Regression coverage analyzes the committed fourth sample, confirms the missing-information gate and no-comparable-input result without calling inference, and ensures incomplete analyses and usable Info/XMP metadata do not trigger the gate. Controller tests verify unchanged no-input retries do not launch another worker while new settings/source can retry.
+
+Real browser verification: the local HIPs report and fourth sample show only the critical information warning and repair guidance, with no inbox or technical record. Desktop and 390px mobile screenshots were inspected; no horizontal overflow. The fourth sample also loads and reaches the stop screen at /pdf-signal-check/ in the production build with no AI selected. Original PDF and generated reports were not modified. Export layout is unchanged.
+
+
+### Reading-order overlay, grouped review and clearer feedback
+
+232 tests across 29 files pass; build passes with the existing large-chunk warning. New regressions cover stalled asset response headers/bodies, progressing streamed downloads, immediate network failures, timer cleanup, preserving timeout codes through initialization, grouped heading outcomes, and explaining the actual saved description without treating uncertainty as an error.
+
+Real desktop/mobile checks verified the reading-order modal opens in order mode: a tagged sample renders numbered regions (21 located text regions on page 1), while the untagged sample shows a prominent warning above the page and a “Reading order (none found)” option. Default fit zoom renders the untagged sample at its 595px original width on desktop and 296px on a 390px viewport, with no modal horizontal overflow. Empty page locations and irrelevant crop placeholders are omitted. The detail pane starts with a yellow summary warning; correction guidance is a secondary disclosure, while method and why-it-matters sections remain visible.
+
+Synthetic browser fixtures verified one heading checklist entry retains both member outcomes and marks both underlying findings reviewed; the subject advisory displays its actual document-property value, with correction guidance available on expansion. A simulated stalled asset request using a shortened test timeout exits the waiting screen, retains structural results, and shows the timeout message and retry button on desktop/mobile. No real model inference or browser network-reset reproduction is claimed for these synthetic fixtures. The production default idle timeout is 30 seconds. Export layout was not changed.
+
+
+### UX architecture audit follow-up
+
+240 tests across 31 files pass; production build passes with its existing large-chunk warning. Tests cover source-preserving identity deduplication, grouped execution provenance, recovered-versus-located reading-order geometry and urgency sorting without changing outcomes. The eight audit corrections are recorded in UX-ARCHITECTURE-REVIEW.md.
+
+Actual browser checks confirmed Critical/red, Warning/yellow and Needs manual check/blue notices, visible correction guidance and technical record, removed advisory model/check controls and header recheck button, desktop/mobile layout without horizontal overflow, and keyboard selection/collapse at the repository-prefixed production URL. No new real model inference or screen-reader testing is claimed. Export layout is unchanged.
+
+### Results hero and navigation
+
+243 tests across 32 files and the production build pass. The score contract excludes optional/inapplicable checks, counts unresolved checks in the denominator, refuses incomplete/empty reports, and leaves original report data and AI outcomes unchanged. Browser desktop and 390px mobile screenshots show the contained split hero and its 8/9 (88%) well-prepared sample receipt with no horizontal overflow. The obsolete step navigation is absent. Presentation uses local Mangrove assets; no model downloads were needed.
+
+The built hero also loads at `/pdf-signal-check/`, retaining the same score and no step navigation. The poorly prepared sample displays 5/9 (55%); changing samples updates the score without changing engine findings.
+
+### Open-ended required-check score
+
+244 tests across 32 files and the build pass. A regression verifies the + appears only for unresolved applicable checks with no required failures, and never for fully passed checks. Actual browser samples show “No problems auto-detected” with 88%+ for the well-prepared document and a plain 55% for the poorly prepared document. The mobile screenshot retains the explicit + explanation and passed/applicable count. This presentation does not change structural outcomes or AI reports.
+
+### Missing reading sequence priority
+
+245 tests and the build pass. The completed-analysis/no-recovered-sequence case now sorts with Critical items and uses a red notice; a recovered-but-unconfirmed sequence and incomplete analysis remain manual checks. The regression preserves the original report and uncertain outcome. Actual browser verification selected the poorly prepared sample’s missing-sequence task and confirmed its Critical badge, placement before warnings and red detail notice. Structure-coverage guidance now plainly says the PDF’s structure leaves out some of its text.
+
+### Figure context, hero actions and mega menu
+
+248 tests across 32 files and the build pass. Geometry regressions cover full-page figure context without fabricated highlights for absent/unsafe geometry, and finding tests cover per-page image identity and critical issue counts. Actual browser review shows the sample chart and missing-alt-text message before repair guidance; Inspect centers the selected chart in its modal. Missing reading order has no inspector button; the poorly prepared sample hero displays four Critical issues rather than a percentage. The processing-time viewer is removed.
+
+The filename and PDF/JSON actions are inside the hero on desktop/mobile without duplicate filename or horizontal overflow. The JSON action requests a captured-report download using the existing export controller. No PDF-export layout change is claimed. The metadata stop copy now says “This PDF needs basic fixes first” and explains the prerequisite to detailed analysis.
+
+The published MegaMenu was checked for desktop and mobile navigation, upload/sample tab routing, Settings, and opening/closing the existing About modal. Mobile dialog close restores focus to the menu trigger and releases body scroll lock. All assets remain local. No model inference or screen-reader testing is claimed for this pass.
+
+Final checkpoint also verifies the built navigation, hero filename/download actions and figure crop at `/pdf-signal-check/` on desktop/mobile. The metadata-only sample reaches the revised repair-first heading. No real model downloads were requested during UI QA.

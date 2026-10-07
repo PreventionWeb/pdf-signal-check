@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Three visually identical fictional reports. Only machine metadata, tags and alternate text differ. Authored examples, not conformance certificates.",
+  "description": "Four visually identical fictional reports. Only machine metadata, tags and alternate text differ. Authored examples, not conformance certificates.",
   "samples": [
     {
       "id": "well-prepared",
@@ -203,6 +203,47 @@
       ],
       "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
       "bytes": 6748
+    },
+    {
+      "id": "missing-document-information",
+      "file": "missing-document-information.pdf",
+      "title": "Missing document information",
+      "description": "No saved title, subject or keywords, and no text tags. Document information must be added before evaluation can continue.",
+      "language": "en-GB",
+      "visibleTitle": "Harbor Observatory Annual Report 2025",
+      "expectedProperties": {
+        "pageCount": 2,
+        "extractableText": true,
+        "infoTitle": null,
+        "xmpTitle": null,
+        "structure": "none",
+        "titleRelationship": "not assessable",
+        "graphics": "meaningful figure",
+        "figureAlt": false,
+        "declaredLanguage": "en-GB"
+      },
+      "groundTruth": {
+        "taggedPublicationTitle": null,
+        "taggedByline": null,
+        "metadataAuthors": [
+          "Maya Chen",
+          "Leo Martin"
+        ],
+        "authorRelationship": "match",
+        "readingOrder": null,
+        "currentChecks": {
+          "authorIdentity": "bounded advisory: explicit first-page byline vs Info Author and XMP creators; not authenticated identity",
+          "readingOrderCorrectness": "bounded advisory: numbered tagged steps checked for repeats/decreases; global order correctness not established",
+          "title": "matching publication title"
+        }
+      },
+      "defects": [
+        "no title, subject or keyword metadata",
+        "no semantic text tags",
+        "no eligible AI comparison inputs"
+      ],
+      "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
+      "bytes": 5269
     }
   ]
 }

@@ -11,3 +11,8 @@ it('does not publish completed inference when a batch returns fewer vectors than
  runner.loadedKey=model.key;runner.extractor={tokenizer,model:async()=>({last_hidden_state:{}})};runner.runtime={mean_pooling:()=>({normalize:()=>({tolist:()=>[[1,0]]})})};
  const events=[];await expect(runner.embed(['one','two'],model,e=>events.push(e))).rejects.toThrow(/invalid embedding/);expect(events.filter(e=>e.progress.state==='completed')).toHaveLength(0);
 });
+it('keeps asset timeout recovery information through model initialization failure', async () => {
+ const runner=new EmbeddingRunner();
+ runner.runtime={env:{},pipeline:async()=>{throw Object.assign(new Error('Model download stopped responding'),{code:'MODEL_ASSET_TIMEOUT'});}};
+ await expect(runner.ensure(getSemanticModel('minilm'))).rejects.toMatchObject({stage:'model-init',code:'MODEL_ASSET_TIMEOUT'});
+});

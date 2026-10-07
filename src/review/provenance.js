@@ -38,3 +38,12 @@ export function screeningProvenance(report) {
   const execution = executionProvenance(report), languageNote = screeningLanguageNote(report);
   return languageNote ? { ...execution, detail: `${execution.detail} ${languageNote}` } : execution;
 }
+
+/** Share a model label only when every grouped member records that same completed execution. */
+export function groupedFindingProvenance(findings, report) {
+  const members = findings.map(finding => ({ finding, method: findingProvenance(finding, report) }));
+  const model = report.semantic?.model;
+  const sharedModel = model?.id && members.length && members.every(({ finding, method }) => method.kind === 'ai'
+    && finding.comparison?.model?.id === model.id && finding.comparison?.model?.revision === model.revision) ? model : null;
+  return { members, sharedModel };
+}

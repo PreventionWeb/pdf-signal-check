@@ -1,3 +1,13 @@
+## Plain-language results inbox — 7 October 2026
+
+Results now use the outcome as the main heading, with the filename above it. Confirmed required failures show “This PDF needs work”; advisory concerns show “This PDF needs a closer look”; no detected concerns show “No problems detected”. Supporting text keeps incomplete checks and scope exclusions explicit. A graphics-only exclusion is explained as an inability to judge image/chart meaning, rather than a detected PDF defect. These are presentation summaries; profile acceptance and captured report outcomes are unchanged.
+
+A desktop inbox places a scrollable review list in the left third and the selected item’s analysis in the right two thirds. The first item opens automatically and its stable ID is retained across later AI results. Selecting a row keeps the desktop list in place; Up/Down and Home/End move through it. Mark as reviewed/not reviewed updates a session-only marker and count. It does not resolve the issue or alter the check. Mobile stacks a bounded-height list above the analysis and provides Back to review items.
+
+During AI processing, a focused waiting screen shows preparation/download/comparison progress and cancellation. Results are hidden and inert until processing settles. The existing mounted review/export ownership is retained, so selection, reviewed markers and captured exports are not discarded by the presentation change. Completed, skipped, failed and canceled runs return to results with explicit coverage/recovery where needed. Plain-language review titles and next actions lead; formal profile receipts, provenance, full inventories and model settings remain in secondary disclosures. Downloads follow the review workspace.
+
+The nontechnical audience requirement is recorded in AGENTS.md. Verification: 216 tests, production build and diff checks pass; real desktop/mobile and `/pdf-signal-check/` production checks cover inbox selection, keyboard navigation, reviewed toggles, filename/outcome headings, crops/full-page preview and width. Actual MiniLM inference completed in the development browser. A controlled rerun error retained the earlier inference receipt and remained visible. A held model request showed only the waiting screen; cancel restored the selected item and reviewed marker. Export generation/layout was unchanged and was not re-rendered in this UI pass.
+
 ## Unified intake and modal setup — 7 October 2026
 
 First-time and returning users start on the same uploader/sample page; the former separate hero/orientation page is removed. Selecting a PDF, sample or multi-file intake on first use opens a native setup dialog for device benchmarking and model choice. The controller holds only the pending intake in memory and resumes it once after explicit setup completion. Closing/Escape cancels benchmarking and drops pending intake without reading or processing that PDF. Returning users apply saved settings directly; Change check settings reopens the same dialog with the current choice.
@@ -358,3 +368,23 @@ The guided flow, findings, identity and attachment evidence, order diagram, queu
 Source-specific finding position survives optional screening reruns. Opening another finding clears the previous blue preview selection; the full-page inspector can remain open without presenting unrelated evidence as current. Popover content is portaled outside publication headings, with native light dismissal, scoped reposition listeners, trigger-safe placement, reachable external links and Escape focus return. Privacy uses the existing preference key, saves only that setting, and handles Escape with focus returned to the invoking control. StrictMode cleanup/remount cancels resources rather than starting downloads.
 
 Initial integrated verification passed 173 tests across 20 files and a production build. Desktop and 390px identity/order inspection, real canvas rendering, 150% zoom, no-overlay selection, native radio arrow keys, help Escape and privacy preference/Escape were exercised. Author review accessibility sampling reported zero violations and zero incomplete checks. Independent agents verified actual pinned MiniLM WASM inference, rules-only title versus AI subject/keyword provenance, queue/consent/lifetime behavior and captured downloads. Five downloaded report pages and the dedicated PNG were rendered and visually reviewed at `/tmp/pdf-signal-react-qa`; JSON was checked independently. Final production asset receipts are recorded in [MANGROVE.md](MANGROVE.md). These checks are sampled verification, not full accessibility or Mangrove certification.
+
+
+### Missing document information: repair-first results
+
+A completed analysis with no saved Info/XMP title, subject or keywords now shows “This PDF cannot be evaluated” and a critical document information warning. The inbox, technical record, exports and repeat-analysis actions are hidden in this state. This is a presentation prerequisite, including in the no-AI workflow; the captured structural report and acceptance rules are unchanged. Adding any usable document information ends this specific gate on the next analysis, where remaining defects still appear normally. Official Word (Windows/Mac), Acrobat and InDesign guidance explains how to save document information and export an updated PDF. Recorded no-comparable-input AI attempts cannot be repeated with unchanged model/check/language choices.
+
+The fourth public sample, “Missing document information”, has extractable text and a declared English language, but no publication metadata or text tags. It reproduces the repair screen without requiring model downloads.
+
+
+### Reading-order inspection and review grouping
+
+The plain context viewer in the reading-order finding is replaced by an “Inspect reading order on the page” action. The modal starts with numbered tag-tree regions and includes the recovered text as an ordered list. It explicitly describes missing labels/locations and does not assert that recovered order is intended order. Empty page-location sections are omitted. Heading/text advisories share one checklist entry with each heading and its compared excerpts shown in the detail pane; its reviewed checkbox annotates the original members and never changes their outcomes.
+
+AI progress details are visible as small text. Waiting for asset headers has an explicit waiting message. Model asset requests and bodies time out after 30 seconds without data; immediate failures and timeouts show connection guidance and an explicit retry action. Completed structural and previous AI results remain retained.
+
+
+The reading-order modal now places “No machine-readable reading order found on this page” above the preview when no text sequence was recovered, explaining missing/unreadable structure labels. Default fit width is capped at 100%. Irrelevant crops render no placeholder. The selected-item detail starts with a yellow summary warning instead of a repeated visible title and item counter; a visually hidden heading preserves focus and screen-reader context. “How to address this” provides secondary correction guidance. Saved-subject advisories call it the saved description and display the actual document-property value, with bounded quotation for very long values. Recorded evidence and why-it-matters sections remain visible.
+
+
+Following the user’s clarification, “How to address this” is a normal heading with always-visible guidance below the relevant evidence. Secondary placement no longer implies a disclosure; the UX reference has been updated accordingly.

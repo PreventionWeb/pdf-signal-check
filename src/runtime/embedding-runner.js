@@ -1,3 +1,4 @@
+import { createAssetFetch } from './asset-fetch.js';
 /** One serially owned encoder; callers serialize jobs and terminate their worker to cancel. */
 export class EmbeddingRunner {
   async ensure(model, emit = () => {}) {
@@ -7,14 +8,19 @@ export class EmbeddingRunner {
     emit({type:'progress',message:`Initializing ${model.label}.`,progress:{stage:'model-init',state:'started',completed:null,total:null,unit:null}});
     try {
     this.runtime ||= await import('@huggingface/transformers');this.runtime.env.allowLocalModels=false;
+    if (!this.assetFetchInstalled && this.runtime.env.fetch) {
+      this.runtime.env.fetch = createAssetFetch(this.runtime.env.fetch);
+      this.assetFetchInstalled = true;
+    }
     this.extractor=await this.runtime.pipeline('feature-extraction',model.id,{revision:model.revision,dtype:model.dtype,device:model.device,
       progress_callback:p=>{
+        if(p.status==='initiate') { emit({type:'progress',message:`Waiting for model file ${p.file}…`,progress:{stage:'asset-download',state:'started',asset:p.file,completed:null,total:null,unit:'bytes'}}); return; }
         if(p.status!=='progress')return;
         const completed=Number.isFinite(p.loaded)?p.loaded:null,total=Number.isFinite(p.total)&&p.total>0?p.total:null;
         assets.set(p.file,{asset:p.file,reportedBytes:completed,totalBytes:total});
         emit({type:'progress',message:`Loading asset ${p.file}.`,progress:{stage:'asset-download',state:'progress',asset:p.file,completed,total,unit:'bytes',scope:'current asset only'}});
       }});
-    } catch(error) {const failure=error instanceof Error?error:new Error(String(error));failure.stage='model-init';failure.code='MODEL_INIT_FAILED';throw failure;}
+    } catch(error) {const failure=error instanceof Error?error:new Error(String(error));failure.stage='model-init';failure.code ||= 'MODEL_INIT_FAILED';throw failure;}
     this.loadedKey=model.key;
     const receipt={loadAndInitMs:performance.now()-started,state:'new-encoder',assetSource:'unknown-network-or-cache',assets:[...assets.values()]};
     emit({type:'progress',message:`${model.label} initialized.`,progress:{stage:'model-init',state:'completed',completed:null,total:null,unit:null}});

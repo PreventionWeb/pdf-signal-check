@@ -1,19 +1,18 @@
 import React from "react";
 import { orderComparisonData } from "./order-comparison.js";
-import { Details } from "../ui/react.jsx";
+import { Details, Button } from "../ui/react.jsx";
 import { HelpLabel } from "../help/Help.jsx";
-import { GoGoViewer } from "../evidence/GoGoViewer.jsx";
+
 export function OrderComparison({ report, file, onInspect }) {
   const data = orderComparisonData(report);
   const recoveredTaggedText = report.pages?.some(page => page.logicalBlocks?.some(block => block.text?.trim()));
+  if (!recoveredTaggedText) return null;
   return (
     <section className="order-map">
       <h3 className="order-map-heading">{data.available ? 'Same page, two recovered sequences' : 'Reading-order evidence'}</h3>
       {!data.available ? (
         <div className="order-map-unavailable">
-          <p><strong>{recoveredTaggedText ? 'Tagged text was recovered; a comparison diagram is unavailable.' : 'No tagged reading sequence was recovered.'}</strong></p>
-          <p>{recoveredTaggedText ? 'A diagram requires a supported reading-order concern with matching, located headings. No such comparison is available for this finding. This does not mean the PDF has no reading order, or that its order is correct.' : 'The available evidence does not establish a machine reading order. Tags may be missing, empty or not recoverable by this check; the absence of a diagram does not establish which.'}</p>
-          <p className="model-note">The optional page viewer shows the original page, independently of this check. Inspect its layout and the recovered text in the details.</p>
+          <p>{recoveredTaggedText ? 'Tagged text was recovered. Inspect its reading sequence on the page; a comparison diagram is unavailable.' : 'No machine-readable reading sequence was recovered. Inspect the page and check its structure labels.'}</p>
         </div>
       ) : (
         <>
@@ -92,11 +91,13 @@ export function OrderComparison({ report, file, onInspect }) {
           </p>
         </>
       )}
-      <PageContext file={file} page={data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1} />
+      <Button onClick={() => onInspect({ page: data.available ? data.page : report.readingOrder?.findings?.[0]?.page || 1, label: 'Recovered reading order', overlay: 'order' })}>Inspect reading order on the page</Button>
+      <p className="model-note">The recovered sequence does not prove the intended reading order is correct.</p>
       <Details
         summary="Recovered text and technical detail"
         className="order-technical"
       >
+        {!data.available && <p>{recoveredTaggedText ? 'A comparison diagram requires a supported reading-order concern with matching, located headings in both sequences. This finding does not provide such a comparison.' : 'Structure labels may be missing, empty or unrecoverable by this tool; the absence of a diagram does not establish which.'}</p>}
         {report.readingOrder?.findings?.map((f, i) => (
           <p key={i} className="order-anomaly">
             Page {f.page}: {f.reason}
@@ -148,9 +149,4 @@ export function OrderComparison({ report, file, onInspect }) {
       </Details>
     </section>
   );
-}
-
-function PageContext({ file, page }) {
-  const [open, setOpen] = React.useState(false);
-  return <Details summary="View the original PDF in page context" open={open} onToggle={e => setOpen(e.currentTarget.open)}>{open && <GoGoViewer file={file} page={page} title="Inspect reading order in page context" />}</Details>;
 }

@@ -52,3 +52,28 @@ it('retains a no-input result with actionable per-check reasons', () => {
   expect(app.getSnapshot().screeningAttempt).toMatchObject({ status: 'not-run', message: 'No comparison inputs', reasons: [{ check: 'subject', reason: 'No subject metadata' }] });
   app.dispose();
 });
+
+it('does not create another worker for unchanged no-input comparisons, but allows new settings or a new source', async () => {
+  const worker = { terminate: vi.fn(), postMessage: vi.fn() };
+  const workerFactory = vi.fn(() => worker);
+  const app = createAppController({ workerFactory, preferences: { load: () => null, save: () => false } });
+  const source = report(); source.metadata = { language: 'en' };
+  const checks = ['title', 'subject', 'keywords', 'sections'];
+  app.openCompletedReport(source, { name: 'untagged.pdf', size: 4 }, 'one');
+  app.setModel('minilm'); app.setChecks(checks); app.runScreening();
+  const request = worker.postMessage.mock.calls[0][0];
+  const semantic = await assessSemantic(request, vi.fn());
+  worker.onmessage({ data: { type: 'result', requestId: request.requestId, semantic } });
+  app.markReviewed('existing-finding');
+  const retained = app.getSnapshot();
+  app.runScreening();
+  expect(workerFactory).toHaveBeenCalledTimes(1);
+  expect(app.getSnapshot()).toBe(retained);
+  expect(app.getSnapshot().reviewed.has('existing-finding')).toBe(true);
+  app.setChecks(['subject']); app.runScreening();
+  expect(workerFactory).toHaveBeenCalledTimes(2);
+  app.openCompletedReport(report(), { name: 'updated.pdf', size: 4 }, 'two');
+  app.setModel('minilm'); app.runScreening();
+  expect(workerFactory).toHaveBeenCalledTimes(3);
+  app.dispose();
+});

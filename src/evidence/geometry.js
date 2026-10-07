@@ -17,3 +17,12 @@ export function cropBounds(quad,viewport,padding=28) {
   const x=Math.max(0,Math.floor(raw.x-padding)),y=Math.max(0,Math.floor(raw.y-padding));
   return {x,y,width:Math.min(viewport.width,Math.ceil(raw.right+padding))-x,height:Math.min(viewport.height,Math.ceil(raw.bottom+padding))-y,points};
 }
+
+/** Figure context may fall back to a full page, never an invented figure rectangle. */
+export function evidenceCropBounds(report, target, viewport) {
+  const quads = targetQuads(report, target);
+  const located = quads.length ? cropBounds(quads[0], viewport) : null;
+  if (located) return { ...located, regionCount: quads.length, pageContext: false };
+  if (!target.contextPage) return null;
+  return { x: 0, y: 0, width: viewport.width, height: viewport.height, points: [], regionCount: 0, pageContext: true };
+}

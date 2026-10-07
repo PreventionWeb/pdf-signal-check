@@ -95,9 +95,9 @@ export function Notice({ children, variant = "info", role = null, ...props }) {
     </PublishedNotice>
   );
 }
-export function Actions({ children }) {
+export function Actions({ children, className = "" }) {
   return (
-    <div className="flow-actions mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
+    <div className={`flow-actions mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100 ${className}`}>
       {children}
     </div>
   );

@@ -53,3 +53,15 @@ it('attributes a language assumption to the completed screening, separately from
  expect(screeningProvenance(report).kind).toBe('unassessed');
  expect(screeningProvenance({screeningSelection:{languageAssumption:'en'}}).detail).not.toContain('Screening language:');
 });
+
+it('grouped headings retain per-member execution and share a model only for uniformly recorded inference', async () => {
+ const { groupedFindingProvenance } = await import('../src/review/provenance.js');
+ const model = { id: 'recorded-model', revision: 'fixed' };
+ const report = { semantic: { model, inferencePerformed: true, sectionItems: [{ method: 'embedding-screening', inferencePerformed: true }, { method: 'embedding-screening', inferencePerformed: false }] } };
+ const findings = [0, 1].map(i => ({ ...finding(`semantic.sectionItems[${i}]`, 'embedding-screening'), comparison: { model } }));
+ expect(groupedFindingProvenance(findings, report).members.map(item => item.method.kind)).toEqual(['ai', 'unassessed']);
+ expect(groupedFindingProvenance(findings, report).sharedModel).toBeNull();
+ report.semantic.sectionItems[1].inferencePerformed = true;
+ expect(groupedFindingProvenance(findings, report).sharedModel).toBe(model);
+ expect(findings[0].source.path).toBe('semantic.sectionItems[0]');
+});
