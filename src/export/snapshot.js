@@ -36,7 +36,7 @@ export function fixSheet(snapshot) {
   const entry=(item,bucket)=>({number:++number,bucket,...fixCard(item,report),
     // A one-region crop cannot show a sequence or page-wide decoration; those stay text-only.
     cropFindingId:item.figureGroup==='decorative' || item.source?.path==='readingOrder'?null:item.figureGroup?item.members[0].id:item.members?null:item.id,
-    members:(item.members || []).map(memberLine)});
+    members:[...(item.members || []).map(memberLine),...(fixCard(item,report).also || []).map(text=>`Also fixes: ${text}`)]});
   return {headline:summary.headline,scope:summary.scope,fix:summary.buckets.fix.map(item=>entry(item,'fix')),check:summary.buckets.check.map(item=>entry(item,'check')),
     unknown:summary.buckets.unknown.map(item=>fixCard(item,report).title)};
 }

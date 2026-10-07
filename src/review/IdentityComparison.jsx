@@ -44,12 +44,12 @@ export function IdentityComparison({ kind, report, file, targets, onInspect, com
           <div className="comparison-evidence" key={i}>
             <small>
               Page {item.page}
-              {item.role
+              {compact ? "" : item.role
                 ? ` · tagged ${item.role}`
                 : item.source
                   ? ` · ${item.source}`
                   : ""}
-              {(item.role || /tagged|structure/i.test(item.source || "")) && (
+              {!compact && (item.role || /tagged|structure/i.test(item.source || "")) && (
                 <Help
                   topic="tags"
                   label={`About tagged ${item.role || "content"}`}

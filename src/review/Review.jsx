@@ -139,27 +139,33 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
           <summary className="fix-bucket-summary">{BUCKETS.unknown.label} <span className="fix-bucket-count">({buckets.unknown.length + buckets.limits.length})</span></summary>
           <p className="fix-bucket-intro">{BUCKETS.unknown.intro}</p>
           <FixCards items={buckets.unknown} report={report} selected={finding} onChoose={choose} />
-          {buckets.limits.length > 0 && <ul className="fix-limits">{buckets.limits.map(item => <li key={item.id}>{limitText(item)}</li>)}</ul>}
+          {buckets.limits.length > 0 && <>
+            <h4 className="fix-limits-title">Not checked by this tool</h4>
+            <ul className="fix-limits">{buckets.limits.map(item => <li key={item.id}>{limitText(item)}</li>)}</ul>
+          </>}
         </details>}
         <p className="fix-list-note">This tool doesn’t change your PDF. Fix the source document, export again and check the new PDF.</p>
       </nav>
       <section id="selected-item-analysis" className="review-detail" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {!finding ? <p className="model-note">{selectable.length ? "Choose an item to see what to change." : "Use Show the PDF to look through the pages yourself."}</p> : (
         <Card as="article" className="problem-frame" data-finding-id={finding.id}>
-          <Button className="review-list-back" onClick={() => { const heading = document.getElementById("fix-list-title"); heading?.closest("nav")?.scrollIntoView({ block: "start", behavior: "instant" }); heading?.closest("nav")?.querySelector("button")?.focus({ preventScroll: true }); }}>Back to the list</Button>
+          <Button className="review-list-back" onClick={() => { const current = document.querySelector('.fix-card[aria-current="true"]'); current?.scrollIntoView({ block: "center", behavior: "instant" }); current?.focus({ preventScroll: true }); }}>Back to the list</Button>
           <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? ` · ${card.where}` : ""}</p>
           <h2 className="review-detail-title" id="finding-title" tabIndex={-1} ref={titleRef}>{card.title}</h2>
-          <Notice variant={bucket === "unknown" ? "info" : reviewPriority(finding).noticeVariant} icon={false}><p>{card.summary}</p></Notice>
+          <Notice variant={{ fix: "negative", check: "warning", unknown: "info" }[bucket]} icon={false}><p>{card.summary}</p></Notice>
+          {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
           {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} onInspect={inspect} />
             : finding.members ? <section aria-label="Headings" className="heading-review-list">
               {finding.members.map(member => <section key={member.id} className="heading-review-pair">
                 <h3>{member.comparison?.query || member.title.replace(/^Heading: /, "")}</h3>
+                {member.comparison?.candidates?.[0]?.text && <p className="heading-review-excerpt"><span>Text below it:</span> {excerpt(member.comparison.candidates[0].text)}</p>}
                 {member.targets?.length > 0 && <Button onClick={() => inspect(member.targets[0])}>Show on page {member.targets[0].page}</Button>}
               </section>)}
             </section>
             : kind === "title" || kind === "authors" ? <IdentityComparison kind={kind} report={report} file={file} targets={targets} onInspect={inspect} compact />
             : showOrder ? <OrderComparison report={report} file={file} onInspect={inspect} compact />
-            : kind === "attachments" ? <AttachmentInventory inventory={report.attachments} />
+            : kind === "attachments" ? <AttachmentInventory inventory={report.attachments} compact />
+            : finding.source?.path?.startsWith("semantic.") ? <SemanticExcerpts finding={finding} />
             : finding.comparison?.figure ? <FigureContext key={finding.id} finding={finding} file={file} report={report} targets={targets} onInspect={inspect} />
             : kind === "order" ? null
             : <Crop file={file} report={report} targets={targets} />}
@@ -200,6 +206,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         <ScreeningInputs finding={finding} method={method} />
       </>}
       {kind === "order" && <OrderTechnical report={report} onInspect={inspect} />}
+      {kind === "attachments" && <AttachmentInventory inventory={report.attachments} />}
       {drawerTargets.length > 0 && <PageLocations targets={drawerTargets} onInspect={inspect} />}
     </EvidenceDrawer>}
     {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
@@ -270,6 +277,18 @@ function limitText(item) {
   if (skipped) return `${skipped[1] === "keywords" ? "Keywords" : "Headings"}: ${String(item.summary || "").match(/\d+/)?.[0] || "some"} were not compared by the AI, because each check has a size limit.`;
   return `${item.title}: ${item.summary || "not checked"}`;
 }
+const excerpt = text => { const value = String(text || "").replace(/\s+/g, " ").trim(); return value.length > 220 ? `${value.slice(0, 219)}…` : value; };
+/** What the AI compared: the saved value and the first excerpts it read. */
+function SemanticExcerpts({ finding }) {
+  const details = finding.comparison || {};
+  const value = details.query || details.metadata?.subject || details.metadata?.infoTitle;
+  const excerpts = (details.candidates || []).filter(item => item.text).slice(0, 2);
+  if (!value && !excerpts.length) return null;
+  return <section className="semantic-excerpts">
+    {value && <><h3>Saved in the PDF</h3><blockquote>{excerpt(value)}</blockquote></>}
+    {excerpts.length > 0 && <><h3>Text the AI compared it with</h3>{excerpts.map((item, i) => <p key={i}>{item.page ? <span className="semantic-excerpt-page">Page {item.page}: </span> : null}{excerpt(item.text)}</p>)}</>}
+  </section>;
+}
 function PageLocations({ targets, onInspect }) {
   const [limit, setLimit] = useState(12);
   return <section className="finding-evidence">
@@ -299,7 +318,6 @@ function MethodEvidence({ finding, method, headingLevel = 'h3' }) {
   return <div className="finding-technical">
     <Heading>Method and recorded evidence</Heading>
     <div className="finding-provenance mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
-      <span className="finding-method">{finding.outcome.replaceAll('-', ' ')}</span>
       <Tag subtle>Source: {method.label}</Tag>
       <Help topic={method.help} label={`About this finding’s source: ${method.label}`} extraText={method.detail} />
     </div>

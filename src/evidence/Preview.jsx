@@ -137,7 +137,7 @@ export function Preview({ file, report, selection }) {
         />
       </div>
       <p role="status">{view.message}</p>
-      {!(mode === 'order' && placement.located === 0) && <p className="model-note">{mode === 'order' ? 'Numbers show the PDF’s tagged reading sequence on this page. Compare them with the order you expect. The sequence may have gaps where a text region could not be located.' : 'Red: untagged / suspicious text · Amber: graphics need semantic inspection · Blue: selected evidence. Bounds are approximate.'}</p>}
+      {!(mode === 'order' && placement.located === 0) && <p className="model-note">{mode === 'order' ? 'Numbers show the order screen readers follow on this page. Compare it with the order you expect. Some text may have no number if its position couldn’t be found.' : 'Outlines: red for text screen readers can’t reach, amber for graphics, blue for the selected item. Positions are approximate.'}</p>}
       <div className="preview-scroller" ref={scroller}>
         <div className="preview-sheet" ref={sheet}>
           <canvas ref={canvas} aria-label="Rendered PDF page" />

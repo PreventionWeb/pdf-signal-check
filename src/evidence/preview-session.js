@@ -92,7 +92,7 @@ export class PreviewSession {
   clearSelection() {
     this.targets = [];
     this.selectionMessage = null;
-    this.message.textContent = `Page ${this.pageNumber}. Select an evidence row to locate it.`;
+    this.message.textContent = `Page ${this.pageNumber}.`;
     this.draw();
   }
   async render() {
@@ -140,7 +140,7 @@ export class PreviewSession {
       this.next.disabled = number === this.doc.numPages;
       this.message.textContent =
         this.selectionMessage ||
-        (this.mode.value === 'order' ? `Page ${number}. Numbers show the recovered tagged reading sequence.` : `Page ${number}. Select an evidence row to locate it.`);
+        (this.mode.value === 'order' ? `Page ${number}.` : `Page ${number}.`);
       this.draw();
       if (this.focusRegion) {
         const quad = this.targets[0]?.quads?.[0];

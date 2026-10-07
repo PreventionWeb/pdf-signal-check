@@ -257,3 +257,26 @@ it('groups hundreds of figures into four review classes without changing member 
   expect(JSON.stringify(items)).toBe(before);
   expect(reviewTask(tasks.find(task=>task.figureGroup==='decorative')).title).toContain('(30)');
 });
+
+it('folds untagged text and a missing reading order into the export-with-tags fix', () => {
+  const findings = [
+    { id: 'structure', category: 'required-defect', outcome: 'fail', summary: 'No structure tree found.', source: { checkId: 'structure' } },
+    { id: 'coverage', category: 'required-defect', outcome: 'fail', summary: 'Some text is untagged.', source: { checkId: 'coverage' } },
+    { id: 'order', category: 'uncertain', outcome: 'uncertain', comparison: { readingSequenceMissing: true }, source: { path: 'readingOrder' } },
+    { id: 'language', category: 'required-defect', outcome: 'fail', source: { checkId: 'language' } },
+  ];
+  const lists = fixList(findingGroups(findings));
+  expect(lists.fix.map(item => item.id)).toEqual(['structure', 'language']);
+  expect(lists.fix[0].related.map(item => item.id).sort()).toEqual(['coverage', 'order']);
+  expect(fixCard(lists.fix[0]).also).toHaveLength(2);
+  expect(findings[0].related).toBeUndefined();
+});
+
+it('asks a person to compare a saved title with page text the tool could not match', () => {
+  const item = { id: 't', category: 'uncertain', outcome: 'uncertain', source: { path: 'metadataConsistency' }, comparison: { candidates: [{ page: 1, text: 'Harbor Report 2025' }] } };
+  expect(fixBucket(item)).toBe('check');
+  const card = fixCard(item, { metadata: { infoTitle: 'Mountain Report 2024' } });
+  expect(card.summary).toContain('“Mountain Report 2024”');
+  expect(card.summary).toContain('couldn’t confirm');
+  expect(fixBucket({ ...item, comparison: { candidates: [] } })).toBe('unknown');
+});

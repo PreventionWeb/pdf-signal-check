@@ -716,7 +716,7 @@ progress {
   background: rgb(var(--mg-color-neutral-0)); border: 1px solid rgb(var(--mg-color-neutral-300)); border-inline-start-width: 4px; border-radius: var(--mg-card-border-radius); cursor: pointer; }
 .fix-card:hover { background: rgb(var(--mg-color-interactive) / .05); }
 .fix-card:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
-.fix-card.is-selected { background: rgb(var(--mg-color-interactive) / .10); border-color: rgb(var(--mg-color-interactive)); box-shadow: inset 0 0 0 1px rgb(var(--mg-color-interactive)); }
+.fix-card.is-selected { background: rgb(var(--mg-color-interactive) / .10); border-color: rgb(var(--mg-color-interactive)); border-width: 2px; border-inline-start-width: 8px; padding: 11px 13px 11px 10px; }
 .fix-card-title { font-weight: 600; font-size: .9375rem; }
 .fix-card-where { font-size: .8125rem; color: var(--muted); }
 .fix-bucket--fix .fix-card { border-inline-start-color: rgb(var(--mg-color-red-900)); }
@@ -759,3 +759,15 @@ details.fix-bucket--unknown { border-top: 1px solid rgb(var(--mg-color-neutral-3
   .evidence-drawer-header { padding: 16px; }
   .evidence-drawer-body { padding: 8px 16px 24px; }
 }
+.fix-also { margin-block: 12px; }
+.fix-also p { margin: 0 0 4px; font-weight: 600; }
+.fix-also ul { margin: 0; padding-inline-start: 1.25rem; }
+.fix-limits-title { font-size: .9375rem; margin: 16px 0 4px; }
+.heading-review-excerpt { flex-basis: 100%; margin: 4px 0 0; font-size: .9375rem; color: var(--muted); }
+.heading-review-excerpt span { font-weight: 600; }
+.semantic-excerpts h3 { font-size: 1rem; margin-block: 16px 6px; }
+.semantic-excerpts blockquote { margin: 0; padding-inline-start: 16px; border-inline-start: 3px solid rgb(var(--mg-color-neutral-200)); }
+.semantic-excerpt-page { font-weight: 600; }
+.attachment-summary { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 8px; }
+.attachment-summary li { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: var(--mg-card-border-radius); }
+.attachment-summary span { font-size: .9375rem; color: var(--muted); }

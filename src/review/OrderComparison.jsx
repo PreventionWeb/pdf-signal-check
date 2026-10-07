@@ -74,8 +74,8 @@ export function OrderComparison({ report, file, onInspect, compact = false }) {
           </div>
           {data.anomalies.map((a) => (
             <p key={a.to} className="order-map-anomaly">
-              {a.text}{" "}
-              {data.numbered
+              {compact ? a.plain || a.text : a.text}{" "}
+              {compact ? null : data.numbered
                 ? "Dependent instructions may be read in the wrong order."
                 : "This spatial clue needs manual inspection."}
             </p>

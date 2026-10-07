@@ -75,16 +75,26 @@ export function fixBucket(item) {
   if (reviewPriority(item).key === 'critical') return 'fix';
   // Reading order always needs a person to confirm it, even when the tool found no problem.
   if (item.figureGroup || item.source?.path === 'attachments' || item.source?.path === 'readingOrder') return 'check';
+  // A saved title or author list beside page text the tool could not match is a comparison a person can make.
+  if (identityPaths.test(item.source?.path || '') && item.comparison?.candidates?.length && item.outcome !== 'match') return 'check';
   if (item.members) return item.members.some(member => member.category === 'advisory-concern') ? 'check' : 'unknown';
   return item.category === 'advisory-concern' ? 'check' : 'unknown';
 }
 // Missing tags cause most other structural defects, so that fix comes first.
 const rootCause = item => item.source?.checkId === 'structure' ? 0 : 1;
+const identityPaths = /^(metadataConsistency|deterministicTitle|authorConsistency)$/;
 const byPriority = (a, b) => reviewPriority(a).rank - reviewPriority(b).rank || rootCause(a) - rootCause(b);
 /** Selectable review items by bucket, plus tool limits that only explain what was not checked. */
 export function fixList(groups) {
   const lists = { fix: [], check: [], unknown: [], limits: [...groups.limits, ...groups.coverage] };
   for (const item of [...groups.problems, ...groups.uncertainty].sort(byPriority)) lists[fixBucket(item)].push(item);
+  // Without any tags, untagged text and a missing reading order are consequences of the same fix.
+  const noTags = lists.fix.find(item => item.source?.checkId === 'structure' && item.outcome === 'fail' && item.summary === 'No structure tree found.');
+  if (noTags) {
+    const consequence = item => (item.source?.checkId === 'coverage' && item.outcome === 'fail') || (item.source?.path === 'readingOrder' && item.comparison?.readingSequenceMissing);
+    const related = lists.fix.filter(consequence);
+    if (related.length) lists.fix = lists.fix.filter(item => !consequence(item)).map(item => item === noTags ? { ...item, related } : item);
+  }
   return lists;
 }
 const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
@@ -139,6 +149,24 @@ export function fixCard(item, report = {}) {
       summary: saved && page ? `The title saved in the PDF is “${quote(saved)}”, but the first page shows “${quote(page)}”.` : card.summary,
       change: 'In the source document’s properties, set the Title to the full publication title, including year and edition. Then export again.' };
   }
+  if (identityPaths.test(path) && item.outcome !== 'suspected-mismatch' && item.outcome !== 'match' && item.comparison?.candidates?.length) {
+    const authors = path === 'authorConsistency';
+    const saved = authors ? report.metadata?.author || report.metadata?.xmpAuthors?.join('; ') : report.metadata?.infoTitle || report.metadata?.xmpTitles?.[0]?.text;
+    const page = item.comparison.candidates[0]?.text;
+    return { ...card, title: authors ? 'Check the saved authors match the page' : 'Check the saved title matches the cover',
+      summary: `${saved ? `The ${authors ? 'authors' : 'title'} saved in the PDF ${authors ? 'are' : 'is'} “${quote(saved)}”.` : `No ${authors ? 'authors are' : 'title is'} saved in the PDF.`} The first page shows “${quote(page)}”. The tool couldn’t confirm whether they match.`,
+      change: authors ? 'If they differ, set the Author field in the source document’s properties to the publication’s authors. Then export again.' : 'If they differ, set the Title in the source document’s properties to the full publication title. Then export again.' };
+  }
+  if (path === 'attachments') {
+    const count = item.comparison?.inventory?.files?.length || 0;
+    return { ...card, title: `Confirm the attached files (${count})`, where: 'Whole document',
+      summary: `${count} file${count === 1 ? ' is' : 's are'} attached to this PDF. This tool didn’t open ${count === 1 ? 'it' : 'them'}.`,
+      change: 'Confirm with the designer that each file should be included, and that each has a description saying what it is for.' };
+  }
+  if (path.startsWith('semantic.') && fixBucket(item) === 'unknown' && !item.members) {
+    const label = path.startsWith('semantic.keyword') ? `the keyword “${quote(item.comparison?.query || item.title.replace(/^Keyword: /, ''))}”` : path === 'semantic.subject' ? 'the saved description' : path.startsWith('semantic.section') ? 'a heading' : 'the saved title';
+    return { ...card, title: `The AI couldn’t judge ${label}`, change: '' };
+  }
   if (path === 'authorConsistency' && item.outcome === 'suspected-mismatch') {
     const saved = report.metadata?.author || report.metadata?.xmpAuthors?.join('; ');
     const page = report.authorConsistency?.evidence?.[0]?.text;
@@ -148,7 +176,7 @@ export function fixCard(item, report = {}) {
   }
   const failed = item.outcome === 'fail';
   const check = item.source?.checkId;
-  if (failed && check === 'coverage' && item.summary !== 'No relevant text to account for.') return { ...card, title: 'Add the missing text to the tags',
+  if (failed && check === 'coverage' && item.summary !== 'No relevant text to account for.') return { ...card, title: 'Some text is hidden from screen readers',
     summary: 'Some text on the page is not in the PDF’s tags, so screen readers and AI tools may skip it or read it in the wrong place.',
     change: 'Add the highlighted text to the tags as a heading, paragraph or other part of the document. If it is decorative, such as a page number, running header or background text, mark it as decoration (an artifact) instead. Then export again.' };
   if (failed && check === 'language') return { ...card, title: 'Set the document language',
@@ -161,20 +189,22 @@ export function fixCard(item, report = {}) {
       summary: 'The PDF has tags (the hidden labels screen readers and AI tools use), but some are broken: they point to content that isn’t there, or content isn’t linked to a tag. This usually happens when a PDF is edited after it was exported.',
       change: 'Export a fresh tagged PDF from the source document, for example in Word with “Document structure tags for accessibility” ticked, or in InDesign with “Create Tagged PDF”. Redo any edits made to the PDF in the source instead.' };
   }
-  if (failed && check === 'structure' && item.summary === 'No structure tree found.') return { ...card, title: 'Export the PDF with tags', where: 'Whole document',
+  if (failed && check === 'structure' && item.summary === 'No structure tree found.') return { ...card, title: 'Export as a tagged (accessible) PDF', where: 'Whole document',
+    summary: 'The PDF has no tags: the hidden labels that tell screen readers and AI tools which text is a heading, paragraph, list or table. A visible table of contents doesn’t add them.',
+    also: item.related?.map(related => related.source?.checkId === 'coverage' ? 'Text that screen readers can’t reach' : 'The missing reading order'),
     change: 'In the source document, use heading, list and table styles, then export with PDF tags turned on (often called an accessible or tagged PDF).' };
   if (path === 'readingOrder' && item.comparison?.readingSequenceMissing) return { ...card, where: 'Whole document' };
   if (path === 'readingOrder' && item.outcome !== 'requires-review') return { ...card, title: 'Check the reading order',
     summary: 'The tool found no ordering problem, but it cannot confirm the order is right. Check that screen readers will read the page in the order you intend.',
-    change: 'Open the reading order on the page and follow the numbers. If they jump around, ask the designer to fix the tag order. Then export again.' };
+    change: 'Open the reading order on the page and follow the numbers. If they jump around, ask the designer to fix the reading order. Then export again.' };
   if (path === 'readingOrder' && item.outcome === 'requires-review') return { ...card, title: 'Text may be read in the wrong order',
     summary: 'Screen readers and AI tools may read this content in a different order from the page layout.',
-    change: 'Fix the reading order of the tags in a PDF accessibility editor, or in the source document. Then export again.' };
+    change: 'Ask the designer to fix the reading order: in the source document, or in Acrobat’s Reading Order or Tags panel. Then export again.' };
   if (item.members && !item.figureGroup && fixBucket(item) === 'unknown') return { ...card, title: `Headings the AI could not judge (${item.members.length})`,
     summary: 'The AI could not tell whether these headings describe the text below them. This is not a problem found in your PDF.', change: '' };
   if (item.members && !item.figureGroup) return { ...card, title: `Headings that may not match their sections (${item.members.length})`,
     summary: 'The AI found little connection between these headings and the text below them. Read each one and decide.',
-    change: 'If a heading doesn’t describe its section, reword it in the source document. If the wrong text follows it, fix the tag order. Then export again.' };
+    change: 'If a heading doesn’t describe its section, reword it in the source document. If the wrong text follows it, ask the designer to fix the reading order. Then export again.' };
   return card;
 }
 
@@ -288,12 +318,12 @@ export function reviewTask(finding) {
   if (path === 'metadataConsistency' || path === 'deterministicTitle') return task('Compare the saved title with the publication title',
     finding.outcome === 'match' ? 'The saved title matches a likely title found on the first page. The tool cannot confirm that this is the intended publication title.'
       : finding.outcome === 'suspected-mismatch' ? 'The saved title may identify a different title, year or edition, or the PDF contains conflicting saved titles.' : 'The tool could not confirm that the saved title matches the publication title.',
-    'Compare the saved title below with the full title on the cover or title page, including the year and edition. Correct the document properties if needed, export again and recheck.',
+    'Compare the saved title with the full title on the cover or title page, including the year and edition. Correct the document properties if needed, export again and recheck.',
     'The saved title can identify the wrong publication even when the page text is readable. A shortened title or a title page later in the PDF may need your judgement.');
   if (path === 'authorConsistency') return task('Check the author names',
     finding.outcome === 'match' ? 'The saved author names agree with a likely author line on the first page. This does not verify authorship.'
       : finding.outcome === 'suspected-mismatch' ? 'Saved author names differ from a likely author line, or the PDF has conflicting saved author lists.' : 'The tool could not confirm whether the saved author names agree with the names on the page.',
-    'Compare the saved names below with the publication’s authors. Check initials and distinguish authors from editors and publishers. Correct the saved author information if needed, export again and recheck.',
+    'Compare the saved names with the publication’s authors. Check initials and distinguish authors from editors and publishers. Correct the saved author information if needed, export again and recheck.',
     'Saved author information helps tools attribute the document. Differences in spelling or initials can need human judgement.');
   if (path === 'readingOrder' && finding.comparison?.readingSequenceMissing) return task('Add a machine-readable reading order',
     'No machine-readable reading sequence was recovered. Screen readers and other tools may not know which text to read first.',

@@ -1,7 +1,13 @@
 import React from "react";
 import { Card, Notice } from "../ui/react.jsx";
 import { Help } from "../help/Help.jsx";
-export function AttachmentInventory({ inventory }) {
+export function AttachmentInventory({ inventory, compact = false }) {
+  if (compact) return <ul className="attachment-summary">
+    {inventory?.files?.map(file => <li key={file.id}>
+      <strong>{file.unicodeFilename || file.filename || "Unnamed file"}</strong>
+      <span>{file.description || "No description saved"}</span>
+    </li>)}
+  </ul>;
   return (
     <section className="attachment-inventory">
       <h3>

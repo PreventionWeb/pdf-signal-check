@@ -36,8 +36,9 @@ export function orderComparisonData(report) {
       if (!index) return [];
       const previous = entries[index - 1];
       if (numbered && entry.step <= previous.step) return [{ from: previous.key, to: entry.key,
-        text: entry.step === previous.step ? `Tag-tree order repeats step ${entry.step}.` : `Tag-tree order jumps backwards: ${previous.step} → ${entry.step}.` }];
-      if (!numbered && entry.y > previous.y + 30) return [{ from: previous.key, to: entry.key, text: 'Tag-tree order moves upward between these headings.' }];
+        text: entry.step === previous.step ? `Tag-tree order repeats step ${entry.step}.` : `Tag-tree order jumps backwards: ${previous.step} → ${entry.step}.`,
+        plain: entry.step === previous.step ? `Screen readers reach step ${entry.step} twice.` : `Screen readers jump from step ${previous.step} back to step ${entry.step}.` }];
+      if (!numbered && entry.y > previous.y + 30) return [{ from: previous.key, to: entry.key, text: 'Tag-tree order moves upward between these headings.', plain: 'Screen readers move back up the page between these headings.' }];
       return [];
     });
     if (!anomalies.length) continue;
