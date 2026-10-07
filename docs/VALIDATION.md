@@ -257,3 +257,5 @@ The fix list is now shown on the PDF pages by default: numbered pins, a Document
 - Selection kept across tabs, focus moving to the detail on mobile, and no horizontal overflow.
 
 A crash on first toggling the reading order (a page rendered before the toggle had no overlay boxes yet) was found and fixed. The view has not yet been tried on a long real-world PDF.
+
+The separate List view was then removed. The pages view’s legend and shared detail cover it, and Show the whole PDF keeps access to pages without issues. agent-browser re-checked the two remaining tabs, keyboard selection in the legend, focus return from the preview, and the mobile detail and Back to the list flow at 390px with no overflow.

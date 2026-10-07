@@ -12,10 +12,9 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
 
 /**
  * The fix list placed on the PDF pages. The grouped legend is the accessible equivalent of the page images; pins
- * are buttons. Numbers match the list view and the PDF download. Selection is shared with the list view, and the
- * side panel shows the same item detail (passed in as `detail`).
+ * are buttons. Numbers match the PDF download. The side panel shows the selected item's detail (passed in as `detail`).
  */
-export function PagePins({ entries, unknown = [], limits = [], report, file, selectedId, onSelect, detail, onShowPage }) {
+export function PagePins({ entries, unknown = [], limits = [], report, file, selectedId, onSelect, detail, onShowPage, onShowAll }) {
   const { pages: pinnedPages, unlocated } = useMemo(() => pagePins(entries, report), [entries, report]);
   const [showOrder, setShowOrder] = useState(false);
   // With reading order on, every page with a recovered sequence is shown, not only pages with issues.
@@ -93,7 +92,7 @@ export function PagePins({ entries, unknown = [], limits = [], report, file, sel
       {detail}
     </aside>
     <div className="page-pins-pages">
-      <div className="page-pins-toolbar">{orderToggle}{showOrder && <span className="model-note">Blue numbers show the order screen readers follow. Pages without a recovered order have no numbers.</span>}</div>
+      <div className="page-pins-toolbar">{orderToggle}<Button className="page-pins-show-all" onClick={onShowAll}>Show the whole PDF</Button>{showOrder && <span className="model-note">Blue numbers show the order screen readers follow. Pages without a recovered order have no numbers.</span>}</div>
       <section className="page-pins-page" aria-labelledby="page-pins-properties-title"
         ref={element => element ? pageRefs.current.set("properties", element) : pageRefs.current.delete("properties")}>
         <h3 id="page-pins-properties-title">Document properties</h3>
