@@ -6,9 +6,8 @@ import React, {
   useState,
   useSyncExternalStore,
 } from "react";
-import { Button, Details } from "../ui/react.jsx";
+import { Button } from "../ui/react.jsx";
 import { getSemanticModel } from "../engine/models.js";
-import { downloadJson } from "../export/download.js";
 import { rateDevice } from "./preferences.js";
 import { CalibrationController } from "./controller.js";
 
@@ -77,7 +76,6 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     : progress?.stage === "asset-download" ? "Downloading model assets…"
     : progress?.stage === "fixture" ? "Preparing the sample PDF…"
     : progress?.stage === "model-init" ? "Preparing the AI model…" : "Warming up the benchmark…";
-  const downloadCost = `${(model.graphBytes / 1e6).toFixed(2)} MB model + ${(model.tokenizerBytes / 1e6).toFixed(2)} MB tokenizer, plus runtime (~26.86 MB uncompressed).`;
   if (state.busy) return (
     <section className="calibration-panel" aria-busy="true">
       <h2 className="mg-card__title">Benchmarking your device</h2>
@@ -105,11 +103,11 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
         {receipt ? "Check again" : "Download assets and benchmark"}
       </Button></div>}
       {state.message && state.message !== "Device check complete." && <p role="status">{state.message}</p>}
-      <Details summary={receipt ? "Technical benchmark details" : "About this benchmark"}>
+      <div className="benchmark-fine-print">
         <p>We parse a synthetic two-page PDF, warm up the model, and time three runs of four fixed text inputs. The test has a five-minute limit and cannot run alongside PDF screening.</p>
-        <p>Downloads if needed: {downloadCost} Asset transfer/cache cost varies. Running or checking again permits these downloads.</p>
+        <p>Asset transfer/cache cost varies. Running or checking again permits the downloads listed above.</p>
         {receipt && <>
-          <h4>Measured: {receipt.model.label}</h4>
+          <p>Measured model: {receipt.model.label}.</p>
           <p>
             Synthetic {receipt.fixture.pages}-page parse:{" "}
             {Math.round(receipt.fixture.parseMs)} ms. Encoder load and
@@ -133,16 +131,10 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
               itself cannot be confirmed.
             </p>
           )}
-          <Button
-            onClick={() =>
-              downloadJson(receipt, "synthetic-device-timing.json")
-            }
-          >
-            Download device timing receipt
-          </Button>
+          <p><a href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(receipt, null, 2))}`} download="synthetic-device-timing.json">Download device timing receipt</a></p>
           <p className="model-note">Rating guide: Great ≤ 1.5 seconds; OK ≤ 5 seconds; Not recommended above 5 seconds, for four fixed inputs. These are product responsiveness bands, not validated device requirements. Saved results expire after 30 days or when browser/model settings change.</p>
         </>}
-      </Details>
+      </div>
     </section>
   );
 });

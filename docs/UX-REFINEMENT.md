@@ -1,5 +1,12 @@
 # Results-first UX refinement
 
+## Benchmark fine print — 7 October 2026
+
+Benchmark methods, measured timings and limitations are always visible as
+14px fine print beneath the result, without a disclosure or technical heading.
+The timing receipt is a native inline JSON download link. Desktop/mobile layout,
+receipt download and production build were verified.
+
 ## Final verification — 6 October 2026
 
 191 tests pass and production build passes with the existing large-chunk warning.
