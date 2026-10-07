@@ -7,3 +7,4 @@ public/licenses/
 .env
 .env.*
 !.env.example
+.claude/worktrees/

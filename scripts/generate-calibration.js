@@ -163,7 +163,8 @@ export async function generate(spec, outputDirectory = output) {
       if (spec.crossReference === 'linked') {
         const start = 48 + regular.widthOfTextAtSize('Station locations are shown in ', 11);
         const width = regular.widthOfTextAtSize('Map 2', 11);
-        pages[1].drawLine({ start: { x: start, y: 264 }, end: { x: start + width, y: 264 }, thickness: 0.8, color: teal });
+        // The link underline is decoration: mark it as an artifact so it is not reported as an unlabelled graphic.
+        artifact(pages[1], p => p.drawLine({ start: { x: start, y: 264 }, end: { x: start + width, y: 264 }, thickness: 0.8, color: teal }));
         const link = context.obj({ Type: 'Annot', Subtype: 'Link', Rect: [start, 262, start + width, 277], Border: [0, 0, 0],
           Contents: PDFHexString.fromText('Map 2: station locations (annex)'), A: { Type: 'Action', S: 'URI', URI: PDFString.of('https://example.org/harbor-observatory/2025/annex#map-2') } });
         pages[1].node.set(PDFName.of('Annots'), context.obj([context.register(link)]));

@@ -7,6 +7,9 @@ import React from 'react';
  */
 
 const finding = data => (data.well.figureAlt || '').split('. ').pop().replace(/\.$/, '') || 'South is highest';
+/** Where on the miniature page a pin belongs, by what the item is about. */
+const pinSpot = title => /image|chart/i.test(title) ? [64, 226] : /order/i.test(title) ? [64, 146] : /Map 2|link/i.test(title) ? [64, 352]
+  : /\+0\.7|apart/i.test(title) ? [210, 352] : /decorative/i.test(title) ? [326, 80] : [326, 300];
 const stepNumber = text => text.match(/^(\d)/)?.[1];
 const stepLabel = text => text.replace(/^\d[.)]\s*/, '');
 
@@ -163,7 +166,7 @@ export function scenes(data) {
           <rect x="24" y="180" width="250" height="110" className="s-pale" />
           <Lines x={24} y={310} widths={[230, 250, 180]} gap={14} />
         </MiniPage>
-        {[[64, 226], [64, 146], [326, 80]].slice(0, data.scrambled.pins.length).map(([px, py], i) =>
+        {data.scrambled.pins.map(pin => pinSpot(pin.title)).map(([px, py], i) =>
           <g key={i} data-anim="drop" data-delay={300 + i * 250} transform={`translate(${px} ${py})`}><circle r="15" className={data.scrambled.pins[i].bucket === 'fix' ? 's-fix' : 's-check'} /><text y="5" textAnchor="middle" className="s-pin-text">{i + 1}</text></g>)}
         <text x="420" y="80" className="s-headline">{data.scrambled.headline}</text>
         {data.scrambled.pins.map((pin, i) => <g key={pin.title} data-anim="slide" data-delay={800 + i * 200}>

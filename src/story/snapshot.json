@@ -55,7 +55,7 @@
     ]
   },
   "scrambled": {
-    "headline": "1 thing to fix, 2 to check",
+    "headline": "1 thing to fix, 4 to check",
     "figureAlt": null,
     "tagSteps": [
       "1. Prepare the sealed bottles",
@@ -100,13 +100,25 @@
       {
         "number": 3,
         "bucket": "check",
+        "title": "“Map 2” isn’t a link",
+        "where": "Page 2"
+      },
+      {
+        "number": 4,
+        "bucket": "check",
+        "title": "“+0.7 m” is drawn apart from its label",
+        "where": "Page 2"
+      },
+      {
+        "number": 5,
+        "bucket": "check",
         "title": "Check graphics marked as decorative (2)",
         "where": "Pages 1, 2"
       }
     ]
   },
   "travel": {
-    "headline": "Nothing confirmed to fix, 5 things to check",
+    "headline": "Nothing confirmed to fix, 4 things to check",
     "title": "Harbor Observatory Annual Report 2025",
     "authors": "Maya Chen; Leo Martin",
     "language": "en-GB",
