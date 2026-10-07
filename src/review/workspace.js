@@ -160,7 +160,8 @@ export function fixCard(item, report = {}) {
   if (item.members && !item.figureGroup && fixBucket(item) === 'unknown') return { ...card, title: `Headings the AI could not judge (${item.members.length})`,
     summary: 'The AI could not tell whether these headings describe the text below them. This is not a problem found in your PDF.', change: '' };
   if (item.members && !item.figureGroup) return { ...card, title: `Headings that may not match their sections (${item.members.length})`,
-    summary: 'The AI found little connection between these headings and the text below them. Read each one and decide.' };
+    summary: 'The AI found little connection between these headings and the text below them. Read each one and decide.',
+    change: 'If a heading doesn’t describe its section, reword it in the source document. If the wrong text follows it, fix the tag order. Then export again.' };
   return card;
 }
 

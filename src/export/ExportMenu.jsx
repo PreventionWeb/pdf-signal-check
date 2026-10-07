@@ -41,7 +41,7 @@ export const ExportMenu = forwardRef(function ExportMenu(
   return (
     <section className="review-export-menu" aria-label="Download this report">
       <div className="flow-actions mg-u-flex mg-u-flex-wrap mg-u-align-items-center mg-u-gap-100">
-        <Button variant={secondary ? "secondary" : "primary"} disabled={disabled || state.busy} onClick={() => controller.run('pdf')}>Download report (PDF)</Button>
+        <Button variant={secondary ? "secondary" : "primary"} disabled={disabled || state.busy} onClick={() => controller.run('pdf')}>Download fix list (PDF)</Button>
         <Button disabled={disabled || state.busy} onClick={() => controller.run('json')}>Download detailed report (JSON)</Button>
         {state.busy && <Button onClick={() => controller.cancel()}>Cancel export</Button>}
       </div>

@@ -1,5 +1,6 @@
 import { findingProvenance, screeningProvenance } from '../review/provenance.js';
 import { normalizeFindings } from '../review/findings.js';
+import { findingGroups, groupHeadingFindings, groupFigureFindings, reviewSummary, fixCard } from '../review/workspace.js';
 export function captureSnapshot({report,file}) {
   if(!report)throw new Error('Complete an analysis before exporting.');
   const copy=structuredClone(report);
@@ -21,4 +22,21 @@ export function screeningReceipt(report) {
   const provenance=screeningProvenance(report),semantic=report.semantic;
   const model=semantic?.model;
   return `${provenance.label}. ${provenance.detail}${model?` ${provenance.kind==='ai'?'Actual':'Configured'} model: ${model.label || model.id || 'unspecified'}; revision ${model.revision || 'unavailable'}; ${model.dtype || 'unavailable'}; ${model.pooling || 'unavailable'} pooling.`:''}`;
+}
+
+/** The designer hand-off: numbered Fix and Check items as the results screen shows them, from the captured report. */
+export function fixSheet(snapshot) {
+  const report=snapshot.report;
+  const groups=groupFigureFindings(groupHeadingFindings(findingGroups(snapshot.normalized.findings)));
+  const summary=reviewSummary(report,groups);
+  let number=0;
+  const memberLine=member=>{const figure=member.comparison?.figure;
+    if(figure)return `${figure.decorative?'Decorative graphics':figure.tagged?`Image ${member.comparison.figureNumber || 1}`:'Unlabelled graphics'}, page ${figure.page}`;
+    const page=member.targets?.[0]?.page;return `“${member.comparison?.query || member.title.replace(/^Heading: /,'')}”${page?`, page ${page}`:''}`;};
+  const entry=(item,bucket)=>({number:++number,bucket,...fixCard(item,report),
+    // A one-region crop cannot show a sequence or page-wide decoration; those stay text-only.
+    cropFindingId:item.figureGroup==='decorative' || item.source?.path==='readingOrder'?null:item.figureGroup?item.members[0].id:item.members?null:item.id,
+    members:(item.members || []).map(memberLine)});
+  return {headline:summary.headline,scope:summary.scope,fix:summary.buckets.fix.map(item=>entry(item,'fix')),check:summary.buckets.check.map(item=>entry(item,'check')),
+    unknown:summary.buckets.unknown.map(item=>fixCard(item,report).title)};
 }

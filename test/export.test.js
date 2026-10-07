@@ -1,6 +1,6 @@
 import { describe,it,expect } from 'vitest';
 import { cropBounds,targetQuads } from '../src/evidence/geometry.js';
-import { captureSnapshot,safeFilename,comparisonLines,screeningReceipt } from '../src/export/snapshot.js';
+import { captureSnapshot,safeFilename,comparisonLines,screeningReceipt,fixSheet } from '../src/export/snapshot.js';
 import { wrapText } from '../src/export/report.js';
 const report=()=>({file:{name:'Müller.pdf',sourceBytes:123,sha256:'abc'},pages:[],checks:[],metadata:{infoTitle:'Wasserqualität',author:'Maya Chen',xmpAuthors:['Maya Chen']},profile:'text-actionability-0.2',screeningSelection:{modelId:'granite-r2'},semantic:{model:{label:'MiniLM'},requestedChecks:['title']}});
 describe('captured exports',()=>{
@@ -47,4 +47,16 @@ it('shows full-page figure context without inventing a crop when geometry is una
   expect(evidenceCropBounds(report, located, viewport).pageContext).toBe(false);
   const unsafe = { ...report, checks: [{ evidence: ['Form XObjects are unsupported.'] }] };
   expect(evidenceCropBounds(unsafe, located, viewport)).toMatchObject({ pageContext: true, points: [] });
+});
+
+it('builds the designer fix sheet from the captured report in the same buckets as the screen', () => {
+  const r = { file: { name: 'a.pdf' }, analysisComplete: true, accepted: false, pages: [], metadata: { infoTitle: 'Report 2024' },
+    metadataConsistency: { status: 'suspected-mismatch', publicationCandidates: [{ page: 1, text: 'Report 2025' }] },
+    checks: [{ id: 'language', status: 'fail', summary: 'Missing.' }], textVisibility: { status: 'uncertain' } };
+  const sheet = fixSheet(captureSnapshot({ report: r, file: {} }));
+  expect(sheet.fix.map(item => item.title)).toEqual(['Set the document language']);
+  expect(sheet.check.map(item => [item.number, item.title])).toEqual([[2, 'Saved title doesn’t match the cover']]);
+  expect(sheet.check[0].summary).toContain('“Report 2025”');
+  expect(sheet.unknown).toContain('Compare extracted words with the visible page');
+  expect([...sheet.fix, ...sheet.check].every(item => item.change)).toBe(true);
 });

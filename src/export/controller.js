@@ -1,5 +1,5 @@
 import { REPORT_FILENAME_STEM } from "../brand.js";
-import { captureSnapshot, safeFilename } from "./snapshot.js";
+import { captureSnapshot, safeFilename, fixSheet } from "./snapshot.js";
 import { targetQuads } from "../evidence/geometry.js";
 import { EvidenceCropService } from "../evidence/crops.js";
 import { downloadBlob } from "./download.js";
@@ -81,8 +81,13 @@ export class ExportController {
             service = this.cropFactory(snapshot.file, snapshot.report, {
               signal: abort.signal,
             });
+            // Crops follow the fix list order so the hand-off items get images first.
+            const sheet = fixSheet(snapshot);
+            const order = [...sheet.fix, ...sheet.check].map((item) => item.cropFindingId).filter(Boolean);
+            const rank = (f) => (order.includes(f.id) ? order.indexOf(f.id) : order.length);
             const candidates = snapshot.normalized.findings
               .filter((f) => f.category !== "success")
+              .sort((a, b) => rank(a) - rank(b))
               .map((f) => ({
                 ...f,
                 cropTarget: f.targets?.find(

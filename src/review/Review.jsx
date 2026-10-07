@@ -267,6 +267,8 @@ function FixCards({ items, report, selected, onChoose }) {
 function limitText(item) {
   if (item.source?.checkId === "supported-content") return "Images and charts: this tool cannot judge what they mean.";
   if (item.source?.path === "semantic") return item.outcome === "error" ? "AI text comparisons: the AI check did not finish." : "AI text comparisons: not run for this PDF.";
+  const skipped = /^semantic:(keywords|sections):unassessed$/.exec(item.id);
+  if (skipped) return `${skipped[1] === "keywords" ? "Keywords" : "Headings"}: ${String(item.summary || "").match(/\d+/)?.[0] || "some"} were not compared by the AI, because each check has a size limit.`;
   return `${item.title}: ${item.summary || "not checked"}`;
 }
 function PageLocations({ targets, onInspect }) {
