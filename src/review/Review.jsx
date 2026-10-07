@@ -23,6 +23,7 @@ import { FigureGroup } from "./FigureGroup.jsx";
 import { ResultHero } from "./ResultHero.jsx";
 import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins } from "./PagePins.jsx";
+import { hidingLabel } from "../engine/hidden-instructions.js";
 
 const BUCKETS = {
   fix: { label: "Fix", intro: "Problems found in this PDF." },
@@ -145,6 +146,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         : kind === "title" || kind === "authors" ? <IdentityComparison kind={kind} report={report} file={file} targets={targets} onInspect={inspect} compact />
         : showOrder ? <OrderComparison report={report} file={file} onInspect={inspect} compact />
         : kind === "attachments" ? <AttachmentInventory inventory={report.attachments} compact />
+        : finding.source?.path === "hiddenInstructions" ? <HiddenInstructions matches={finding.comparison?.matches || []} onInspect={inspect} />
         : finding.source?.path?.startsWith("semantic.") ? <SemanticExcerpts finding={finding} />
         : finding.comparison?.figure ? <FigureContext key={finding.id} finding={finding} file={file} report={report} targets={targets} onInspect={inspect} />
         : kind === "order" ? null
@@ -247,6 +249,16 @@ function limitText(item) {
   const skipped = /^semantic:(keywords|sections):unassessed$/.exec(item.id);
   if (skipped) return `${String(item.summary || "").match(/\d+/)?.[0] || "Some"} ${skipped[1] === "keywords" ? "keywords" : "headings"} were not compared by the AI. It only compares a limited number in each PDF.`;
   return `${item.title}: ${item.summary || "not checked"}`;
+}
+const CHANNELS = { property: "Document properties", "image-description": "Image description", "attachment-description": "Attachment description" };
+/** Each hidden passage: where it is, how it is hidden, what it seems to ask an AI to do, and the text itself. */
+function HiddenInstructions({ matches, onInspect }) {
+  return <ul className="hidden-instructions">{matches.map((match, index) => <li key={index}>
+    <p className="hidden-instructions-where">{match.kind === "page" ? `Page ${match.page} · ${hidingLabel(match.reasons)}` : `${CHANNELS[match.kind] || "Document details"}${match.field ? ` · ${match.field}` : ""}${match.page ? ` · page ${match.page}` : ""}`}</p>
+    <blockquote>{match.text}</blockquote>
+    <p className="hidden-instructions-why">{match.labels?.join("; ")}</p>
+    {match.kind === "page" && match.quads?.length > 0 && <Button onClick={() => onInspect({ page: match.page, quads: match.quads, text: match.text })}>Show on page {match.page}</Button>}
+  </li>)}</ul>;
 }
 const excerpt = text => { const value = String(text || "").replace(/\s+/g, " ").trim(); return value.length > 220 ? `${value.slice(0, 219)}…` : value; };
 /** What the AI compared: the saved value and the first excerpts it read. */

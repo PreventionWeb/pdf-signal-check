@@ -3,6 +3,7 @@ const features = [
   ['Metadata and language', 'Yes', 'Checks declared values and compares titles/bylines with recovered text.'],
   ['Text tags and reading order', 'Yes · bounded checks', 'Checks connections and selected order clues; intended reading order still needs review.'],
   ['Figure tags and alternate text', 'Yes · presence checks', 'Finds Figure tags and missing or empty descriptions. You review whether the description is useful.'],
+  ['Hidden instructions for AI', 'Yes · basic pattern check', 'Looks for instruction-like text that readers can’t see: invisible, tiny, white or off-page text, document properties and image descriptions. Reworded or encoded text can be missed.'],
   ['AI text comparisons', 'With an AI model', 'Compares short text excerpts locally. Relatedness is advisory, not proof of correctness.'],
   ['Image or chart meaning', 'No', 'Does not interpret pixels, verify chart values or assess alternate-text accuracy.'],
   ['PDF/UA or PDF/A certification', 'No', 'Checks a limited project text profile; does not certify accessibility or archival conformance.'],

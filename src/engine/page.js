@@ -1,6 +1,8 @@
 import { textQuad, multiply, rectPoints } from '../geometry.js';
+const mergeQuads = (a, b) => { const xs = [...a, ...b].map(p => p[0]), ys = [...a, ...b].map(p => p[1]);
+  return [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)], [Math.min(...xs), Math.max(...ys)]]; };
 /** Inspect extracted text and drawing operators against raw page-scoped tag links. */
-export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
+export function inspectPage(text, operators, tree, pageNumber, structure, OPS, view = null) {
   const stack = [], blocks = [], byKey = new Map();
   let untaggedCharacters = 0, characters = 0, suspicious = 0;
   const bad = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffd\ue000-\uf8ff\u{f0000}-\u{ffffd}\u{100000}-\u{10fffd}]/gu;
@@ -24,6 +26,13 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
   let nonArtifactGraphics = 0, invalidGlyphs = 0;
   const contentErrors = [], mcidOccurrences = new Set(), invisibleKeys = new Set();
   let invisibleTextOperations = 0, renderMode = 0; const renderModes = [];
+  // Text state for hidden-text screening: what readers cannot see but extraction (and AI tools) still reads.
+  let fontSize = 12, fill = '#000000', leading = 0, textMatrix = [1,0,0,1,0,0], lineMatrix = [1,0,0,1,0,0];
+  const textStates = [], hiddenText = [];
+  let hiddenCharacters = 0;
+  const HIDDEN_CHARACTER_LIMIT = 50_000, HIDDEN_RUN_LIMIT = 300;
+  const translate = (m, tx, ty) => [m[0], m[1], m[2], m[3], m[0]*tx + m[2]*ty + m[4], m[1]*tx + m[3]*ty + m[5]];
+  const nearWhite = hex => /^#[0-9a-f]{6}$/i.test(hex) && [1, 3, 5].every(i => parseInt(hex.slice(i, i + 2), 16) >= 0xf0);
   const graphicRegions = [], decorativeGraphics = [], matrices = []; let matrix = [1,0,0,1,0,0], formDepth = 0, formXObjectInvocations = 0;
   const usedKeys = new Set(), opStack = [];
   const pageTextKeys = new Set(), reusedTextKeys = new Set();
@@ -33,8 +42,15 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
     'closeFillStroke', 'closeEOFillStroke'].map(n => OPS[n]));
   for (let i = 0; i < operators.fnArray.length; i++) {
     const fn = operators.fnArray[i], args = operators.argsArray[i];
-    if (fn === OPS.save) { matrices.push([...matrix]); renderModes.push(renderMode); }
-    if (fn === OPS.restore) { matrix = matrices.pop() || [1,0,0,1,0,0]; renderMode = renderModes.pop() ?? 0; }
+    if (fn === OPS.save) { matrices.push([...matrix]); renderModes.push(renderMode); textStates.push({ fontSize, fill, leading }); }
+    if (fn === OPS.restore) { matrix = matrices.pop() || [1,0,0,1,0,0]; renderMode = renderModes.pop() ?? 0; ({ fontSize, fill, leading } = textStates.pop() || { fontSize, fill, leading }); }
+    if (fn === OPS.beginText) { textMatrix = [1,0,0,1,0,0]; lineMatrix = [1,0,0,1,0,0]; }
+    if (fn === OPS.setFont && Number.isFinite(args[1])) fontSize = args[1];
+    if (fn === OPS.setFillRGBColor && typeof args[0] === 'string') fill = args[0];
+    if (fn === OPS.setLeading) leading = args[0];
+    if (fn === OPS.setTextMatrix) { const m = Array.from(args[0] || args); textMatrix = m; lineMatrix = m; }
+    if (fn === OPS.moveText || fn === OPS.setLeadingMoveText) { if (fn === OPS.setLeadingMoveText) leading = -args[1]; lineMatrix = translate(lineMatrix, args[0], args[1]); textMatrix = lineMatrix; }
+    if (fn === OPS.nextLine) { lineMatrix = translate(lineMatrix, 0, -leading); textMatrix = lineMatrix; }
     if (fn === OPS.setTextRenderingMode) renderMode = args[0];
     if (fn === OPS.transform) matrix = multiply(matrix, args);
     if (fn === OPS.paintFormXObjectBegin) { formXObjectInvocations++; matrices.push([...matrix]); renderModes.push(renderMode); formDepth++; if (args[0]) matrix = multiply(matrix,args[0]); }
@@ -66,6 +82,27 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
         const region = { key: !formDepth && owner ? `${pageNumber}:${owner.mcid}` : null, quad: box ? rectPoints(box,matrix) : null, label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
         if (artifact) { if (decorativeGraphics.length < 16) decorativeGraphics.push(region); }
         else graphicRegions.push(region);
+      }
+      if (fn === OPS.showText) {
+        const glyphs = args[0] || [];
+        const content = glyphs.map(g => typeof g === 'number' ? (g < -200 ? ' ' : '') : g?.unicode || '').join('');
+        const combined = multiply(matrix, textMatrix);
+        const size = Math.abs(fontSize) * Math.sqrt(Math.abs(combined[0]*combined[3] - combined[1]*combined[2]));
+        const advance = glyphs.reduce((sum, g) => sum + (typeof g === 'number' ? -g / 1000 : (g?.width || 0) / 1000), 0) * fontSize;
+        const [x, y] = [combined[4], combined[5]];
+        const reasons = [];
+        if (renderMode === 3 || renderMode === 7) reasons.push('invisible');
+        if (size > 0 && size < 1) reasons.push('tiny');
+        if (nearWhite(fill) && renderMode !== 3 && renderMode !== 7) reasons.push('white');
+        if (view && (x < view[0] - 2 || x > view[2] + 2 || y < view[1] - 2 || y > view[3] + 2)) reasons.push('offpage');
+        if (reasons.length && content.trim() && !formDepth && hiddenCharacters < HIDDEN_CHARACTER_LIMIT) {
+          const previous = hiddenText.at(-1);
+          const quad = rectPoints([0, 0, Math.max(advance, 1), Math.max(Math.abs(fontSize), 1)], combined);
+          if (previous && previous.reasons.join() === reasons.join() && previous.lastIndex === i - 1) { previous.text += content; previous.quad = mergeQuads(previous.quad, quad); previous.lastIndex = i; }
+          else if (hiddenText.length < HIDDEN_RUN_LIMIT) hiddenText.push({ reasons, text: content, size: Math.round(size * 100) / 100, fill, quad, lastIndex: i });
+          hiddenCharacters += content.length;
+        }
+        textMatrix = translate(textMatrix, advance, 0);
       }
       if (!artifact && fn === OPS.showText) {
         if (renderMode === 3 || renderMode === 7) { invisibleTextOperations++; if (owner) invisibleKeys.add(`${pageNumber}:${owner.mcid}`); }
@@ -118,5 +155,6 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS) {
     formXObjectInvocations,
     evidenceGeometryScoped: true,
     contentErrors: [...new Set(contentErrors)], invisibleKeys: [...invisibleKeys], invisibleTextOperations,
+    hiddenText: hiddenText.map(({ lastIndex, ...run }) => ({ ...run, text: run.text.replace(/\s+/g, ' ').trim() })),
     nonArtifactGraphics, graphics: graphicRegions, decorativeGraphics, dangling, emptyContent, blocks, logicalBlocks, candidates, structure: enrichedTree };
 }

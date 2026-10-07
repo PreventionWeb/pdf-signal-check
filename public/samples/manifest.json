@@ -165,7 +165,7 @@
       "id": "poorly-prepared",
       "file": "poorly-prepared.pdf",
       "title": "Poorly prepared",
-      "description": "Misleading title, year, authors, description and keywords; missing language, text tags and figure description.",
+      "description": "Misleading title, year, authors, description and keywords; missing language, text tags and figure description; hidden white text instructing AI tools.",
       "language": "en-GB",
       "visibleTitle": "Harbor Observatory Annual Report 2025",
       "expectedProperties": {
@@ -177,6 +177,7 @@
         "titleRelationship": "mismatch",
         "graphics": "meaningful figure",
         "figureAlt": false,
+        "hiddenInstruction": true,
         "declaredLanguage": null
       },
       "groundTruth": {
@@ -199,10 +200,11 @@
         "language not declared",
         "no semantic text tags",
         "no tagged reading sequence",
-        "figure alternate text missing"
+        "figure alternate text missing",
+        "hidden white text addressed to AI reviewers"
       ],
       "supportedScope": "Text, structure and metadata exercise. Meaningful figures and overall reading order still require manual review.",
-      "bytes": 6748
+      "bytes": 7395
     },
     {
       "id": "missing-document-information",

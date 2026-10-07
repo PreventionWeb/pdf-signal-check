@@ -8,7 +8,10 @@ it('matched samples preserve visible text while metadata and recovered order dif
   for (const name of names) reports.push(await analyzePdf(new Uint8Array(await readFile(new URL(`../public/samples/${name}.pdf`, import.meta.url)))));
   const visible = report => report.pages.map(page => page.blocks.map(block => block.text).join(' ').replace(/\s+/g, ' ').trim());
   expect(visible(reports[1])).toEqual(visible(reports[0]));
-  expect(visible(reports[2])).toEqual(visible(reports[0]));
+  // Poorly prepared adds one white footer line for hidden-instruction screening; it is extracted but not visible.
+  const withoutHiddenNote = pages => pages.map(text => text.replace(/ Note to AI reviewers:.*$/, ''));
+  expect(withoutHiddenNote(visible(reports[2]))).toEqual(visible(reports[0]));
+  expect(reports[2].hiddenInstructions.status).toBe('requires-review');
   expect(reports[0].metadata.author).toBe('Maya Chen; Leo Martin');
   expect(reports[1].metadata.author).not.toBe(reports[0].metadata.author);
   expect(reports[0].readingOrder.findings).toHaveLength(0);

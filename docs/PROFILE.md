@@ -57,6 +57,18 @@ Text-rendering modes 3 and 7 (invisible/clipping-only) produce a separate visibi
 
 A second bounded order clue examines at least three short, geometrically located headings on unrotated pages with one recovered left alignment and no recovered body-column spread beyond the simple-layout guard. A substantial upward move in tag order produces review evidence. Multi-column, rotated, missing-geometry and more complex layouts abstain from that spatial rule; no detected anomaly still remains Uncertain. The report names the numbered or spatial detector.
 
+## Hidden instructions for AI (advisory)
+
+`report.hiddenInstructions` screens text that readers cannot see but extraction and AI tools still read. It covers page text drawn with rendering mode 3 or 7, at an effective size under 1 pt, with a near-white fill (every channel at least `#f0`), or with its origin outside the page box. It also covers saved title, subject, keywords and authors, image alternate text and attachment descriptions. Text is NFKC-normalized, and zero-width and soft-hyphen characters are removed before matching. `src/engine/hidden-instructions.js` lists the instruction-like patterns:
+- overriding instructions
+- addressing an AI or a system prompt
+- chat-template markup
+- asking for a favourable review or selection
+- asking to conceal information
+- dictating the answer
+
+Visible page text is not scanned, so documents that discuss prompt injection openly are not flagged. A match is a `requires-review` advisory shown under Check. It is independent of profile acceptance and does not prove intent. White text on a dark background, or reworded, translated or encoded instructions, are known sources of false positives and misses. Hidden runs are summarized per page after screening, so an OCR text layer does not enlarge the report. Matches keep a bounded snippet and approximate location.
+
 ## Figure alternate-text presence
 
 A separate deterministic advisory inventories recovered Figure tags, including standard roles resolved through RoleMap, and non-empty `/Alt` entries. Descendant marked-content keys associate painted graphics with the figure. Broken structure or ambiguous nested Figure ownership prevents a reliable association. Non-artifact graphics without a recovered figure association are uncertain: they are not automatically declared meaningful images or missing-alt defects. Decorative artifact declarations remain trusted and excluded from this inventory.

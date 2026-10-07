@@ -157,6 +157,14 @@ export function fixCard(item, report = {}) {
       summary: `${saved ? `The ${authors ? 'authors' : 'title'} saved in the PDF ${authors ? 'are' : 'is'} “${quote(saved)}”.` : `No ${authors ? 'authors are' : 'title is'} saved in the PDF.`} The first page shows “${quote(page)}”. The tool couldn’t confirm whether they match.`,
       change: authors ? 'If they differ, set the Author field in the source document’s properties to the publication’s authors. Then export again.' : 'If they differ, set the Title in the source document’s properties to the full publication title. Then export again.' };
   }
+  if (path === 'hiddenInstructions' && item.outcome === 'requires-review') {
+    const matches = item.comparison?.matches || [];
+    const pages = [...new Set(matches.map(match => match.page).filter(Number.isInteger))].sort((a, b) => a - b);
+    return { ...card, title: `Hidden text that gives instructions to AI (${matches.length})`,
+      where: pages.length ? `${pages.length === 1 ? 'Page' : 'Pages'} ${pages.join(', ')}${matches.some(match => !match.page) ? ' and document details' : ''}` : 'Document details',
+      summary: `This PDF contains text that people can’t see but AI tools will read, and it reads like instructions to an AI: “${quote(matches[0]?.text)}”`,
+      change: 'Ask whoever made the PDF why this text is there. If it isn’t meant to be in the document, delete it from the source, then export again.' };
+  }
   if (path === 'attachments') {
     const count = item.comparison?.inventory?.files?.length || 0;
     return { ...card, title: `Confirm the attached files (${count})`, where: 'Whole document',
@@ -333,6 +341,10 @@ export function reviewTask(finding) {
     finding.outcome === 'requires-review' ? 'The tool found numbering or heading positions that may indicate text is read out of order. A deliberate numbering restart or layout choice could also explain this.' : 'The tool has not established the reading order of the whole document. No warning from this check would prove that the order is correct.',
     'Compare the extracted sequence with how the PDF should be read, especially across columns and numbered steps. If no sequence is available, check or add structure labels with a PDF accessibility editor. Correct the order there or in the source document, then export again and recheck.',
     'Screen readers and other tools can follow a different order from the one suggested by the page layout. Connected structure labels alone do not guarantee a sensible sequence.');
+  if (path === 'hiddenInstructions') return task('Remove hidden instructions for AI tools',
+    finding.summary,
+    'Ask whoever produced the PDF why this text is there. If it is not meant to be in the document, delete it from the source document, including document properties and image descriptions, then export again and recheck.',
+    'AI tools read text that people cannot see. Hidden instructions can steer AI summaries, reviews, search results or decisions about the document. This basic check matches common instruction patterns and can miss reworded or encoded text.');
   if (path === 'textVisibility') return task('Compare extracted words with the visible page',
     finding.outcome === 'requires-review' ? 'The PDF contains text set not to appear as ordinary visible text. It may be useful recognised text behind a scan, or it may differ from what people see.' : 'This check did not establish that every extracted word is visible. Text can still be hidden by colour, overlap or other layout choices.',
     'Compare the extracted words with the page. Text behind a scan can be useful if it matches the image. If words are incorrect or duplicated, correct the recognised text or the source document, export again and recheck.',

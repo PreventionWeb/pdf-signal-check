@@ -6,6 +6,7 @@ import { inspectPage } from './page.js';
 import { readMetadata } from './metadata.js';
 import { compareTitles } from './titles.js';
 import { compareAuthors, inspectReadingOrder, inspectTextVisibility } from './advisories.js';
+import { inspectHiddenInstructions } from './hidden-instructions.js';
 import { inspectAttachments } from './attachments.js';
 
 export { pdfjs };
@@ -28,7 +29,8 @@ export async function analyzePdf(input, options = {}) {
     analysisComplete: false, accepted: false, metadata: {}, metadataConsistency: { status: 'uncertain', candidates: [] },
     semantic: null, attachments: {status:'not-assessed',inventoryComplete:false,files:[],orphanStreams:[],warnings:[],payloadsAnalyzed:false,reason:'Document parsing did not complete; attachment inventory not assessed.'}, authorConsistency: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     readingOrder: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
-    textVisibility: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] }, checks: [], pages: [], limitations: [
+    textVisibility: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
+    hiddenInstructions: { status: 'not-assessed', reason: 'Analysis not completed.', matches: [] }, checks: [], pages: [], limitations: [
       'This is a project-specific text profile, not PDF/UA or PDF/A validation.',
       'Decoding checks identify suspicious output; they do not prove glyph-to-text semantic correctness.',
       'Logical order and role meaning are not visually verified. Artifact declarations are trusted.',
@@ -75,7 +77,7 @@ export async function analyzePdf(input, options = {}) {
       operatorCount += operators.fnArray.length; textCount += text.items.length;
       if (operatorCount > limits.maxOperators || textCount > limits.maxTextItems) throw new Error('Document content exceeded the analysis limits.');
       const tree = await page.getStructTree();
-      report.pages.push({...inspectPage(text, operators, tree, i, structure, pdfjs.OPS),rotation:page.rotate});
+      report.pages.push({...inspectPage(text, operators, tree, i, structure, pdfjs.OPS, page.view),rotation:page.rotate});
       page.cleanup();
       progress(`Inspected page ${i} of ${doc.numPages}`, 10 + Math.round(80 * i / doc.numPages), {stage:'pages',state:i===doc.numPages?'completed':'progress',completed:i,total:doc.numPages,unit:'pages'});
     }
@@ -95,6 +97,12 @@ export async function analyzePdf(input, options = {}) {
     report.authorConsistency = compareAuthors(report.metadata, report.pages);
     report.readingOrder = inspectReadingOrder(report.pages);
     report.textVisibility = inspectTextVisibility(report.pages);
+    report.hiddenInstructions = inspectHiddenInstructions({ pages: report.pages, metadata: report.metadata, figures: report.figureAlternatives?.items || [], attachments: report.attachments?.files || [] });
+    // Hidden runs can be a whole OCR layer; keep only a summary in the report. Matches retain their own snippets.
+    for (const page of report.pages) {
+      const runs = page.hiddenText || [];
+      page.hiddenText = { runs: runs.length, characters: runs.reduce((n, run) => n + run.text.length, 0), reasons: [...new Set(runs.flatMap(run => run.reasons))] };
+    }
     const contentErrors = [...new Set([...rawContentErrors, ...report.pages.flatMap(p => p.contentErrors)])];
     report.checks.push(check('content-integrity', 'Marked-content integrity', contentErrors.length ? 'fail' : 'pass', contentErrors.length ? 'Marked-content identifiers or boundaries are inconsistent.' : 'Observed marked-content boundaries are balanced and page identifiers are unique.', contentErrors));
     report.analysisComplete = true;
