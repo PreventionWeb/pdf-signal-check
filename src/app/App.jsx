@@ -25,10 +25,8 @@ import {
 } from "../brand.js";
 import {
   Button,
-  Card,
   Actions,
   Loader,
-  Icon,
   Notice,
 } from "../ui/react.jsx";
 export function App() {
@@ -276,30 +274,32 @@ function Entry({ state, controller, batchBusy }) {
           </Button>
         </div>
       )}
-          <Card
-            className={`upload-card ${dragging ? "dragging" : ""}`}
-            id="drop-zone"
-            tabIndex={-1}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              const files = Array.from(e.dataTransfer.files || []);
-              controller.selectFiles(files);
-            }}
-          >
-            <label className="drop-target" htmlFor="file-input">
-              <span className="document-icon">
-                <Icon name="file-alt" />
-              </span>
-              <strong>Drop your PDF here</strong>
-              <span className="drop-subtext">or choose PDFs from your device</span>
-              <span className="drop-limit">Up to 50 MB · 200 pages</span>
-            </label>
+      <section aria-labelledby="upload-title">
+        <article
+          className={`mg-card mg-card__hc mg-card-book__hc upload-card ${dragging ? "dragging" : ""}`}
+          id="drop-zone"
+          tabIndex={-1}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            const files = Array.from(e.dataTransfer.files || []);
+            controller.selectFiles(files);
+          }}
+        >
+          <div className="mg-card__visual">
+            <img src="./images/samples/your-pdf.svg" alt="" className="mg-card__image" width="300" height="400" />
+          </div>
+          <div className="mg-card__content">
+            <div className="mg-card__meta"><span className="mg-card__label">Your PDF</span></div>
+            <h2 className="mg-card__title" id="upload-title">Check your own PDF</h2>
+            <p className="mg-card__summary">Drag a PDF onto this box, or choose one from your device. Up to 50 MB and 200 pages. It never leaves this device.</p>
+            {/* The visually hidden file input is the focusable control; its label is styled as the primary button. */}
+            <label className="mg-button mg-button-primary upload-button" htmlFor="file-input">Choose a PDF</label>
             <input
               className="mg-u-sr-only"
               type="file"
@@ -313,7 +313,9 @@ function Entry({ state, controller, batchBusy }) {
                 controller.selectFiles(files);
               }}
             />
-          </Card>
+          </div>
+        </article>
+      </section>
       <Samples disabled={disabled} onChoose={path => controller.selectSample(path)} />
       <div className="intake-settings">
         <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose your check settings when you select your first PDF."}</p>

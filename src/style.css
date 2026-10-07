@@ -69,51 +69,15 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
   .mg-button:active { scale: 1; }
 }
 
-/* PDF evidence and native interactive overlays. */
-.drop-target {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 220px;
-  cursor: pointer;
-  padding: 24px 16px;
-  border: 1px dashed rgb(var(--mg-color-neutral-50));
-  border-radius:var(--mg-card-border-radius);
-  background: rgb(var(--mg-color-neutral-25));
-  transition:
-    background-color 0.15s,
-    border-color 0.15s;
-}
-
-.drop-target:hover,
-.dragging .drop-target,
-.upload-card:focus-within .drop-target {
-  background: rgb(var(--mg-color-accent-400) / .08);
-  border-color: rgb(var(--mg-color-neutral-600));
-}
-
-.drop-target strong {
-  font-weight: 600;
-  font-size: 17px;
-  margin-top: 6px;
-}
-
-.drop-target .drop-subtext,
-.drop-target .drop-limit {
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.drop-target .drop-limit {
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.document-icon {display:flex;align-items:center;justify-content:center;width:48px;height:56px;color:rgb(var(--mg-color-interactive));}
-
-.document-icon .mg-icon {width:40px;height:48px;}
+/* Upload card: the same horizontal book-card shape as the samples, with a dashed "drop here" border. */
+.upload-card { border: 2px dashed rgb(var(--mg-color-interactive) / .45); background: rgb(var(--mg-color-neutral-0)); transition: background-color .15s, border-color .15s; }
+.upload-card.dragging, .upload-card:hover { border-color: rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .04); }
+.upload-card .mg-card__image { display: block; width: 100%; height: auto; }
+.upload-card .mg-card__title { margin: 0; }
+.upload-card .upload-button { align-self: flex-start; margin-top: 8px; cursor: pointer; }
+.upload-card:focus-within .upload-button { outline: 3px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
+.upload-card:has(input:disabled) .upload-button { opacity: .5; cursor: not-allowed; }
+@media (min-width: 900px) { .upload-card.mg-card-book__hc:has(.mg-card__visual) { grid-template-columns: 200px 1fr; } }
 
 progress {
   width: 100%;
@@ -173,11 +137,6 @@ progress {
   color: rgb(var(--mg-color-red-900)) !important;
 }
 
-@media (max-width: 680px) {
-.drop-target {
-    min-height: 190px;
-  }
-}
 
 .preview-scroller { max-height: 75vh; overflow:auto; padding:12px; margin-top:12px; }
 
