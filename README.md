@@ -4,15 +4,17 @@ The UI uses React 19 with Vite and published Mangrove 2.0 components. PDF analys
 
 Find what stops people and AI from understanding a PDF, see it on the pages, and get a fix list for whoever made it.
 
-PDFs remain one of the UN’s most common publishing formats, but search engines, chatbots and document assistants are increasingly their first readers. They turn layouts into raw text before a person sees them. When a PDF is well structured, screen reader users and AI tools both get it right. When it isn’t, AI can misunderstand the document and give wrong answers about the work. PDF Signal Check checks text, tags, reading order, image descriptions, document properties, attachments and hidden instructions aimed at AI, locally in the browser. Passing does not guarantee that a downstream AI system will avoid mistakes.
+PDFs remain one of the UN’s most common publishing formats, but search engines, chatbots and document assistants are increasingly their first readers. They turn layouts into raw text before a person sees them. Good structure gives screen readers and other tools clearer information to work with. Missing or misleading structure can make information harder to follow or extract. Human review is still needed. PDF Signal Check checks text, tags, reading order, image descriptions, document properties, attachments and hidden instructions aimed at AI, locally in the browser. Passing does not guarantee that a downstream AI system will avoid mistakes.
 
 The framing and production flow come from *Making PDFs work for Humans and AI* (UNDRR and OCHA, version 1, September 2025). The tool builds on [PDF-A-go-actionable](https://github.com/khawkins98/PDF-A-go-actionable). The in-app About page (`#about`) presents both.
 
 ## Project status
 
+The preview uses the Mangrove PIN blocker (default **5498**), with tab-session unlock and no app processing before access. See [preview access and launch removal](docs/PREVIEW-ACCESS.md).
+
 Early implementation, app version 0.8.0 with text actionability profile 0.3. The product is PDF Signal Check; the local repository and package are named `pdf-signal-check`. Created October 5, 2026 as a fresh project with independent application code and git history.
 
-Follow a guided single-PDF review: drop a PDF on the upload card or choose one of six sample reports, confirm check settings on first use, then work through the fix list on the pages. Settings opens a dialog; batch review is a separate flow. Traditional analysis runs before optional screening; choosing no AI model is always available. Setup recommends multilingual Granite R2, with MiniLM as the compact English option. Missing document language prompts an explicit, source-specific decision before AI can run. Full evidence and JSON export remain accessible without finishing the review queue. Optional [local semantic screening](docs/SEMANTIC.md) offers pinned MiniLM and multilingual Granite choices, selectable title/subject/per-keyword checks, and bounded tagged-heading/section comparisons. PDF processing stays on the user's device. Model and runtime assets download only when screening is requested. The model picker explains language support, model/tokenizer downloads, and limitations before an explicit run. Per-model advisory thresholds require calibration; opt-in fixed-workload browser tests report observed timings without hardware or document-speed guarantees.
+Follow a guided single-PDF review: drop a PDF on the upload card or choose one of eight sample reports, confirm check settings on first use, then work through the fix list on the pages. Settings opens a dialog; batch review is a separate flow. Standard checks run before optional AI text comparisons. Setup presents standard checks on their own, or with multilingual AI (Granite R2, recommended) or compact English AI (MiniLM). Language coverage and download costs are visible before consent; excerpt limits and speed details remain in a technical disclosure. Missing document language prompts an explicit, source-specific decision before AI can run. Full evidence and JSON export remain accessible without finishing the review queue. Optional [local semantic screening](docs/SEMANTIC.md) offers pinned MiniLM and multilingual Granite choices, selectable title/subject/per-keyword checks, and bounded tagged-heading/section comparisons. PDF processing stays on the user's device. Model and runtime assets download only when screening is requested. The model picker explains language support, model/tokenizer downloads, and limitations before an explicit run. Per-model advisory thresholds require calibration; opt-in fixed-workload browser tests report observed timings without hardware or document-speed guarantees.
 
 Batch queues remain in this browser session only. Traditional checks are the default; optional AI downloads require explicit authorization. Closing or reloading loses queue data. A serialized report budget is an estimate, not a browser RAM limit. See [architecture and lifetimes](docs/ARCHITECTURE.md).
 
@@ -28,7 +30,7 @@ The project prioritizes machine consumption over a full human accessibility audi
 
 - Foreground batch review of up to 20 PDFs with frozen optional-screening settings, sequential workers, explicit cancellation/recovery, and bounded retained reports. Open a retained attempt without rerunning it, export its captured evidence, or download a compact batch JSON.
 
-- Guided Document → Checks → Processing → Review stages, issue frames with inspection guidance, and separate problems, uncertainty, and positives.
+- PDF intake, first-use setup in a dialog, observed processing progress, and a fix list beside the pages. Fix and Check lead; optional wider-reuse suggestions and Couldn’t check remain collapsed, with the method in Technical details.
 - Browser-local analysis in workers, with actual page/batch/asset progress where available and cancellation.
 - Independent PDF object inspection and text extraction using pdf-lib and PDF.js.
 - Structure parent links, parent-tree associations, text coverage, and basic list/table relationships.
@@ -44,7 +46,7 @@ The project prioritizes machine consumption over a full human accessibility audi
 - Captured PDF signal-check reports and detailed JSON exports generated locally; cancel exports without losing analysis.
 - Bounded source evidence crops shared by guided review and PDF reports, independent of preview state.
 - Optional synthetic browser timing tests with explicit download costs; timings are observations, never hardware grades or document estimates.
-- Four simple examples (including a PDF with missing document information) and [twenty representative calibration PDFs](docs/CALIBRATION.md), including original logos, charts, metadata defects, title mismatches, German text, and embedded spreadsheets/Word files with and without declared guidance.
+- Eight public sample reports (including a PDF with missing document information) and [twenty representative calibration PDFs](docs/CALIBRATION.md), including original logos, charts, metadata defects, title mismatches, German text, and embedded spreadsheets/Word files with and without declared guidance.
 - Bounded embedded/associated-file inventory records declared names, media types, descriptions, relationships, and unresolved payload contexts without opening attachments. Payloads and incomplete inventories prevent text-profile acceptance.
 
 Meaningful graphics, forms, annotations, Form XObjects, optional layers, and ActualText replacements currently prevent acceptance because their analysis is outside the supported profile. A No in these cases means not established, rather than a defect in the PDF. Extracted Unicode indicators do not establish visually correct text; reading order and tag meaning are not proven correct by structural checks. Author and order findings are bounded advisories, not universal identity/order validation.
@@ -79,7 +81,7 @@ The private repository is [PreventionWeb/pdf-signal-check](https://github.com/Pr
 ## Planning documents
 
 - [Interface brand](docs/BRAND.md): working label, positioning, and evidence-focused result hierarchy.
-- [Mangrove presentation](docs/MANGROVE.md): UNDRR theme loaded from assets.undrr.org, component mapping, licenses, and future PreventionWeb migration.
+- [Mangrove presentation](docs/MANGROVE.md): Pinned PreventionWeb theme loaded from assets.undrr.org, component mapping, licenses and refresh instructions.
 - [UX reference architecture](docs/UX-ARCHITECTURE.md): the results design (fix list on the pages, buckets, evidence drawer), workflow hierarchy, component responsibilities and a review rubric.
 - [Validation record](docs/VALIDATION.md): browser, export and test verification, newest entries last.
 - [Naming options](docs/NAMING.md): UN-first, cross-industry naming recommendations and observed name conflicts.
