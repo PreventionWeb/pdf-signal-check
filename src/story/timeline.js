@@ -9,7 +9,7 @@ export function buildTimeline(scenes, clips, render) {
   return scenes.map(scene => {
     const clip = clips.find(item => item.id === scene.id);
     if (!clip) throw new Error(`Missing narration: ${scene.id}`);
-    const duration = Math.round(Math.max(entryDuration(render(scene.stage)) + 0.9, clip.duration + 0.3) * 1000) / 1000;
+    const duration = Math.round(Math.max(scene.minDuration || 0, entryDuration(render(scene.stage)) + 0.9, clip.duration + 0.3) * 1000) / 1000;
     const item = { id: scene.id, start: Math.round(start * 1000) / 1000, duration };
     start += duration;
     return item;

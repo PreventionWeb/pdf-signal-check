@@ -33,8 +33,17 @@
       "duration": 14.93
     },
     {
+      "id": "chapter-demonstrations",
+      "file": "04-chapter-demonstrations.mp3",
+      "text": "Let's follow one finding, and see what gets lost.",
+      "model": "microsoft/mai-voice-2.1",
+      "voice": "en-GB-Emily:MAI-Voice-2.1",
+      "settings": null,
+      "duration": 3.36
+    },
+    {
       "id": "picture",
-      "file": "04-picture.mp3",
+      "file": "05-picture.mp3",
       "text": "In this made-up report, a picture shows water clarity at three stations. South has the tallest bar: the clearest water.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -43,16 +52,16 @@
     },
     {
       "id": "layers",
-      "file": "05-layers.mp3",
-      "text": "A PDF can carry more than a picture: text that machines extract, and hidden labels called tags that help a screen reader navigate in order.",
+      "file": "06-layers.mp3",
+      "text": "But the picture alone may not reach everyone. A PDF can also carry text that machines extract, and hidden labels called tags that guide a screen reader.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 8.59
+      "duration": 9.31
     },
     {
       "id": "no-description",
-      "file": "06-no-description.mp3",
+      "file": "07-no-description.mp3",
       "text": "Here, the chart has no written description. A screen reader may only say “image”. Someone relying on that description misses the finding.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -61,7 +70,7 @@
     },
     {
       "id": "order",
-      "file": "07-order.mp3",
+      "file": "08-order.mp3",
       "text": "Having tags is not enough. These tags put the method steps in the order three, four, one, two. Store comes before collect.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -70,7 +79,7 @@
     },
     {
       "id": "lonely-number",
-      "file": "08-lonely-number.mp3",
+      "file": "09-lonely-number.mp3",
       "text": "The number plus zero point seven metres means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -79,7 +88,7 @@
     },
     {
       "id": "wrong-title",
-      "file": "09-wrong-title.mp3",
+      "file": "10-wrong-title.mp3",
       "text": "This report is about twenty twenty-five. But the title saved inside still says twenty twenty-four, a detail easily carried over from last year's file. The dates now disagree.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -87,8 +96,17 @@
       "duration": 11.66
     },
     {
+      "id": "chapter-impact",
+      "file": "11-chapter-impact.mp3",
+      "text": "So what reaches the people who need your findings?",
+      "model": "microsoft/mai-voice-2.1",
+      "voice": "en-GB-Emily:MAI-Voice-2.1",
+      "settings": null,
+      "duration": 2.64
+    },
+    {
       "id": "search-and-listening",
-      "file": "10-search-and-listening.mp3",
+      "file": "12-search-and-listening.mp3",
       "text": "Search may present it as last year's report. Someone listening may miss the chart or hear the steps in the wrong order.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -97,7 +115,7 @@
     },
     {
       "id": "chatbots-and-reach",
-      "file": "11-chatbots-and-reach.mp3",
+      "file": "13-chatbots-and-reach.mp3",
       "text": "An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the wrong year. If it invents an answer, that's a hallucination. The finding reaches fewer people, or arrives changed.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -106,16 +124,25 @@
     },
     {
       "id": "garbage-in-garbage-out",
-      "file": "12-garbage-in-garbage-out.mp3",
-      "text": "It's an old problem: garbage in, garbage out. AI can make mistakes even with good inputs. But unclear or misleading inputs add avoidable confusion.",
+      "file": "14-garbage-in-garbage-out.mp3",
+      "text": "There's an old saying from the early days of computing in the nineteen fifties: garbage in, garbage out. Missing or misleading information can lead to misleading answers. AI can make mistakes with good inputs too.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 11.52
+      "duration": 13.49
+    },
+    {
+      "id": "chapter-repair",
+      "file": "15-chapter-repair.mp3",
+      "text": "Here's what you can do to help.",
+      "model": "microsoft/mai-voice-2.1",
+      "voice": "en-GB-Emily:MAI-Voice-2.1",
+      "settings": null,
+      "duration": 1.99
     },
     {
       "id": "repair",
-      "file": "13-repair.mp3",
+      "file": "16-repair.mp3",
       "text": "Start with what you can fix. Describe the chart, put steps in order, keep numbers with labels, and match the saved title to the cover.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -124,7 +151,7 @@
     },
     {
       "id": "passport",
-      "file": "14-passport.mp3",
+      "file": "17-passport.mp3",
       "text": "Then help findings travel further: share the chart's data, add a clear summary, make links clickable, and add bookmarks to jump between sections. A passport for reuse.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
@@ -133,7 +160,7 @@
     },
     {
       "id": "check",
-      "file": "15-check.mp3",
+      "file": "18-check.mp3",
       "text": "PDF Signal Check finds problems like these: here, one to fix and four to check. Check your own PDF. It stays on your device.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",

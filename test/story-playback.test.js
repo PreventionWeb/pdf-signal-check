@@ -86,3 +86,9 @@ it('keeps the assembled soundtrack, scene cues and source audio in step', async 
     expect(sceneAt(timeline, scene.start + scene.duration - 0.001)).toBe(index);
   }
 });
+
+it('gives chapter cards reading time while letting longer narration finish', () => {
+  const card = { id: 'chapter', minDuration: 3.5, stage: null };
+  expect(buildTimeline([card], [{ id: 'chapter', duration: 2 }], () => '').at(0).duration).toBe(3.5);
+  expect(buildTimeline([card], [{ id: 'chapter', duration: 5 }], () => '').at(0).duration).toBe(5.3);
+});

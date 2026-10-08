@@ -29,6 +29,7 @@ export function storyScript(data) {
   return [
     {
         "id": "says-it",
+        "chapter": { "number": 1, "title": "Who needs your report?" },
         "label": "Your report says it",
         "caption": "Your report says it. But can [everyone|purple] understand it?",
         "narration": "Your report says it. But can everyone understand it?"
@@ -46,6 +47,18 @@ export function storyScript(data) {
         "narration": "Web search helps people find reports. Data tools compare findings. AI chatbots answer questions using large language models: software trained on huge amounts of text. These tools can bring your findings to much larger audiences."
     },
     {
+        "id": "chapter-demonstrations",
+        "label": "Where meaning gets lost",
+        "chapter": {
+            "number": 2,
+            "title": "Where meaning gets lost"
+        },
+        "isChapterCard": true,
+        "minDuration": 3.5,
+        "caption": "Let's follow [one finding|teal], and see what gets lost.",
+        "narration": "Let's follow one finding, and see what gets lost."
+    },
+    {
         "id": "picture",
         "label": "One clear finding",
         "caption": "A [picture|purple] shows water clarity at three stations. South has the clearest water.",
@@ -54,8 +67,8 @@ export function storyScript(data) {
     {
         "id": "layers",
         "label": "Meaning behind the page",
-        "caption": "A PDF can carry [text and tags|teal] behind the page. Tags help a screen reader navigate in order.",
-        "narration": "A PDF can carry more than a picture: text that machines extract, and hidden labels called tags that help a screen reader navigate in order."
+        "caption": "The picture alone may not [reach everyone|purple]. Text and tags help carry its meaning beyond what people see.",
+        "narration": "But the picture alone may not reach everyone. A PDF can also carry text that machines extract, and hidden labels called tags that guide a screen reader."
     },
     {
         "id": "no-description",
@@ -85,6 +98,18 @@ export function storyScript(data) {
         "speak": `This report is about ${spokenYear(Number(coverYear))}. But the title saved inside still says ${spokenYear(Number(savedYear))}, a detail easily carried over from last year's file. The dates now disagree.`
     },
     {
+        "id": "chapter-impact",
+        "label": "Why it matters",
+        "chapter": {
+            "number": 3,
+            "title": "Why it matters"
+        },
+        "isChapterCard": true,
+        "minDuration": 3.5,
+        "caption": "What reaches the people who [need your findings|purple]?",
+        "narration": "So what reaches the people who need your findings?"
+    },
+    {
         "id": "search-and-listening",
         "label": "What people receive",
         "caption": "Search may show the [wrong year|red]. People listening may miss the chart or hear steps out of order.",
@@ -100,7 +125,20 @@ export function storyScript(data) {
         "id": "garbage-in-garbage-out",
         "label": "Garbage in, garbage out",
         "caption": "[Garbage in, garbage out.|purple] Confusing input can lead to misleading answers. AI can make mistakes with good inputs too.",
-        "narration": "It's an old problem: garbage in, garbage out. AI can make mistakes even with good inputs. But unclear or misleading inputs add avoidable confusion."
+        "narration": "There's an old saying from the early days of computing in the 1950s: garbage in, garbage out. Missing or misleading information can lead to misleading answers. AI can make mistakes with good inputs too.",
+        "speak": "There's an old saying from the early days of computing in the nineteen fifties: garbage in, garbage out. Missing or misleading information can lead to misleading answers. AI can make mistakes with good inputs too."
+    },
+    {
+        "id": "chapter-repair",
+        "label": "What you can do",
+        "chapter": {
+            "number": 4,
+            "title": "What you can do"
+        },
+        "isChapterCard": true,
+        "minDuration": 3.5,
+        "caption": "Here's what you can do to [help|teal].",
+        "narration": "Here's what you can do to help."
     },
     {
         "id": "repair",

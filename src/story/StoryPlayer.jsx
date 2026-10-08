@@ -48,6 +48,8 @@ function ControlButton({ label, icon, ...props }) {
 /** The soundtrack is the clock: buffering, seeks, mute and speed cannot move the visuals independently. */
 export function StoryPlayer({ data, onCheck, onAbout }) {
   const scenes = useMemo(() => buildScenes(data), [data]);
+  const chapters = useMemo(() => scenes.flatMap((item, i) => item.chapter
+    ? [{ ...item.chapter, sceneIndex: i, start: playback.timeline[i].start }] : []), [scenes]);
   const initialTime = useRef(playback.timeline[initialScene(scenes.length)].start);
   const [state, setState] = useState({ time: initialTime.current, playing: false, buffering: false, muted: false, volume: 1, rate: 1, error: '' });
   const [isFullscreen, setFullscreen] = useState(false);
@@ -56,6 +58,8 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
   const stage = useRef(null), audio = useRef(null), controller = useRef(null), player = useRef(null), settings = useRef(null);
   const index = sceneAt(playback.timeline, state.time), scene = scenes[index];
   const last = index === scenes.length - 1, ended = state.time >= playback.duration - 0.05;
+  const chapterIndex = Math.max(0, chapters.findLastIndex(item => state.time >= item.start));
+  const chapter = chapters[chapterIndex];
   const sceneTime = state.time - playback.timeline[index].start;
 
   useEffect(() => {
@@ -149,12 +153,13 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
           <input type="range" min="0" max={playback.duration} step="0.1" value={state.time}
             style={{ '--progress': `${state.time / playback.duration * 100}%` }}
             onChange={event => seek(Number(event.target.value))}
-            aria-valuetext={`${formatTime(state.time)} of ${formatTime(playback.duration)}: ${scene.label}`} />
+            aria-valuetext={`${formatTime(state.time)} of ${formatTime(playback.duration)}: ${chapter.title}, ${scene.label}`} />
+          <span className="story-chapter-marks" aria-hidden="true">{chapters.slice(1).map(item => <span key={item.number} style={{ left: `${item.start / playback.duration * 100}%` }} />)}</span>
         </label>
         <div className="story-control-row">
           <ControlButton label={state.playing ? 'Pause' : ended ? 'Replay' : 'Play'} icon={state.playing ? 'pause' : ended ? 'replay' : 'play'} aria-keyshortcuts="Space K" onClick={togglePlay} />
-          <ControlButton label="Previous chapter" icon="previous" onClick={() => go(index - 1)} disabled={index === 0} />
-          <ControlButton label="Next chapter" icon="next" onClick={() => go(index + 1)} disabled={last} />
+          <ControlButton label="Previous chapter" icon="previous" onClick={() => go(chapters[chapterIndex - 1].sceneIndex)} disabled={chapterIndex === 0} />
+          <ControlButton label="Next chapter" icon="next" onClick={() => go(chapters[chapterIndex + 1].sceneIndex)} disabled={chapterIndex === chapters.length - 1} />
           <div className="story-sound">
             <ControlButton label={state.muted || state.volume === 0 ? 'Unmute' : 'Mute'} icon={state.muted || state.volume === 0 ? 'muted' : 'volume'} aria-keyshortcuts="M" onClick={toggleMute} />
             <label className="story-volume"><span className="mg-u-sr-only">Volume</span>
@@ -179,7 +184,12 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
                   onChange={event => controller.current?.setVolume(Number(event.target.value))} />
               </label>
               <label>Chapter
-                <select aria-label="Chapter" value={index} onChange={event => go(Number(event.target.value))}>
+                <select aria-label="Chapter" value={chapterIndex} onChange={event => go(chapters[Number(event.target.value)].sceneIndex)}>
+                  {chapters.map((item, i) => <option key={item.number} value={i}>{item.number}. {item.title}</option>)}
+                </select>
+              </label>
+              <label>Scene
+                <select aria-label="Scene" value={index} onChange={event => go(Number(event.target.value))}>
                   {scenes.map((item, i) => <option key={item.id} value={i}>{i + 1}. {item.label}</option>)}
                 </select>
               </label>
@@ -198,17 +208,20 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
         </div>}
       </div>
     </div>
-    <p className="story-playback-status" role="status">{state.error || (state.buffering ? 'Loading playback…' : `Scene ${index + 1} of ${scenes.length}: ${scene.label}`)}</p>
+    <p className="story-playback-status" role="status">{state.error || (state.buffering ? 'Loading playback…' : `Chapter ${chapter.number} of ${chapters.length}: ${chapter.title} · Scene ${index + 1} of ${scenes.length}: ${scene.label}`)}</p>
     <audio ref={audio} preload="none" />
     {reduced && <p className="story-note">Your device is set to reduce motion, so each scene is shown as a still. Playback and audio follow the same timeline.</p>}
     <details className="mg-details story-transcript">
       <summary>Read the transcript</summary>
-      <ol>{scenes.map((item, i) => <li key={item.id}>
-        <h3>{i + 1}. {item.label}</h3>
-        <p><strong>Caption:</strong> {plainCaption(item.caption)}</p>
-        <p><strong>Narration:</strong> {item.narration}</p>
-        <p className="story-describe"><strong>On screen:</strong> {item.describe}</p>
-      </li>)}</ol>
+      {chapters.map((item, c) => <div key={item.number} className="story-transcript-chapter">
+        <h3>Chapter {item.number}: {item.title}</h3>
+        <ol>{scenes.slice(item.sceneIndex, chapters[c + 1]?.sceneIndex ?? scenes.length).map((entry, offset) => <li key={entry.id}>
+          <h4>{item.sceneIndex + offset + 1}. {entry.label}</h4>
+          <p><strong>Caption:</strong> {plainCaption(entry.caption)}</p>
+          <p><strong>Narration:</strong> {entry.narration}</p>
+          <p className="story-describe"><strong>On screen:</strong> {entry.describe}</p>
+        </li>)}</ol>
+      </div>)}
       <p className="story-describe">The figure and icon illustrations are AI-generated cut-paper images (Nano Banana 2).{` The narration is a synthetic voice (${narration.voiceNote}). The background music is AI-generated (${narration.music.note}).`}</p>
     </details>
   </section>;

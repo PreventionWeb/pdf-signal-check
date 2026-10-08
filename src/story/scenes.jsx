@@ -4,7 +4,7 @@ import { A, At, Backdrop, Bubble, C, Chart, Cover, Img, Mini, NoSign, PageSlip, 
 
 /*
  * The scenes for "Your report says it. Does everyone understand it?". Text values on stage come from
- * snapshot.json (real engine output on the synthetic samples); the words come from script.js, matched by index.
+ * snapshot.json (real engine output on the synthetic samples); the words come from script.js, matched by ID.
  * Static markup is each scene's composed final frame; <A anim> marks how a piece enters, timed to the narration
  * clip for that scene. Pieces with className "sp-wide" are extras that drop out on narrow screens, where only the
  * central 4:3 of the stage shows; "sp-narrow" pieces appear only there.
@@ -35,11 +35,26 @@ const Ring = ({ cx, cy, rx, ry, colour = C.red, delay, dur = 700, r = -6 }) =>
   <g transform={`rotate(${r} ${cx} ${cy})`}>
     <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={colour} strokeWidth="7" pathLength="1" strokeDasharray="1" data-anim="draw" data-delay={delay} data-dur={dur} />
   </g>;
-/** A dotted string from a reader to someone it reaches, drawn on in steps; `short` strings stop halfway. */
+/** A paper string drawn in steps. A broken route ends at a marked break; a faint dotted continuation
+ * shows the person it failed to reach, so the completed animation cannot look accidentally unfinished. */
 const Reach = ({ from, to, delay, short = false, colour = C.inkSoft }) => {
-  const [x1, y1] = from, [x2, y2] = short ? [from[0] + (to[0] - from[0]) * 0.45, from[1] + (to[1] - from[1]) * 0.45] : to;
-  const mx = (x1 + x2) / 2, my = Math.min(y1, y2) - 30;
-  return <path d={`M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}`} stroke={colour} strokeWidth="4" strokeLinecap="round" fill="none" pathLength="1" strokeDasharray="1" data-anim="draw" data-delay={delay} data-dur={500} opacity="0.8" />;
+  const [x1, y1] = from, [x2, y2] = to;
+  const [mx, my] = [(x1 + x2) / 2, Math.min(y1, y2) - 30];
+  const t = 0.6;
+  const [ax, ay] = [x1 + (mx - x1) * t, y1 + (my - y1) * t];
+  const [bx, by] = [mx + (x2 - mx) * t, my + (y2 - my) * t];
+  const [cutX, cutY] = [ax + (bx - ax) * t, ay + (by - ay) * t];
+  const drawn = short ? `M${x1} ${y1} Q${ax} ${ay} ${cutX} ${cutY}` : `M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}`;
+  return <g>
+    <path d={drawn} stroke={colour} strokeWidth="4" strokeLinecap="round" fill="none" pathLength="1" strokeDasharray="1" data-anim="draw" data-delay={delay} data-dur={500} opacity="0.8" />
+    {short && <>
+      <A anim="fade" delay={delay + 520} dur={250}><path d={`M${cutX} ${cutY} Q${bx} ${by} ${x2} ${y2}`} stroke={colour} strokeWidth="3" strokeDasharray="8 15" strokeLinecap="round" fill="none" opacity="0.22" /></A>
+      <A anim="pop" delay={delay + 520} dur={260}><At x={cutX} y={cutY}>
+        <circle r="14" fill={C.paper} stroke={C.coral} strokeWidth="3" />
+        <path d="M-6 -6 L6 6 M6 -6 L-6 6" stroke={C.coral} strokeWidth="3" strokeLinecap="round" />
+      </At></A>
+    </>}
+  </g>;
 };
 /** A tiny "picture" glyph: frame, hills and sun. */
 const PictureGlyph = ({ colour = '#fff' }) => <g fill="none" stroke={colour} strokeWidth="4" strokeLinejoin="round">
@@ -73,6 +88,40 @@ const Crumpled = ({ text }) => <g transform="rotate(-11) scale(0.82)">
   <Bubble text={text} size={30} />
   <g stroke={C.ink} strokeOpacity="0.35" strokeWidth="3" fill="none"><path d="M-140 -26 L-60 6 L-90 30" /><path d="M20 -30 L60 4 L130 -12" /><path d="M-20 30 L40 -6" /></g>
 </g>;
+
+/** Chapter dividers reuse the report-page motif, leaving the central safe area clear on mobile. */
+const ChapterCard = ({ number, title }) => {
+  const accent = [C.purple, C.coral, C.teal][number - 2] || C.teal;
+  return <Stage v={number + 1}>
+    <At x={374} y={112} r={-1}>
+      <Torn w={850} h={670} fill={C.paper}>
+        <rect x="56" y="68" width="738" height="8" rx="4" fill={accent} opacity="0.7" />
+        <rect x="56" y="592" width="738" height="5" rx="3" fill={accent} opacity="0.35" />
+      </Torn>
+    </At>
+    <At x={455} y={146} r={-5}>
+      <Strip text={String(number).padStart(2, '0')} size={48} pad={22} fill={accent} color="#fff" />
+    </At>
+    <At x={444} y={250} r={-1.5}>
+      <Strip text={title} size={62} pad={20} fill={C.ink} color="#fff" />
+    </At>
+    <A anim="rise" delay={1100} dur={580}><At x={955} y={564} r={5}>
+      <Torn w={174} h={166} fill="#fff">
+        <path d="M24 121 H150" stroke={C.inkSoft} strokeWidth="3" />
+        {[0, 1, 2].map((i) => <rect key={i} x={35 + i * 40} y={121 - [52, 73, 95][i]} width="26" height={[52, 73, 95][i]} fill={[C.sky, C.teal, C.coral][i]} />)}
+        <path d="M116 22 H150 V56" stroke={accent} strokeWidth="4" fill="none" />
+      </Torn>
+    </At></A>
+    {number === 3 && <>
+      {[0, 1, 2].map((i) => <A key={i} anim="pop" delay={1350 + i * 110} dur={350}><At x={955 + i * 84} y={758} s={0.7}><Mini body={[C.teal, C.sky, C.coral][i]} /></At></A>)}
+      {[0, 1, 2].map((i) => <Reach key={i} from={[1035, 692]} to={[955 + i * 84, 744]} delay={1570 + i * 130} />)}
+    </>}
+    {number === 4 && <A anim="slap" delay={1390} dur={450}><At x={1024} y={585} r={-37}>
+      <g filter="url(#sp-scissor)"><path d="M0 0 H150 V25 H0 Z" fill={C.mustard} /><path d="M150 0 L180 12.5 L150 25 Z" fill={C.inkSoft} /><path d="M0 0 H18 V25 H0 Z" fill={C.coral} /></g>
+      <path d="M10 28 H145" stroke={C.teal} strokeWidth="4" />
+    </At></A>}
+  </Stage>;
+};
 
 /** The tool's result as a torn-out sheet: headline, numbered rows with Fix/Check, and an optional "+ n more" line. */
 const ResultSheet = ({ headline, rows, more = 0 }) => {
@@ -125,6 +174,7 @@ export function scenes(data) {
         <A anim="pop" delay={2400} dur={500} idle="1.4"><At x={1330} y={230} r={14}><QMark /></At></A>
         <A anim="pop" delay={2500} dur={500} idle="1.4" className="sp-wide"><At x={520} y={170} r={-16} s={0.75}><QMark fill={C.sky} /></At></A>
         <A anim="pop" delay={2600} dur={500} idle="1.4"><At x={1290} y={720} r={8} s={0.85}><QMark fill={C.coral} /></At></A>
+        <Label x={252} y={776} text="01 · Who needs your report?" size={24} fill={LAYER.text} delay={2600} />
       </Stage>,
     },
     // 2. People who see, people who listen
@@ -195,12 +245,12 @@ export function scenes(data) {
             <text x="36" y="124">Mean water visibility</text>
             <text x="36" y="164">{labels.slice(0, 4).join('  ')} …</text>
           </g>],
-          ['What people see', LAYER.see, 200, 200, null, <g>
+          ['What people see', LAYER.see, 440, 200, null, <g>
             <rect x="24" y="22" width="452" height="34" fill={C.teal} />
             <path d="M24 46 C140 34 300 64 476 44 V58 H24 Z" fill={C.purple} />
-            {[0, 1, 2].map(i => <rect key={i} x={40 + i * 46} y={180 - (i + 2) * 22} width="34" height={(i + 2) * 22} fill={[C.sky, C.teal, C.coral][i]} />)}
-            <text x="210" y="104" className="sp-tile" fontSize="28" fill={C.ink}>Annual Report {coverYear}</text>
-            {[0, 1, 2].map(i => <rect key={i} x="210" y={126 + i * 20} width={[240, 200, 220][i]} height="10" rx="5" fill="#e3d7c2" />)}
+            <At x={30} y={66} s={0.42}><Chart labels={labels} animate={false} /></At>
+            <text x="234" y="104" className="sp-tile" fontSize="26" fill={C.ink}>Annual Report {coverYear}</text>
+            {[0, 1, 2].map(i => <rect key={i} x="234" y={126 + i * 20} width={[200, 180, 198][i]} height="10" rx="5" fill="#e3d7c2" />)}
           </g>],
         ].map(([label, fill, x, y, from, art], i) =>
           <A key={label} anim={from ? 'travel' : 'drop'} from={from} delay={from ? [3900, 2200][i] : 100} dur={from ? 800 : 700} idle="0.6">
@@ -319,7 +369,7 @@ export function scenes(data) {
     },
     // 11. What happens: AI chatbots and reach
     {
-      describe: `A clearly hypothetical AI chatbot answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A small reference reads “${coverYear} · ${sentence}” to show why both the year and station are wrong. Copies of the possible wrong answer drift outward; some paths to the crowd stop short.`,
+      describe: `A clearly hypothetical AI chatbot answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A small reference reads “${coverYear} · ${sentence}” to show why both the year and station are wrong. Copies of the possible wrong answer drift outward. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.`,
       stage: <Stage v={10}>
         <A anim="left" dur={650} idle="0.6"><At x={330} y={160} s={0.9}><Person kind="assistant" label={READERS[3][1]} /></At></A>
         <Label x={650} y={116} text="Possible wrong answer" size={25} fill={LAYER.tags} delay={2050} />
@@ -329,15 +379,17 @@ export function scenes(data) {
           <At x={x} y={y} r={[6, -5, 4][i]} s={0.55}><Bubble text={possibleAnswer} size={32} fill={C.paper} color={C.inkSoft} tail="left" /></At>
         </A>)}
         {CROWD.map((p, i) => <A key={i} anim="pop" delay={9300 + i * 50} dur={320}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
-        {CROWD.map((p, i) => <Reach key={i} from={[330, 470]} to={[p.x, p.y - 14]} delay={9700 + i * 90} short={![0, 3, 7, 10].includes(i)} />)}
+        {CROWD.map((p, i) => <Reach key={i} from={[330, 470]} to={[p.x, p.y - 14]} delay={9700 + i * 90} short={[1, 4, 6, 8, 11].includes(i)} />)}
+        <Label x={430} y={620} text="Some paths stop here" size={25} fill={LAYER.tags} delay={11100} />
         <A anim="drop" delay={11500} dur={650}><At x={1000} y={640}><Crumpled text={sentence} /></At></A>
       </Stage>,
     },
     // 12. Garbage in, garbage out: input problems increase risk, but AI can err even with good input.
     {
-      describe: `Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out. Another strip says “AI can make mistakes too”, so the visual does not promise that clean input guarantees a correct answer.`,
+      describe: `A small paper strip reads “1950s · Early computing” beside the saying “Garbage in, garbage out”. Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out. Another strip says “AI can make mistakes too”, so the visual does not promise that clean input guarantees a correct answer.`,
       stage: <Stage v={11}>
         <Label x={430} y={82} text="Garbage in, garbage out" size={40} />
+        <Label x={994} y={94} text="1950s · Early computing" size={30} fill={LAYER.text} delay={650} />
         <A anim="pop" delay={650} dur={600}><At x={760} y={264}>
           <Torn w={250} h={300} fill={LAYER.text}>
             <text x="125" y="64" textAnchor="middle" className="sp-tile" fontSize="52" fill={C.ink}>AI</text>
@@ -446,6 +498,19 @@ export function scenes(data) {
       </Stage>,
     },
   ];
-  if (visuals.length !== words.length) throw new Error(`story has ${words.length} scripted scenes but ${visuals.length} visuals`);
-  return words.map((item, i) => ({ ...item, ...visuals[i] }));
+  const visualIds = ['says-it', 'readers', 'machines', 'picture', 'layers', 'no-description',
+    'order', 'lonely-number', 'wrong-title', 'search-and-listening', 'chatbots-and-reach',
+    'garbage-in-garbage-out', 'repair', 'passport', 'check'];
+  if (visuals.length !== visualIds.length) throw new Error(`story has ${visuals.length} visuals but ${visualIds.length} assigned IDs`);
+  const byId = new Map(visualIds.map((id, i) => [id, visuals[i]]));
+  return words.map((item) => {
+    if (item.isChapterCard) return {
+      ...item,
+      describe: `Chapter ${item.chapter.number}: “${item.chapter.title}”. A large paper title, numbered tab and small chart sit on an open report page.`,
+      stage: <ChapterCard number={item.chapter.number} title={item.chapter.title} />,
+    };
+    const visual = byId.get(item.id);
+    if (!visual) throw new Error(`No visual for story scene ${item.id}`);
+    return { ...item, ...visual };
+  });
 }

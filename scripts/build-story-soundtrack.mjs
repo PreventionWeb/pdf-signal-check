@@ -30,11 +30,13 @@ if (duration > narration.music.duration) {
 }
 graph.push('[bed][sidechain]sidechaincompress=threshold=0.025:ratio=4:attack=30:release=500[ducked]');
 graph.push('[spoken][ducked]amix=inputs=2:normalize=0,alimiter=limit=0.89:level=0[mix]');
+// Keep the longer chaptered cut within the existing 1 MB playback download contract.
+const bitrateKbps = duration <= 164 ? 48 : 40;
 const file = 'soundtrack.mp3';
-args.push('-filter_complex', graph.join(';'), '-map', '[mix]', '-t', String(duration), '-ac', '1', '-ar', '24000', '-b:a', '48k', new URL(`public/story/audio/${file}`, root).pathname);
+args.push('-filter_complex', graph.join(';'), '-map', '[mix]', '-t', String(duration), '-ac', '1', '-ar', '24000', '-b:a', `${bitrateKbps}k`, new URL(`public/story/audio/${file}`, root).pathname);
 execFileSync('ffmpeg', args);
 const inputs = [...narration.clips.map(clip => clip.file), narration.music.file].map(file => ({ file,
   sha256: createHash('sha256').update(readFileSync(new URL(`public/story/audio/${file}`, root))).digest('hex') }));
 const sha256 = createHash('sha256').update(readFileSync(new URL(`public/story/audio/${file}`, root))).digest('hex');
-writeFileSync(new URL('src/story/playback.json', root), JSON.stringify({ file, duration, timeline, inputs, sha256 }, null, 2) + '\n');
-console.log(`Built ${file}: ${duration.toFixed(2)} seconds, one playback clock.`);
+writeFileSync(new URL('src/story/playback.json', root), JSON.stringify({ file, duration, bitrateKbps, timeline, inputs, sha256 }, null, 2) + '\n');
+console.log(`Built ${file}: ${duration.toFixed(2)} seconds, ${bitrateKbps} kbit/s, one playback clock.`);

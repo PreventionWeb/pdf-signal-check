@@ -20,7 +20,8 @@ markdown += 'Narration, captions and visuals below match the current animation. 
 markdown += 'The fictional report is *Harbor Observatory Annual Report 2025*. Evidence comes from several synthetic sample PDFs; the closing deliberately says “problems like these”. Search results and the possible AI answer are illustrations of risks, not captured outputs. The 3–4–1–2 example is the method-step order, not chart labels.\n';
 for (const [index, scene] of scenes.entries()) {
   const cue = playback.timeline[index];
-  markdown += `\n## ${index + 1}. ${scene.label}\n\n**Timing:** ${cue.start.toFixed(2)}–${(cue.start + cue.duration).toFixed(2)} seconds (${cue.duration.toFixed(2)} seconds).\n\n`;
+  if (scene.chapter) markdown += `\n## Chapter ${scene.chapter.number}: ${scene.chapter.title}\n`;
+  markdown += `\n### ${index + 1}. ${scene.label}\n\n**Timing:** ${cue.start.toFixed(2)}–${(cue.start + cue.duration).toFixed(2)} seconds (${cue.duration.toFixed(2)} seconds).\n\n`;
   markdown += `**Caption**\n\n${scene.caption.replace(/\[([^|\]]+)\|[^\]]+\]/g, '**$1**')}\n\n`;
   markdown += `**Narration**\n\n${scene.narration}\n\n**Visuals**\n\n${scene.describe}\n\n**Your edits / notes**\n\n<!-- Add edits here. -->\n`;
 }
