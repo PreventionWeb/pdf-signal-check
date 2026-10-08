@@ -11,6 +11,8 @@ for (const [pkg, file] of [['pdfjs-dist', 'LICENSE'], ['pdf-lib', 'LICENSE.md'],
 // This ONNX npm distribution omits its license file; preserve the upstream one.
 await cp('third-party/onnxruntime-LICENSE.txt', 'public/licenses/onnxruntime-web.txt');
 await cp('THIRD-PARTY-NOTICES.md', 'public/licenses/REFERENCES.md');
+await cp('LICENSE', 'public/licenses/pdf-signal-check-LICENSE.txt');
+await cp('NOTICE', 'public/licenses/pdf-signal-check-NOTICE.txt');
 
 // Fontkit omits a standalone license file. Preserve its declared MIT README and
 // the actual bundled legal comment blocks without inventing copyright dates.
