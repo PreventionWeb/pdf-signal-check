@@ -42,7 +42,7 @@ Reports have at least three types of readers: people who see the page, people wh
 
 **Visuals**
 
-Three paper routes labelled Seeing, Listening and Processing. A person with an open book slides into Seeing. A person with headphones and a small speaking screen slides into Listening. A paper data table fills Processing.
+Three paper routes labelled “People who see”, “People who listen” and “Machines that process”. An open-book reader labelled “See the page” slides into the first route. A listener with headphones and a speaking screen, labelled “Listen with a screen reader”, slides into the second. A paper data table labelled “Process the report” fills the third.
 
 **Your edits / notes**
 
@@ -266,7 +266,7 @@ An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the 
 
 **Visuals**
 
-A clearly hypothetical AI chatbot answer says “In 2024, Central was highest.” under the label “Possible wrong answer”. A red pencil ring circles it. A small reference reads “2025 · South is highest” to show why both the year and station are wrong. Copies of the possible wrong answer drift outward. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.
+A clearly hypothetical AI chatbot answer says “In 2024, Central was highest.” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “2025 · South is highest”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.
 
 **Your edits / notes**
 
@@ -368,7 +368,7 @@ PDF Signal Check finds problems like these: here, 1 to fix and 4 to check. Check
 
 **Visuals**
 
-A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “1 thing to fix, 4 to check”, listing 1. Add descriptions for images (1) (fix); 2. Text is drawn out of order (check); 3. “Map 2” isn’t a link (check); 4. “+0.7 m” is drawn apart from its label (check); 5. Check graphics marked as decorative (2) (check). Paper pins with the same numbers drop onto a page beside it. A torn strip below reads “Your PDF stays on your device”.
+A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “1 thing to fix, 4 to check”, listing 1. Add descriptions for images (1) (fix); 2. Text is drawn out of order (check); 3. “Map 2” isn’t a link (check); 4. “+0.7 m” is drawn apart from its label (check); 5. Check graphics marked as decorative (2) (check). Paper pins with the same numbers drop onto a page beside it. Torn strips below read “Your PDF stays on your device” and “PreventionWeb.net/signal-check”.
 
 **Your edits / notes**
 

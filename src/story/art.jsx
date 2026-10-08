@@ -227,9 +227,13 @@ export function Chart({ labels, w = 440, h = 330, animate = true, highlight = tr
 }
 
 /** Speech-bubble tag carrying the finding. */
-export function Bubble({ text, fill = C.purple, color = '#fff', size = 40, tail = 'down', ring }) {
+export function Bubble({ text, fill = C.purple, color = '#fff', size = 40, tail = 'down', tailAt, tailDepth = 30, ring }) {
   const w = Math.round(text.length * size * 0.56 + 56), h = Math.round(size * 1.7);
-  const tailPath = tail === 'down' ? `M${w * 0.22} ${h - 2} L${w * 0.18} ${h + 30} L${w * 0.36} ${h - 2} Z` : `M-2 ${h * 0.3} L-30 ${h * 0.5} L-2 ${h * 0.7} Z`;
+  const tailPath = tail === 'down'
+    ? tailAt == null
+      ? `M${w * 0.22} ${h - 2} L${w * 0.18} ${h + 30} L${w * 0.36} ${h - 2} Z`
+      : `M${w * (tailAt - 0.08)} ${h - 2} L${w * tailAt} ${h + tailDepth} L${w * (tailAt + 0.08)} ${h - 2} Z`
+    : `M-2 ${h * 0.3} L-30 ${h * 0.5} L-2 ${h * 0.7} Z`;
   return <g transform={`translate(${-w / 2} ${-h / 2})`}>
     <g filter="url(#sp-rim)"><rect x="-6" y="-6" width={w + 12} height={h + 12} rx={h / 2 + 4} fill={C.paper} /><path d={tailPath} fill={C.paper} transform="translate(0 4)" /></g>
     <g filter="url(#sp-face)"><rect width={w} height={h} rx={h / 2} fill={fill} /><path d={tailPath} fill={fill} /></g>

@@ -122,3 +122,13 @@
 
 .story-transcript-chapter h3 { font-size: 1.125rem; margin-block: 24px 12px; }
 .story-transcript h4 { font-size: 1rem; margin: 16px 0 4px; }
+
+/* Official co-branding assets stay on the UNDRR asset host. */
+.story-brand { display: flex; align-items: center; gap: 12px; width: clamp(216px, 28%, 342px); }
+.story-brand .story-logo { width: calc((100% - 12px) / 2); }
+.story-launch-url { margin: 20px 0 0; color: rgb(var(--mg-color-interactive)); font-family: var(--mg-font-family-ui, Arial, sans-serif); font-size: clamp(1rem, 1rem + .3vw, 1.25rem); font-weight: 700; overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  .story-brand { width: auto; gap: 14px; }
+  .story-brand .story-logo { width: 106px; }
+  .story-brand .story-pw-logo { width: 116px; }
+}

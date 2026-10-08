@@ -16,14 +16,14 @@ const stepWord = text => text.replace(/^\d[.)]\s*/, '').split(' ')[0];
 const LAYER = { see: C.paper, text: '#cfe9f7', tags: '#fbe3a6' };
 const STEP_COLOUR = { 1: C.teal, 2: C.sky, 3: C.coral, 4: C.purple };
 // The four kinds of reader, labelled the same way everywhere.
-const READERS = [['reader', 'Sees the page'], ['listener', 'Listens with a screen reader'], ['search', 'Web search'], ['assistant', 'AI chatbot']];
+const READERS = [['reader', 'See the page'], ['listener', 'Listen with a screen reader'], ['search', 'Web search'], ['assistant', 'AI chatbot']];
 const TEXT_LAYER = 'Text machines extract';
 const TAGS_LAYER = 'Tags guide the reading order';
 // A crowd of small paper people, the readers a finding can reach.
 const CROWD = Array.from({ length: 12 }, (_, i) => ({ x: 236 + i * 103, y: 772 + (i % 3) * 10, body: [C.teal, C.purple, C.coral, C.sky, C.mustard][i % 5], skin: C.skin[i % 3] }));
 
 const Stage = ({ v = 0, children }) => <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><Backdrop variant={v} />{children}</svg>;
-const Label = ({ x, y, text, fill = C.paper, size = 34, ...anim }) => <A anim="drop" {...anim}><At x={x} y={y}><Strip text={text} fill={fill} size={size} pad={16} /></At></A>;
+const Label = ({ x, y, text, fill = C.paper, color = C.ink, size = 34, ...anim }) => <A anim="drop" {...anim}><At x={x} y={y}><Strip text={text} fill={fill} color={color} size={size} pad={16} /></At></A>;
 /** A paper map pin with its number. */
 const Pin = ({ number, fix }) => <g>
   <g filter="url(#sp-scissor)"><path d="M0 0 C-24 -24 -24 -54 0 -54 C24 -54 24 -24 0 0 Z" fill={fix ? C.red : C.mustard} /></g>
@@ -65,7 +65,7 @@ const SearchGlyph = () => <g stroke={C.inkSoft} strokeWidth="5" fill="none"><cir
 /** Three illustrative routes through a report, without implying an exhaustive classification. */
 const Slot = ({ label }) => <g>
   <rect x="-150" y="0" width="300" height="400" rx="16" fill={C.paper} fillOpacity="0.35" stroke={C.inkSoft} strokeWidth="4" strokeDasharray="14 12" />
-  <At x={0} y={-62}><Strip text={label} size={30} pad={14} fill={C.ink} color="#fff" center /></At>
+  <At x={0} y={-62}><Strip text={label} size={label.length > 19 ? 24 : 28} pad={14} fill={C.ink} color="#fff" center /></At>
 </g>;
 /** A small paper table and comparison bars for data processing, distinct from search and chat. */
 const DataTool = ({ label = true }) => <g>
@@ -179,13 +179,14 @@ export function scenes(data) {
     },
     // 2. People who see, people who listen
     {
-      describe: 'Three paper routes labelled Seeing, Listening and Processing. A person with an open book slides into Seeing. A person with headphones and a small speaking screen slides into Listening. A paper data table fills Processing.',
+      describe: 'Three paper routes labelled “People who see”, “People who listen” and “Machines that process”. An open-book reader labelled “See the page” slides into the first route. A listener with headphones and a speaking screen, labelled “Listen with a screen reader”, slides into the second. A paper data table labelled “Process the report” fills the third.',
       stage: <Stage v={1}>
-        {[['Seeing', 420], ['Listening', 800], ['Processing', 1180]].map(([label, x], i) => <A key={label} anim="drop" delay={300 + i * 250} dur={600}><At x={x} y={260}><Slot label={label} /></At></A>)}
+        {[['People who see', 420], ['People who listen', 800], ['Machines that process', 1180]].map(([label, x], i) => <A key={label} anim="drop" delay={300 + i * 250} dur={600}><At x={x} y={260}><Slot label={label} /></At></A>)}
         <A anim="left" delay={2300} dur={650} idle="0.7"><At x={420} y={330} s={0.92}><Person kind="reader" label={READERS[0][1]} /></At></A>
         <A anim="right" delay={4100} dur={650} idle="0.7"><At x={800} y={330} s={0.92}><Person kind="listener" label={READERS[1][1]} /></At></A>
         <A anim="rise" delay={5300} dur={550}><At x={846} y={432}><Img name="laptop" w={96} /></At></A>
         <A anim="pop" delay={6200} dur={500} idle="0.8"><At x={1085} y={365}><DataTool label={false} /></At></A>
+        <A anim="slap" delay={6800} dur={450}><At x={1180} y={560}><Strip text="Process the report" size={28} pad={13} center /></At></A>
       </Stage>,
     },
     // 3. Machines, and reach
@@ -226,7 +227,7 @@ export function scenes(data) {
               <text x="68" y="42" className="sp-strip" fontSize="30" fontWeight="700" fill="#fff">Picture</text>
             </Torn>
           </At></A>
-          <A anim="pop" delay={5300} dur={550} idle="1"><At x={420} y={140}><Bubble text={sentence} size={38} /></At></A>
+          <A anim="pop" delay={5300} dur={550} idle="1"><At x={420} y={140}><Bubble text={sentence} size={38} tailAt={0.60} tailDepth={106} /></At></A>
         </At></A>
         {READERS.map(([kind], i) => <A key={kind} anim="rise" delay={5800 + i * 120} dur={500}><At x={560 + i * 160} y={760}><Img name={kind} w={92} center /></At></A>)}
       </Stage>,
@@ -369,13 +370,14 @@ export function scenes(data) {
     },
     // 11. What happens: AI chatbots and reach
     {
-      describe: `A clearly hypothetical AI chatbot answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A small reference reads “${coverYear} · ${sentence}” to show why both the year and station are wrong. Copies of the possible wrong answer drift outward. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.`,
+      describe: `A clearly hypothetical AI chatbot answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “${coverYear} · ${sentence}”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.`,
       stage: <Stage v={10}>
         <A anim="left" dur={650} idle="0.6"><At x={330} y={160} s={0.9}><Person kind="assistant" label={READERS[3][1]} /></At></A>
         <Label x={650} y={116} text="Possible wrong answer" size={25} fill={LAYER.tags} delay={2050} />
         <A anim="pop" delay={2650} dur={500} idle="0.8"><At x={760} y={250}><Bubble text={possibleAnswer} size={30} fill={C.paper} color={C.ink} tail="left" ring={{ delay: 3850, dur: 600 }} /></At></A>
-        <Label x={765} y={365} text={`${coverYear} · ${sentence}`} size={26} fill={LAYER.text} delay={5100} />
-        {[[1170, 120], [1270, 290], [1130, 430]].map(([x, y], i) => <A key={i} anim="travel" delay={7500 + i * 300} dur={800} from={`${760 - x},${250 - y}`}>
+        <Label x={735} y={352} text="What the report actually says" size={24} fill={LAYER.text} color={C.teal} delay={4850} />
+        <Label x={735} y={402} text={`${coverYear} · ${sentence}`} size={30} fill={LAYER.text} delay={5350} />
+        {[[1170, 120], [1270, 290]].map(([x, y], i) => <A key={i} anim="travel" delay={7500 + i * 300} dur={800} from={`${760 - x},${250 - y}`}>
           <At x={x} y={y} r={[6, -5, 4][i]} s={0.55}><Bubble text={possibleAnswer} size={32} fill={C.paper} color={C.inkSoft} tail="left" /></At>
         </A>)}
         {CROWD.map((p, i) => <A key={i} anim="pop" delay={9300 + i * 50} dur={320}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
@@ -478,7 +480,7 @@ export function scenes(data) {
     },
     // 15. Check your own PDF
     {
-      describe: `A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “${data.scrambled.headline}”, listing ${data.scrambled.pins.map(pin => `${pin.number}. ${pin.title} (${pin.bucket === 'fix' ? 'fix' : 'check'})`).join('; ')}. Paper pins with the same numbers drop onto a page beside it. A torn strip below reads “Your PDF stays on your device”.`,
+      describe: `A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “${data.scrambled.headline}”, listing ${data.scrambled.pins.map(pin => `${pin.number}. ${pin.title} (${pin.bucket === 'fix' ? 'fix' : 'check'})`).join('; ')}. Paper pins with the same numbers drop onto a page beside it. Torn strips below read “Your PDF stays on your device” and “PreventionWeb.net/signal-check”.`,
       stage: <Stage v={14}>
         {'CHECK'.split('').map((ch, i) => <A key={i} anim="drop" delay={i * 110} dur={500} idle="0.8"><At x={590 + i * 96} y={34 + (i % 2) * 10} r={[-4, 3, -2, 5, -3][i]}><Tile ch={ch} size={100} fill={TILE_COLOURS[(i + 1) % TILE_COLOURS.length]} /></At></A>)}
         <A anim="left" delay={500} dur={650} className="sp-wide"><At x={150} y={300} r={-5}>
@@ -494,7 +496,8 @@ export function scenes(data) {
         <A anim="slap" delay={1000} dur={450} className="sp-wide"><At x={512} y={196} r={-1.5}><ResultSheet headline={data.scrambled.headline} rows={allPins} /></At></A>
         {/* …and on narrow screens two rows and an honest count of the rest. */}
         <A anim="slap" delay={1000} dur={450} className="sp-narrow"><At x={512} y={196} r={-1.5}><ResultSheet headline={data.scrambled.headline} rows={allPins.slice(0, 2)} more={allPins.length - 2} /></At></A>
-        <A anim="slap" delay={6200} dur={450} idle="0.8"><At x={572} y={808} r={-1}><Strip text="Your PDF stays on your device" size={28} pad={14} fill={C.ink} color="#fff" /></At></A>
+        <A anim="slap" delay={6200} dur={450} idle="0.8"><At x={800} y={785} r={-1}><Strip text="Your PDF stays on your device" size={24} pad={14} fill={C.ink} color="#fff" center /></At></A>
+        <A anim="slap" delay={6900} dur={450}><At x={800} y={839} r={1}><Strip text="PreventionWeb.net/signal-check" size={31} pad={16} fill={C.teal} color="#fff" center /></At></A>
       </Stage>,
     },
   ];

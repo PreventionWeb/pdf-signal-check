@@ -13,6 +13,7 @@ const initialScene = count => {
   return Number.isInteger(value) && value >= 1 && value <= count ? value - 1 : 0;
 };
 const LOGO = 'https://assets.undrr.org/logos/undrr/undrr-logo-blue.svg';
+const PW_LOGO = 'https://assets.undrr.org/logos/pw/pw-logo.svg';
 
 /** "Does [everyone|purple] understand it?" → text with coloured, bold key words. */
 export function parseCaption(caption) {
@@ -56,6 +57,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
   const [started, setStarted] = useState(false);
   const [reduced, setReduced] = useState(prefersReducedMotion);
   const stage = useRef(null), audio = useRef(null), controller = useRef(null), player = useRef(null), settings = useRef(null);
+  const sceneAnimations = useRef([]);
   const index = sceneAt(playback.timeline, state.time), scene = scenes[index];
   const last = index === scenes.length - 1, ended = state.time >= playback.duration - 0.05;
   const chapterIndex = Math.max(0, chapters.findLastIndex(item => state.time >= item.start));
@@ -95,16 +97,23 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
 
   useLayoutEffect(() => {
     const element = stage.current;
-    for (const animation of element.getAnimations({ subtree: true })) animation.cancel();
+    for (const animation of sceneAnimations.current) animation.cancel();
     playScene(element, { motion: !reduced && started });
-    for (const animation of element.getAnimations({ subtree: true })) animation.pause();
+    // Keep ownership after an entry ends: getAnimations() omits non-filling finished effects,
+    // but a backward seek still needs to sample those same animations before their cue.
+    const animations = element.getAnimations({ subtree: true });
+    sceneAnimations.current = animations;
+    for (const animation of animations) animation.pause();
     const url = new URL(location.href); url.searchParams.set('scene', index + 1); history.replaceState(null, '', url);
-    return () => { for (const animation of element.getAnimations({ subtree: true })) animation.cancel(); };
+    return () => {
+      for (const animation of animations) animation.cancel();
+      if (sceneAnimations.current === animations) sceneAnimations.current = [];
+    };
   }, [index, reduced, started]);
 
   useLayoutEffect(() => {
     // Every animation, including idle motion, is held at the same media position. No independent clocks.
-    for (const animation of stage.current.getAnimations({ subtree: true })) animation.currentTime = sceneTime * 1000;
+    for (const animation of sceneAnimations.current) animation.currentTime = sceneTime * 1000;
   }, [index, sceneTime, reduced, started]);
 
   const seek = time => { setStarted(true); controller.current?.seek(time); };
@@ -141,7 +150,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
     <StoryDefs />
     <div className="story-frame">
       <div className="story-video">
-      <div className="story-brand"><img className="story-logo" src={LOGO} alt="UNDRR" width="425" height="64" /></div>
+      <div className="story-brand"><img className="story-logo" src={LOGO} alt="UNDRR" width="425" height="64" /><img className="story-logo story-pw-logo" src={PW_LOGO} alt="PreventionWeb" width="277" height="38" /></div>
       <div className="story-stage" ref={stage} onClick={togglePlay} role="group" aria-roledescription="scene" aria-label={`Scene ${index + 1} of ${scenes.length}: ${scene.label}`}>
         <div key={scene.id} className="story-scene">{scene.stage}</div>
         <p className="mg-u-sr-only">{scene.describe}</p>
@@ -206,6 +215,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
           <button type="button" className="mg-button mg-button-primary" onClick={onCheck}>Check your own PDF</button>
           <button type="button" className="mg-button mg-button-secondary mg-button-outline" onClick={onAbout}>Why PDFs need to work for AI</button>
         </div>}
+        {last && <p className="story-launch-url">PreventionWeb.net/signal-check</p>}
       </div>
     </div>
     <p className="story-playback-status" role="status">{state.error || (state.buffering ? 'Loading playback…' : `Chapter ${chapter.number} of ${chapters.length}: ${chapter.title} · Scene ${index + 1} of ${scenes.length}: ${scene.label}`)}</p>
