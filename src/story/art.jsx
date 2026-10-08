@@ -169,7 +169,7 @@ export function Strip({ text, fill = C.paper, color = C.ink, size = 44, pad = 22
 const IMAGES = {
   reader: [363, 481], listener: [376, 492], assistant: [373, 344], tick: [296, 296], nosign: [325, 325], warning: [356, 323],
   'q-purple': [222, 360], 'q-teal': [221, 360], 'q-coral': [220, 360], 'q-mustard': [222, 360],
-  folder: [900, 728], passport: [1000, 734], laptop: [688, 563],
+  folder: [900, 728], passport: [1000, 734], laptop: [688, 563], search: [520, 492],
 };
 export const imageHeight = (name, w) => Math.round(w * IMAGES[name][1] / IMAGES[name][0]);
 /** A cut-paper image, w wide, placed at its top-left (or centred on 0,0) with a crisp lift shadow. */
@@ -228,7 +228,7 @@ export function Chart({ labels, w = 440, h = 330, animate = true, highlight = tr
 
 /** Speech-bubble tag carrying the finding. */
 export function Bubble({ text, fill = C.purple, color = '#fff', size = 40, tail = 'down' }) {
-  const w = Math.round(text.length * size * 0.5 + 56), h = Math.round(size * 1.7);
+  const w = Math.round(text.length * size * 0.56 + 56), h = Math.round(size * 1.7);
   const tailPath = tail === 'down' ? `M${w * 0.22} ${h - 2} L${w * 0.18} ${h + 30} L${w * 0.36} ${h - 2} Z` : `M-2 ${h * 0.3} L-30 ${h * 0.5} L-2 ${h * 0.7} Z`;
   return <g transform={`translate(${-w / 2} ${-h / 2})`}>
     <g filter="url(#sp-rim)"><rect x="-6" y="-6" width={w + 12} height={h + 12} rx={h / 2 + 4} fill={C.paper} /><path d={tailPath} fill={C.paper} transform="translate(0 4)" /></g>
@@ -239,9 +239,9 @@ export function Bubble({ text, fill = C.purple, color = '#fff', size = 40, tail 
 
 /** People and the assistant (cut-paper images), each with a label strip below. */
 export function Person({ kind, label }) {
-  const w = { reader: 200, listener: 196, assistant: 210 }[kind];
+  const w = { reader: 200, listener: 196, assistant: 210, search: 230 }[kind];
   return <g>
-    <Img name={kind} w={w} x={-w / 2} y={kind === 'assistant' ? 36 : -28} />
+    <Img name={kind} w={w} x={-w / 2} y={{ assistant: 36, search: 12 }[kind] ?? -28} />
     {kind === 'listener' && <g filter="url(#sp-scissor)" stroke={C.mustard} strokeWidth="9" fill="none" strokeLinecap="round">
       <path d="M112 40 Q128 66 112 92" /><path d="M132 24 Q158 66 132 108" />
     </g>}
@@ -266,16 +266,31 @@ export function Stamp({ text, sub, color, w = 250 }) {
   return <g filter="url(#sp-stamp)" opacity="0.92">
     <rect x={-w / 2} y="-56" width={w} height="112" rx="14" fill="none" stroke={color} strokeWidth="7" />
     <rect x={-w / 2 + 11} y="-45" width={w - 22} height="90" rx="9" fill="none" stroke={color} strokeWidth="3" />
-    <text y={sub ? 4 : 16} textAnchor="middle" className="sp-tile" fontSize={text.length > 6 ? 34 : 44} fill={color}>{text}</text>
+    <text y={sub ? 4 : 16} textAnchor="middle" className="sp-tile" fontSize={text.length > 10 ? 23 : text.length > 6 ? 34 : 44} fill={color}>{text}</text>
     {sub && <text y="34" textAnchor="middle" className="sp-label" fontSize="22" fill={color}>{sub}</text>}
   </g>;
 }
 
 /** Paper layer sheet used by the hidden-layers motif. */
-export function Sheet({ w = 520, h = 140, fill, label, children }) {
+export function Sheet({ w = 520, h = 140, fill, label, labelSize = 32, children }) {
   return <g>
     <g filter="url(#sp-piece)"><rect width={w} height={h} rx="6" fill={fill} /></g>
     {children}
-    {label && <At x={w + 24} y={h / 2 - 30}><Strip text={label} size={32} pad={16} /></At>}
+    {label && <At x={w + 24} y={h / 2 - 30}><Strip text={label} size={labelSize} pad={16} /></At>}
   </g>;
 }
+
+/** A small paper person for crowds: the people a finding reaches. */
+export function Mini({ body = C.teal, skin = C.skin[0], hair = C.ink }) {
+  return <g filter="url(#sp-scissor)">
+    <path d="M-20 44 C-20 22 -11 15 0 15 C11 15 20 22 20 44 Z" fill={body} />
+    <circle cy="0" r="12" fill={skin} />
+    <path d="M-12 -2 C-12 -16 12 -16 12 -2 C6 -8 -6 -9 -12 -2 Z" fill={hair} />
+  </g>;
+}
+
+/** A small paper page with text lines, for pages feeding a chatbot. */
+export const PageSlip = () => <g filter="url(#sp-scissor)">
+  <rect width="54" height="70" rx="3" fill="#fff" />
+  {[0, 1, 2, 3].map(k => <rect key={k} x="9" y={12 + k * 13} width={[36, 30, 34, 22][k]} height="5" rx="2.5" fill="#c9bfae" />)}
+</g>;

@@ -4,8 +4,8 @@ These WebP images are the cut-paper figures and icons in `story.html`. They are 
 
 - Model: Nano Banana 2, Google Gemini 3.1 Flash Image (`google/gemini-3.1-flash-image`), through OpenRouter's `/api/v1/images` endpoint at 1K resolution
 - Generated: 2026-10-08
-- Count: 9 generations ($0.61 in total): a figure reference sheet, its re-take on a chroma-key background, two icon sheets, a folder, a laptop and two passports (the first had text and a stamp, so it was rejected)
-- Processing: keyed locally from a flat #00ff00 background (green spill removed), split into pieces, trimmed and saved as transparent WebP (quality 82). The page adds its own crisp drop shadow. About 180 KB for all thirteen files.
+- Initial asset set: 9 generations ($0.61 in total): a figure reference sheet, its re-take on a chroma-key background, two icon sheets, a folder, a laptop and two passports (the first had text and a stamp, so it was rejected). An additional search illustration was added for the 13-scene revision; its generation cost was not recorded with the initial set.
+- Processing: keyed locally from a flat #00ff00 background (green spill removed), split into pieces, trimmed and saved as transparent WebP. The page adds its own crisp drop shadow. The fourteen current files total 193,234 bytes.
 
 | File | Content |
 | --- | --- |
@@ -13,6 +13,7 @@ These WebP images are the cut-paper figures and icons in `story.html`. They are 
 | `tick.webp`, `nosign.webp`, `warning.webp` | A teal tick disc, a red no sign, a mustard warning triangle |
 | `q-purple.webp`, `q-teal.webp`, `q-coral.webp`, `q-mustard.webp` | Question marks |
 | `folder.webp`, `passport.webp`, `laptop.webp` | A manila folder, an open passport with blank pages, a paper laptop |
+| `search.webp` | A search box, result cards and a magnifier, used for the web search reader |
 
 ## Prompts
 

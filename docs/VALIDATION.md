@@ -355,3 +355,16 @@ The second review recommended releasing the visuals (fidelity 8, craft 8, compos
 - **Timing:** motion was re-timed to the new clips (scene 5's tags land on each spoken number; scene 6's folder arrives on “And the title”). The hold is now 0.9 s, for a 59.7 s total.
 
 `npm test` (292) and `npm run build` pass. agent-browser checked all eight scenes at 1280px and 390px on the production build under `/pdf-signal-check/`, including reduced-motion stills and the audio controls. Total OpenRouter spend for the story is now $1.25 of the key's $12 limit.
+
+
+## Story takeover and reach revision — 8 October 2026
+
+Integrated the animator worktree's thirteen-scene revision into `feature/initial-implementation`, preserving the rendered-text word-strip fix. An Astra storyteller reviewed the opening and payoff; a dedicated Sol illustrator finished captions, illustrations, timing and audio. The story introduces people who see the page, people who listen with a screen reader, and machines (web search and AI chatbots). It identifies the water-clarity chart before explaining what other readers can miss, then shows wrong-year search results and a labelled possible wrong AI answer spreading. The reach payoff is visible with audio off.
+
+The passport scene now names description, step-order, number-label and title repairs before showing optional data, summary, links and bookmarks. It no longer ticks every reader as though those extras guaranteed understanding or AI accuracy. Examples still come from different synthetic samples; “problems like these” preserves that distinction. Mobile refinements bring the layer listener and copied-text strips inside the crop.
+
+Thirteen narration clips total 104.27 seconds; scene timing is about 109 seconds. Only the changed passport clip was regenerated during this takeover. The existing music was extended locally to 112 seconds with a 7.6-second crossfade and a final fade. All optional audio stays below the existing 1 MB asset budget. OpenRouter's key endpoint reported total usage of $1.3760221 against the $12 cap after generation (approximately $0.004 additional spend during this takeover). No credential or PDF data was added to browser code.
+
+Root verification: all 293 tests across 41 files pass; `npm run build` passes with the existing large-chunk warning. All thirteen composed scenes were visually reviewed at 1280px and 390px in the development browser, including subsequent revised scenes 8, 11 and 12. The integrated production page was checked under `/pdf-signal-check/story.html`: artwork loaded, no audio requested before opting in, narration and music loaded from prefixed URLs, and Pause stopped both audio and stage motion. Desktop and mobile widths remained within the viewport. Reduced-motion stills were checked; this is browser playback verification, not an independent human listening assessment or a certified accessibility audit.
+
+Production screenshots: `/tmp/pdf-story-final-production-desktop.png` and `/tmp/pdf-story-final-production-mobile.png`; revised mobile ending: `/tmp/pdf-story-passport-refined-mobile.png`. Story bundle: `story-CTewyxYp.js` (about 20 KB gzip). Work remains local; nothing was pushed or published.

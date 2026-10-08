@@ -19,7 +19,7 @@ function StoryPage() {
           <div className="mg-hero__split-grid story-hero-grid">
             <div className="mg-hero__content">
               <h1 id="story-title" className="mg-hero__title">Your report says it. Does everyone understand it?</h1>
-              <p className="mg-hero__summaryText">Follow one finding from the page to a person using a screen reader and to an AI assistant, and see where a PDF’s hidden structure drops it.</p>
+              <p className="mg-hero__summaryText">Follow one finding from the page to people who see and listen, web search and AI chatbots, and see where a PDF’s hidden structure can lose it.</p>
             </div>
           </div>
         </div>

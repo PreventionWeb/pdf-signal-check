@@ -1,7 +1,7 @@
 // Generate the story's optional narration as static MP3 files. Run with the key in the environment, e.g.
 //   node --env-file=../.env scripts/generate-story-narration.mjs
 // The key is only sent to OpenRouter and never written anywhere. Clips whose text is unchanged are kept, so a
-// re-run only pays for edited lines. Needs ffmpeg/ffprobe on PATH (mono 48 kbit/s MP3, loudness-normalised).
+// re-run only pays for edited lines. Needs ffmpeg/ffprobe on PATH (mono 24 kHz, 32 kbit/s MP3, loudness-normalised).
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -47,7 +47,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const raw = `${audioDir}.${file}.raw.mp3`;
     writeFileSync(raw, await speak(text));
     characters += text.length;
-    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', raw, '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-ac', '1', '-ar', '44100', '-b:a', '48k', audioDir + file]);
+    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', raw, '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-ac', '1', '-ar', '24000', '-b:a', '32k', audioDir + file]);
     execFileSync('rm', [raw]);
     const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', audioDir + file]).toString().trim());
     clips.push({ id: scene.id, file, text, model: MODEL, voice: VOICE, settings: VOICE_SETTINGS, duration: Math.round(duration * 100) / 100 });

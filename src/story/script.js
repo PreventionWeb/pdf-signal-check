@@ -14,40 +14,61 @@ const pair = n => n < 10 ? `oh ${WORDS[n]}` : n < 20 ? TEENS[n - 10] : `${TENS[M
 export const spokenYear = year => `${pair(Math.floor(year / 100))} ${pair(year % 100)}`;
 export const spokenMeasure = text => text.replace(/^\+/, 'plus ').replace(/(\d)\.(\d)/, (_, a, b) => `${WORDS[a]} point ${WORDS[b]}`).replace(/\s*m$/, ' metres');
 
+/** "1 thing to fix, 4 to check" → { fix: 1, check: 4 }. */
+export const headlineCounts = headline => ({ fix: Number(headline.match(/(\d+) things? to fix/)?.[1] || 0), check: Number(headline.match(/(\d+)( things?)? to check/)?.[1] || 0) });
+
 export function storyScript(data) {
   const sentence = finding(data);
   const order = data.partly.tagSteps.map(stepNumber);
   const orphan = data.scrambled.drawnLines.at(-1);
-  const savedYear = yearOf(data.partly.savedTitle);
-  // `speak` is the spoken form where it differs from the written `narration` (numbers said as words). Emphasis
-  // comes from wording and ordinary punctuation, not inserted pauses.
+  const savedYear = yearOf(data.partly.savedTitle), coverYear = yearOf(data.travel.title);
+  const { fix, check } = headlineCounts(data.scrambled.headline);
+  const say = n => WORDS[n] || String(n);
+  // `speak` is the spoken form where it differs from the written `narration` (numbers and years said as words).
+  // Emphasis comes from wording and ordinary punctuation, not inserted pauses.
   return [
     { id: 'says-it', label: 'Your report says it',
       caption: 'Your report says it. Does [everyone|purple] understand it?',
       narration: 'Your report says it. But does everyone understand it?' },
-    { id: 'finding', label: 'One finding',
-      caption: 'One finding should reach [everyone|purple]: a person reading, a person using a screen reader and an AI assistant.',
-      narration: `Here is one finding. ${sentence}. It should reach a person reading, a person using a screen reader and an AI assistant.`,
-      speak: `Here is one finding. ${sentence}. It should reach a person reading, a person using a screen reader, and an AI assistant.` },
+    { id: 'readers', label: 'People who see, people who listen',
+      caption: 'Some people [see|teal] the page. Others use a [screen reader|purple]: software that speaks it aloud.',
+      narration: 'Everyone means three kinds of reader. People who see the page. People who listen, with a screen reader that speaks it aloud.' },
+    { id: 'machines', label: 'Machines, and reach',
+      caption: '[Web search|teal] and [AI chatbots|purple] carry findings far beyond the file.',
+      narration: 'And machines: web search, and AI chatbots built on large language models, software trained on huge amounts of text. They carry findings far beyond the file.' },
+    { id: 'picture', label: 'The chart is a picture',
+      caption: `A [picture|purple] charts water clarity at three stations. Look: ${sentence}.`,
+      narration: `Its chart is a picture of water clarity at three stations. Look, and the finding is clear: ${sentence}.` },
     { id: 'layers', label: 'Hidden layers',
-      caption: 'Every PDF has [hidden layers|teal]: the page people see, the text tools pull out and the tags screen readers follow.',
-      narration: 'But every PDF has hidden layers: the text that tools pull out, and the tags that screen readers follow.' },
+      caption: 'Behind the page sit [hidden layers|teal]: copied-out text, and tags that guide a screen reader.',
+      narration: 'Behind the page sit hidden layers: text that machines copy out, and tags that guide a screen reader.' },
     { id: 'no-description', label: 'No description',
-      caption: 'The chart has [no description|red]. The finding never leaves the page.',
-      narration: 'Here, the chart has no description. So a screen reader just says “image”, and the finding never leaves the page.' },
-    { id: 'order', label: 'Out of order',
-      caption: `Hidden tags read the steps [${order.join(', ')}|coral].`,
-      narration: `The hidden tags read the steps in the wrong order: ${order.join(', ')}.`,
-      speak: `The hidden tags read the steps in the wrong order: ${order.map(n => WORDS[n]).join(', ')}.` },
-    { id: 'loose-ends', label: 'Loose ends',
-      caption: `[${orphan}|coral] ends up on its own. The saved title says [${savedYear}|red].`,
-      narration: `Text drawn out of order leaves the headline number, ${orphan}, on its own. And the title saved in the file? It still says ${savedYear}.`,
-      speak: `Text drawn out of order leaves the headline number, ${spokenMeasure(orphan)}, on its own. And the title saved in the file? It still says ${spokenYear(Number(savedYear))}.` },
+      caption: 'The chart has [no description|red]. A screen reader just says “image”.',
+      narration: 'But this chart has no written description, so a screen reader just says “image”.' },
+    { id: 'order', label: 'Steps out of order',
+      caption: `Hidden tags put the method steps in the order [${order.join(', ')}|coral]. Store comes before collect.`,
+      narration: `The tags also jumble the steps: ${order.join(', ')}. Store comes before collect.`,
+      speak: `The tags also jumble the steps: ${order.map(say).join(', ')}. Store comes before collect.` },
+    { id: 'lonely-number', label: 'The lonely number',
+      caption: `In copied-out text, [${orphan}|coral] ends up apart from its label.`,
+      narration: `On the page, ${orphan} sits by its label. Copied out, it ends up alone.`,
+      speak: `On the page, ${spokenMeasure(orphan)} sits by its label. Copied out, it ends up alone.` },
+    { id: 'wrong-title', label: 'The wrong title',
+      caption: `The title saved in the file says [${savedYear}|red]. The cover says ${coverYear}.`,
+      narration: `Inside the file, the saved title says ${savedYear}. The cover says ${coverYear}.`,
+      speak: `Inside the file, the saved title says ${spokenYear(Number(savedYear))}. The cover says ${spokenYear(Number(coverYear))}.` },
+    { id: 'search-and-listening', label: 'What happens: search and listening',
+      caption: 'Search may show the [wrong year|red]. People listening may lose the chart and steps.',
+      narration: 'So what happens? Search may list it as last year’s report. Someone using a screen reader may lose the chart and the steps.' },
+    { id: 'chatbots-and-reach', label: 'What happens: AI chatbots and reach',
+      caption: 'AI chatbots may [get it wrong|red]. The finding reaches fewer people, or arrives changed.',
+      narration: 'AI chatbots may skip the example, mix up facts, or confidently get them wrong. Errors like these, sometimes called hallucinations, can spread. The finding reaches fewer people, or arrives changed.' },
     { id: 'passport', label: 'A passport for your findings',
-      caption: 'Give your findings a [passport|purple]: attached data, a schema.org description, real links and bookmarks.',
-      narration: 'So give your findings a passport. A well-built PDF carries its data, a schema.org description, real links and bookmarks.' },
+      caption: 'Fix the description, step order, number labels and title. Then add a [passport|purple] for wider reach: data, a summary, links and bookmarks.',
+      narration: 'First, describe the chart, put steps in order, keep numbers with labels, and match the title. Then give findings a passport to travel further: data, a clear summary, links and bookmarks.' },
     { id: 'check', label: 'Check your own PDF', final: true,
-      caption: '[Check|teal] your own PDF. It runs in your browser, and the file stays on your device.',
-      narration: 'PDF Signal Check finds what is hidden, right in your browser. Check your own PDF.' },
+      caption: '[Check|teal] your own PDF in your browser. The file stays on your device.',
+      narration: `PDF Signal Check finds problems like these: here, ${fix} to fix and ${check} to check. Your file stays on your device.`,
+      speak: `PDF Signal Check finds problems like these: here, ${say(fix)} to fix and ${say(check)} to check. Your file stays on your device.` },
   ];
 }
