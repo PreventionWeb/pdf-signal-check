@@ -27,48 +27,100 @@ export function storyScript(data) {
   // `speak` is the spoken form where it differs from the written `narration` (numbers and years said as words).
   // Emphasis comes from wording and ordinary punctuation, not inserted pauses.
   return [
-    { id: 'says-it', label: 'Your report says it',
-      caption: 'Your report says it. Does [everyone|purple] understand it?',
-      narration: 'Your report says it. But does everyone understand it?' },
-    { id: 'readers', label: 'People who see, people who listen',
-      caption: 'Some people [see|teal] the page. Others use a [screen reader|purple]: software that speaks it aloud.',
-      narration: 'Everyone means three kinds of reader. People who see the page. People who listen, with a screen reader that speaks it aloud.' },
-    { id: 'machines', label: 'Machines, and reach',
-      caption: '[Web search|teal] and [AI chatbots|purple] carry findings far beyond the file.',
-      narration: 'And machines: web search, and AI chatbots built on large language models, software trained on huge amounts of text. They carry findings far beyond the file.' },
-    { id: 'picture', label: 'The chart is a picture',
-      caption: `A [picture|purple] charts water clarity at three stations. Look: ${sentence}.`,
-      narration: `Its chart is a picture of water clarity at three stations. Look, and the finding is clear: ${sentence}.` },
-    { id: 'layers', label: 'Hidden layers',
-      caption: 'Behind the page sit [hidden layers|teal]: copied-out text, and tags that guide a screen reader.',
-      narration: 'Behind the page sit hidden layers: text that machines copy out, and tags that guide a screen reader.' },
-    { id: 'no-description', label: 'No description',
-      caption: 'The chart has [no description|red]. A screen reader just says “image”.',
-      narration: 'But this chart has no written description, so a screen reader just says “image”.' },
-    { id: 'order', label: 'Steps out of order',
-      caption: `Hidden tags put the method steps in the order [${order.join(', ')}|coral]. Store comes before collect.`,
-      narration: `The tags also jumble the steps: ${order.join(', ')}. Store comes before collect.`,
-      speak: `The tags also jumble the steps: ${order.map(say).join(', ')}. Store comes before collect.` },
-    { id: 'lonely-number', label: 'The lonely number',
-      caption: `In copied-out text, [${orphan}|coral] ends up apart from its label.`,
-      narration: `On the page, ${orphan} sits by its label. Copied out, it ends up alone.`,
-      speak: `On the page, ${spokenMeasure(orphan)} sits by its label. Copied out, it ends up alone.` },
-    { id: 'wrong-title', label: 'The wrong title',
-      caption: `The title saved in the file says [${savedYear}|red]. The cover says ${coverYear}.`,
-      narration: `Inside the file, the saved title says ${savedYear}. The cover says ${coverYear}.`,
-      speak: `Inside the file, the saved title says ${spokenYear(Number(savedYear))}. The cover says ${spokenYear(Number(coverYear))}.` },
-    { id: 'search-and-listening', label: 'What happens: search and listening',
-      caption: 'Search may show the [wrong year|red]. People listening may lose the chart and steps.',
-      narration: 'So what happens? Search may list it as last year’s report. Someone using a screen reader may lose the chart and the steps.' },
-    { id: 'chatbots-and-reach', label: 'What happens: AI chatbots and reach',
-      caption: 'AI chatbots may [get it wrong|red]. The finding reaches fewer people, or arrives changed.',
-      narration: 'AI chatbots may skip the example, mix up facts, or confidently get them wrong. Errors like these, sometimes called hallucinations, can spread. The finding reaches fewer people, or arrives changed.' },
-    { id: 'passport', label: 'A passport for your findings',
-      caption: 'Fix the description, step order, number labels and title. Then add a [passport|purple] for wider reach: data, a summary, links and bookmarks.',
-      narration: 'First, describe the chart, put steps in order, keep numbers with labels, and match the title. Then give findings a passport to travel further: data, a clear summary, links and bookmarks.' },
-    { id: 'check', label: 'Check your own PDF', final: true,
-      caption: '[Check|teal] your own PDF in your browser. The file stays on your device.',
-      narration: `PDF Signal Check finds problems like these: here, ${fix} to fix and ${check} to check. Your file stays on your device.`,
-      speak: `PDF Signal Check finds problems like these: here, ${say(fix)} to fix and ${say(check)} to check. Your file stays on your device.` },
-  ];
+    {
+        "id": "says-it",
+        "label": "Your report says it",
+        "caption": "Your report says it. But can [everyone|purple] understand it?",
+        "narration": "Your report says it. But can everyone understand it?"
+    },
+    {
+        "id": "readers",
+        "label": "Seeing, listening, processing",
+        "caption": "People [see|teal], people [listen|purple], and machines process. A screen reader is software that speaks the page aloud.",
+        "narration": "Reports have at least three types of readers: people who see the page, people who listen, and machines that process it. A screen reader is software that speaks the page aloud."
+    },
+    {
+        "id": "machines",
+        "label": "Machines, and reach",
+        "caption": "[Data tools|teal], [web search|teal] and [AI chatbots|purple] can bring findings to much larger audiences.",
+        "narration": "Web search helps people find reports. Data tools compare findings. AI chatbots answer questions using large language models: software trained on huge amounts of text. These tools can bring your findings to much larger audiences."
+    },
+    {
+        "id": "picture",
+        "label": "One clear finding",
+        "caption": "A [picture|purple] shows water clarity at three stations. South has the clearest water.",
+        "narration": "In this made-up report, a picture shows water clarity at three stations. South has the tallest bar: the clearest water."
+    },
+    {
+        "id": "layers",
+        "label": "Meaning behind the page",
+        "caption": "A PDF can carry [text and tags|teal] behind the page. Tags help a screen reader navigate in order.",
+        "narration": "A PDF can carry more than a picture: text that machines extract, and hidden labels called tags that help a screen reader navigate in order."
+    },
+    {
+        "id": "no-description",
+        "label": "The finding is missing",
+        "caption": "With [no written description|red], a screen reader may only say “image”. The listener misses the finding.",
+        "narration": "Here, the chart has no written description. A screen reader may only say “image”. Someone relying on that description misses the finding."
+    },
+    {
+        "id": "order",
+        "label": "Having tags is not enough",
+        "caption": `Tags put the method steps in the order [${order.join(", ")}|coral]. Store comes before collect.`,
+        "narration": `Having tags is not enough. These tags put the method steps in the order ${order.join(", ")}. Store comes before collect.`,
+        "speak": `Having tags is not enough. These tags put the method steps in the order ${order.map(say).join(", ")}. Store comes before collect.`
+    },
+    {
+        "id": "lonely-number",
+        "label": "A number without its meaning",
+        "caption": `[${orphan}|coral] means a rise in water clarity. Without its label, what does it mean?`,
+        "narration": `The number ${orphan} means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.`,
+        "speak": `The number ${spokenMeasure(orphan)} means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.`
+    },
+    {
+        "id": "wrong-title",
+        "label": "Last year's title",
+        "caption": `The report is about [${coverYear}|teal]. Its saved title still says [${savedYear}|red]. The dates disagree.`,
+        "narration": `This report is about ${coverYear}. But the title saved inside still says ${savedYear}, a detail easily carried over from last year's file. The dates now disagree.`,
+        "speak": `This report is about ${spokenYear(Number(coverYear))}. But the title saved inside still says ${spokenYear(Number(savedYear))}, a detail easily carried over from last year's file. The dates now disagree.`
+    },
+    {
+        "id": "search-and-listening",
+        "label": "What people receive",
+        "caption": "Search may show the [wrong year|red]. People listening may miss the chart or hear steps out of order.",
+        "narration": "Search may present it as last year's report. Someone listening may miss the chart or hear the steps in the wrong order."
+    },
+    {
+        "id": "chatbots-and-reach",
+        "label": "What AI may pass on",
+        "caption": "AI may give the [wrong finding for the wrong year|red]. Findings reach fewer people, or arrive changed.",
+        "narration": "An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the wrong year. If it invents an answer, that's a hallucination. The finding reaches fewer people, or arrives changed."
+    },
+    {
+        "id": "garbage-in-garbage-out",
+        "label": "Garbage in, garbage out",
+        "caption": "[Garbage in, garbage out.|purple] Confusing input can lead to misleading answers. AI can make mistakes with good inputs too.",
+        "narration": "It's an old problem: garbage in, garbage out. AI can make mistakes even with good inputs. But unclear or misleading inputs add avoidable confusion."
+    },
+    {
+        "id": "repair",
+        "label": "Repair the meaning",
+        "caption": "[Describe the chart.|teal] Order the steps. Keep numbers with labels. Match the title to the cover.",
+        "narration": "Start with what you can fix. Describe the chart, put steps in order, keep numbers with labels, and match the saved title to the cover."
+    },
+    {
+        "id": "passport",
+        "label": "A passport for wider reach",
+        "caption": "Help findings [travel further|purple]: share data, add a clear summary, clickable links and bookmarks to sections.",
+        "narration": "Then help findings travel further: share the chart's data, add a clear summary, make links clickable, and add bookmarks to jump between sections. A passport for reuse."
+    },
+    {
+        "id": "check",
+        "label": "Check your own PDF",
+        "caption": "[Check|teal] your own PDF in your browser. The file stays on your device.",
+        "narration": `PDF Signal Check finds problems like these: here, ${fix} to fix and ${check} to check. Check your own PDF. It stays on your device.`,
+        "speak": `PDF Signal Check finds problems like these: here, ${say(fix)} to fix and ${say(check)} to check. Check your own PDF. It stays on your device.`,
+        "final": true
+    }
+];
 }

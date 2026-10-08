@@ -227,13 +227,18 @@ export function Chart({ labels, w = 440, h = 330, animate = true, highlight = tr
 }
 
 /** Speech-bubble tag carrying the finding. */
-export function Bubble({ text, fill = C.purple, color = '#fff', size = 40, tail = 'down' }) {
+export function Bubble({ text, fill = C.purple, color = '#fff', size = 40, tail = 'down', ring }) {
   const w = Math.round(text.length * size * 0.56 + 56), h = Math.round(size * 1.7);
   const tailPath = tail === 'down' ? `M${w * 0.22} ${h - 2} L${w * 0.18} ${h + 30} L${w * 0.36} ${h - 2} Z` : `M-2 ${h * 0.3} L-30 ${h * 0.5} L-2 ${h * 0.7} Z`;
   return <g transform={`translate(${-w / 2} ${-h / 2})`}>
     <g filter="url(#sp-rim)"><rect x="-6" y="-6" width={w + 12} height={h + 12} rx={h / 2 + 4} fill={C.paper} /><path d={tailPath} fill={C.paper} transform="translate(0 4)" /></g>
     <g filter="url(#sp-face)"><rect width={w} height={h} rx={h / 2} fill={fill} /><path d={tailPath} fill={fill} /></g>
     <text x={w / 2} y={h * 0.66} textAnchor="middle" className="sp-strip" fontSize={size} fontWeight="700" fill={color}>{text}</text>
+    {ring && <g transform={`rotate(${ring.r ?? -3} ${w / 2} ${h / 2})`}>
+      <ellipse cx={w / 2} cy={h / 2} rx={w / 2 + (ring.padX ?? 22)} ry={h / 2 + (ring.padY ?? 18)}
+        fill="none" stroke={ring.colour ?? C.red} strokeWidth="7" pathLength="1" strokeDasharray="1"
+        data-anim="draw" data-delay={ring.delay} data-dur={ring.dur ?? 600} />
+    </g>}
   </g>;
 }
 

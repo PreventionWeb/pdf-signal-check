@@ -17,8 +17,8 @@ const LAYER = { see: C.paper, text: '#cfe9f7', tags: '#fbe3a6' };
 const STEP_COLOUR = { 1: C.teal, 2: C.sky, 3: C.coral, 4: C.purple };
 // The four kinds of reader, labelled the same way everywhere.
 const READERS = [['reader', 'Sees the page'], ['listener', 'Listens with a screen reader'], ['search', 'Web search'], ['assistant', 'AI chatbot']];
-const TEXT_LAYER = 'Text machines copy out';
-const TAGS_LAYER = 'Tags screen readers follow';
+const TEXT_LAYER = 'Text machines extract';
+const TAGS_LAYER = 'Tags guide the reading order';
 // A crowd of small paper people, the readers a finding can reach.
 const CROWD = Array.from({ length: 12 }, (_, i) => ({ x: 236 + i * 103, y: 772 + (i % 3) * 10, body: [C.teal, C.purple, C.coral, C.sky, C.mustard][i % 5], skin: C.skin[i % 3] }));
 
@@ -29,9 +29,12 @@ const Pin = ({ number, fix }) => <g>
   <g filter="url(#sp-scissor)"><path d="M0 0 C-24 -24 -24 -54 0 -54 C24 -54 24 -24 0 0 Z" fill={fix ? C.red : C.mustard} /></g>
   <text y="-26" textAnchor="middle" className="sp-label" fontSize="24" fontWeight="700" fill={fix ? '#fff' : C.ink}>{number}</text>
 </g>;
-/** A hand-drawn pencil ring, drawn on in held steps. */
+/** A hand-drawn pencil ring. Keep its static SVG rotation on a parent: the motion engine sets transform-origin
+ * on animated shapes, which otherwise shifts a rotated ellipse away from the paper piece it circles. */
 const Ring = ({ cx, cy, rx, ry, colour = C.red, delay, dur = 700, r = -6 }) =>
-  <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={colour} strokeWidth="7" pathLength="1" strokeDasharray="1" data-anim="draw" data-delay={delay} data-dur={dur} transform={`rotate(${r} ${cx} ${cy})`} />;
+  <g transform={`rotate(${r} ${cx} ${cy})`}>
+    <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={colour} strokeWidth="7" pathLength="1" strokeDasharray="1" data-anim="draw" data-delay={delay} data-dur={dur} />
+  </g>;
 /** A dotted string from a reader to someone it reaches, drawn on in steps; `short` strings stop halfway. */
 const Reach = ({ from, to, delay, short = false, colour = C.inkSoft }) => {
   const [x1, y1] = from, [x2, y2] = short ? [from[0] + (to[0] - from[0]) * 0.45, from[1] + (to[1] - from[1]) * 0.45] : to;
@@ -44,10 +47,21 @@ const PictureGlyph = ({ colour = '#fff' }) => <g fill="none" stroke={colour} str
 </g>;
 /** A magnifier glyph for search results. */
 const SearchGlyph = () => <g stroke={C.inkSoft} strokeWidth="5" fill="none"><circle cx="0" cy="0" r="16" /><path d="M11 12 L26 27" strokeLinecap="round" /></g>;
-/** Three empty slots for the three kinds of reader. */
-const Slot = ({ n }) => <g>
+/** Three illustrative routes through a report, without implying an exhaustive classification. */
+const Slot = ({ label }) => <g>
   <rect x="-150" y="0" width="300" height="400" rx="16" fill={C.paper} fillOpacity="0.35" stroke={C.inkSoft} strokeWidth="4" strokeDasharray="14 12" />
-  <At x={0} y={-62}><Strip text={`${n} of 3`} size={30} pad={14} fill={C.ink} color="#fff" center /></At>
+  <At x={0} y={-62}><Strip text={label} size={30} pad={14} fill={C.ink} color="#fff" center /></At>
+</g>;
+/** A small paper table and comparison bars for data processing, distinct from search and chat. */
+const DataTool = ({ label = true }) => <g>
+  <Torn w={190} h={158} fill={LAYER.text}>
+    <rect x="18" y="18" width="150" height="16" rx="3" fill={C.teal} />
+    {[0, 1, 2].map((i) => <g key={i}>
+      <rect x="18" y={52 + i * 30} width="60" height="9" rx="4" fill={C.inkSoft} opacity="0.6" />
+      <rect x="90" y={52 + i * 30} width={35 + i * 17} height="13" rx="2" fill={[C.sky, C.teal, C.coral][i]} />
+    </g>)}
+  </Torn>
+  {label && <At x={95} y={187}><Strip text="Data tools" size={28} pad={13} center /></At>}
 </g>;
 /** The step tags on a tangled string. */
 const Tangle = ({ order }) => <g>
@@ -95,15 +109,16 @@ export function scenes(data) {
   const labels = data.well.chartLabels;
   const values = labels.filter(text => /m$/.test(text)), names = labels.filter(text => !/m$/.test(text));
   const savedStem = saved.replace(/\s*\S+$/, '');
+  const possibleAnswer = `In ${savedYear}, ${names[1]} was highest.`;
 
   const visuals = [
     // 1. Your report says it
     {
-      describe: `The cover of the fictional “${cover}” drops onto a sheet of cream paper. Torn paper tiles spell out “Your report says it. Does EVERYONE understand it?”, with paper question marks around them.`,
+      describe: `The cover of the fictional “${cover}” drops onto a sheet of cream paper. Torn paper tiles spell out “Your report says it. But can EVERYONE understand it?”, with paper question marks around them.`,
       stage: <Stage v={0}>
         <A anim="drop" dur={800} idle="1"><At x={278} y={240} r={-6}><Cover year={coverYear} /></At></A>
         <A anim="slap" delay={500} dur={500}><At x={620} y={150} r={-1.5}><Strip text="Your report says it." size={56} /></At></A>
-        <A anim="slap" delay={1100} dur={450}><At x={620} y={300} r={1.5}><Strip text="Does" size={56} fill={C.ink} color="#fff" /></At></A>
+        <A anim="slap" delay={1100} dur={450}><At x={620} y={300} r={1.5}><Strip text="But can" size={56} fill={C.ink} color="#fff" /></At></A>
         {'EVERYONE'.split('').map((ch, i) =>
           <A key={i} anim="drop" delay={1450 + i * 110} dur={520} idle="0.8"><At x={612 + i * 98} y={420 + (i % 2) * 14} r={[-5, 4, -2, 6, -4, 3, -6, 2][i]}><Tile ch={ch} size={112} fill={TILE_COLOURS[i % TILE_COLOURS.length]} /></At></A>)}
         <A anim="slap" delay={2400} dur={450}><At x={760} y={610} r={-1}><Strip text="understand it?" size={56} /></At></A>
@@ -114,28 +129,29 @@ export function scenes(data) {
     },
     // 2. People who see, people who listen
     {
-      describe: 'Three empty paper slots, labelled 1 of 3, 2 of 3 and 3 of 3. A person with an open book slides into the first: “Sees the page”. A person with headphones slides into the second, beside a small laptop with sound waves: “Listens with a screen reader”. The third slot waits with a question mark.',
+      describe: 'Three paper routes labelled Seeing, Listening and Processing. A person with an open book slides into Seeing. A person with headphones and a small speaking screen slides into Listening. A paper data table fills Processing.',
       stage: <Stage v={1}>
-        {[420, 800, 1180].map((x, i) => <A key={x} anim="drop" delay={300 + i * 250} dur={600}><At x={x} y={260}><Slot n={i + 1} /></At></A>)}
+        {[['Seeing', 420], ['Listening', 800], ['Processing', 1180]].map(([label, x], i) => <A key={label} anim="drop" delay={300 + i * 250} dur={600}><At x={x} y={260}><Slot label={label} /></At></A>)}
         <A anim="left" delay={2300} dur={650} idle="0.7"><At x={420} y={330} s={0.92}><Person kind="reader" label={READERS[0][1]} /></At></A>
         <A anim="right" delay={4100} dur={650} idle="0.7"><At x={800} y={330} s={0.92}><Person kind="listener" label={READERS[1][1]} /></At></A>
         <A anim="rise" delay={5300} dur={550}><At x={846} y={432}><Img name="laptop" w={96} /></At></A>
-        <A anim="pop" delay={6200} dur={500} idle="1.4"><At x={1180} y={440} s={1.2}><QMark fill={C.purple} /></At></A>
+        <A anim="pop" delay={6200} dur={500} idle="0.8"><At x={1085} y={365}><DataTool label={false} /></At></A>
       </Stage>,
     },
     // 3. Machines, and reach
     {
-      describe: 'The person reading and the person listening move up to the corner. Two machine readers fill the third place: “Web search”, a paper magnifier over a search box and result cards, and “AI chatbot”, a chat bubble with a star, with small paper pages feeding into it. Dotted strings then run from both machines to a crowd of small paper people across the bottom of the page.',
+      describe: 'The person reading and the person listening move up to the corner. Three processing routes fill the middle: data tools compare rows, web search shows result cards and an AI chatbot receives small paper pages. Dotted strings run from the tools to a crowd of paper people below.',
       stage: <Stage v={2}>
         <A anim="drop" dur={600}><At x={270} y={150} s={0.55}><Person kind="reader" label={READERS[0][1]} /></At></A>
         <A anim="drop" delay={150} dur={600}><At x={490} y={150} s={0.55}><Person kind="listener" label={READERS[1][1]} /></At></A>
-        <A anim="right" delay={900} dur={650} idle="0.6"><At x={840} y={150} s={0.86}><Person kind="search" label={READERS[2][1]} /></At></A>
-        <A anim="right" delay={2000} dur={650} idle="0.6"><At x={1200} y={150} s={0.86}><Person kind="assistant" label={READERS[3][1]} /></At></A>
-        {[0, 1, 2].map(i => <A key={i} anim="travel" delay={3300 + i * 350} dur={700} from={`${-260 + i * 30},${-120 - i * 20}`}>
-          <At x={1062 + i * 20} y={196 + i * 10} r={[-12, 4, 14][i]}><PageSlip /></At>
+        <A anim="right" delay={2700} dur={650} idle="0.5"><At x={620} y={215} s={0.82}><DataTool /></At></A>
+        <A anim="right" delay={700} dur={650} idle="0.6"><At x={970} y={150} s={0.86}><Person kind="search" label={READERS[2][1]} /></At></A>
+        <A anim="right" delay={5000} dur={650} idle="0.6"><At x={1260} y={150} s={0.86}><Person kind="assistant" label={READERS[3][1]} /></At></A>
+        {[0, 1, 2].map(i => <A key={i} anim="travel" delay={6900 + i * 350} dur={700} from={`${-260 + i * 30},${-120 - i * 20}`}>
+          <At x={1115 + i * 20} y={196 + i * 10} r={[-12, 4, 14][i]}><PageSlip /></At>
         </A>)}
-        {CROWD.map((p, i) => <A key={i} anim="pop" delay={8400 + i * 60} dur={360}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
-        {CROWD.map((p, i) => <Reach key={i} from={i < 6 ? [840, 420] : [1200, 420]} to={[p.x, p.y - 14]} delay={8800 + i * 120} />)}
+        {CROWD.map((p, i) => <A key={i} anim="pop" delay={11100 + i * 60} dur={360}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
+        {CROWD.map((p, i) => <Reach key={i} from={i < 4 ? [700, 420] : i < 8 ? [970, 420] : [1260, 420]} to={[p.x, p.y - 14]} delay={11500 + i * 120} />)}
       </Stage>,
     },
     // 4. The chart is a picture
@@ -145,6 +161,7 @@ export function scenes(data) {
         <A anim="drop" dur={700} className="sp-wide"><At x={170} y={250} r={-7} s={0.5}><Cover year={coverYear} />
           <At x={20} y={420} r={4}><Strip text="Made-up example" size={34} pad={14} fill={C.mustard} /></At>
         </At></A>
+        <Label x={220} y={146} text="Made-up example" size={24} fill={C.mustard} className="sp-narrow" delay={100} />
         <A anim="rise" delay={100} dur={700}><At x={480} y={100} s={0.9}>
           <g filter="url(#sp-piece)"><rect width="760" height="640" rx="6" fill={C.paper} /></g>
           <At x={40} y={34}><Strip text="Water clarity, metres" size={34} pad={16} /></At>
@@ -263,19 +280,19 @@ export function scenes(data) {
     },
     // 9. The wrong title
     {
-      describe: `A folder labelled “Saved in the file” holds the title “${saved}”, with ${savedYear} ringed in red. Beside it, the cover says “${cover}”, with ${coverYear} ringed in teal.`,
+      describe: `A folder labelled “Title saved inside the PDF” holds the title “${saved}”, with ${savedYear} ringed in red. Beside it, the cover says “${cover}”, with ${coverYear} ringed in teal. A carried-over year is one possible explanation, not recorded provenance.`,
       stage: <Stage v={8}>
-        <A anim="right" delay={200} dur={650}><At x={700} y={190} r={-2} s={1.3}>
+        <A anim="right" delay={2950} dur={650}><At x={700} y={190} r={-2} s={1.3}>
           <Img name="folder" w={400} />
-          <text x="34" y="110" className="sp-label" fontSize="22" fill={C.ink}>Saved in the file</text>
+          <text x="34" y="110" className="sp-label" fontSize="22" fill={C.ink}>Title saved inside the PDF</text>
           <text x="34" y="160" className="sp-label" fontSize="24" fontWeight="700" fill={C.ink}>{savedStem}</text>
           <text x="34" y="250" className="sp-tile" fontSize="72" fill={C.ink}>{savedYear}</text>
-          <Ring cx={104} cy={226} rx={104} ry={54} delay={2700} />
+          <Ring cx={104} cy={226} rx={104} ry={54} delay={5550} />
         </At></A>
-        <Label x={240} y={120} text="On the cover" delay={3500} />
-        <A anim="left" delay={3600} dur={650} idle="0.6"><At x={250} y={220} r={-4} s={0.95}>
+        <Label x={240} y={120} text="On the cover" delay={100} />
+        <A anim="left" delay={350} dur={650} idle="0.6"><At x={250} y={220} r={-4} s={0.95}>
           <Cover year={coverYear} />
-          <Ring cx={70} cy={180} rx={66} ry={34} colour={C.teal} delay={4700} dur={550} r={-4} />
+          <Ring cx={70} cy={180} rx={66} ry={34} colour={C.teal} delay={1550} dur={550} r={-4} />
         </At></A>
       </Stage>,
     },
@@ -294,56 +311,123 @@ export function scenes(data) {
           </Torn>
         </At></A>
         <A anim="pop" delay={4000} dur={450} idle="1.4"><At x={690} y={360} r={10}><QMark fill={C.mustard} /></At></A>
-        <A anim="drop" delay={6600} dur={600} idle="1"><At x={850} y={150}><Tangle order={order} /></At></A>
-        <A anim="right" delay={4400} dur={650}><At x={960} y={560} s={0.8}><Person kind="listener" label={READERS[1][1]} /></At></A>
-        <A anim="pop" delay={5600} dur={450} idle="1"><At x={1200} y={590}><Bubble text="“Image.”" size={44} fill={C.paper} color={C.ink} tail="left" /></At></A>
-        <A anim="pop" delay={7200} dur={450} idle="1.4"><At x={1330} y={420} r={-10} s={0.8}><QMark fill={C.purple} /></At></A>
+        <A anim="drop" delay={4300} dur={500} idle="1"><At x={850} y={150}><Tangle order={order} /></At></A>
+        <A anim="right" delay={3700} dur={550}><At x={960} y={560} s={0.8}><Person kind="listener" label={READERS[1][1]} /></At></A>
+        <A anim="pop" delay={5000} dur={450} idle="1"><At x={1200} y={590}><Bubble text="“Image.”" size={44} fill={C.paper} color={C.ink} tail="left" /></At></A>
+        <A anim="pop" delay={5900} dur={450} idle="1.4"><At x={1330} y={420} r={-10} s={0.8}><QMark fill={C.purple} /></At></A>
       </Stage>,
     },
     // 11. What happens: AI chatbots and reach
     {
-      describe: `The AI chatbot answers, calmly and confidently: “In 2024, North was highest.” A red pencil ring goes round the answer, which is wrong twice over. Copies of the wrong answer drift outward. Then the dotted strings to the crowd of small paper people come back thinner: fewer reach anyone, and the one “${sentence}” bubble that arrives is crumpled.`,
+      describe: `A clearly hypothetical AI chatbot answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A small reference reads “${coverYear} · ${sentence}” to show why both the year and station are wrong. Copies of the possible wrong answer drift outward; some paths to the crowd stop short.`,
       stage: <Stage v={10}>
         <A anim="left" dur={650} idle="0.6"><At x={330} y={160} s={0.9}><Person kind="assistant" label={READERS[3][1]} /></At></A>
-        <Label x={650} y={116} text="Possible wrong answer" size={25} fill={LAYER.tags} delay={3350} />
-        <A anim="pop" delay={3700} dur={500} idle="0.8"><At x={760} y={250}><Bubble text="In 2024, North was highest." size={30} fill={C.paper} color={C.ink} tail="left" /></At></A>
-        <Ring cx={760} cy={250} rx={330} ry={76} delay={4600} dur={600} r={-3} />
-        {[[1170, 120], [1270, 290], [1130, 430]].map(([x, y], i) => <A key={i} anim="travel" delay={8800 + i * 300} dur={800} from={`${760 - x},${250 - y}`}>
-          <At x={x} y={y} r={[6, -5, 4][i]} s={0.55}><Bubble text="In 2024, North was highest." size={32} fill={C.paper} color={C.inkSoft} tail="left" /></At>
+        <Label x={650} y={116} text="Possible wrong answer" size={25} fill={LAYER.tags} delay={2050} />
+        <A anim="pop" delay={2650} dur={500} idle="0.8"><At x={760} y={250}><Bubble text={possibleAnswer} size={30} fill={C.paper} color={C.ink} tail="left" ring={{ delay: 3850, dur: 600 }} /></At></A>
+        <Label x={765} y={365} text={`${coverYear} · ${sentence}`} size={26} fill={LAYER.text} delay={5100} />
+        {[[1170, 120], [1270, 290], [1130, 430]].map(([x, y], i) => <A key={i} anim="travel" delay={7500 + i * 300} dur={800} from={`${760 - x},${250 - y}`}>
+          <At x={x} y={y} r={[6, -5, 4][i]} s={0.55}><Bubble text={possibleAnswer} size={32} fill={C.paper} color={C.inkSoft} tail="left" /></At>
         </A>)}
-        {CROWD.map((p, i) => <A key={i} anim="pop" delay={10600 + i * 50} dur={320}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
-        {CROWD.map((p, i) => <Reach key={i} from={[330, 470]} to={[p.x, p.y - 14]} delay={11000 + i * 90} short={![0, 3, 7, 10].includes(i)} />)}
-        <A anim="drop" delay={12500} dur={650}><At x={1000} y={640}><Crumpled text={sentence} /></At></A>
+        {CROWD.map((p, i) => <A key={i} anim="pop" delay={9300 + i * 50} dur={320}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
+        {CROWD.map((p, i) => <Reach key={i} from={[330, 470]} to={[p.x, p.y - 14]} delay={9700 + i * 90} short={![0, 3, 7, 10].includes(i)} />)}
+        <A anim="drop" delay={11500} dur={650}><At x={1000} y={640}><Crumpled text={sentence} /></At></A>
       </Stage>,
     },
-    // 12. Passport
+    // 12. Garbage in, garbage out: input problems increase risk, but AI can err even with good input.
     {
-      describe: `Four repair strips land first: describe the chart, order the steps, keep the number with its label, and match the saved title to the cover. Then an open paper passport lands. Four stamps show extra ways to help findings travel: data (the attached file ${csvName}, with rows ${rows.map(row => row.join(' ')).join(', ')}), a clear summary, links (“Map 2” leads to the annex) and bookmarks (${data.travel.bookmarks.length} clickable sections). These are opportunities for wider reach, not a guarantee that software will interpret the PDF correctly.`,
+      describe: `Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out. Another strip says “AI can make mistakes too”, so the visual does not promise that clean input guarantees a correct answer.`,
       stage: <Stage v={11}>
-        <Label x={205} y={100} text="Fix the route first" size={30} />
+        <Label x={430} y={82} text="Garbage in, garbage out" size={40} />
+        <A anim="pop" delay={650} dur={600}><At x={760} y={264}>
+          <Torn w={250} h={300} fill={LAYER.text}>
+            <text x="125" y="64" textAnchor="middle" className="sp-tile" fontSize="52" fill={C.ink}>AI</text>
+            <At x={52} y={87}><Img name="assistant" w={146} /></At>
+          </Torn>
+        </At></A>
+        <Label x={690} y={664} text="AI can make mistakes too" size={29} fill={LAYER.tags} delay={3500} />
         {[
-          ['Describe the chart', LAYER.tags],
-          ['Order the steps', LAYER.text],
-          ['Keep number + label', LAYER.tags],
-          ['Match the saved title', LAYER.text],
-        ].map(([text, fill], i) => <A key={text} anim="left" delay={600 + i * 950} dur={550}>
-          <At x={230} y={200 + i * 112} r={[-2, 1, -1, 2][i]}><Strip text={text} size={29} pad={17} fill={fill} /></At>
+          ['Missing description', LAYER.tags],
+          ['Mixed-up order', LAYER.text],
+          ['Wrong year', C.paper],
+        ].map(([label, fill], i) => <A key={label} anim="travel" from="-360,0" delay={5850 + i * 700} dur={650}>
+          <At x={344} y={266 + i * 108} r={[-3, 2, -2][i]}><Strip text={label} size={27} pad={15} fill={fill} /></At>
         </A>)}
-        <A anim="pop" delay={5650} dur={650}><At x={720} y={250}>
+        {[0, 1, 2].map(i => <Reach key={i} from={[652, 298 + i * 108]} to={[755, 412]} delay={7000 + i * 650} colour={C.coral} />)}
+        <A anim="right" delay={8750} dur={650} idle="0.7"><At x={1120} y={404}><Crumpled text={possibleAnswer} /></At></A>
+        <A anim="pop" delay={9820} dur={460} idle="0.7"><At x={1270} y={593}><QMark fill={C.mustard} /></At></A>
+      </Stage>,
+    },
+    // 13. Repair the meaning: four concrete corrections, separated from publication extras.
+    {
+      describe: `Four paper repair cards show changes people can make: describe the chart as water clarity at three stations with the finding “${sentence}”, put method steps in the order 1, 2, 3, 4, join ${orphan} to its water-clarity label, and make the saved title match the ${coverYear} cover.`,
+      stage: <Stage v={12}>
+        <Label x={540} y={78} text="Repair the meaning" size={42} />
+        <A anim="left" delay={550} dur={580}><At x={240} y={205} r={-1}>
+          <Torn w={520} h={230} fill={C.paper}>
+            <At x={20} y={16}><Strip text="Describe the chart" size={27} pad={14} fill={LAYER.tags} /></At>
+            <text x="34" y="131" className="sp-label" fontSize="28" fill={C.ink}>Water clarity at three stations</text>
+            <text x="34" y="182" className="sp-strip" fontSize="38" fontWeight="700" fill={C.purple}>{sentence}</text>
+          </Torn>
+        </At></A>
+        <A anim="right" delay={1750} dur={580}><At x={840} y={205} r={1}>
+          <Torn w={520} h={230} fill={C.paper}>
+            <At x={20} y={16}><Strip text="Put steps in order" size={27} pad={14} fill={LAYER.text} /></At>
+            {[1, 2, 3, 4].map((n, i) => <At key={n} x={76 + i * 124} y={78} s={0.65}><StepTag n={n} fill={STEP_COLOUR[n]} /></At>)}
+          </Torn>
+        </At></A>
+        <A anim="left" delay={3000} dur={580}><At x={240} y={506} r={1}>
+          <Torn w={520} h={230} fill={C.paper}>
+            <At x={20} y={16}><Strip text="Keep number + label" size={27} pad={14} fill={LAYER.tags} /></At>
+            <text x="28" y="149" className="sp-tile" fontSize="48" fill={C.coral}>{orphan}</text>
+            <path d="M213 132 H244" stroke={C.inkSoft} strokeWidth="4" strokeLinecap="round" />
+            <text x="254" y="125" className="sp-label" fontSize="25" fill={C.ink}>rise in water</text>
+            <text x="254" y="157" className="sp-label" fontSize="25" fill={C.ink}>clarity</text>
+          </Torn>
+        </At></A>
+        <A anim="right" delay={4250} dur={580}><At x={840} y={506} r={-1}>
+          <Torn w={520} h={230} fill={C.paper}>
+            <At x={20} y={16}><Strip text="Match the saved title" size={27} pad={14} fill={LAYER.text} /></At>
+            <text x="28" y="131" className="sp-label" fontSize="30" fill={C.ink}>Cover: {coverYear}</text>
+            <text x="28" y="183" className="sp-label" fontSize="30" fill={C.ink}>Saved title: {coverYear}</text>
+          </Torn>
+        </At></A>
+      </Stage>,
+    },
+    // 14. A passport for wider reach, after the repairs.
+    {
+      describe: `An open paper passport carries four optional stamps: “Data” with a chart-data slip on wide screens, showing rows ${rows.map(row => row.join(' ')).join(', ')} from ${csvName}; “Clear summary”; “Links” for “Map 2” to the annex; and “Bookmarks” for ${data.travel.bookmarks.length} sections. The intact “${sentence}” slip and dotted paths towards people echo the opening. They show potential reach, not guaranteed search placement or AI accuracy.`,
+      stage: <Stage v={13}>
+        <A anim="pop" delay={480} dur={650}><At x={535} y={206}>
           <Img name="passport" w={620} />
           <rect x="44" y="38" width="532" height="380" filter="url(#sp-grain)" opacity="0.26" />
           <text x="174" y="76" textAnchor="middle" className="sp-label" fontSize="20" fill={C.purple} letterSpacing="3">FINDINGS PASSPORT</text>
           <text x="485" y="76" textAnchor="middle" className="sp-label" fontSize="20" fill={C.purple} letterSpacing="3">{coverYear}</text>
         </At></A>
-        {[['DATA', 'chart values', C.teal, 888, 450, -8], ['SUMMARY', 'clear context', C.purple, 894, 602, 5], ['LINKS', '“Map 2” → annex', C.sky, 1182, 455, 5], ['BOOKMARKS', 'clickable sections', C.coral, 1180, 606, -5]].map(([text, sub, colour, x, y, r], i) =>
-          <A key={text} anim="slap" delay={[7200, 8300, 9400, 10500][i]} dur={360}><At x={x} y={y} r={r}><Stamp text={text} sub={sub} color={colour} w={text.length > 10 ? 262 : text.length > 6 ? 240 : 210} /></At></A>)}
-        <A anim="pop" delay={11200} dur={550} idle="0.5"><At x={1045} y={166}><Bubble text={sentence} size={30} /></At></A>
+        <A anim="left" delay={1750} dur={550} className="sp-wide"><At x={210} y={310} r={-5} s={0.86}>
+          <Torn w={240} h={258} fill={C.paper}>
+            <rect width="240" height="42" fill={C.teal} />
+            <text x="14" y="29" className="sp-label" fontSize="22" fontWeight="700" fill="#fff">Chart data</text>
+            {rows.map((row, i) => <text key={row[0]} x="19" y={94 + i * 47} className="sp-mono" fontSize="25" fill={C.ink}>{row.join('  ')}</text>)}
+          </Torn>
+        </At></A>
+        {[
+          ['DATA', 'chart values', C.teal, 700, 419, -8],
+          ['CLEAR SUMMARY', 'for reuse', C.purple, 704, 565, 5],
+          ['LINKS', '“Map 2” → annex', C.sky, 990, 424, 5],
+          ['BOOKMARKS', `${data.travel.bookmarks.length} sections`, C.coral, 992, 570, -5],
+        ].map(([title, sub, colour, x, y, r], i) =>
+          <A key={title} anim="slap" delay={[2400, 4200, 6100, 7800][i]} dur={400}><At x={x} y={y} r={r}><Stamp text={title} sub={sub} color={colour} w={title.length > 10 ? 268 : 218} /></At></A>)}
+        {[1, 3, 5, 7, 9, 11].map((index, i) => <A key={index} anim="pop" delay={8650 + i * 100} dur={320}>
+          <At x={CROWD[index].x} y={CROWD[index].y}><Mini body={CROWD[index].body} skin={CROWD[index].skin} /></At>
+        </A>)}
+        {[1, 3, 5, 7, 9, 11].map((index, i) => <Reach key={index} from={[847, 660]} to={[CROWD[index].x, CROWD[index].y - 18]} delay={9050 + i * 140} />)}
+        <A anim="pop" delay={8700} dur={500} idle="0.5"><At x={1160} y={150}><Bubble text={`${coverYear} · ${sentence}`} size={27} /></At></A>
       </Stage>,
     },
-    // 13. Check your own PDF
+    // 15. Check your own PDF
     {
       describe: `A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “${data.scrambled.headline}”, listing ${data.scrambled.pins.map(pin => `${pin.number}. ${pin.title} (${pin.bucket === 'fix' ? 'fix' : 'check'})`).join('; ')}. Paper pins with the same numbers drop onto a page beside it. A torn strip below reads “Your PDF stays on your device”.`,
-      stage: <Stage v={12}>
+      stage: <Stage v={14}>
         {'CHECK'.split('').map((ch, i) => <A key={i} anim="drop" delay={i * 110} dur={500} idle="0.8"><At x={590 + i * 96} y={34 + (i % 2) * 10} r={[-4, 3, -2, 5, -3][i]}><Tile ch={ch} size={100} fill={TILE_COLOURS[(i + 1) % TILE_COLOURS.length]} /></At></A>)}
         <A anim="left" delay={500} dur={650} className="sp-wide"><At x={150} y={300} r={-5}>
           <g filter="url(#sp-piece)"><rect width="210" height="290" rx="4" fill={C.paper} /></g>

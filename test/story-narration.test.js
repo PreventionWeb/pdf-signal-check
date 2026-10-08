@@ -8,15 +8,14 @@ it('keeps the narration audio in step with the story script (regenerate: scripts
   const [snapshot, narration] = await Promise.all([read('../src/story/snapshot.json'), read('../src/story/narration.json')]);
   const scenes = storyScript(snapshot);
   expect(narration.clips.map(clip => clip.id)).toEqual(scenes.map(scene => scene.id));
-  let bytes = 0;
   for (const [i, scene] of scenes.entries()) {
     const clip = narration.clips[i];
     expect(clip.text).toBe(scene.speak || scene.narration);
-    bytes += (await stat(new URL(`../public/story/audio/${clip.file}`, import.meta.url))).size;
+    expect((await stat(new URL(`../public/story/audio/${clip.file}`, import.meta.url))).size).toBeGreaterThan(0);
   }
-  // Intranet budget: narration and the optional music bed stay under about 1 MB together.
-  if (narration.music) bytes += (await stat(new URL(`../public/story/audio/${narration.music.file}`, import.meta.url))).size;
-  expect(bytes).toBeLessThan(1_000_000);
+  // Individual clips are assembly inputs. The browser downloads only the mixed soundtrack;
+  // story-playback.test.js guards its existing 1 MB download budget.
+  if (narration.music) expect((await stat(new URL(`../public/story/audio/${narration.music.file}`, import.meta.url))).size).toBeGreaterThan(0);
   // The bed sits under the voice: ducking must lower it, never raise it.
   if (narration.music) expect(narration.music.duck).toBeLessThan(narration.music.level);
 });

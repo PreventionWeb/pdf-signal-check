@@ -21,7 +21,13 @@ const graph = timeline.map((scene, i) => `[${i}:a]aresample=24000,apad,atrim=dur
 graph.push(`${timeline.map((_, i) => `[c${i}]`).join('')}concat=n=${timeline.length}:v=0:a=1[voice]`);
 // Ducking is mixed once, so two live media elements can never drift apart.
 graph.push('[voice]asplit=2[spoken][sidechain]');
-graph.push(`[${timeline.length}:a]aresample=24000,volume=${narration.music.level}[bed]`);
+if (duration > narration.music.duration) {
+  // Extend the existing bed with an overlap, instead of restarting it or letting it end before the film.
+  graph.push(`[${timeline.length}:a]aresample=24000,asplit=2[bed1][bed2]`);
+  graph.push(`[bed1][bed2]acrossfade=d=8:c1=tri:c2=tri,atrim=duration=${duration},afade=t=out:st=${duration - 3}:d=3,volume=${narration.music.level}[bed]`);
+} else {
+  graph.push(`[${timeline.length}:a]aresample=24000,volume=${narration.music.level}[bed]`);
+}
 graph.push('[bed][sidechain]sidechaincompress=threshold=0.025:ratio=4:attack=30:release=500[ducked]');
 graph.push('[spoken][ducked]amix=inputs=2:normalize=0,alimiter=limit=0.89:level=0[mix]');
 const file = 'soundtrack.mp3';

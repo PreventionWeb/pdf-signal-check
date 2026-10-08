@@ -1,46 +1,46 @@
-# Full animation script: Your report says it. Does everyone understand it?
+# Full animation script: Your report says it. But can everyone understand it?
 
-Editable review draft — 8 October 2026. Current runtime: about 109 seconds.
+Integrated script — 2026-10-08. Current runtime: 151.67 seconds (about 2.5 minutes).
 
-This draft includes the proposed opening change in scene 2: “Every report has three types of readers.” The current recorded voice still says “Everyone means three kinds of reader.” Other narration and captions below match the current source. Edit this file freely; narration can be regenerated after the wording is settled.
+Narration, captions and visuals below match the current animation. Edit this file freely for the next review; builds never overwrite it. The source is `src/story/script.js`, and recorded narration follows its spoken-number variants.
 
-The fictional report is *Harbor Observatory Annual Report 2025*. Its examples come from several synthetic sample PDFs; the final scene deliberately says “problems like these.”
+The fictional report is *Harbor Observatory Annual Report 2025*. Evidence comes from several synthetic sample PDFs; the closing deliberately says “problems like these”. Search results and the possible AI answer are illustrations of risks, not captured outputs. The 3–4–1–2 example is the method-step order, not chart labels.
 
 ## 1. Your report says it
 
-**Timing:** 0.00–4.00 seconds (4.00 seconds).
+**Timing:** 0.00–4.48 seconds (4.48 seconds).
 
 **Caption**
 
-Your report says it. Does **everyone** understand it?
+Your report says it. But can **everyone** understand it?
 
 **Narration**
 
-Your report says it. But does everyone understand it?
+Your report says it. But can everyone understand it?
 
 **Visuals**
 
-The cover of the fictional “Harbor Observatory Annual Report 2025” drops onto a sheet of cream paper. Torn paper tiles spell out “Your report says it. Does EVERYONE understand it?”, with paper question marks around them.
+The cover of the fictional “Harbor Observatory Annual Report 2025” drops onto a sheet of cream paper. Torn paper tiles spell out “Your report says it. But can EVERYONE understand it?”, with paper question marks around them.
 
 **Your edits / notes**
 
 <!-- Add edits here. -->
 
-## 2. People who see, people who listen
+## 2. Seeing, listening, processing
 
-**Timing:** 4.00–12.00 seconds (8.00 seconds).
+**Timing:** 4.48–16.92 seconds (12.44 seconds).
 
 **Caption**
 
-Some people **see** the page. Others use a **screen reader**: software that speaks it aloud.
+People **see**, people **listen**, and machines process. A screen reader is software that speaks the page aloud.
 
 **Narration**
 
-Every report has three types of readers. People who see the page. People who listen, with a screen reader that speaks it aloud.
+Reports have at least three types of readers: people who see the page, people who listen, and machines that process it. A screen reader is software that speaks the page aloud.
 
 **Visuals**
 
-Three empty paper slots, labelled 1 of 3, 2 of 3 and 3 of 3. A person with an open book slides into the first: “Sees the page”. A person with headphones slides into the second, beside a small laptop with sound waves: “Listens with a screen reader”. The third slot waits with a question mark.
+Three paper routes labelled Seeing, Listening and Processing. A person with an open book slides into Seeing. A person with headphones and a small speaking screen slides into Listening. A paper data table fills Processing.
 
 **Your edits / notes**
 
@@ -48,35 +48,35 @@ Three empty paper slots, labelled 1 of 3, 2 of 3 and 3 of 3. A person with an op
 
 ## 3. Machines, and reach
 
-**Timing:** 12.00–23.80 seconds (11.80 seconds).
+**Timing:** 16.92–32.15 seconds (15.23 seconds).
 
 **Caption**
 
-**Web search** and **AI chatbots** carry findings far beyond the file.
+**Data tools**, **web search** and **AI chatbots** can bring findings to much larger audiences.
 
 **Narration**
 
-And machines: web search, and AI chatbots built on large language models, software trained on huge amounts of text. They carry findings far beyond the file.
+Web search helps people find reports. Data tools compare findings. AI chatbots answer questions using large language models: software trained on huge amounts of text. These tools can bring your findings to much larger audiences.
 
 **Visuals**
 
-The person reading and the person listening move up to the corner. Two machine readers fill the third place: “Web search”, a paper magnifier over a search box and result cards, and “AI chatbot”, a chat bubble with a star, with small paper pages feeding into it. Dotted strings then run from both machines to a crowd of small paper people across the bottom of the page.
+The person reading and the person listening move up to the corner. Three processing routes fill the middle: data tools compare rows, web search shows result cards and an AI chatbot receives small paper pages. Dotted strings run from the tools to a crowd of paper people below.
 
 **Your edits / notes**
 
 <!-- Add edits here. -->
 
-## 4. The chart is a picture
+## 4. One clear finding
 
-**Timing:** 23.80–31.36 seconds (7.56 seconds).
+**Timing:** 32.15–41.23 seconds (9.08 seconds).
 
 **Caption**
 
-A **picture** charts water clarity at three stations. Look: South is highest.
+A **picture** shows water clarity at three stations. South has the clearest water.
 
 **Narration**
 
-Its chart is a picture of water clarity at three stations. Look, and the finding is clear: South is highest.
+In this made-up report, a picture shows water clarity at three stations. South has the tallest bar: the clearest water.
 
 **Visuals**
 
@@ -86,37 +86,37 @@ The made-up report's chart page comes forward. The chart, titled “Water clarit
 
 <!-- Add edits here. -->
 
-## 5. Hidden layers
+## 5. Meaning behind the page
 
-**Timing:** 31.36–38.00 seconds (6.64 seconds).
+**Timing:** 41.23–50.12 seconds (8.89 seconds).
 
 **Caption**
 
-Behind the page sit **hidden layers**: copied-out text, and tags that guide a screen reader.
+A PDF can carry **text and tags** behind the page. Tags help a screen reader navigate in order.
 
 **Narration**
 
-Behind the page sit hidden layers: text that machines copy out, and tags that guide a screen reader.
+A PDF can carry more than a picture: text that machines extract, and hidden labels called tags that help a screen reader navigate in order.
 
 **Visuals**
 
-Behind the page, the report fans out into three stacked sheets of paper. The top sheet, white, is “What people see”. The middle sheet, light blue, is “Text machines copy out”, shown as lines of plain text, with web search and the AI chatbot beside it. The bottom sheet, yellow, is “Tags screen readers follow”, shown as numbered tags on a string, with the person listening beside it.
+Behind the page, the report fans out into three stacked sheets of paper. The top sheet, white, is “What people see”. The middle sheet, light blue, is “Text machines extract”, shown as lines of plain text, with web search and the AI chatbot beside it. The bottom sheet, yellow, is “Tags guide the reading order”, shown as numbered tags on a string, with the person listening beside it.
 
 **Your edits / notes**
 
 <!-- Add edits here. -->
 
-## 6. No description
+## 6. The finding is missing
 
-**Timing:** 38.00–43.25 seconds (5.25 seconds).
+**Timing:** 50.12–59.06 seconds (8.94 seconds).
 
 **Caption**
 
-The chart has **no description**. A screen reader just says “image”.
+With **no written description**, a screen reader may only say “image”. The listener misses the finding.
 
 **Narration**
 
-But this chart has no written description, so a screen reader just says “image”.
+Here, the chart has no written description. A screen reader may only say “image”. Someone relying on that description misses the finding.
 
 **Visuals**
 
@@ -126,17 +126,17 @@ Left: the chart as people see it, with the bubble “South is highest”. Right:
 
 <!-- Add edits here. -->
 
-## 7. Steps out of order
+## 7. Having tags is not enough
 
-**Timing:** 43.25–51.13 seconds (7.88 seconds).
+**Timing:** 59.06–67.47 seconds (8.41 seconds).
 
 **Caption**
 
-Hidden tags put the method steps in the order **3, 4, 1, 2**. Store comes before collect.
+Tags put the method steps in the order **3, 4, 1, 2**. Store comes before collect.
 
 **Narration**
 
-The tags also jumble the steps: 3, 4, 1, 2. Store comes before collect.
+Having tags is not enough. These tags put the method steps in the order 3, 4, 1, 2. Store comes before collect.
 
 **Visuals**
 
@@ -146,17 +146,17 @@ Left: the page people see, with method steps 1 and 2 in the left column and 3 an
 
 <!-- Add edits here. -->
 
-## 8. The lonely number
+## 8. A number without its meaning
 
-**Timing:** 51.13–57.88 seconds (6.75 seconds).
+**Timing:** 67.47–78.09 seconds (10.62 seconds).
 
 **Caption**
 
-In copied-out text, **+0.7 m** ends up apart from its label.
+**+0.7 m** means a rise in water clarity. Without its label, what does it mean?
 
 **Narration**
 
-On the page, +0.7 m sits by its label. Copied out, it ends up alone.
+The number +0.7 m means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.
 
 **Visuals**
 
@@ -166,37 +166,37 @@ First, as people see it on the page: the big number “+0.7 m” beside its labe
 
 <!-- Add edits here. -->
 
-## 9. The wrong title
+## 9. Last year's title
 
-**Timing:** 57.88–64.30 seconds (6.42 seconds).
+**Timing:** 78.09–90.05 seconds (11.96 seconds).
 
 **Caption**
 
-The title saved in the file says **2024**. The cover says 2025.
+The report is about **2025**. Its saved title still says **2024**. The dates disagree.
 
 **Narration**
 
-Inside the file, the saved title says 2024. The cover says 2025.
+This report is about 2025. But the title saved inside still says 2024, a detail easily carried over from last year's file. The dates now disagree.
 
 **Visuals**
 
-A folder labelled “Saved in the file” holds the title “Harbor Observatory Annual Report 2024”, with 2024 ringed in red. Beside it, the cover says “Harbor Observatory Annual Report 2025”, with 2025 ringed in teal.
+A folder labelled “Title saved inside the PDF” holds the title “Harbor Observatory Annual Report 2024”, with 2024 ringed in red. Beside it, the cover says “Harbor Observatory Annual Report 2025”, with 2025 ringed in teal. A carried-over year is one possible explanation, not recorded provenance.
 
 **Your edits / notes**
 
 <!-- Add edits here. -->
 
-## 10. What happens: search and listening
+## 10. What people receive
 
-**Timing:** 64.30–72.98 seconds (8.68 seconds).
+**Timing:** 90.05–97.31 seconds (7.26 seconds).
 
 **Caption**
 
-Search may show the **wrong year**. People listening may lose the chart and steps.
+Search may show the **wrong year**. People listening may miss the chart or hear steps out of order.
 
 **Narration**
 
-So what happens? Search may list it as last year’s report. Someone using a screen reader may lose the chart and the steps.
+Search may present it as last year's report. Someone listening may miss the chart or hear the steps in the wrong order.
 
 **Visuals**
 
@@ -206,49 +206,89 @@ Left: a search result lists “Harbor Observatory Annual Report 2024”, with 20
 
 <!-- Add edits here. -->
 
-## 11. What happens: AI chatbots and reach
+## 11. What AI may pass on
 
-**Timing:** 72.98–87.34 seconds (14.36 seconds).
+**Timing:** 97.31–110.91 seconds (13.60 seconds).
 
 **Caption**
 
-AI chatbots may **get it wrong**. The finding reaches fewer people, or arrives changed.
+AI may give the **wrong finding for the wrong year**. Findings reach fewer people, or arrive changed.
 
 **Narration**
 
-AI chatbots may skip the example, mix up facts, or confidently get them wrong. Errors like these, sometimes called hallucinations, can spread. The finding reaches fewer people, or arrives changed.
+An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the wrong year. If it invents an answer, that's a hallucination. The finding reaches fewer people, or arrives changed.
 
 **Visuals**
 
-The AI chatbot answers, calmly and confidently: “In 2024, North was highest.” A red pencil ring goes round the answer, which is wrong twice over. Copies of the wrong answer drift outward. Then the dotted strings to the crowd of small paper people come back thinner: fewer reach anyone, and the one “South is highest” bubble that arrives is crumpled.
+A clearly hypothetical AI chatbot answer says “In 2024, Central was highest.” under the label “Possible wrong answer”. A red pencil ring circles it. A small reference reads “2025 · South is highest” to show why both the year and station are wrong. Copies of the possible wrong answer drift outward; some paths to the crowd stop short.
 
 **Your edits / notes**
 
 <!-- Add edits here. -->
 
-## 12. A passport for your findings
+## 12. Garbage in, garbage out
 
-**Timing:** 87.34–100.12 seconds (12.78 seconds).
+**Timing:** 110.91–122.73 seconds (11.82 seconds).
 
 **Caption**
 
-Fix the description, step order, number labels and title. Then add a **passport** for wider reach: data, a summary, links and bookmarks.
+**Garbage in, garbage out.** Confusing input can lead to misleading answers. AI can make mistakes with good inputs too.
 
 **Narration**
 
-First, describe the chart, put steps in order, keep numbers with labels, and match the title. Then give findings a passport to travel further: data, a clear summary, links and bookmarks.
+It's an old problem: garbage in, garbage out. AI can make mistakes even with good inputs. But unclear or misleading inputs add avoidable confusion.
 
 **Visuals**
 
-Four repair strips land first: describe the chart, order the steps, keep the number with its label, and match the saved title to the cover. Then an open paper passport lands. Four stamps show extra ways to help findings travel: data (the attached file harbor-observatory-2025-station-visibility.csv, with rows North 2.8, Central 3.1, South 3.4), a clear summary, links (“Map 2” leads to the annex) and bookmarks (5 clickable sections). These are opportunities for wider reach, not a guarantee that software will interpret the PDF correctly.
+Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out. Another strip says “AI can make mistakes too”, so the visual does not promise that clean input guarantees a correct answer.
 
 **Your edits / notes**
 
 <!-- Add edits here. -->
 
-## 13. Check your own PDF
+## 13. Repair the meaning
 
-**Timing:** 100.12–108.77 seconds (8.65 seconds).
+**Timing:** 122.73–130.76 seconds (8.03 seconds).
+
+**Caption**
+
+**Describe the chart.** Order the steps. Keep numbers with labels. Match the title to the cover.
+
+**Narration**
+
+Start with what you can fix. Describe the chart, put steps in order, keep numbers with labels, and match the saved title to the cover.
+
+**Visuals**
+
+Four paper repair cards show changes people can make: describe the chart as water clarity at three stations with the finding “South is highest”, put method steps in the order 1, 2, 3, 4, join +0.7 m to its water-clarity label, and make the saved title match the 2025 cover.
+
+**Your edits / notes**
+
+<!-- Add edits here. -->
+
+## 14. A passport for wider reach
+
+**Timing:** 130.76–141.96 seconds (11.20 seconds).
+
+**Caption**
+
+Help findings **travel further**: share data, add a clear summary, clickable links and bookmarks to sections.
+
+**Narration**
+
+Then help findings travel further: share the chart's data, add a clear summary, make links clickable, and add bookmarks to jump between sections. A passport for reuse.
+
+**Visuals**
+
+An open paper passport carries four optional stamps: “Data” with a chart-data slip on wide screens, showing rows North 2.8, Central 3.1, South 3.4 from harbor-observatory-2025-station-visibility.csv; “Clear summary”; “Links” for “Map 2” to the annex; and “Bookmarks” for 5 sections. The intact “South is highest” slip and dotted paths towards people echo the opening. They show potential reach, not guaranteed search placement or AI accuracy.
+
+**Your edits / notes**
+
+<!-- Add edits here. -->
+
+## 15. Check your own PDF
+
+**Timing:** 141.96–151.67 seconds (9.71 seconds).
 
 **Caption**
 
@@ -256,7 +296,7 @@ Four repair strips land first: describe the chart, order the steps, keep the num
 
 **Narration**
 
-PDF Signal Check finds problems like these: here, 1 to fix and 4 to check. Your file stays on your device.
+PDF Signal Check finds problems like these: here, 1 to fix and 4 to check. Check your own PDF. It stays on your device.
 
 **Visuals**
 

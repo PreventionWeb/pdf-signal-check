@@ -3,7 +3,7 @@
 // The key is only sent to OpenRouter and never written anywhere. Clips whose text is unchanged are kept, so a
 // re-run only pays for edited lines. Needs ffmpeg/ffprobe on PATH (mono 24 kHz, 32 kbit/s MP3, loudness-normalised).
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { storyScript } from '../src/story/script.js';
 
@@ -43,7 +43,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for (const [index, scene] of storyScript(data).entries()) {
     const text = scene.speak || scene.narration, file = `${String(index + 1).padStart(2, '0')}-${scene.id}.mp3`;
     const old = previous.clips?.find(clip => clip.id === scene.id);
-    if (old?.text === text && old.file === file && old.model === MODEL && old.voice === VOICE && JSON.stringify(old.settings) === JSON.stringify(VOICE_SETTINGS) && existsSync(audioDir + file)) { clips.push(old); continue; }
+    if (old?.text === text && old.model === MODEL && old.voice === VOICE && JSON.stringify(old.settings) === JSON.stringify(VOICE_SETTINGS) && existsSync(audioDir + old.file)) {
+      if (old.file !== file) copyFileSync(audioDir + old.file, audioDir + file);
+      clips.push({ ...old, file }); continue;
+    }
     const raw = `${audioDir}.${file}.raw.mp3`;
     writeFileSync(raw, await speak(text));
     characters += text.length;

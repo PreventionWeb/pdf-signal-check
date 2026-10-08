@@ -8,119 +8,137 @@
     {
       "id": "says-it",
       "file": "01-says-it.mp3",
-      "text": "Your report says it. But does everyone understand it?",
+      "text": "Your report says it. But can everyone understand it?",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 3.62
+      "duration": 4.18
     },
     {
       "id": "readers",
       "file": "02-readers.mp3",
-      "text": "Everyone means three kinds of reader. People who see the page. People who listen, with a screen reader that speaks it aloud.",
+      "text": "Reports have at least three types of readers: people who see the page, people who listen, and machines that process it. A screen reader is software that speaks the page aloud.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 7.7
+      "duration": 12.14
     },
     {
       "id": "machines",
       "file": "03-machines.mp3",
-      "text": "And machines: web search, and AI chatbots built on large language models, software trained on huge amounts of text. They carry findings far beyond the file.",
+      "text": "Web search helps people find reports. Data tools compare findings. AI chatbots answer questions using large language models: software trained on huge amounts of text. These tools can bring your findings to much larger audiences.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 11.5
+      "duration": 14.93
     },
     {
       "id": "picture",
       "file": "04-picture.mp3",
-      "text": "Its chart is a picture of water clarity at three stations. Look, and the finding is clear: South is highest.",
+      "text": "In this made-up report, a picture shows water clarity at three stations. South has the tallest bar: the clearest water.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 7.06
+      "duration": 8.78
     },
     {
       "id": "layers",
       "file": "05-layers.mp3",
-      "text": "Behind the page sit hidden layers: text that machines copy out, and tags that guide a screen reader.",
+      "text": "A PDF can carry more than a picture: text that machines extract, and hidden labels called tags that help a screen reader navigate in order.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 6.34
+      "duration": 8.59
     },
     {
       "id": "no-description",
       "file": "06-no-description.mp3",
-      "text": "But this chart has no written description, so a screen reader just says “image”.",
+      "text": "Here, the chart has no written description. A screen reader may only say “image”. Someone relying on that description misses the finding.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 4.94
+      "duration": 8.64
     },
     {
       "id": "order",
       "file": "07-order.mp3",
-      "text": "The tags also jumble the steps: three, four, one, two. Store comes before collect.",
+      "text": "Having tags is not enough. These tags put the method steps in the order three, four, one, two. Store comes before collect.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 7.58
+      "duration": 8.11
     },
     {
       "id": "lonely-number",
       "file": "08-lonely-number.mp3",
-      "text": "On the page, plus zero point seven metres sits by its label. Copied out, it ends up alone.",
+      "text": "The number plus zero point seven metres means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 6.14
+      "duration": 10.32
     },
     {
       "id": "wrong-title",
       "file": "09-wrong-title.mp3",
-      "text": "Inside the file, the saved title says twenty twenty-four. The cover says twenty twenty-five.",
+      "text": "This report is about twenty twenty-five. But the title saved inside still says twenty twenty-four, a detail easily carried over from last year's file. The dates now disagree.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 6.12
+      "duration": 11.66
     },
     {
       "id": "search-and-listening",
       "file": "10-search-and-listening.mp3",
-      "text": "So what happens? Search may list it as last year’s report. Someone using a screen reader may lose the chart and the steps.",
+      "text": "Search may present it as last year's report. Someone listening may miss the chart or hear the steps in the wrong order.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 8.38
+      "duration": 6.96
     },
     {
       "id": "chatbots-and-reach",
       "file": "11-chatbots-and-reach.mp3",
-      "text": "AI chatbots may skip the example, mix up facts, or confidently get them wrong. Errors like these, sometimes called hallucinations, can spread. The finding reaches fewer people, or arrives changed.",
+      "text": "An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the wrong year. If it invents an answer, that's a hallucination. The finding reaches fewer people, or arrives changed.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 14.06
+      "duration": 13.3
+    },
+    {
+      "id": "garbage-in-garbage-out",
+      "file": "12-garbage-in-garbage-out.mp3",
+      "text": "It's an old problem: garbage in, garbage out. AI can make mistakes even with good inputs. But unclear or misleading inputs add avoidable confusion.",
+      "model": "microsoft/mai-voice-2.1",
+      "voice": "en-GB-Emily:MAI-Voice-2.1",
+      "settings": null,
+      "duration": 11.52
+    },
+    {
+      "id": "repair",
+      "file": "13-repair.mp3",
+      "text": "Start with what you can fix. Describe the chart, put steps in order, keep numbers with labels, and match the saved title to the cover.",
+      "model": "microsoft/mai-voice-2.1",
+      "voice": "en-GB-Emily:MAI-Voice-2.1",
+      "settings": null,
+      "duration": 7.73
     },
     {
       "id": "passport",
-      "file": "12-passport.mp3",
-      "text": "First, describe the chart, put steps in order, keep numbers with labels, and match the title. Then give findings a passport to travel further: data, a clear summary, links and bookmarks.",
+      "file": "14-passport.mp3",
+      "text": "Then help findings travel further: share the chart's data, add a clear summary, make links clickable, and add bookmarks to jump between sections. A passport for reuse.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 12.48
+      "duration": 10.9
     },
     {
       "id": "check",
-      "file": "13-check.mp3",
-      "text": "PDF Signal Check finds problems like these: here, one to fix and four to check. Your file stays on your device.",
+      "file": "15-check.mp3",
+      "text": "PDF Signal Check finds problems like these: here, one to fix and four to check. Check your own PDF. It stays on your device.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 8.35
+      "duration": 9.41
     }
   ],
   "music": {

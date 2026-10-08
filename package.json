@@ -14,7 +14,8 @@
     "test": "vitest run",
     "samples": "node scripts/generate-samples.js",
     "calibration": "node scripts/generate-calibration.js && node scripts/generate-attachment-calibration.js",
-    "story:audio": "node scripts/build-story-soundtrack.mjs"
+    "story:audio": "node scripts/build-story-soundtrack.mjs",
+    "story:script": "node scripts/export-story-script.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.0",
