@@ -1,6 +1,6 @@
 # References and third party software
 
-PDF Signal Check is independently authored by Ken Hawkins under the MIT license.
+PDF Signal Check is independently authored by Ken Hawkins under the Apache License 2.0.
 
 ## Reference projects
 
@@ -29,12 +29,12 @@ The ONNX Runtime notice in `third-party/onnxruntime-LICENSE.txt` was obtained fr
 
 `public/fonts/NotoSans-Regular.ttf` is unmodified Noto Sans Regular from the Noto Project's archived font repository: https://github.com/notofonts/noto-fonts/blob/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf . Copyright 2018 The Noto Project Authors. Licensed under SIL Open Font License 1.1; full notice is bundled at `public/fonts/OFL.txt`. The vendored font's SHA-256 is `b85c38ecea8a7cfb39c24e395a4007474fa5a4fc864f6ee33309eb4948d232d5`. No external font host is contacted at export time.
 
-`@pdf-lib/fontkit` 1.1.1 is the MIT-licensed pdf-lib font embedding library: https://github.com/Hopding/fontkit . Its package metadata and upstream README declare MIT; that distribution omits a standalone license file. The preparation step preserves the upstream README and actual bundled legal comment blocks in `licenses/fontkit-README.txt` and `licenses/fontkit-bundled-NOTICES.txt`. Report fonts are subset into generated PDFs. Font coverage is checked per code point; text outside it uses a conspicuously disclosed browser-raster fallback, not silent transliteration or replacement. Raster fallback is not selectable/extractable and depends on fonts available to the browser; exact Unicode values are preserved in detailed JSON.
+`@pdf-lib/fontkit` 1.1.1 is the MIT-licensed pdf-lib font embedding library: https://github.com/Hopding/fontkit . Its package metadata and upstream README declare MIT; that distribution omits a standalone license file. The preparation step preserves the upstream README and actual bundled legal comment blocks in `licenses/fontkit-README.txt` and `licenses/fontkit-bundled-NOTICES.txt`. Report fonts are subset into generated PDFs. Font coverage is checked per code point; text outside it uses a conspicuously disclosed browser-raster fallback, not silent transliteration or replacement. Raster fallback depends on fonts available to the browser; tagged replacement text preserves exact Unicode for supporting readers, and detailed JSON retains the original values.
 
 ## Mangrove presentation assets
 
 The PreventionWeb theme of [Mangrove 2.0.0](https://github.com/PreventionWeb/undrr-mangrove) (Apache License 2.0) is loaded at runtime from UNDRR’s versioned asset library, https://assets.undrr.org/mangrove/2.0.0/css/style-preventionweb.css, pinned with a Subresource Integrity hash. It is not redistributed in this repository. The stylesheet references Roboto and Roboto Condensed (Apache License 2.0) and Noto Kufi Arabic (SIL OFL 1.1) from the same library.
 
-The application header uses the official reversed PreventionWeb logo from [UNDRR’s PreventionWeb logo library](https://assets.undrr.org/logos/pw/README.md). The story retains both UNDRR and PreventionWeb logos. These institutional identity assets are not relicensed as this project’s MIT product mark. See [migration and refresh instructions](docs/MANGROVE.md) for the pinned theme and external-asset policy.
+The application header uses the official UNDRR horizontal logo from the UNDRR asset library. The story retains both UNDRR and PreventionWeb logos. The project’s Apache licence does not relicense these institutional identity assets. See [migration and refresh instructions](docs/MANGROVE.md) for the pinned theme and external-asset policy.
 
 React and React DOM 19.3.0 are distributed under the MIT license; Vite’s React plugin 6.1.2 is MIT. The published `@undrr/undrr-mangrove` 2.0.0 React components are Apache-2.0 and use the same independently attributed CDN theme/fonts/assets described above. Package component imports do not load remote institutional widgets or styles.
