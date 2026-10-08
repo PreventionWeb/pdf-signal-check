@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 
 /*
  * Cut-paper art for the story. Tiles, strips, sheets, stamps, charts and tags are hand-authored SVG: torn and
@@ -142,14 +142,28 @@ export function Tile({ ch, fill, size = 120, dark = false }) {
   </Torn>;
 }
 
-/** A torn strip of words. Width is estimated from the text so strips fit their words. */
-export function Strip({ text, fill = C.paper, color = C.ink, size = 44, pad = 22, bold = true, width, cls = 'sp-strip' }) {
-  const w = width || Math.round(text.length * size * (cls === 'sp-mono' ? 0.6 : bold ? 0.54 : 0.5) + pad * 2), h = Math.round(size * 1.45);
-  return <Torn w={w} h={h} fill={fill}>
-    <text x={pad} y={h * 0.7} className={cls} fontSize={size} fill={color} fontWeight={bold ? 700 : 400}>{text}</text>
+/**
+ * A torn strip of words. The width starts from an estimate, then is measured from the rendered text (again once
+ * web fonts load) so the words always sit inside the strip with even padding. `center` centres it on 0,0.
+ */
+export function Strip({ text, fill = C.paper, color = C.ink, size = 44, pad = 22, bold = true, width, cls = 'sp-strip', center = false }) {
+  const estimate = Math.round(text.length * size * (cls === 'sp-mono' ? 0.6 : bold ? 0.54 : 0.5) + pad * 2);
+  const label = useRef(null);
+  const [measured, setMeasured] = useState(null);
+  useLayoutEffect(() => {
+    if (width) return;
+    let active = true;
+    const measure = () => { const length = label.current?.getComputedTextLength?.(); if (active && length > 0) setMeasured(Math.ceil(length + pad * 2)); };
+    measure();
+    document.fonts?.ready.then(measure);
+    return () => { active = false; };
+  }, [text, size, pad, cls, bold, width]);
+  const w = width || measured || estimate, h = Math.round(size * 1.45);
+  const strip = <Torn w={w} h={h} fill={fill}>
+    <text ref={label} x={pad} y={h * 0.69} className={cls} fontSize={size} fill={color} fontWeight={bold ? 700 : 400}>{text}</text>
   </Torn>;
+  return center ? <g transform={`translate(${-w / 2} 0)`}>{strip}</g> : strip;
 }
-export const stripWidth = (text, size = 44, pad = 22) => Math.round(text.length * size * 0.54 + pad * 2);
 
 /** Pixel sizes of the cut-paper images in public/story/images, for their aspect ratios. */
 const IMAGES = {
@@ -231,7 +245,7 @@ export function Person({ kind, label }) {
     {kind === 'listener' && <g filter="url(#sp-scissor)" stroke={C.mustard} strokeWidth="9" fill="none" strokeLinecap="round">
       <path d="M112 40 Q128 66 112 92" /><path d="M132 24 Q158 66 132 108" />
     </g>}
-    <At x={0} y={250}><g transform={`translate(${-stripWidth(label, 28, 13) / 2} 0)`}><Strip text={label} size={28} pad={13} /></g></At>
+    <At x={0} y={250}><Strip text={label} size={28} pad={13} center /></At>
   </g>;
 }
 /** A luggage-style tag with a number, hanging from the top. */
