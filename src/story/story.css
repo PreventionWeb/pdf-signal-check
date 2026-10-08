@@ -44,6 +44,7 @@
 .story-transcript p { margin: 0 0 4px; max-width: 70ch; }
 .story-describe { font-size: .9375rem; color: var(--muted); }
 .story-footnote { font-size: .875rem; color: var(--muted); margin-block: 8px 48px; }
+.story-footnote a { text-decoration: underline; text-underline-offset: .15em; }
 
 /* Narrow screens keep the central 4:3 of the 16:9 stage (the art's safe area). */
 @media (max-width: 700px) {
@@ -105,7 +106,7 @@
   .story-sound .story-volume { width: 64px; display: none; }
 
   .story-progress { padding-inline: 4px; font-size: .75rem; }
-  .story-settings-panel { right: -44px; }
+  .story-settings-panel { right: -44px; max-height: min(45vh, 230px); }
 }
 @media (prefers-reduced-motion: reduce) { .story-control { transition: none; } .story-control:active { transform: none; } }
 @media (forced-colors: active) {

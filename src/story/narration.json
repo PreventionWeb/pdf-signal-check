@@ -17,92 +17,92 @@
     {
       "id": "readers",
       "file": "02-readers.mp3",
-      "text": "Reports have at least three types of readers: people who see the page, people who listen, and machines that process it. A screen reader is software that speaks the page aloud.",
+      "text": "Reports have at least three types of reader: people who see the page, people who listen as a screen reader speaks it aloud, and machines that analyse and process it.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 12.14
+      "duration": 9.65
     },
     {
       "id": "machines",
       "file": "03-machines.mp3",
-      "text": "Web search helps people find reports. Data tools compare findings. AI chatbots answer questions using large language models: software trained on huge amounts of text. These tools can bring your findings to much larger audiences.",
+      "text": "Machines power web search, helping people find reports. Data tools compare findings for researchers. AI chatbots answer questions using large language models trained on huge amounts of text. These tools can bring your report's findings to much larger audiences. But a small mistake in the PDF's hidden formatting can spread errors just as widely.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 14.93
+      "duration": 23.64
     },
     {
       "id": "chapter-demonstrations",
       "file": "04-chapter-demonstrations.mp3",
-      "text": "Let's follow one finding, and see what gets lost.",
+      "text": "To understand the risk, let's follow one finding.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 3.36
+      "duration": 3.17
     },
     {
       "id": "picture",
       "file": "05-picture.mp3",
-      "text": "In this made-up report, a picture shows water clarity at three stations. South has the tallest bar: the clearest water.",
+      "text": "In this fictional report, a picture of a bar chart shows water clarity at three stations. For someone looking at the page, the meaning is clear: South has the tallest bar, and the clearest water.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 8.78
+      "duration": 12.38
     },
     {
       "id": "layers",
       "file": "06-layers.mp3",
-      "text": "But the picture alone may not reach everyone. A PDF can also carry text that machines extract, and hidden labels called tags that guide a screen reader.",
+      "text": "But the picture alone may not reach everyone. This PDF also carries text that machines can extract, and invisible labels called tags that help machines and screen readers follow its structure.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 9.31
+      "duration": 13.3
     },
     {
       "id": "no-description",
       "file": "07-no-description.mp3",
-      "text": "Here, the chart has no written description. A screen reader may only say “image”. Someone relying on that description misses the finding.",
+      "text": "Here, the chart image has no written description. A screen reader may only say “image”. A person or machine relying on that description can miss the finding.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 8.64
+      "duration": 10.27
     },
     {
       "id": "order",
       "file": "08-order.mp3",
-      "text": "Having tags is not enough. These tags put the method steps in the order three, four, one, two. Store comes before collect.",
+      "text": "Tags help people using screen readers, as well as machines. But here, the tags put the method steps out of order: three, four, one, two. Store comes before collect. It's like icing a cake before baking it.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 8.11
+      "duration": 18.48
     },
     {
       "id": "lonely-number",
       "file": "09-lonely-number.mp3",
-      "text": "The number plus zero point seven metres means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.",
+      "text": "On the page, plus zero point seven metres draws attention to a rise in water clarity. But in copied-out text, the number loses its label. A person or machine may no longer know what it refers to.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 10.32
+      "duration": 12.41
     },
     {
       "id": "wrong-title",
       "file": "10-wrong-title.mp3",
-      "text": "This report is about twenty twenty-five. But the title saved inside still says twenty twenty-four, a detail easily carried over from last year's file. The dates now disagree.",
+      "text": "This report presents twenty twenty-five data. But the title saved inside still says twenty twenty-four, a detail easily carried over from last year's file. Is it the twenty twenty-four report or the twenty twenty-five report? The cover and saved title give software conflicting clues.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 11.66
+      "duration": 18.24
     },
     {
       "id": "chapter-impact",
       "file": "11-chapter-impact.mp3",
-      "text": "So what reaches the people who need your findings?",
+      "text": "These small mistakes can ripple outwards. So what reaches the people who need your findings?",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 2.64
+      "duration": 6.19
     },
     {
       "id": "search-and-listening",
@@ -116,20 +116,20 @@
     {
       "id": "chatbots-and-reach",
       "file": "13-chatbots-and-reach.mp3",
-      "text": "An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the wrong year. If it invents an answer, that's a hallucination. The finding reaches fewer people, or arrives changed.",
+      "text": "An AI chatbot may miss the data in a chart or misinterpret it: the wrong finding, for the wrong year. Piecing together incomplete information, it may invent an answer: a hallucination. The finding reaches fewer people, or arrives with a meaning you never intended.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 13.3
+      "duration": 17.23
     },
     {
       "id": "garbage-in-garbage-out",
       "file": "14-garbage-in-garbage-out.mp3",
-      "text": "There's an old saying from the early days of computing in the nineteen fifties: garbage in, garbage out. Missing or misleading information can lead to misleading answers. AI can make mistakes with good inputs too.",
+      "text": "There's an old saying from the early days of computing in the nineteen fifties: garbage in, garbage out. Missing or misleading information can lead to misleading answers.",
       "model": "microsoft/mai-voice-2.1",
       "voice": "en-GB-Emily:MAI-Voice-2.1",
       "settings": null,
-      "duration": 13.49
+      "duration": 10.22
     },
     {
       "id": "chapter-repair",

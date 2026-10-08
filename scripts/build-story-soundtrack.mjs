@@ -31,7 +31,7 @@ if (duration > narration.music.duration) {
 graph.push('[bed][sidechain]sidechaincompress=threshold=0.025:ratio=4:attack=30:release=500[ducked]');
 graph.push('[spoken][ducked]amix=inputs=2:normalize=0,alimiter=limit=0.89:level=0[mix]');
 // Keep the longer chaptered cut within the existing 1 MB playback download contract.
-const bitrateKbps = duration <= 164 ? 48 : 40;
+const bitrateKbps = duration <= 164 ? 48 : duration <= 198 ? 40 : 32;
 const file = 'soundtrack.mp3';
 args.push('-filter_complex', graph.join(';'), '-map', '[mix]', '-t', String(duration), '-ac', '1', '-ar', '24000', '-b:a', `${bitrateKbps}k`, new URL(`public/story/audio/${file}`, root).pathname);
 execFileSync('ffmpeg', args);

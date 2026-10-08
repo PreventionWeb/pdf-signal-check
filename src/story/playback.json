@@ -1,7 +1,7 @@
 {
   "file": "soundtrack.mp3",
-  "duration": 165.02,
-  "bitrateKbps": 40,
+  "duration": 203.65,
+  "bitrateKbps": 32,
   "timeline": [
     {
       "id": "says-it",
@@ -11,86 +11,86 @@
     {
       "id": "readers",
       "start": 4.48,
-      "duration": 12.44
+      "duration": 9.95
     },
     {
       "id": "machines",
-      "start": 16.92,
-      "duration": 15.23
+      "start": 14.43,
+      "duration": 23.94
     },
     {
       "id": "chapter-demonstrations",
-      "start": 32.15,
-      "duration": 3.66
-    },
-    {
-      "id": "picture",
-      "start": 35.81,
-      "duration": 9.08
-    },
-    {
-      "id": "layers",
-      "start": 44.89,
-      "duration": 9.61
-    },
-    {
-      "id": "no-description",
-      "start": 54.5,
-      "duration": 8.94
-    },
-    {
-      "id": "order",
-      "start": 63.44,
-      "duration": 8.41
-    },
-    {
-      "id": "lonely-number",
-      "start": 71.85,
-      "duration": 10.62
-    },
-    {
-      "id": "wrong-title",
-      "start": 82.47,
-      "duration": 11.96
-    },
-    {
-      "id": "chapter-impact",
-      "start": 94.43,
+      "start": 38.37,
       "duration": 3.5
     },
     {
+      "id": "picture",
+      "start": 41.87,
+      "duration": 12.68
+    },
+    {
+      "id": "layers",
+      "start": 54.55,
+      "duration": 13.6
+    },
+    {
+      "id": "no-description",
+      "start": 68.15,
+      "duration": 10.57
+    },
+    {
+      "id": "order",
+      "start": 78.72,
+      "duration": 18.78
+    },
+    {
+      "id": "lonely-number",
+      "start": 97.5,
+      "duration": 12.71
+    },
+    {
+      "id": "wrong-title",
+      "start": 110.21,
+      "duration": 18.54
+    },
+    {
+      "id": "chapter-impact",
+      "start": 128.75,
+      "duration": 6.49
+    },
+    {
       "id": "search-and-listening",
-      "start": 97.93,
+      "start": 135.24,
       "duration": 7.26
     },
     {
       "id": "chatbots-and-reach",
-      "start": 105.19,
-      "duration": 13.6
+      "start": 142.5,
+      "duration": 17.53
     },
     {
       "id": "garbage-in-garbage-out",
-      "start": 118.79,
-      "duration": 13.79
+      "start": 160.03,
+      "duration": 11.18
     },
     {
       "id": "chapter-repair",
-      "start": 132.58,
+      "start": 171.21,
       "duration": 3.5
     },
     {
       "id": "repair",
-      "start": 136.08,
+      "start": 174.71,
       "duration": 8.03
     },
     {
       "id": "passport",
-      "start": 144.11,
+      "start": 182.74,
       "duration": 11.2
     },
     {
       "id": "check",
-      "start": 155.31,
+      "start": 193.94,
       "duration": 9.71
     }
   ],
@@ -101,43 +101,43 @@
     },
     {
       "file": "02-readers.mp3",
-      "sha256": "10a0407abd78478421e407a55dbb17b90f40d54a743867813b3d2b51c666bc90"
+      "sha256": "3b4288a18ec300ed52614d0545efdbdc306a26a41fcb4fce1a4a475d10178e7f"
     },
     {
       "file": "03-machines.mp3",
-      "sha256": "cf62f17c81dbb106af56ee9bc2960aa5a1bc009f35fd957009b4ce6040009294"
+      "sha256": "25f24d3618074c86fa40ad49ec8b9c9be7f8934619ec20ea3b3a72afc6a18cc5"
     },
     {
       "file": "04-chapter-demonstrations.mp3",
-      "sha256": "e6afc72ccf03cb15c0c60ec7b968feefd0d96b205c5d72a474d9071454bfa5fc"
+      "sha256": "039b5aebd4c536a5baf60cd74d2a7e550ff363204697a4d6cc656913ac51bc69"
     },
     {
       "file": "05-picture.mp3",
-      "sha256": "0177063dfe12782d11512f1b5316b482e7af1f8fe8f82830715fcd6a9de52a51"
+      "sha256": "20253e4ac33db347b934c88a34bd90797c44714cb0d4ed3dffc3391d9953c0cf"
     },
     {
       "file": "06-layers.mp3",
-      "sha256": "7647408fa8fe381c1f6923c45cc14b71c4e222096f19ffd5c275d888cd2a4626"
+      "sha256": "86d8e36063fee43058cf1c5ac2b932ef577d114d254414afa0184638f33fd8a3"
     },
     {
       "file": "07-no-description.mp3",
-      "sha256": "f4dfc41c4f97274aae2666f069d20776ce994ffb11bfda5a1d04c61ebbf476ee"
+      "sha256": "daec5d4085ad36128f82f0ba86af982cf9a0efccace5f38c8f90cf02155c5e56"
     },
     {
       "file": "08-order.mp3",
-      "sha256": "7dc5932ffd738ebe968099701b0b6f33756a5908b566ce36983a8fa715e3234f"
+      "sha256": "c0da45797504bc753d7ad3013cc3f4ba1445dd0355db23ef28ff096bd3acc9aa"
     },
     {
       "file": "09-lonely-number.mp3",
-      "sha256": "a5a21317c9fd3ee730550c2741abf939d3c5828c2ba0b0614f7dea16e5f5002e"
+      "sha256": "8027f4dedc525ba13cb7702b86580b73892dca25f376369e293b44d46e52f5fe"
     },
     {
       "file": "10-wrong-title.mp3",
-      "sha256": "34d6742443fcade2c701394c95125c875ea1ca8f4a01146658620119498cd707"
+      "sha256": "04c9c7bbfb56a20e80cfb29f8196c05aa6f8de1d735439e2c25705e9ece7a845"
     },
     {
       "file": "11-chapter-impact.mp3",
-      "sha256": "2f8c4571d793dc4e486240e893d80ce09296436d287bd269e10f006d9dcefa0b"
+      "sha256": "48ba297591018fd1373d7a0e10e4b1d5bf575bddb60e7383b3256c7792e985eb"
     },
     {
       "file": "12-search-and-listening.mp3",
@@ -145,11 +145,11 @@
     },
     {
       "file": "13-chatbots-and-reach.mp3",
-      "sha256": "3100115163d1709cdc8055c1b842eed30b1765a78bbf2aeafb3dd3c5f8f3a981"
+      "sha256": "6244f3b45e21ef07cf1690408196c372d046de330ee9cc8d23590dcb2da1826b"
     },
     {
       "file": "14-garbage-in-garbage-out.mp3",
-      "sha256": "6849e09b45019dce35499e80e1463871593004f5dc95beafd52760b532c82313"
+      "sha256": "8b901abd2b95d7192c1a93d06bc91aa8f3fab29dedbfacc81f70a68f6336ee1d"
     },
     {
       "file": "15-chapter-repair.mp3",
@@ -172,5 +172,5 @@
       "sha256": "ce426a96f6ba77c14bfe0ccef2e99176a0f53bda782c54b1eac797cd2139b3ed"
     }
   ],
-  "sha256": "d75fda16865d86b9d9d1a828f3c227bc0a426845763739b2d49baddc477582c5"
+  "sha256": "d85fcfee8f51cd7594d3e33d56303f0b5eaa06663a5acbc1de23847ff1f742e8"
 }

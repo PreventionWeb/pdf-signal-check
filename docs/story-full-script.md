@@ -1,6 +1,6 @@
 # Full animation script: Your report says it. But can everyone understand it?
 
-Integrated script — 2026-10-08. Current runtime: 165.02 seconds (about 2.8 minutes).
+Integrated script — 2026-10-08. Current runtime: 203.65 seconds (about 3.4 minutes).
 
 Narration, captions and visuals below match the current animation. Edit this file freely for the next review; builds never overwrite it. The source is `src/story/script.js`, and recorded narration follows its spoken-number variants.
 
@@ -30,19 +30,19 @@ The cover of the fictional “Harbor Observatory Annual Report 2025” drops ont
 
 ### 2. Seeing, listening, processing
 
-**Timing:** 4.48–16.92 seconds (12.44 seconds).
+**Timing:** 4.48–14.43 seconds (9.95 seconds).
 
 **Caption**
 
-People **see**, people **listen**, and machines process. A screen reader is software that speaks the page aloud.
+People **see**, people **listen**, and machines analyse and process. A screen reader speaks the page aloud.
 
 **Narration**
 
-Reports have at least three types of readers: people who see the page, people who listen, and machines that process it. A screen reader is software that speaks the page aloud.
+Reports have at least three types of reader: people who see the page, people who listen as a screen reader speaks it aloud, and machines that analyse and process it.
 
 **Visuals**
 
-Three paper routes labelled “People who see”, “People who listen” and “Machines that process”. An open-book reader labelled “See the page” slides into the first route. A listener with headphones and a speaking screen, labelled “Listen with a screen reader”, slides into the second. A paper data table labelled “Process the report” fills the third.
+Three paper routes labelled “People who see”, “People who listen” and “Machines that analyse”. An open-book reader labelled “See the page” slides into the first route. A listener with headphones and a speaking screen, labelled “Listen with a screen reader”, slides into the second. A paper data table labelled “Process the report” fills the third.
 
 **Your edits / notes**
 
@@ -50,19 +50,19 @@ Three paper routes labelled “People who see”, “People who listen” and �
 
 ### 3. Machines, and reach
 
-**Timing:** 16.92–32.15 seconds (15.23 seconds).
+**Timing:** 14.43–38.37 seconds (23.94 seconds).
 
 **Caption**
 
-**Data tools**, **web search** and **AI chatbots** can bring findings to much larger audiences.
+**Web search, data tools and AI chatbots** can widen your report's reach. Hidden formatting mistakes can spread errors too.
 
 **Narration**
 
-Web search helps people find reports. Data tools compare findings. AI chatbots answer questions using large language models: software trained on huge amounts of text. These tools can bring your findings to much larger audiences.
+Machines power web search, helping people find reports. Data tools compare findings for researchers. AI chatbots answer questions using large language models trained on huge amounts of text. These tools can bring your report's findings to much larger audiences. But a small mistake in the PDF's hidden formatting can spread errors just as widely.
 
 **Visuals**
 
-The person reading and the person listening move up to the corner. Three processing routes fill the middle: data tools compare rows, web search shows result cards and an AI chatbot receives small paper pages. Dotted strings run from the tools to a crowd of paper people below.
+The person reading and the person listening move up to the corner. Three processing routes fill the middle: data tools compare rows for researchers, web search shows result cards and an AI chatbot receives small paper pages. Dotted strings run from the tools to a crowd of paper people below. A small paper slip marked as a hidden formatting error enters the routes; restrained coral rings ripple towards only some of the people, showing how one error can spread.
 
 **Your edits / notes**
 
@@ -72,15 +72,15 @@ The person reading and the person listening move up to the corner. Three process
 
 ### 4. Where meaning gets lost
 
-**Timing:** 32.15–35.81 seconds (3.66 seconds).
+**Timing:** 38.37–41.87 seconds (3.50 seconds).
 
 **Caption**
 
-Let's follow **one finding**, and see what gets lost.
+To understand the risk, let's follow **one finding**.
 
 **Narration**
 
-Let's follow one finding, and see what gets lost.
+To understand the risk, let's follow one finding.
 
 **Visuals**
 
@@ -92,15 +92,15 @@ Chapter 2: “Where meaning gets lost”. A large paper title, numbered tab and 
 
 ### 5. One clear finding
 
-**Timing:** 35.81–44.89 seconds (9.08 seconds).
+**Timing:** 41.87–54.55 seconds (12.68 seconds).
 
 **Caption**
 
-A **picture** shows water clarity at three stations. South has the clearest water.
+A **bar chart** shows water clarity at three stations. South has the tallest bar and the clearest water.
 
 **Narration**
 
-In this made-up report, a picture shows water clarity at three stations. South has the tallest bar: the clearest water.
+In this fictional report, a picture of a bar chart shows water clarity at three stations. For someone looking at the page, the meaning is clear: South has the tallest bar, and the clearest water.
 
 **Visuals**
 
@@ -112,15 +112,15 @@ The made-up report's chart page comes forward. The chart, titled “Water clarit
 
 ### 6. Meaning behind the page
 
-**Timing:** 44.89–54.50 seconds (9.61 seconds).
+**Timing:** 54.55–68.15 seconds (13.60 seconds).
 
 **Caption**
 
-The picture alone may not **reach everyone**. Text and tags help carry its meaning beyond what people see.
+The picture alone may not **reach everyone**. Text and invisible labels called tags help people and machines follow the report.
 
 **Narration**
 
-But the picture alone may not reach everyone. A PDF can also carry text that machines extract, and hidden labels called tags that guide a screen reader.
+But the picture alone may not reach everyone. This PDF also carries text that machines can extract, and invisible labels called tags that help machines and screen readers follow its structure.
 
 **Visuals**
 
@@ -132,15 +132,15 @@ Behind the page, the report fans out into three stacked sheets of paper. The top
 
 ### 7. The finding is missing
 
-**Timing:** 54.50–63.44 seconds (8.94 seconds).
+**Timing:** 68.15–78.72 seconds (10.57 seconds).
 
 **Caption**
 
-With **no written description**, a screen reader may only say “image”. The listener misses the finding.
+With **no written description**, a screen reader may only say “image”. People and machines can miss the finding.
 
 **Narration**
 
-Here, the chart has no written description. A screen reader may only say “image”. Someone relying on that description misses the finding.
+Here, the chart image has no written description. A screen reader may only say “image”. A person or machine relying on that description can miss the finding.
 
 **Visuals**
 
@@ -152,19 +152,19 @@ Left: the chart as people see it, with the bubble “South is highest”. Right:
 
 ### 8. Having tags is not enough
 
-**Timing:** 63.44–71.85 seconds (8.41 seconds).
+**Timing:** 78.72–97.50 seconds (18.78 seconds).
 
 **Caption**
 
-Tags put the method steps in the order **3, 4, 1, 2**. Store comes before collect.
+The method steps come out as **3, 4, 1, 2**: store before collect. Like icing a cake before baking it.
 
 **Narration**
 
-Having tags is not enough. These tags put the method steps in the order 3, 4, 1, 2. Store comes before collect.
+Tags help people using screen readers, as well as machines. But here, the tags put the method steps out of order: 3, 4, 1, 2. Store comes before collect. It's like icing a cake before baking it.
 
 **Visuals**
 
-Left: the page people see, with method steps 1 and 2 in the left column and 3 and 4 in the right. Right: the step tags peel off the page and hang on a string in the order the hidden tags give them: 3. Store the collected sample; 4. Analyze and record results; 1. Prepare the sealed bottles; 2. Collect a water sample. The “Store” tag is ringed, then the “Collect” tag: store comes before collect. The person listening hears “3, 4, 1, 2”.
+Left: the page people see, with method steps 1 and 2 in the left column and 3 and 4 in the right. Right: the step tags peel off the page and hang on a string in the order the hidden tags give them: 3. Store the collected sample; 4. Analyze and record results; 1. Prepare the sealed bottles; 2. Collect a water sample. The “Store” tag is ringed, then the “Collect” tag: store comes before collect. The person listening hears “3, 4, 1, 2”. A small card explicitly marked as an analogy compares this to icing a cake before baking it; the cake is not in the report.
 
 **Your edits / notes**
 
@@ -172,15 +172,15 @@ Left: the page people see, with method steps 1 and 2 in the left column and 3 an
 
 ### 9. A number without its meaning
 
-**Timing:** 71.85–82.47 seconds (10.62 seconds).
+**Timing:** 97.50–110.21 seconds (12.71 seconds).
 
 **Caption**
 
-**+0.7 m** means a rise in water clarity. Without its label, what does it mean?
+**+0.7 m** highlights a rise in water clarity. In copied-out text, it loses the label that explains it.
 
 **Narration**
 
-The number +0.7 m means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.
+On the page, +0.7 m draws attention to a rise in water clarity. But in copied-out text, the number loses its label. A person or machine may no longer know what it refers to.
 
 **Visuals**
 
@@ -192,19 +192,19 @@ First, as people see it on the page: the big number “+0.7 m” beside its labe
 
 ### 10. Last year's title
 
-**Timing:** 82.47–94.43 seconds (11.96 seconds).
+**Timing:** 110.21–128.75 seconds (18.54 seconds).
 
 **Caption**
 
-The report is about **2025**. Its saved title still says **2024**. The dates disagree.
+The cover says **2025**. The saved title says **2024**. Which year does the report describe?
 
 **Narration**
 
-This report is about 2025. But the title saved inside still says 2024, a detail easily carried over from last year's file. The dates now disagree.
+This report presents 2025 data. But the title saved inside still says 2024, a detail easily carried over from last year's file. Is it the 2024 report or the 2025 report? The cover and saved title give software conflicting clues.
 
 **Visuals**
 
-A folder labelled “Title saved inside the PDF” holds the title “Harbor Observatory Annual Report 2024”, with 2024 ringed in red. Beside it, the cover says “Harbor Observatory Annual Report 2025”, with 2025 ringed in teal. A carried-over year is one possible explanation, not recorded provenance.
+A folder labelled “Title saved inside the PDF” holds the title “Harbor Observatory Annual Report 2024”, with 2024 ringed in red. Beside it, the cover says “Harbor Observatory Annual Report 2025”, with 2025 ringed in teal. A “Which year?” question arrives after the conflicting dates. A carried-over year is one possible explanation, not recorded provenance.
 
 **Your edits / notes**
 
@@ -214,15 +214,15 @@ A folder labelled “Title saved inside the PDF” holds the title “Harbor Obs
 
 ### 11. Why it matters
 
-**Timing:** 94.43–97.93 seconds (3.50 seconds).
+**Timing:** 128.75–135.24 seconds (6.49 seconds).
 
 **Caption**
 
-What reaches the people who **need your findings**?
+Small mistakes can **ripple outwards**. What reaches the people who need your findings?
 
 **Narration**
 
-So what reaches the people who need your findings?
+These small mistakes can ripple outwards. So what reaches the people who need your findings?
 
 **Visuals**
 
@@ -234,7 +234,7 @@ Chapter 3: “Why it matters”. A large paper title, numbered tab and small cha
 
 ### 12. What people receive
 
-**Timing:** 97.93–105.19 seconds (7.26 seconds).
+**Timing:** 135.24–142.50 seconds (7.26 seconds).
 
 **Caption**
 
@@ -254,19 +254,19 @@ Left: a search result lists “Harbor Observatory Annual Report 2024”, with 20
 
 ### 13. What AI may pass on
 
-**Timing:** 105.19–118.79 seconds (13.60 seconds).
+**Timing:** 142.50–160.03 seconds (17.53 seconds).
 
 **Caption**
 
-AI may give the **wrong finding for the wrong year**. Findings reach fewer people, or arrive changed.
+An AI chatbot may **invent an answer** from incomplete information. Your finding reaches fewer people, or arrives with a different meaning.
 
 **Narration**
 
-An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the wrong year. If it invents an answer, that's a hallucination. The finding reaches fewer people, or arrives changed.
+An AI chatbot may miss the data in a chart or misinterpret it: the wrong finding, for the wrong year. Piecing together incomplete information, it may invent an answer: a hallucination. The finding reaches fewer people, or arrives with a meaning you never intended.
 
 **Visuals**
 
-A clearly hypothetical AI chatbot answer says “In 2024, Central was highest.” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “2025 · South is highest”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.
+Two small paper fragments approach the AI chatbot before a clearly hypothetical answer says “In 2024, Central was highest.” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “2025 · South is highest”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.
 
 **Your edits / notes**
 
@@ -274,19 +274,19 @@ A clearly hypothetical AI chatbot answer says “In 2024, Central was highest.�
 
 ### 14. Garbage in, garbage out
 
-**Timing:** 118.79–132.58 seconds (13.79 seconds).
+**Timing:** 160.03–171.21 seconds (11.18 seconds).
 
 **Caption**
 
-**Garbage in, garbage out.** Confusing input can lead to misleading answers. AI can make mistakes with good inputs too.
+**Garbage in, garbage out.** Missing or misleading information can lead to misleading answers.
 
 **Narration**
 
-There's an old saying from the early days of computing in the 1950s: garbage in, garbage out. Missing or misleading information can lead to misleading answers. AI can make mistakes with good inputs too.
+There's an old saying from the early days of computing in the 1950s: garbage in, garbage out. Missing or misleading information can lead to misleading answers.
 
 **Visuals**
 
-A small paper strip reads “1950s · Early computing” beside the saying “Garbage in, garbage out”. Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out. Another strip says “AI can make mistakes too”, so the visual does not promise that clean input guarantees a correct answer.
+A small paper strip reads “1950s · Early computing” beside the saying “Garbage in, garbage out”. Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out, showing a possible misleading result from missing or misleading information.
 
 **Your edits / notes**
 
@@ -296,7 +296,7 @@ A small paper strip reads “1950s · Early computing” beside the saying “Ga
 
 ### 15. What you can do
 
-**Timing:** 132.58–136.08 seconds (3.50 seconds).
+**Timing:** 171.21–174.71 seconds (3.50 seconds).
 
 **Caption**
 
@@ -316,7 +316,7 @@ Chapter 4: “What you can do”. A large paper title, numbered tab and small ch
 
 ### 16. Repair the meaning
 
-**Timing:** 136.08–144.11 seconds (8.03 seconds).
+**Timing:** 174.71–182.74 seconds (8.03 seconds).
 
 **Caption**
 
@@ -336,7 +336,7 @@ Four paper repair cards show changes people can make: describe the chart as wate
 
 ### 17. A passport for wider reach
 
-**Timing:** 144.11–155.31 seconds (11.20 seconds).
+**Timing:** 182.74–193.94 seconds (11.20 seconds).
 
 **Caption**
 
@@ -356,7 +356,7 @@ An open paper passport carries four optional stamps: “Data” with a chart-dat
 
 ### 18. Check your own PDF
 
-**Timing:** 155.31–165.02 seconds (9.71 seconds).
+**Timing:** 193.94–203.65 seconds (9.71 seconds).
 
 **Caption**
 

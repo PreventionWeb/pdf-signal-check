@@ -37,14 +37,14 @@ export function storyScript(data) {
     {
         "id": "readers",
         "label": "Seeing, listening, processing",
-        "caption": "People [see|teal], people [listen|purple], and machines process. A screen reader is software that speaks the page aloud.",
-        "narration": "Reports have at least three types of readers: people who see the page, people who listen, and machines that process it. A screen reader is software that speaks the page aloud."
+        "caption": "People [see|teal], people [listen|purple], and machines analyse and process. A screen reader speaks the page aloud.",
+        "narration": "Reports have at least three types of reader: people who see the page, people who listen as a screen reader speaks it aloud, and machines that analyse and process it."
     },
     {
         "id": "machines",
         "label": "Machines, and reach",
-        "caption": "[Data tools|teal], [web search|teal] and [AI chatbots|purple] can bring findings to much larger audiences.",
-        "narration": "Web search helps people find reports. Data tools compare findings. AI chatbots answer questions using large language models: software trained on huge amounts of text. These tools can bring your findings to much larger audiences."
+        "caption": "[Web search, data tools and AI chatbots|purple] can widen your report's reach. Hidden formatting mistakes can spread errors too.",
+        "narration": "Machines power web search, helping people find reports. Data tools compare findings for researchers. AI chatbots answer questions using large language models trained on huge amounts of text. These tools can bring your report's findings to much larger audiences. But a small mistake in the PDF's hidden formatting can spread errors just as widely."
     },
     {
         "id": "chapter-demonstrations",
@@ -55,47 +55,47 @@ export function storyScript(data) {
         },
         "isChapterCard": true,
         "minDuration": 3.5,
-        "caption": "Let's follow [one finding|teal], and see what gets lost.",
-        "narration": "Let's follow one finding, and see what gets lost."
+        "caption": "To understand the risk, let's follow [one finding|teal].",
+        "narration": "To understand the risk, let's follow one finding."
     },
     {
         "id": "picture",
         "label": "One clear finding",
-        "caption": "A [picture|purple] shows water clarity at three stations. South has the clearest water.",
-        "narration": "In this made-up report, a picture shows water clarity at three stations. South has the tallest bar: the clearest water."
+        "caption": "A [bar chart|purple] shows water clarity at three stations. South has the tallest bar and the clearest water.",
+        "narration": "In this fictional report, a picture of a bar chart shows water clarity at three stations. For someone looking at the page, the meaning is clear: South has the tallest bar, and the clearest water."
     },
     {
         "id": "layers",
         "label": "Meaning behind the page",
-        "caption": "The picture alone may not [reach everyone|purple]. Text and tags help carry its meaning beyond what people see.",
-        "narration": "But the picture alone may not reach everyone. A PDF can also carry text that machines extract, and hidden labels called tags that guide a screen reader."
+        "caption": "The picture alone may not [reach everyone|purple]. Text and invisible labels called tags help people and machines follow the report.",
+        "narration": "But the picture alone may not reach everyone. This PDF also carries text that machines can extract, and invisible labels called tags that help machines and screen readers follow its structure."
     },
     {
         "id": "no-description",
         "label": "The finding is missing",
-        "caption": "With [no written description|red], a screen reader may only say “image”. The listener misses the finding.",
-        "narration": "Here, the chart has no written description. A screen reader may only say “image”. Someone relying on that description misses the finding."
+        "caption": "With [no written description|red], a screen reader may only say “image”. People and machines can miss the finding.",
+        "narration": "Here, the chart image has no written description. A screen reader may only say “image”. A person or machine relying on that description can miss the finding."
     },
     {
         "id": "order",
         "label": "Having tags is not enough",
-        "caption": `Tags put the method steps in the order [${order.join(", ")}|coral]. Store comes before collect.`,
-        "narration": `Having tags is not enough. These tags put the method steps in the order ${order.join(", ")}. Store comes before collect.`,
-        "speak": `Having tags is not enough. These tags put the method steps in the order ${order.map(say).join(", ")}. Store comes before collect.`
+        "caption": `The method steps come out as [${order.join(", ")}|coral]: store before collect. Like icing a cake before baking it.`,
+        "narration": `Tags help people using screen readers, as well as machines. But here, the tags put the method steps out of order: ${order.join(", ")}. Store comes before collect. It's like icing a cake before baking it.`,
+        "speak": `Tags help people using screen readers, as well as machines. But here, the tags put the method steps out of order: ${order.map(say).join(", ")}. Store comes before collect. It's like icing a cake before baking it.`,
     },
     {
         "id": "lonely-number",
         "label": "A number without its meaning",
-        "caption": `[${orphan}|coral] means a rise in water clarity. Without its label, what does it mean?`,
-        "narration": `The number ${orphan} means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.`,
-        "speak": `The number ${spokenMeasure(orphan)} means a rise in water clarity. In copied-out text, it loses its label. Now a person or machine may miss what changed.`
+        "caption": `[${orphan}|coral] highlights a rise in water clarity. In copied-out text, it loses the label that explains it.`,
+        "narration": `On the page, ${orphan} draws attention to a rise in water clarity. But in copied-out text, the number loses its label. A person or machine may no longer know what it refers to.`,
+        "speak": `On the page, ${spokenMeasure(orphan)} draws attention to a rise in water clarity. But in copied-out text, the number loses its label. A person or machine may no longer know what it refers to.`,
     },
     {
         "id": "wrong-title",
         "label": "Last year's title",
-        "caption": `The report is about [${coverYear}|teal]. Its saved title still says [${savedYear}|red]. The dates disagree.`,
-        "narration": `This report is about ${coverYear}. But the title saved inside still says ${savedYear}, a detail easily carried over from last year's file. The dates now disagree.`,
-        "speak": `This report is about ${spokenYear(Number(coverYear))}. But the title saved inside still says ${spokenYear(Number(savedYear))}, a detail easily carried over from last year's file. The dates now disagree.`
+        "caption": `The cover says [${coverYear}|teal]. The saved title says [${savedYear}|red]. Which year does the report describe?`,
+        "narration": `This report presents ${coverYear} data. But the title saved inside still says ${savedYear}, a detail easily carried over from last year's file. Is it the ${savedYear} report or the ${coverYear} report? The cover and saved title give software conflicting clues.`,
+        "speak": `This report presents ${spokenYear(Number(coverYear))} data. But the title saved inside still says ${spokenYear(Number(savedYear))}, a detail easily carried over from last year's file. Is it the ${spokenYear(Number(savedYear))} report or the ${spokenYear(Number(coverYear))} report? The cover and saved title give software conflicting clues.`,
     },
     {
         "id": "chapter-impact",
@@ -106,8 +106,8 @@ export function storyScript(data) {
         },
         "isChapterCard": true,
         "minDuration": 3.5,
-        "caption": "What reaches the people who [need your findings|purple]?",
-        "narration": "So what reaches the people who need your findings?"
+        "caption": "Small mistakes can [ripple outwards|purple]. What reaches the people who need your findings?",
+        "narration": "These small mistakes can ripple outwards. So what reaches the people who need your findings?"
     },
     {
         "id": "search-and-listening",
@@ -118,15 +118,15 @@ export function storyScript(data) {
     {
         "id": "chatbots-and-reach",
         "label": "What AI may pass on",
-        "caption": "AI may give the [wrong finding for the wrong year|red]. Findings reach fewer people, or arrive changed.",
-        "narration": "An AI chatbot may skip the chart or misinterpret it: the wrong finding, for the wrong year. If it invents an answer, that's a hallucination. The finding reaches fewer people, or arrives changed."
+        "caption": "An AI chatbot may [invent an answer|red] from incomplete information. Your finding reaches fewer people, or arrives with a different meaning.",
+        "narration": "An AI chatbot may miss the data in a chart or misinterpret it: the wrong finding, for the wrong year. Piecing together incomplete information, it may invent an answer: a hallucination. The finding reaches fewer people, or arrives with a meaning you never intended."
     },
     {
         "id": "garbage-in-garbage-out",
         "label": "Garbage in, garbage out",
-        "caption": "[Garbage in, garbage out.|purple] Confusing input can lead to misleading answers. AI can make mistakes with good inputs too.",
-        "narration": "There's an old saying from the early days of computing in the 1950s: garbage in, garbage out. Missing or misleading information can lead to misleading answers. AI can make mistakes with good inputs too.",
-        "speak": "There's an old saying from the early days of computing in the nineteen fifties: garbage in, garbage out. Missing or misleading information can lead to misleading answers. AI can make mistakes with good inputs too."
+        "caption": "[Garbage in, garbage out.|purple] Missing or misleading information can lead to misleading answers.",
+        "narration": "There's an old saying from the early days of computing in the 1950s: garbage in, garbage out. Missing or misleading information can lead to misleading answers.",
+        "speak": "There's an old saying from the early days of computing in the nineteen fifties: garbage in, garbage out. Missing or misleading information can lead to misleading answers.",
     },
     {
         "id": "chapter-repair",

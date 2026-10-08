@@ -179,9 +179,9 @@ export function scenes(data) {
     },
     // 2. People who see, people who listen
     {
-      describe: 'Three paper routes labelled “People who see”, “People who listen” and “Machines that process”. An open-book reader labelled “See the page” slides into the first route. A listener with headphones and a speaking screen, labelled “Listen with a screen reader”, slides into the second. A paper data table labelled “Process the report” fills the third.',
+      describe: 'Three paper routes labelled “People who see”, “People who listen” and “Machines that analyse”. An open-book reader labelled “See the page” slides into the first route. A listener with headphones and a speaking screen, labelled “Listen with a screen reader”, slides into the second. A paper data table labelled “Process the report” fills the third.',
       stage: <Stage v={1}>
-        {[['People who see', 420], ['People who listen', 800], ['Machines that process', 1180]].map(([label, x], i) => <A key={label} anim="drop" delay={300 + i * 250} dur={600}><At x={x} y={260}><Slot label={label} /></At></A>)}
+        {[['People who see', 420], ['People who listen', 800], ['Machines that analyse', 1180]].map(([label, x], i) => <A key={label} anim="drop" delay={300 + i * 250} dur={600}><At x={x} y={260}><Slot label={label} /></At></A>)}
         <A anim="left" delay={2300} dur={650} idle="0.7"><At x={420} y={330} s={0.92}><Person kind="reader" label={READERS[0][1]} /></At></A>
         <A anim="right" delay={4100} dur={650} idle="0.7"><At x={800} y={330} s={0.92}><Person kind="listener" label={READERS[1][1]} /></At></A>
         <A anim="rise" delay={5300} dur={550}><At x={846} y={432}><Img name="laptop" w={96} /></At></A>
@@ -191,7 +191,7 @@ export function scenes(data) {
     },
     // 3. Machines, and reach
     {
-      describe: 'The person reading and the person listening move up to the corner. Three processing routes fill the middle: data tools compare rows, web search shows result cards and an AI chatbot receives small paper pages. Dotted strings run from the tools to a crowd of paper people below.',
+      describe: 'The person reading and the person listening move up to the corner. Three processing routes fill the middle: data tools compare rows for researchers, web search shows result cards and an AI chatbot receives small paper pages. Dotted strings run from the tools to a crowd of paper people below. A small paper slip marked as a hidden formatting error enters the routes; restrained coral rings ripple towards only some of the people, showing how one error can spread.',
       stage: <Stage v={2}>
         <A anim="drop" dur={600}><At x={270} y={150} s={0.55}><Person kind="reader" label={READERS[0][1]} /></At></A>
         <A anim="drop" delay={150} dur={600}><At x={490} y={150} s={0.55}><Person kind="listener" label={READERS[1][1]} /></At></A>
@@ -203,6 +203,15 @@ export function scenes(data) {
         </A>)}
         {CROWD.map((p, i) => <A key={i} anim="pop" delay={11100 + i * 60} dur={360}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
         {CROWD.map((p, i) => <Reach key={i} from={i < 4 ? [700, 420] : i < 8 ? [970, 420] : [1260, 420]} to={[p.x, p.y - 14]} delay={11500 + i * 120} />)}
+        <A anim="travel" from="60,-100" delay={18100} dur={540}><At x={735} y={540} r={-5}>
+          <Torn w={104} h={74} fill={LAYER.tags}>
+            <text x="52" y="54" textAnchor="middle" className="sp-tile" fontSize="54" fill={C.coral}>?</text>
+          </Torn>
+        </At></A>
+        <Label x={850} y={547} text="Hidden formatting error" size={24} fill={LAYER.tags} delay={18400} />
+        {[0, 1, 2].map((i) => <A key={i} anim="pop" delay={18800 + i * 530} dur={460}>
+          <ellipse cx={850} cy={625} rx={90 + i * 82} ry={55 + i * 52} fill="none" stroke={C.coral} strokeWidth="3" strokeDasharray="10 15" opacity={0.48 - i * 0.07} />
+        </A>)}
       </Stage>,
     },
     // 4. The chart is a picture
@@ -220,16 +229,16 @@ export function scenes(data) {
           <g stroke={C.ink} strokeWidth="7" fill="none" strokeLinecap="round">
             <path d="M80 214 V178 H116" /><path d="M644 178 H680 V214" /><path d="M80 588 V624 H116" /><path d="M644 624 H680 V588" />
           </g>
-          <Ring cx={514} cy={412} rx={76} ry={128} colour={C.mustard} delay={4300} dur={600} r={0} />
+          <Ring cx={514} cy={412} rx={76} ry={128} colour={C.mustard} delay={8200} dur={600} r={0} />
           <A anim="slap" delay={1000} dur={450} idle="0.8"><At x={560} y={26} r={7}>
             <Torn w={190} h={62} fill={C.coral}>
               <At x={16} y={16}><PictureGlyph /></At>
               <text x="68" y="42" className="sp-strip" fontSize="30" fontWeight="700" fill="#fff">Picture</text>
             </Torn>
           </At></A>
-          <A anim="pop" delay={5300} dur={550} idle="1"><At x={420} y={140}><Bubble text={sentence} size={38} tailAt={0.60} tailDepth={106} /></At></A>
+          <A anim="pop" delay={9100} dur={550} idle="1"><At x={420} y={140}><Bubble text={sentence} size={38} tailAt={0.60} tailDepth={106} /></At></A>
         </At></A>
-        {READERS.map(([kind], i) => <A key={kind} anim="rise" delay={5800 + i * 120} dur={500}><At x={560 + i * 160} y={760}><Img name={kind} w={92} center /></At></A>)}
+        {READERS.map(([kind], i) => <A key={kind} anim="rise" delay={10100 + i * 120} dur={500}><At x={560 + i * 160} y={760}><Img name={kind} w={92} center /></At></A>)}
       </Stage>,
     },
     // 5. Hidden layers
@@ -284,7 +293,7 @@ export function scenes(data) {
     },
     // 7. Steps out of order
     {
-      describe: `Left: the page people see, with method steps 1 and 2 in the left column and 3 and 4 in the right. Right: the step tags peel off the page and hang on a string in the order the hidden tags give them: ${hiddenOrder.join('; ')}. The “Store” tag is ringed, then the “Collect” tag: store comes before collect. The person listening hears “${order.join(', ')}”.`,
+      describe: `Left: the page people see, with method steps 1 and 2 in the left column and 3 and 4 in the right. Right: the step tags peel off the page and hang on a string in the order the hidden tags give them: ${hiddenOrder.join('; ')}. The “Store” tag is ringed, then the “Collect” tag: store comes before collect. The person listening hears “${order.join(', ')}”. A small card explicitly marked as an analogy compares this to icing a cake before baking it; the cake is not in the report.`,
       stage: <Stage v={6}>
         <Label x={210} y={70} text="What people see" />
         <A anim="drop" dur={650}><At x={210} y={200} r={-2}><g filter="url(#sp-piece)"><rect width="440" height="560" rx="6" fill={C.paper} /></g>
@@ -299,15 +308,26 @@ export function scenes(data) {
         {hiddenOrder.map((step, i) => {
           const n = order[i], x = 800 + i * 170, y = 242 + (i === 1 || i === 2 ? 14 : 4);
           const home = (n > 2 ? 476 : 276) - x, homeY = (n % 2 ? 300 : 490) - y;
-          return <A key={step} anim="travel" from={`${home},${homeY}`} delay={[2850, 3250, 3650, 4050][i]} dur={600} idle="1.6">
+          return <A key={step} anim="travel" from={`${home},${homeY}`} delay={[5200, 6100, 7000, 7900][i]} dur={600} idle="1.6">
             <At x={x} y={y}><StepTag n={n} fill={STEP_COLOUR[n]} label={stepWord(step)} /></At>
           </A>;
         })}
-        <Ring cx={800} cy={340} rx={74} ry={112} colour={C.mustard} delay={4800} dur={450} r={-3} />
-        <Ring cx={1310} cy={330} rx={74} ry={112} colour={C.mustard} delay={6300} dur={450} r={3} />
+        <Ring cx={800} cy={340} rx={74} ry={112} colour={C.mustard} delay={10800} dur={450} r={-3} />
+        <Ring cx={1310} cy={330} rx={74} ry={112} colour={C.mustard} delay={12400} dur={450} r={3} />
         <A anim="left" delay={1500} dur={600}><At x={820} y={630} s={0.6}><Person kind="listener" label={READERS[1][1]} /></At></A>
-        <A anim="pop" delay={4400} dur={450} idle="1"><At x={1080} y={650}><Bubble text={`“${order.join(', ')} …”`} size={34} fill={C.paper} color={C.ink} tail="left" /></At></A>
-        <A anim="drop" delay={5600} dur={450} idle="1.2"><At x={1320} y={700}><Warning s={0.8} /></At></A>
+        <A anim="pop" delay={9200} dur={450} idle="1"><At x={1080} y={650}><Bubble text={`“${order.join(', ')} …”`} size={34} fill={C.paper} color={C.ink} tail="left" /></At></A>
+        <A anim="drop" delay={13300} dur={450} idle="1.2"><At x={1320} y={700}><Warning s={0.8} /></At></A>
+        <A anim="pop" delay={15000} dur={480}><At x={1050} y={770}>
+          <Torn w={330} h={105} fill={C.paper}>
+            <g filter="url(#sp-scissor)">
+              <rect x="18" y="53" width="70" height="38" rx="4" fill={C.mustard} />
+              <path d="M18 59 Q28 35 39 51 Q50 34 61 51 Q77 37 88 59" fill={C.pink} />
+            </g>
+            <text x="108" y="33" className="sp-label" fontSize="18" fontWeight="700" fill={C.inkSoft}>ANALOGY</text>
+            <text x="108" y="64" className="sp-strip" fontSize="25" fontWeight="700" fill={C.ink}>Icing before</text>
+            <text x="108" y="93" className="sp-strip" fontSize="25" fontWeight="700" fill={C.ink}>baking</text>
+          </Torn>
+        </At></A>
       </Stage>,
     },
     // 8. The lonely number
@@ -331,7 +351,7 @@ export function scenes(data) {
     },
     // 9. The wrong title
     {
-      describe: `A folder labelled “Title saved inside the PDF” holds the title “${saved}”, with ${savedYear} ringed in red. Beside it, the cover says “${cover}”, with ${coverYear} ringed in teal. A carried-over year is one possible explanation, not recorded provenance.`,
+      describe: `A folder labelled “Title saved inside the PDF” holds the title “${saved}”, with ${savedYear} ringed in red. Beside it, the cover says “${cover}”, with ${coverYear} ringed in teal. A “Which year?” question arrives after the conflicting dates. A carried-over year is one possible explanation, not recorded provenance.`,
       stage: <Stage v={8}>
         <A anim="right" delay={2950} dur={650}><At x={700} y={190} r={-2} s={1.3}>
           <Img name="folder" w={400} />
@@ -345,6 +365,7 @@ export function scenes(data) {
           <Cover year={coverYear} />
           <Ring cx={70} cy={180} rx={66} ry={34} colour={C.teal} delay={1550} dur={550} r={-4} />
         </At></A>
+        <Label x={677} y={704} text="Which year?" size={38} fill={LAYER.tags} delay={11900} />
       </Stage>,
     },
     // 10. What happens: search and listening
@@ -370,25 +391,28 @@ export function scenes(data) {
     },
     // 11. What happens: AI chatbots and reach
     {
-      describe: `A clearly hypothetical AI chatbot answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “${coverYear} · ${sentence}”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.`,
+      describe: `Two small paper fragments approach the AI chatbot before a clearly hypothetical answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “${coverYear} · ${sentence}”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.`,
       stage: <Stage v={10}>
         <A anim="left" dur={650} idle="0.6"><At x={330} y={160} s={0.9}><Person kind="assistant" label={READERS[3][1]} /></At></A>
-        <Label x={650} y={116} text="Possible wrong answer" size={25} fill={LAYER.tags} delay={2050} />
-        <A anim="pop" delay={2650} dur={500} idle="0.8"><At x={760} y={250}><Bubble text={possibleAnswer} size={30} fill={C.paper} color={C.ink} tail="left" ring={{ delay: 3850, dur: 600 }} /></At></A>
-        <Label x={735} y={352} text="What the report actually says" size={24} fill={LAYER.text} color={C.teal} delay={4850} />
-        <Label x={735} y={402} text={`${coverYear} · ${sentence}`} size={30} fill={LAYER.text} delay={5350} />
-        {[[1170, 120], [1270, 290]].map(([x, y], i) => <A key={i} anim="travel" delay={7500 + i * 300} dur={800} from={`${760 - x},${250 - y}`}>
+        {[0, 1].map((i) => <A key={i} anim="travel" delay={2600 + i * 410} dur={660} from="360,-100">
+          <At x={450 + i * 28} y={245 + i * 40} r={[-12, 9][i]} s={0.5}><PageSlip /></At>
+        </A>)}
+        <Label x={650} y={116} text="Possible wrong answer" size={25} fill={LAYER.tags} delay={5050} />
+        <A anim="pop" delay={5650} dur={500} idle="0.8"><At x={760} y={250}><Bubble text={possibleAnswer} size={30} fill={C.paper} color={C.ink} tail="left" ring={{ delay: 7150, dur: 600 }} /></At></A>
+        <Label x={735} y={352} text="What the report actually says" size={24} fill={LAYER.text} color={C.teal} delay={7950} />
+        <Label x={735} y={402} text={`${coverYear} · ${sentence}`} size={30} fill={LAYER.text} delay={8450} />
+        {[[1170, 120], [1200, 290]].map(([x, y], i) => <A key={i} anim="travel" delay={10200 + i * 300} dur={800} from={`${760 - x},${250 - y}`}>
           <At x={x} y={y} r={[6, -5, 4][i]} s={0.55}><Bubble text={possibleAnswer} size={32} fill={C.paper} color={C.inkSoft} tail="left" /></At>
         </A>)}
-        {CROWD.map((p, i) => <A key={i} anim="pop" delay={9300 + i * 50} dur={320}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
-        {CROWD.map((p, i) => <Reach key={i} from={[330, 470]} to={[p.x, p.y - 14]} delay={9700 + i * 90} short={[1, 4, 6, 8, 11].includes(i)} />)}
-        <Label x={430} y={620} text="Some paths stop here" size={25} fill={LAYER.tags} delay={11100} />
-        <A anim="drop" delay={11500} dur={650}><At x={1000} y={640}><Crumpled text={sentence} /></At></A>
+        {CROWD.map((p, i) => <A key={i} anim="pop" delay={11900 + i * 50} dur={320}><At x={p.x} y={p.y}><Mini body={p.body} skin={p.skin} /></At></A>)}
+        {CROWD.map((p, i) => <Reach key={i} from={[330, 470]} to={[p.x, p.y - 14]} delay={12300 + i * 90} short={[1, 4, 6, 8, 11].includes(i)} />)}
+        <Label x={430} y={620} text="Some paths stop here" size={25} fill={LAYER.tags} delay={14000} />
+        <A anim="drop" delay={14800} dur={650}><At x={1000} y={640}><Crumpled text={sentence} /></At></A>
       </Stage>,
     },
-    // 12. Garbage in, garbage out: input problems increase risk, but AI can err even with good input.
+    // 12. Garbage in, garbage out: missing or misleading inputs can lead to misleading answers.
     {
-      describe: `A small paper strip reads “1950s · Early computing” beside the saying “Garbage in, garbage out”. Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out. Another strip says “AI can make mistakes too”, so the visual does not promise that clean input guarantees a correct answer.`,
+      describe: `A small paper strip reads “1950s · Early computing” beside the saying “Garbage in, garbage out”. Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out, showing a possible misleading result from missing or misleading information.`,
       stage: <Stage v={11}>
         <Label x={430} y={82} text="Garbage in, garbage out" size={40} />
         <Label x={994} y={94} text="1950s · Early computing" size={30} fill={LAYER.text} delay={650} />
@@ -398,7 +422,6 @@ export function scenes(data) {
             <At x={52} y={87}><Img name="assistant" w={146} /></At>
           </Torn>
         </At></A>
-        <Label x={690} y={664} text="AI can make mistakes too" size={29} fill={LAYER.tags} delay={3500} />
         {[
           ['Missing description', LAYER.tags],
           ['Mixed-up order', LAYER.text],
