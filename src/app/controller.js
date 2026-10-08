@@ -75,7 +75,7 @@ export function createAppController({
   };
   const cancelAuxiliary = () => {
     services.calibration?.cancel();
-    services.exports?.cancel("Source changed; any active export was canceled.");
+    services.exports?.cancel("The selected PDF changed. Any active export was cancelled.");
   };
   const available = () => {
     if (services.batch?.busy) {
@@ -276,7 +276,7 @@ export function createAppController({
         awaitingLanguageDecision: false,
         stage: "document",
         message:
-          "Analysis canceled. Your selected file is retained; retry or choose another PDF.",
+          "Analysis cancelled. Your selected file is still available. Try again or choose another PDF.",
       });
     },
     cancelScreening() {
@@ -284,9 +284,9 @@ export function createAppController({
       emit({
         stage: "checks",
         awaitingLanguageDecision: false,
-        screeningAttempt: { status: "canceled", message: "You canceled the AI checks. Completed text checks and previous AI results are retained." },
+        screeningAttempt: { status: "canceled", message: "AI checks cancelled. Completed text checks and previous AI results are still available." },
         message:
-          "AI screening canceled. Traditional results and any previous completed screening are retained.",
+          "AI checks cancelled. Standard results and any previous completed AI comparisons are still available.",
         progress: null,
       });
     },

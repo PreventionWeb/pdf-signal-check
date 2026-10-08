@@ -56,14 +56,14 @@ export function LanguageDialog({ controller, state }) {
         </Button>
       </div>
       <div className="language-dialog-body">
-        <p>This PDF doesn’t say what language it is in. The AI checks need to know the language to compare text correctly.</p>
+        <p>This PDF doesn’t say what language it is in. The AI checks need this setting to use a supported language.</p>
         <p>The other checks have already finished. If the PDF is in English, the AI checks can run now.</p>
         <p className="model-note">
           This only applies to this check. The missing language setting is still listed as something to fix.
         </p>
         {model && (
           <p className="model-note">
-            If {model.label} isn’t downloaded yet, this downloads about {((model.graphBytes + model.tokenizerBytes) / 1e6 + 26.86).toFixed(0)} MB once (the model and the files that run it). Your PDF stays on this device.
+            If needed, this downloads {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB of model and tokenizer files for {model.label}, plus about 26.86 MB of uncompressed runtime files and JavaScript. Actual transfer varies; your browser may reuse cached files. Your PDF stays on this device.
           </p>
         )}
       </div>

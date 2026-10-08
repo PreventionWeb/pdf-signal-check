@@ -28,7 +28,7 @@ export const ExportMenu = forwardRef(function ExportMenu(
   );
   useEffect(() => () => controller.cancel(), [controller]);
   useEffect(() => {
-    controller.cancel("Source changed; any active export was canceled.");
+    controller.cancel("The selected PDF changed. Any active export was cancelled.");
   }, [controller, sourceKey]);
   useImperativeHandle(
     ref,

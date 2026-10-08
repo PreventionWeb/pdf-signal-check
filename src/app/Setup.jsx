@@ -64,7 +64,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
           </Card>)}
         </div>
       </fieldset>
-      <p className="model-note">Both AI options also need approximately 26.86 MB of uncompressed runtime files, plus JavaScript. Actual transfer varies; your browser may reuse cached files. Choose multilingual AI for broader language coverage, or English AI for a smaller download. AI comparisons can be wrong.</p>
+      <p className="model-note">Both AI options also need approximately 26.86 MB of uncompressed runtime files, plus JavaScript. Actual transfer varies; your browser may reuse cached files. Choose multilingual AI for broader language coverage or English AI for a smaller download. AI comparisons can be wrong.</p>
       <details className="mg-details setup-technical">
         <summary>Compare technical details</summary>
         <p>AI compares limited excerpts, not every word in the PDF. Tagged heading comparisons are included in the default AI checks; your saved check choices are kept.</p>

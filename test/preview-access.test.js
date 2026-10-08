@@ -11,7 +11,7 @@ it('does not render or initialize application children before successful PIN ent
   let starts = 0;
   const App = () => { starts++; return React.createElement('main', null, 'Application started'); };
   const render = () => renderToString(React.createElement(PreviewGate, { access }, React.createElement(App)));
-  expect(render()).toContain('Preview access required');
+  expect(render()).toContain('aria-labelledby="preview-access-title"');
   expect(starts).toBe(0);
   expect(access.unlock('0000')).toBe(false);
   expect(storage.values.size).toBe(0);

@@ -82,14 +82,14 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
         <h2 id="ai-info-title">About AI and your PDF</h2>
         <div id="ai-info-description">
           <p>
-            This tool checks PDFs in your browser. Your PDF contents stay on
+            This tool checks PDFs in your browser. Optional artificial intelligence (AI) checks also run on your device. Your PDF contents stay on
             this device and are not uploaded for analysis.
           </p>
           <p>
             If you enable an AI model in setup, screening runs locally for each PDF. With your consent, it downloads model and
             tokenizer assets from external hosts; those requests do not include
             your PDF text. The app loads from the site hosting this tool, and its
-            styles, fonts and logo load from UNDRR’s asset library
+            styles, fonts and logo load from the UNDRR asset library
             (assets.undrr.org). Those requests never include your PDF.
           </p>
           <p>
@@ -114,7 +114,7 @@ export function PrivacyNotice({ openerRef, onStorageFailure = () => {}, ref }) {
           ref={understand}
           onClick={close}
         >
-          I understand
+          Continue
         </Button>
       </div>
     </dialog>

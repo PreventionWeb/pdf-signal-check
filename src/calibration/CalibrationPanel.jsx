@@ -79,17 +79,17 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     : progress?.stage === "model-init" ? "Preparing the AI model…" : "Warming up the benchmark…";
   if (state.busy) return (
     <section className="calibration-panel" aria-busy="true">
-      <h2 className="mg-card__title">Benchmarking your device</h2>
+      <h2 className="mg-card__title">Testing speed on your device</h2>
       <p>Testing {model.label} with sample text. Keep this tab open and visible.</p>
       <p role="status">{phase}</p>
       <progress aria-label={progressLabel} max={determinate ? progress.total : undefined} value={determinate ? progress.completed : undefined} />
       {progress?.unit === "bytes" && Number.isFinite(progress.completed) && <p className="model-note">{formatProgress(progress)}</p>}
-      <div className="flow-actions"><Button onClick={() => controller.cancel()}>Cancel benchmark</Button></div>
+      <div className="flow-actions"><Button onClick={() => controller.cancel()}>Cancel speed test</Button></div>
     </section>
   );
   return (
     <section className="calibration-panel">
-      <h2 className="mg-card__title">{receipt ? resultTitle : "Benchmark your device"}</h2>
+      <h2 className="mg-card__title">{receipt ? resultTitle : "Test speed on your device"}</h2>
       <p>{receipt ? rating.description : "Run a short sample test to see how quickly this model works on your device. Your PDFs are not used."}</p>
       {receipt && <div className="benchmark-timings" aria-label="Measured benchmark times">
         <p className="model-note">Relative speed · longer bars are faster</p>
@@ -98,17 +98,17 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
           <div className="benchmark-timing-track" aria-hidden="true"><span className={`benchmark-timing-fill ${item.rating ? `is-${item.rating.key}` : ''}`} style={{ width: `${100 * Math.max(0, 1 - item.ms / timingScale)}%` }} /></div>
         </div>)}
       </div>}
-      {receipt && <p className="model-note">{model.label} · {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString()}` : "Not saved on this browser"}. Speed guidance, not an accuracy or memory rating.</p>}
+      {receipt && <p className="model-note">{model.label} · {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : "Not saved on this browser"}. Speed guidance, not an accuracy or memory rating.</p>}
       <p className="model-note">Download if needed: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer assets, plus runtime (~26.86 MB uncompressed WASM and JavaScript).</p>
       {showStartAction && <div className="flow-actions"><Button disabled={disabled} onClick={() => controller.start(model.key)}>
-        {receipt ? "Check again" : "Download assets and benchmark"}
+        {receipt ? "Check again" : "Download files and test speed"}
       </Button></div>}
       {state.message && state.message !== "Device check complete." && <p role="status">{state.message}</p>}
-      <Details summary="Benchmark details" className="benchmark-details">
+      <Details summary="Speed test details" className="benchmark-details">
         <div className="benchmark-fine-print">
         <p className="model-note">Bars use a 0–5 second scale: full at 0 seconds, empty at 5 seconds or more. AI speed is the median of three sample runs. Great: ≤ 1.5 s · OK: ≤ 5 s · Not recommended: &gt; 5 s. Startup varies with downloads and cache.</p>
 
-        <p>We parse a synthetic two-page PDF, warm up the model, and time three runs of four fixed text inputs. The test has a five-minute limit and cannot run alongside PDF screening.</p>
+        <p>The test reads a fictional two-page PDF, prepares the model and times three runs of four fixed text inputs. The test has a five-minute limit and cannot run alongside PDF screening.</p>
         <p>Asset transfer/cache cost varies. Running or checking again permits the downloads listed above.</p>
         {receipt && <>
           <p>Measured model: {receipt.model.label}.</p>

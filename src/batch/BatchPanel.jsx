@@ -58,8 +58,8 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
         {item.status === "completed"
           ? requireAI && !item.summary?.semantic?.inferencePerformed ? "Partial evaluation · AI did not complete" : "Complete"
           : item.status === "failed"
-            ? "Incomplete / failed"
-            : item.status}{" "}
+            ? "Incomplete or failed"
+            : item.status === "canceled" ? "cancelled" : item.status}{" "}
         · {(item.bytes / 1e6).toFixed(2)} MB
       </p>
       {item.progress && item.id === queue.activeId && (
@@ -314,9 +314,8 @@ export function BatchPanel({ controller, requireAI = false }) {
         </Card>
       </Disclosure>
       <p className="model-note">
-        Foreground session only. Closing or reloading loses this queue.
-        Background tabs or sleep can delay processing; no background-completion
-        guarantee.
+        Keep this tab open while PDFs are checked. Closing or reloading clears this queue.
+        Switching tabs or putting your device to sleep can delay processing.
       </p>
       <Disclosure
         controller={controller}
@@ -327,11 +326,11 @@ export function BatchPanel({ controller, requireAI = false }) {
         summary={
           queue.configuration
             ? "Run settings and download receipt"
-            : requireAI ? "AI model and checks" : "Optional AI settings · traditional checks run by default"
+            : requireAI ? "AI model and checks" : "Optional AI settings · standard checks run by default"
         }
       >
         <FormGroup
-          legend="Queue settings (frozen when started)"
+          legend="Checks for this batch (fixed when started)"
           disabled={locked}
           className="batch-settings"
         >
@@ -393,7 +392,7 @@ export function BatchPanel({ controller, requireAI = false }) {
           {settings.useAI && (
             <Checkbox
               id="batch-consent"
-              label="I authorize the displayed model, tokenizer and runtime downloads for this queue."
+              label="Allow the displayed model, tokenizer and runtime downloads for this batch."
               checked={state.consent}
               disabled={locked}
               onChange={(event) => controller.setConsent(event.target.checked)}
@@ -405,7 +404,7 @@ export function BatchPanel({ controller, requireAI = false }) {
             This run:{" "}
             {queue.configuration.useAI
               ? getSemanticModel(queue.configuration.modelId).label
-              : "Traditional checks only"}
+              : "Standard checks only"}
             {queue.configuration.useAI
               ? ` · ${(queue.configuration.checks || []).join(", ")}`
               : ""}
@@ -436,8 +435,8 @@ export function BatchPanel({ controller, requireAI = false }) {
           {finished} of {queue.items.length} PDFs finished
         </h3>
         <p>
-          {count("completed")} complete · {count("failed")} incomplete/failed ·{" "}
-          {count("canceled")} canceled · {count("skipped")} skipped ·{" "}
+          {count("completed")} complete · {count("failed")} incomplete or failed ·{" "}
+          {count("canceled")} cancelled · {count("skipped")} skipped ·{" "}
           {count("queued")} waiting{queue.activeId ? " · 1 current" : ""}
         </p>
         {queue.items.length > 0 && (
@@ -523,7 +522,7 @@ export function BatchPanel({ controller, requireAI = false }) {
                 id="batch-retry-model"
                 onClick={() => controller.recoverModel("retry")}
               >
-                Retry model initialization
+                Try preparing the model again
               </Button>
               {!requireAI && <Button
                 id="batch-structural-only"

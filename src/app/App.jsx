@@ -107,7 +107,7 @@ export function App() {
     batch: "Review several PDFs",
     checks: null,
     review: null,
-    "processing-analysis": "Checking text, tags, and metadata",
+    "processing-analysis": "Checking text, tags and document details",
     "processing-model": null,
   }[state.stage];
   return (
@@ -335,7 +335,7 @@ function Entry({ state, controller, batchBusy, onAbout, onWatch }) {
           <div className="mg-card__content">
             <div className="mg-card__meta"><span className="mg-card__label">Your PDF</span></div>
             <h2 className="mg-card__title" id="upload-title">Check your own PDF</h2>
-            <p className="mg-card__summary">Drag a PDF onto this box, or choose one from your device. Up to 50 MB and 200 pages. It never leaves this device.</p>
+            <p className="mg-card__summary">Drag a PDF onto this box or choose one from your device. Up to 50 MB and 200 pages. It never leaves this device.</p>
             {/* The visually hidden file input is the focusable control; its label is styled as the primary button. */}
             <label className="mg-button mg-button-primary upload-button" htmlFor="file-input">Choose a PDF</label>
             <input
