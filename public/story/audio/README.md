@@ -2,7 +2,7 @@
 
 Optional audio for `story.html`. Nothing here is a recording of a person or a performance by a musician: both the narration and the music are **AI-generated**.
 
-The page downloads none of these files until a viewer turns on **Audio on**, and the story never depends on them: every word is also in the captions and the transcript.
+The page requests no audio at startup. Play or seeking loads one locally assembled soundtrack; Mute and Volume control its sound. Captions and the transcript also explain the story. Playback always uses the soundtrack as its clock, including when muted and when showing reduced-motion stills. The separate clips and music bed are assembly inputs; the browser does not play them individually.
 
 ## Narration: `01-…` to `13-….mp3`
 
@@ -20,5 +20,11 @@ The page downloads none of these files until a viewer turns on **Audio on**, and
 - Generated: 2026-10-07 (the second of two candidates)
 - Prompt: “Instrumental only, no vocals. One minute of soft, hopeful ambient background music for a paper-craft stop-motion explainer: gentle music-box and celesta notes over warm sustained pads and a light, slow acoustic guitar pattern, major key, around 80 BPM. Calm, curious and quietly optimistic, very understated so narration stays clear. Soft fade-in at the start and soft fade-out at the end. No percussion hits, no crescendos, no dramatic or cinematic moments.”
 - Processing: two passes of the original 59.8-second bed joined with a 7.6-second crossfade and a 3-second final fade, yielding 112 s at 40 kbit/s mono (560,423 bytes). It remains below the voice and ducks further during narration. This covers the longer 13-scene cut without an abrupt mid-story restart.
-- Playback: plays only while the story plays with audio on, loops if the story runs longer, ducks during each narration clip, pauses with Pause and never plays on the reduced-motion still frames.
+- Playback: mixed with narration into `soundtrack.mp3`; ducking is baked into the mix, so music and voice cannot drift or restart independently.
 - Rights: generated output from Google's Lyria model under the provider's terms of use; no third-party samples were supplied.
+
+## Single-clock soundtrack: `soundtrack.mp3`
+
+Run `npm run story:audio` after changing narration or visual timing. This is entirely local, uses ffmpeg and the existing audio, and never calls a paid API. It pads the clips to scene lengths, joins them and mixes in the ducked music bed. The result is 108.77 seconds, mono 24 kHz / 48 kbit/s MP3, about 653 KB. `src/story/playback.json` records the scene boundaries and source/output SHA-256 hashes; the playback test rejects outdated audio or cues.
+
+A single media element owns playback time, mute, volume, speed and buffering. All stage animations are paused Web Animations sampled at the current media position. Reduced motion changes the visual presentation, not the timeline. There is no independent scene timer or second music player.

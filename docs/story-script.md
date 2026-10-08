@@ -2,7 +2,7 @@
 
 A caption-led, cut-paper explainer for `story.html`, about 109 seconds at the current scene timing. The audience commissions or writes reports in international organisations. The fictional *Harbor Observatory Annual Report 2025* and its sample PDFs supply the visible values. The 2024 saved title and jumbled steps come from the partly prepared sample; the detached “+0.7 m” and the final result list come from the scrambled sample. The closing says “problems like these” because it does not claim one file has every example.
 
-Captions are visible HTML text and are announced on scene changes. Optional narration is off until the viewer chooses **Audio on**. `src/story/script.js` is the source for both channels; its `speak` field spells numbers and years for the synthetic voice. The on-page transcript adds a description of each scene. Scene lengths follow each recorded voice clip plus a short hold, with motion completing before advance.
+Captions are visible HTML text and are announced on scene changes. Playback opens paused. Play starts the soundtrack with sound; Mute and Volume control it. No audio is requested until Play or a seek. `src/story/script.js` is the source for both channels; its `speak` field spells numbers and years for the synthetic voice. The on-page transcript adds a description of each scene. One locally assembled soundtrack sets the timeline. Its current position drives every visual animation, so pausing, seeking, buffering and speed changes share a clock. Scene lengths include each voice clip and a short hold, with motion completing before the next scene.
 
 ## Art direction
 

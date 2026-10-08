@@ -5,8 +5,6 @@
 // Paper is never translucent: pieces arrive fully opaque from beyond the stage edge or from scale. Only `fade`
 // (used for strings and marker lines) ramps opacity, and a piece waiting for its cue is simply not shown yet.
 export const FPS = 12;
-export const HOLD = 900;           // minimum hold after the last entry motion before auto-advance
-export const REDUCED_DWELL = 6000; // still frames: time to read each scene when playing with reduced motion
 
 /** Deterministic jitter per element so a scene looks the same every time it plays. */
 const noise = seed => { const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
@@ -80,7 +78,7 @@ function prepare(element) {
   element.style.transformOrigin = element.dataset.origin || 'center';
 }
 
-/** Start a scene's entry and idle animations; returns the entry length in ms (0 when motion is off). */
+/** Build scene animations. The player pauses and samples every one against its media clock. */
 export function playScene(stage, { motion }) {
   if (!stage || !motion) return 0;
   let end = 0, seed = 1;
@@ -114,17 +112,4 @@ export function playScene(stage, { motion }) {
     element.animate([...poses, poses[0]], { duration: 1800 + noise(seed) * 900, delay: own, iterations: Infinity });
   }
   return end;
-}
-
-/** Pause or resume every running animation on the stage, including the advance clock. */
-export function setPaused(stage, paused) {
-  for (const animation of stage?.getAnimations({ subtree: true }) || []) paused ? animation.pause() : animation.play();
-}
-
-/** A pausable timer built from an animation, so pausing the stage also pauses auto-advance. */
-export function startClock(stage, duration, onDone) {
-  if (!stage) return null;
-  const clock = stage.animate([{ outlineColor: 'transparent' }, { outlineColor: 'transparent' }], { duration });
-  clock.onfinish = onDone;
-  return clock;
 }

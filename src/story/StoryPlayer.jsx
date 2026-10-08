@@ -1,7 +1,10 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { scenes as buildScenes } from './scenes.jsx';
 import { StoryDefs } from './art.jsx';
-import { HOLD, REDUCED_DWELL, playScene, setPaused, startClock } from './motion.js';
+import { playScene } from './motion.js';
+import { createPlayback } from './playback.js';
+import { sceneAt, formatTime } from './timeline.js';
+import playback from './playback.json';
 import narration from './narration.json';
 
 const prefersReducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -22,35 +25,24 @@ export const plainCaption = caption => parseCaption(caption).map(part => part.te
 const Caption = ({ caption }) => parseCaption(caption).map((part, i) =>
   part.tone ? <strong key={i} className={`story-kw story-kw--${part.tone}`}>{part.text}</strong> : <React.Fragment key={i}>{part.text}</React.Fragment>);
 
-/** Narration clip for a scene, if the static audio files were generated. */
-const clipFor = id => narration.clips?.find(clip => clip.id === id);
-const audioUrl = file => new URL(`story/audio/${file}`, document.baseURI).href;
-/** Optional music bed: { file, level, duck }. Its mix is also baked low into the file for browsers that ignore volume. */
-const music = narration.music;
-/** Ramp a media element's volume over a quarter second (no-op where volume is fixed, as on iOS). */
-function fadeTo(element, target) {
-  const start = element.volume, began = performance.now();
-  const step = now => { const t = Math.min(1, (now - began) / 250); element.volume = start + (target - start) * t; if (t < 1) requestAnimationFrame(step); };
-  requestAnimationFrame(step);
-}
-
-/**
- * Viewer-paced story player. Opens paused and never autoplays. Play advances scene by scene; Pause freezes motion,
- * narration and the advance timer together. Scenes last as long as their narration plus a hold, whether or not
- * audio is on, so captions keep the same pace. With reduced motion, scenes show their composed still frame.
- */
+/** The soundtrack is the clock: buffering, seeks, mute and speed cannot move the visuals independently. */
 export function StoryPlayer({ data, onCheck, onAbout }) {
   const scenes = useMemo(() => buildScenes(data), [data]);
-  const [index, setIndex] = useState(() => initialScene(scenes.length));
-  const [playing, setPlaying] = useState(false);
-  const [audioOn, setAudioOn] = useState(false);
+  const initialTime = useRef(playback.timeline[initialScene(scenes.length)].start);
+  const [state, setState] = useState({ time: initialTime.current, playing: false, buffering: false, muted: false, volume: 1, rate: 1, error: '' });
+  const [isFullscreen, setFullscreen] = useState(false);
+  const [started, setStarted] = useState(false);
   const [reduced, setReduced] = useState(prefersReducedMotion);
-  const stage = useRef(null), clock = useRef(null), audio = useRef(null), bed = useRef(null);
-  const live = useRef({ playing, audioOn });
-  live.current = { playing, audioOn };
-  const scene = scenes[index];
-  const last = index === scenes.length - 1;
-  const hasAudio = scenes.every(item => clipFor(item.id));
+  const stage = useRef(null), audio = useRef(null), controller = useRef(null), player = useRef(null);
+  const index = sceneAt(playback.timeline, state.time), scene = scenes[index];
+  const last = index === scenes.length - 1, ended = state.time >= playback.duration - 0.05;
+  const sceneTime = state.time - playback.timeline[index].start;
+
+  useEffect(() => {
+    const update = () => setFullscreen(document.fullscreenElement === player.current);
+    document.addEventListener('fullscreenchange', update);
+    return () => document.removeEventListener('fullscreenchange', update);
+  }, []);
 
   useEffect(() => {
     const query = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
@@ -59,86 +51,54 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
     return () => query?.removeEventListener('change', update);
   }, []);
 
-  const playClip = (offset = 0) => {
-    const element = audio.current, clip = clipFor(scene.id);
-    if (!element || !clip || !live.current.audioOn || !live.current.playing) return;
-    if (offset > clip.duration) { element.pause(); return; }
-    if (!element.src.endsWith(clip.file)) element.src = audioUrl(clip.file);
-    element.currentTime = offset;
-    element.play().catch(() => {});
-  };
-
-  // Enter the scene: run its entry motion, then (when playing) a pausable hold before the next scene.
-  useLayoutEffect(() => {
-    const element = stage.current;
-    for (const animation of element?.getAnimations({ subtree: true }) || []) animation.cancel();
-    const entry = playScene(element, { motion: !reduced });
-    const spoken = (clipFor(scene.id)?.duration || 0) * 1000 + 300;
-    clock.current = startClock(element, Math.max(entry + HOLD, spoken, reduced ? REDUCED_DWELL : 0), () => {
-      if (!live.current.playing) return;
-      if (last) setPlaying(false); else setIndex(value => value + 1);
+  useEffect(() => {
+    const owner = createPlayback(audio.current, {
+      url: new URL(`story/audio/${playback.file}`, document.baseURI).href,
+      duration: playback.duration, initialTime: initialTime.current,
     });
-    if (!live.current.playing) clock.current?.pause();
-    audio.current?.pause();
-    playClip(0);
-    const url = new URL(location.href); url.searchParams.set('scene', index + 1); history.replaceState(null, '', url);
-    return () => { for (const animation of element?.getAnimations({ subtree: true }) || []) animation.cancel(); };
-  }, [index, reduced]);
-
-  // Arriving at a scene always plays its entry motion; "paused" only stops auto-advance and narration. Toggling
-  // Pause freezes whatever is moving and Play resumes it. Compare with the previous value rather than skipping
-  // the first run: React StrictMode runs effects twice.
-  const lastPlaying = useRef(playing);
-  useEffect(() => {
-    if (lastPlaying.current === playing) return;
-    lastPlaying.current = playing;
-    if (playing) {
-      setPaused(stage.current, false);
-      if (clock.current?.playState === 'finished') { if (last) setPlaying(false); else setIndex(value => value + 1); return; }
-      playClip((clock.current?.currentTime || 0) / 1000);
-    } else { setPaused(stage.current, true); audio.current?.pause(); }
-  }, [playing]);
-  useEffect(() => {
-    if (audioOn) playClip((clock.current?.currentTime || 0) / 1000); else audio.current?.pause();
-  }, [audioOn]);
-  useEffect(() => () => { audio.current?.pause(); bed.current?.pause(); }, []);
-  // Music bed: plays only while the story plays with audio on, never on reduced-motion stills, and ducks under
-  // each narration clip.
-  useEffect(() => {
-    const element = bed.current;
-    if (!element || !music) return;
-    if (playing && audioOn && !reduced) {
-      if (!element.src) { element.src = audioUrl(music.file); element.volume = music.level; }
-      element.play().catch(() => {});
-    } else element.pause();
-  }, [playing, audioOn, reduced]);
-  useEffect(() => {
-    const voice = audio.current, element = bed.current;
-    if (!voice || !element || !music) return;
-    // Lift only when the voice stays quiet, so a scene change (old clip pauses, new clip starts) doesn't pump.
-    let timer;
-    const duck = () => { clearTimeout(timer); fadeTo(element, music.duck); };
-    const lift = () => { clearTimeout(timer); timer = setTimeout(() => { if (voice.paused || voice.ended) fadeTo(element, music.level); }, 900); };
-    voice.addEventListener('playing', duck); voice.addEventListener('pause', lift); voice.addEventListener('ended', lift);
-    return () => { clearTimeout(timer); voice.removeEventListener('playing', duck); voice.removeEventListener('pause', lift); voice.removeEventListener('ended', lift); };
+    controller.current = owner;
+    const unsubscribe = owner.subscribe(() => setState(owner.getSnapshot()));
+    return () => { unsubscribe(); owner.dispose(); controller.current = null; };
   }, []);
 
-  const go = next => { setIndex(Math.max(0, Math.min(scenes.length - 1, next))); };
+  useLayoutEffect(() => {
+    const element = stage.current;
+    for (const animation of element.getAnimations({ subtree: true })) animation.cancel();
+    playScene(element, { motion: !reduced && started });
+    for (const animation of element.getAnimations({ subtree: true })) animation.pause();
+    const url = new URL(location.href); url.searchParams.set('scene', index + 1); history.replaceState(null, '', url);
+    return () => { for (const animation of element.getAnimations({ subtree: true })) animation.cancel(); };
+  }, [index, reduced, started]);
+
+  useLayoutEffect(() => {
+    // Every animation, including idle motion, is held at the same media position. No independent clocks.
+    for (const animation of stage.current.getAnimations({ subtree: true })) animation.currentTime = sceneTime * 1000;
+  }, [index, sceneTime, reduced, started]);
+
+  const seek = time => { setStarted(true); controller.current?.seek(time); };
+  const go = next => seek(playback.timeline[Math.max(0, Math.min(scenes.length - 1, next))].start);
   const togglePlay = () => {
-    if (!playing && last && clock.current?.playState === 'finished') { setIndex(0); setPlaying(true); return; }
-    setPlaying(value => !value);
+    setStarted(true);
+    if (state.playing) controller.current?.pause(); else controller.current?.play();
+  };
+  const fullscreen = () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else player.current.requestFullscreen?.().catch(() => {});
   };
   const onKeyDown = event => {
     if (event.target.closest('input, select, textarea')) return;
-    if (event.key === 'ArrowRight') { event.preventDefault(); go(index + 1); }
-    if (event.key === 'ArrowLeft') { event.preventDefault(); go(index - 1); }
+    if (event.key === 'ArrowRight') { event.preventDefault(); seek(state.time + 5); }
+    if (event.key === 'ArrowLeft') { event.preventDefault(); seek(state.time - 5); }
+    if ((event.key === ' ' && !event.target.closest('button, a, summary')) || event.key.toLowerCase() === 'k') { event.preventDefault(); togglePlay(); }
+    if (event.key.toLowerCase() === 'm') { event.preventDefault(); controller.current?.mute(); }
+    if (event.key.toLowerCase() === 'f') { event.preventDefault(); fullscreen(); }
   };
 
-  return <section className="story-player" aria-label="Story" aria-roledescription="story player" onKeyDown={onKeyDown}>
+  return <section ref={player} tabIndex="0" className="story-player" aria-label="Story" aria-roledescription="story player" onKeyDown={onKeyDown}>
     <StoryDefs />
     <div className="story-frame">
       <div className="story-brand"><img className="story-logo" src={LOGO} alt="UNDRR" width="425" height="64" /></div>
-      <div className="story-stage" ref={stage} role="group" aria-roledescription="scene" aria-label={`Scene ${index + 1} of ${scenes.length}: ${scene.label}`}>
+      <div className="story-stage" ref={stage} onClick={togglePlay} role="group" aria-roledescription="scene" aria-label={`Scene ${index + 1} of ${scenes.length}: ${scene.label}`}>
         <div key={scene.id} className="story-scene">{scene.stage}</div>
         <p className="mg-u-sr-only">{scene.describe}</p>
       </div>
@@ -152,21 +112,31 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
     </div>
     <div className="story-controls">
       <button type="button" className="mg-button mg-button-secondary mg-button-outline" onClick={() => go(index - 1)} disabled={index === 0}>Previous</button>
-      <button type="button" className="mg-button mg-button-primary story-play" aria-pressed={playing} onClick={togglePlay}>{playing ? 'Pause' : last && !playing ? 'Play again' : 'Play'}</button>
+      <button type="button" className="mg-button mg-button-primary story-play" aria-pressed={state.playing} onClick={togglePlay}>{state.playing ? 'Pause' : ended ? 'Replay' : 'Play'}</button>
       <button type="button" className="mg-button mg-button-secondary mg-button-outline" onClick={() => go(index + 1)} disabled={last}>Next</button>
       <label className="story-scrubber">
-        <span className="mg-u-sr-only">Scene</span>
-        <input type="range" min="1" max={scenes.length} value={index + 1} onChange={event => go(Number(event.target.value) - 1)}
-          aria-valuetext={`Scene ${index + 1} of ${scenes.length}: ${scene.label}`} />
+        <span className="mg-u-sr-only">Playback position</span>
+        <input type="range" min="0" max={playback.duration} step="0.1" value={state.time}
+          onChange={event => seek(Number(event.target.value))}
+          aria-valuetext={`${formatTime(state.time)} of ${formatTime(playback.duration)}: ${scene.label}`} />
       </label>
-      <span className="story-progress">Scene {index + 1} of {scenes.length}</span>
-      {hasAudio && <label className="story-audio">
-        <input type="checkbox" checked={audioOn} onChange={event => setAudioOn(event.target.checked)} /> Audio on
-      </label>}
+      <span className="story-progress" aria-hidden="true">{formatTime(state.time)} / {formatTime(playback.duration)}</span>
+      <button type="button" className="mg-button mg-button-secondary mg-button-outline" onClick={() => controller.current?.mute()}
+        aria-label={state.muted ? 'Unmute' : 'Mute'} aria-pressed={state.muted}>{state.muted ? 'Unmute' : 'Mute'}</button>
+      <label className="story-volume"><span className="mg-u-sr-only">Volume</span>
+        <input aria-label="Volume" type="range" min="0" max="1" step="0.05" value={state.muted ? 0 : state.volume}
+          onChange={event => controller.current?.setVolume(Number(event.target.value))} />
+      </label>
+      <label className="story-speed"><span className="mg-u-sr-only">Playback speed</span>
+        <select aria-label="Playback speed" value={state.rate} onChange={event => controller.current?.setRate(Number(event.target.value))}>
+          {[0.75, 1, 1.25, 1.5, 2].map(rate => <option key={rate} value={rate}>{rate}×</option>)}
+        </select>
+      </label>
+      <button type="button" className="mg-button mg-button-secondary mg-button-outline" onClick={fullscreen}>{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</button>
     </div>
-    {hasAudio && <audio ref={audio} preload="none" />}
-    {hasAudio && music && <audio ref={bed} preload="none" loop />}
-    {reduced && <p className="story-note">Your device is set to reduce motion, so each scene is shown as a still. Play still moves through the scenes.</p>}
+    <p className="story-playback-status" role="status">{state.error || (state.buffering ? 'Loading playback…' : `Scene ${index + 1} of ${scenes.length}: ${scene.label}`)}</p>
+    <audio ref={audio} preload="none" />
+    {reduced && <p className="story-note">Your device is set to reduce motion, so each scene is shown as a still. Playback and audio follow the same timeline.</p>}
     <details className="mg-details story-transcript">
       <summary>Read the transcript</summary>
       <ol>{scenes.map((item, i) => <li key={item.id}>
@@ -175,7 +145,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
         <p><strong>Narration:</strong> {item.narration}</p>
         <p className="story-describe"><strong>On screen:</strong> {item.describe}</p>
       </li>)}</ol>
-      <p className="story-describe">The figure and icon illustrations are AI-generated cut-paper images (Nano Banana 2).{hasAudio ? ` The narration is a synthetic voice (${narration.voiceNote}).` : ''}{hasAudio && music ? ` The background music is AI-generated (${music.note}).` : ''}</p>
+      <p className="story-describe">The figure and icon illustrations are AI-generated cut-paper images (Nano Banana 2).{` The narration is a synthetic voice (${narration.voiceNote}). The background music is AI-generated (${narration.music.note}).`}</p>
     </details>
   </section>;
 }

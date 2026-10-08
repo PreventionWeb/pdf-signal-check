@@ -61,3 +61,14 @@
   .story-logo { width: 96px; }
 }
 @media (prefers-reduced-motion: reduce) { .story-kw { animation: none; } }
+
+.story-progress { font-variant-numeric: tabular-nums; }
+.story-speed select { min-height: 44px; padding: 6px 10px; background: rgb(var(--story-paper)); color: rgb(var(--story-ink)); border: 1px solid rgb(var(--mg-color-neutral-400)); border-radius: 4px; }
+.story-playback-status { font-size: .875rem; color: var(--muted); margin: 8px 0 0; }
+.story-player:fullscreen { overflow: auto; background: rgb(var(--story-paper)); padding: 16px; }
+.story-player:fullscreen .story-frame { max-width: min(100%, calc((100vh - 240px) * 16 / 9)); margin-inline: auto; }
+.story-player:fullscreen .story-controls { max-width: 1200px; margin-inline: auto; }
+.story-player:fullscreen .story-transcript { display: none; }
+.story-stage { cursor: pointer; }
+.story-volume { display: flex; align-items: center; flex: 0 1 80px; min-height: 44px; }
+.story-volume input { width: 100%; min-height: 44px; accent-color: rgb(var(--mg-color-interactive)); }

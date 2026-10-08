@@ -1,0 +1,130 @@
+{
+  "file": "soundtrack.mp3",
+  "duration": 108.77,
+  "timeline": [
+    {
+      "id": "says-it",
+      "start": 0,
+      "duration": 4
+    },
+    {
+      "id": "readers",
+      "start": 4,
+      "duration": 8
+    },
+    {
+      "id": "machines",
+      "start": 12,
+      "duration": 11.8
+    },
+    {
+      "id": "picture",
+      "start": 23.8,
+      "duration": 7.56
+    },
+    {
+      "id": "layers",
+      "start": 31.36,
+      "duration": 6.64
+    },
+    {
+      "id": "no-description",
+      "start": 38,
+      "duration": 5.25
+    },
+    {
+      "id": "order",
+      "start": 43.25,
+      "duration": 7.88
+    },
+    {
+      "id": "lonely-number",
+      "start": 51.13,
+      "duration": 6.75
+    },
+    {
+      "id": "wrong-title",
+      "start": 57.88,
+      "duration": 6.42
+    },
+    {
+      "id": "search-and-listening",
+      "start": 64.3,
+      "duration": 8.68
+    },
+    {
+      "id": "chatbots-and-reach",
+      "start": 72.98,
+      "duration": 14.36
+    },
+    {
+      "id": "passport",
+      "start": 87.34,
+      "duration": 12.78
+    },
+    {
+      "id": "check",
+      "start": 100.12,
+      "duration": 8.65
+    }
+  ],
+  "inputs": [
+    {
+      "file": "01-says-it.mp3",
+      "sha256": "d8facef83b55eed8bb36e33b9261097646444114e257a2d00ae8cf93eb5be658"
+    },
+    {
+      "file": "02-readers.mp3",
+      "sha256": "96e7c438eacd0d4ec7f753bfcc2fe599f80d20dedbc280f7f3f515d226df4a64"
+    },
+    {
+      "file": "03-machines.mp3",
+      "sha256": "3a0bac3a9dce4c116261f2d15d3dbff459f530266b09b0d65f9454694615132c"
+    },
+    {
+      "file": "04-picture.mp3",
+      "sha256": "cb5f6c9138403120976041714eb48a70c8b3bce70ca3293786ebda27673c6608"
+    },
+    {
+      "file": "05-layers.mp3",
+      "sha256": "f13f4056e236d53a0b097ff627507cabfd89fe4c8e2138eed23213533b3212d9"
+    },
+    {
+      "file": "06-no-description.mp3",
+      "sha256": "03e33485c0b03fb3fc608729ca98e0b72f5ab309ff16d4aaa0abc95c67b9505a"
+    },
+    {
+      "file": "07-order.mp3",
+      "sha256": "ad1f6adb6036a09acfff9b110e50d270f7da5dbd05ee23c6690e0de5f397e0cc"
+    },
+    {
+      "file": "08-lonely-number.mp3",
+      "sha256": "2fbcdb1cfea8ba5e09d2ac2bbe7f769c7539a04d0517ebc219102a248f53c19b"
+    },
+    {
+      "file": "09-wrong-title.mp3",
+      "sha256": "cd0deb39c56401df56032108f2be69b980974e85164001d13101f8a762f21ac6"
+    },
+    {
+      "file": "10-search-and-listening.mp3",
+      "sha256": "90c2b03e32a9cbc2c902d451315e41332538fcb138880178dd79d90970124a12"
+    },
+    {
+      "file": "11-chatbots-and-reach.mp3",
+      "sha256": "6893eae10b851a3f66a1c750af1713b9a038b34c1b8a45d54f27d390f34eb5d6"
+    },
+    {
+      "file": "12-passport.mp3",
+      "sha256": "f55e3b23c2407d82163dc0bfe26516bc0d8d929d103181b6c9be2a9897df77fc"
+    },
+    {
+      "file": "13-check.mp3",
+      "sha256": "4d696a68a15d005717337302aee8ddf54a9d92503ab67a06bcb98cad219c22e7"
+    },
+    {
+      "file": "music-bed.mp3",
+      "sha256": "ce426a96f6ba77c14bfe0ccef2e99176a0f53bda782c54b1eac797cd2139b3ed"
+    }
+  ],
+  "sha256": "930e6abe46a335b80408f26fe7865af17db3b0fa5dcf7d8806d8d3db57650dc6"
+}
