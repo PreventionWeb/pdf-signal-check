@@ -112,7 +112,12 @@ export function App() {
   }[state.stage];
   return (
     <>
-      <a className="mg-skip-link" href="#main">
+      <a className="mg-skip-link" href="#main" onClick={event => {
+        event.preventDefault();
+        const main = document.getElementById('main');
+        main?.focus({ preventScroll: true });
+        main?.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }}>
         Skip to content
       </a>
       <PageHeader

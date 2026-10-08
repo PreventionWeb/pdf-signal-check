@@ -36,7 +36,7 @@ export class ExportController {
     this.update({ busy: false, message: active ? message : "" });
   }
   async run(kind) {
-    if (this.abort || !["pdf", "png", "json"].includes(kind)) return;
+    if (this.abort || !["pdf", "pdf-full", "png", "json"].includes(kind)) return;
     const state = this.getState();
     if (!state.report) return;
     const snapshot = captureSnapshot(state),
@@ -118,6 +118,7 @@ export class ExportController {
           message("Laying out captured report…");
           blob = await createPdfReport(snapshot, {
             signal: abort.signal,
+            includeTechnical: kind === 'pdf-full',
             crops,
             onProgress: (progress) =>
               message(
@@ -135,7 +136,7 @@ export class ExportController {
         return;
       this.download(
         blob,
-        `${safeFilename(snapshot.source.name)}-${REPORT_FILENAME_STEM}.${kind}`,
+        `${safeFilename(snapshot.source.name)}-${kind === 'pdf-full' ? 'full-report' : REPORT_FILENAME_STEM}.${kind === 'pdf-full' ? 'pdf' : kind}`,
       );
       message(
         "Download requested for the captured report. The original PDF was not changed.",

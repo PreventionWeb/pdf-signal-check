@@ -43,7 +43,7 @@ function Disclosure({
 function QueueItem({ item, state, controller, pending, requireAI }) {
   const queue = state.queue,
     act = (fn) => controller.act(fn),
-    counts = item.summary?.findingCounts || {};
+    counts = item.summary?.presentationCounts;
   const editable =
     item.id !== queue.activeId &&
     item.id !== queue.modelFailure?.id &&
@@ -90,7 +90,8 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
       {item.error && <p className="error-message">{item.error}</p>}
       {item.summary && (
         <>
-          <p><strong>{item.summary.presentationCounts?.problems ?? ((counts['required-defect'] || 0) + (counts['advisory-concern'] || 0))} detected concerns</strong> · {item.summary.presentationCounts?.uncertainty ?? ((counts['required-indeterminate'] || 0) + (counts.uncertain || 0))} human-review items · {item.summary.presentationCounts?.limits ?? 0} tool limits</p>
+          {counts?.version === 2 ? <p><strong>Fix ({counts.fix})</strong> · Check ({counts.check}) · Couldn’t check ({counts.couldntCheck})</p>
+            : <p>Open the report to see its Fix and Check items.</p>}
           {item.summary.semantic?.error && (
             <p className="error-message">
               AI did not complete: {item.summary.semantic.error}

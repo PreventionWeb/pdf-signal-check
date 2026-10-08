@@ -4,6 +4,7 @@ import { PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { comparisonLines, screeningReceipt, fixSheet } from './snapshot.js';
 import { throwIfAborted } from '../evidence/geometry.js';
+import { createReportStructure } from './tagged-pdf.js';
 const FONT='./fonts/NotoSans-Regular.ttf';
 const palette=PRESENTATION_BRAND.exportPalette;
 const pdfColor=channels=>rgb(...channels.map(value=>value/255));
@@ -17,43 +18,51 @@ async function rasterLine(text,{size=12,width=1020}={}) {
   const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d');ctx.font=`${size*2}px "PDF Report Noto", sans-serif`;const lines=wrapText(text,s=>ctx.measureText(s).width,width);canvas.width=width;canvas.height=Math.max(1,lines.length*(size*2+10)+12);ctx.fillStyle=cssColor(palette.paper);ctx.fillRect(0,0,canvas.width,canvas.height);ctx.font=`${size*2}px "PDF Report Noto", sans-serif`;ctx.fillStyle=cssColor(palette.text);ctx.textBaseline='top';lines.forEach((l,i)=>ctx.fillText(l,0,i*(size*2+10)+4));const data=canvas.toDataURL('image/png');canvas.width=canvas.height=0;return {data,height:(lines.length*(size*2+10)+12)/2};
 }
 async function browserFont(bytes){const face=new FontFace('PDF Report Noto',bytes);await face.load();document.fonts.add(face);return ()=>document.fonts.delete(face);}
-export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,onProgress=()=>{}}={}) {
+export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,includeTechnical=false,onProgress=()=>{}}={}) {
   throwIfAborted(signal);const pdf=await PDFDocument.create();pdf.registerFontkit(fontkit);const bytes=fontBytes || await loadReportFont(signal);const font=await pdf.embedFont(bytes,{subset:true});const supported=new Set(font.getCharacterSet());let rasterCount=0,page,y,runningHeader='Fix list';const removeFont=await browserFont(bytes);
+  const structure=createReportStructure(pdf);
   const report=snapshot.report,width=595,height=842,margin=44,content=width-margin*2;
-  const newPage=()=>{page=pdf.addPage([width,height]);y=height-48;page.drawText(`${PRODUCT_NAME} | ${runningHeader}`,{x:margin,y,size:10,font,color:pdfColor(palette.interactive)});y-=28;};
+  const newPage=()=>{page=pdf.addPage([width,height]);y=height-48;structure.artifact(page,()=>page.drawText(`${PRODUCT_NAME} | ${runningHeader}`,{x:margin,y,size:10,font,color:pdfColor(palette.interactive)}));y-=28;};
   const ensure=h=>{if(y-h<52)newPage();};
-  const write=async(text,{size=10.5,color=pdfColor(palette.text),gap=7}={})=>{
-    throwIfAborted(signal);text=clean(text);const unsafe=Array.from(text).some(c=>!supported.has(c.codePointAt(0)));
-    if(unsafe){rasterCount++;const lines=wrapText(text,s=>Array.from(s).length*size*.65,content);for(const line of lines){const image=await rasterLine(line,{size,width:content*2});ensure(image.height+gap);page.drawImage(await pdf.embedPng(image.data),{x:margin,y:y-image.height,width:content,height:image.height});y-=image.height+gap;}return;}
-    const lines=wrapText(text,s=>font.widthOfTextAtSize(s,size),content);for(const line of lines){ensure(size*1.5+gap);page.drawText(line,{x:margin,y:y-size,size,font,color});y-=size*1.5;}y-=gap;
+  const write=async(text,{size=10.5,color=pdfColor(palette.text),gap=7,role='P',parent}={})=>{
+    throwIfAborted(signal);text=clean(text);const owner=structure.element(role,{parent});const unsafe=Array.from(text).some(c=>!supported.has(c.codePointAt(0)));
+    if(unsafe){rasterCount++;const lines=wrapText(text,s=>Array.from(s).length*size*.65,content);for(const line of lines){const image=await rasterLine(line,{size,width:content*2});ensure(image.height+gap);const embedded=await pdf.embedPng(image.data);const span=structure.element('Span',{parent:owner,actualText:line+' '});structure.mark(page,span,()=>{
+      page.drawImage(embedded,{x:margin,y:y-image.height,width:content,height:image.height});
+      // Some extractors apply ActualText only when its marked content includes a text operation.
+      // The invisible blank anchors the Unicode replacement without adding visible or duplicate text.
+      page.drawText(' ',{x:margin,y:y-size,size:1,font,opacity:0});
+    });y-=image.height+gap;}return;}
+    const lines=wrapText(text,s=>font.widthOfTextAtSize(s,size),content);for(const line of lines){ensure(size*1.5+gap);structure.mark(page,owner,()=>page.drawText(line,{x:margin,y:y-size,size,font,color}));y-=size*1.5;}y-=gap;
   };
-  const heading=async text=>{ensure(60);await write(text,{size:15,color:pdfColor(palette.interactive),gap:10});};
+  const heading=async text=>{ensure(60);await write(text,{size:15,color:pdfColor(palette.interactive),gap:10,role:'H2'});};
+  const list=async(values,options={})=>{if(!values.length)return;const owner=structure.element('L');for(const value of values){const item=structure.element('LI',{parent:owner});await write(`• ${value}`,{...options,role:'LBody',parent:item});}};
   try {
     const sheet=fixSheet(snapshot);
     const cropSize=findingId=>{const crop=crops.find(c=>c.findingId===findingId);if(!crop?.blob)return null;const height=Math.min(160,content*crop.height/crop.width);return {crop,height,width:height*crop.width/crop.height};};
     const drawCrop=async size=>{const image=await pdf.embedPng(await size.crop.blob.arrayBuffer());const x=margin+8;y-=4;
-      page.drawRectangle({x:x-4,y:y-size.height-4,width:size.width+8,height:size.height+8,borderColor:pdfColor(palette.muted),borderWidth:.6});
-      page.drawImage(image,{x,y:y-size.height,width:size.width,height:size.height});y-=size.height+10;
+      structure.artifact(page,()=>page.drawRectangle({x:x-4,y:y-size.height-4,width:size.width+8,height:size.height+8,borderColor:pdfColor(palette.muted),borderWidth:.6}));
+      const figure=structure.element('Figure',{alt:size.crop.text || size.crop.caption || `Source evidence on page ${size.crop.page}`});structure.mark(page,figure,()=>page.drawImage(image,{x,y:y-size.height,width:size.width,height:size.height}));y-=size.height+10;
       await write(`${size.crop.pageContext?'Full':'Part of'} page ${size.crop.page}${size.crop.pageContext?'; the exact location could not be isolated':', outlined in blue'}.`,{size:8.5,color:pdfColor(palette.muted),gap:4});};
-    newPage();await write(sheet.headline,{size:20,color:pdfColor(palette.interactive),gap:6});await write(snapshot.source.name,{size:12});
-    await write(`Checked ${(report.analyzedAt || snapshot.capturedAt).slice(0,10)} with ${PRODUCT_NAME}. Fix the source document, export a new PDF and check it again. This tool does not change the PDF.`,{size:9.5,color:pdfColor(palette.muted)});
+    newPage();await write(sheet.headline,{size:20,color:pdfColor(palette.interactive),gap:6,role:'H1'});await write(snapshot.source.name,{size:12});
+    await write(`Checked ${(report.analyzedAt || snapshot.capturedAt).slice(0,10)} with ${PRODUCT_NAME}. Send this fix list to whoever edits the original document. Ask for an updated PDF, then check it again. This tool does not change the PDF.`,{size:9.5,color:pdfColor(palette.muted)});
     if(sheet.scope)await write(sheet.scope,{size:9.5,color:pdfColor(palette.muted)});
     for(const [key,label,intro] of [['fix','Fix','Problems found in this PDF.'],['check','Check','Possible problems. Look at each one and decide.']]){
       if(!sheet[key].length)continue;await heading(`${label} (${sheet[key].length})`);await write(intro,{size:9.5,color:pdfColor(palette.muted)});
       for(const item of sheet[key]){throwIfAborted(signal);const size=item.cropFindingId?cropSize(item.cropFindingId):null;
         // Keep an item's text and its image on the same page.
         ensure(Math.min(height-120,(size ? size.height+40 : 0)+140));
-        await write(`${item.number}. ${item.title}`,{size:12.5,gap:3});if(item.where)await write(item.where,{size:9.5,color:pdfColor(palette.muted),gap:4});
+        await write(`${item.number}. ${item.title}`,{size:12.5,gap:3,role:'H3'});if(item.where)await write(item.where,{size:9.5,color:pdfColor(palette.muted),gap:4});
         await write(bounded(item.summary,500));
-        for(const line of item.members.slice(0,12))await write(`• ${bounded(line,200)}`,{size:9.5,gap:2});
+        await list(item.members.slice(0,12).map(line=>bounded(line,200)),{size:9.5,gap:2});
         if(item.members.length>12)await write(`and ${item.members.length-12} more`,{size:9.5});
         if(item.change)await write(`What to change: ${item.change}`);
-        if(size)await drawCrop(size);
+        if(size)await drawCrop({...size,crop:{...size.crop,text:`${item.title}. ${item.summary}`}});
         y-=10;
       }
     }
-    if(sheet.unknown.length){await heading(`Couldn’t check (${sheet.unknown.length})`);await write('The tool could not decide these. They are limits of this tool, not problems found in the PDF.',{size:9.5,color:pdfColor(palette.muted)});for(const title of sheet.unknown)await write(`• ${title}`,{size:10,gap:2});}
+    if(sheet.unknown.length || sheet.limits.length){ensure(75+(sheet.unknown.length+sheet.limits.length)*30);await heading(`Couldn’t check (${sheet.unknown.length+sheet.limits.length})`);await write('The tool could not decide these. They are limits of this tool, not problems found in the PDF.',{size:9.5,color:pdfColor(palette.muted)});await list([...sheet.unknown,...sheet.limits],{size:10,gap:2});}
     if(!sheet.fix.length && !sheet.check.length)await write('Nothing to fix or check was found automatically. Image and chart meaning, factual accuracy and intended reading order still need a person to review.');
+    if(includeTechnical) {
     runningHeader='Technical appendix';newPage();await heading('Technical appendix');await write('The rest of this report is the analysis record behind the fix list, for people who need the method and evidence.',{size:9.5,color:pdfColor(palette.muted)});await write(snapshot.source.name,{size:14});
     await write(`Assessment: ${report.analyzedAt || 'Not recorded'} | Export captured: ${snapshot.capturedAt}`);
     await write(`Original bytes: ${snapshot.source.bytes ?? 'Not recorded'} | Pages: ${report.file.pages ?? 'Not recorded'}`);
@@ -63,7 +72,7 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,onProg
     for (const reason of profileReasons(report)) await write(reason);
     await write('This is a receipt about the captured input, not a repaired PDF or certificate. A profile pass does not establish overall AI readiness, correct reading order, authorship, or accurate downstream AI output.');
     await write(Object.entries(snapshot.normalized.counts).map(([k,v])=>`${k}: ${v}`).join(' | '));
-    await write('Names and non-Latin text outside the bundled font are preserved as raster text using available browser fonts. Raster text is not selectable/extractable; exact Unicode values remain in JSON. If glyphs are missing in this browser, use the JSON values.');
+    await write('Text outside the bundled font is drawn using available browser fonts with its exact Unicode stored as replacement text in the PDF structure. Visual glyph availability depends on the browser; exact values also remain in JSON.');
     await heading('Publication metadata');
     for(const [k,v] of [['Info title',report.metadata.infoTitle],['XMP titles',(report.metadata.xmpTitles || []).map(t=>`${t.lang || 'unspecified'}: ${t.text}`).join('; ')],['Info authors',report.metadata.author],['XMP creators',(report.metadata.xmpAuthors || []).join('; ')],['Language',report.metadata.language]])await write(`${k}: ${bounded(v || 'Not set')}`);
     await heading('Local AI screening receipt');const semantic=report.semantic;
@@ -79,7 +88,7 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,onProg
       if(f.category==='success'){y-=8;continue;}
       const evidence=(f.evidence || []).slice(0,6);for(const e of evidence){const text=typeof e==='string'?e:`${e.page?`Page ${e.page}: `:''}${e.text || e.source || ''}`;if(text)await write(bounded(text));const input=e?.modelInput;if(input)await write(`Consumed ${input.consumedTokens}/${input.inputTokens} tokens${input.truncated?' (truncated)':''}; ${bounded(input.consumedText,350)}`,{size:9});}
       if((f.evidence || []).length>evidence.length)await write(`${f.evidence.length-evidence.length} further evidence entries omitted; see JSON.`,{size:9});
-      const crop=crops.find(c=>c.findingId===f.id);if(crop?.blob){const image=await pdf.embedPng(await crop.blob.arrayBuffer());const imageHeight=Math.min(180,content*crop.height/crop.width),imageWidth=imageHeight*crop.width/crop.height;ensure(imageHeight+65);page.drawImage(image,{x:margin,y:y-imageHeight,width:imageWidth,height:imageHeight});y-=imageHeight+8;await write(crop.caption,{size:9});}else if(crop?.unavailable)await write(`Image unavailable: ${crop.unavailable}`,{size:9});
+      const crop=crops.find(c=>c.findingId===f.id);if(crop?.blob){const image=await pdf.embedPng(await crop.blob.arrayBuffer());const imageHeight=Math.min(180,content*crop.height/crop.width),imageWidth=imageHeight*crop.width/crop.height;ensure(imageHeight+65);const figure=structure.element('Figure',{alt:`${f.title}. ${f.summary}`});structure.mark(page,figure,()=>page.drawImage(image,{x:margin,y:y-imageHeight,width:imageWidth,height:imageHeight}));y-=imageHeight+8;await write(crop.caption,{size:9});}else if(crop?.unavailable)await write(`Image unavailable: ${crop.unavailable}`,{size:9});
       await write(`Why inspect: ${f.whyItMatters}`);await write(`Next step: ${f.whatToInspect}`);y-=8;
       await new Promise(resolve=>setTimeout(resolve,0));
     }
@@ -88,8 +97,10 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,onProg
     await write(`Images: ${crops.filter(c=>c.blob).length}, capped at six located findings with one region each and one megapixel per image. Other locations remain in text/JSON/full-page preview. Graphic bounds are approximate; excluded Form content and unreliable geometry receive no crop.`);
     await write('Reports contain document metadata, text excerpts, and page images. Generated on this device; share only with intended recipients. The original PDF was not changed.');
     if(rasterCount)await write(`${rasterCount} text entries used raster Unicode fallback; exact values are preserved in JSON.`,{size:9});
-    const pages=pdf.getPages();pages.forEach((p,i)=>p.drawText(`Page ${i+1} / ${pages.length} | Captured ${snapshot.capturedAt.slice(0,10)}`,{x:margin,y:25,size:8,font,color:pdfColor(palette.muted)}));
-    pdf.setTitle(`${PRODUCT_NAME} - fix list for ${snapshot.source.name}`);pdf.setSubject('Fix list and analysis record; original source unchanged');pdf.setCreator(`${PRODUCT_NAME} ${report.appVersion}`);throwIfAborted(signal);return new Blob([await pdf.save()],{type:'application/pdf'});
+    }
+    const pages=pdf.getPages();pages.forEach((p,i)=>structure.artifact(p,()=>p.drawText(`Page ${i+1} / ${pages.length} | Captured ${snapshot.capturedAt.slice(0,10)}`,{x:margin,y:25,size:8,font,color:pdfColor(palette.muted)})));
+    structure.finish();
+    pdf.setTitle(`${PRODUCT_NAME} - ${includeTechnical?'full report':'fix list'} for ${snapshot.source.name}`);pdf.setSubject(includeTechnical?'Fix list and technical evidence; original source unchanged':'Source-document repair handoff; original source unchanged');pdf.setCreator(`${PRODUCT_NAME} ${report.appVersion}`);throwIfAborted(signal);return new Blob([await pdf.save()],{type:'application/pdf'});
   } finally {removeFont();}
 }
 export async function createSummaryPng(snapshot,{signal,fontBytes}={}) {

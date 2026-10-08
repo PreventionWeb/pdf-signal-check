@@ -2,6 +2,7 @@ import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.mjs?url';
 import { evidenceCropBounds, targetQuads, throwIfAborted } from './geometry.js';
 import { point } from '../geometry.js';
+import { boundedRenderScale } from './render-budget.js';
 pdfjs.GlobalWorkerOptions.workerSrc=workerUrl;
 const blobOf=canvas=>new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not encode evidence image')),'image/png'));
 /** Serialized, independent source rendering; no dependency on preview zoom/page/canvas. */
@@ -20,7 +21,7 @@ export class EvidenceCropService {
     let canvas,crop,page;
     try {
       const doc=await this.load();page=await doc.getPage(target.page);throwIfAborted(this.signal);
-      const unit=page.getViewport({scale:1});const scale=Math.min(1.6,4096/Math.max(unit.width,unit.height),Math.sqrt(8_000_000/(unit.width*unit.height)));
+      const unit=page.getViewport({scale:1});const scale=boundedRenderScale(unit.width,unit.height,1.6);
       const viewport=page.getViewport({scale});const bounds=evidenceCropBounds(this.report,target,viewport);if(!bounds)return {unavailable:'Evidence geometry is outside the rendered page.'};
       canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.floor(viewport.width));canvas.height=Math.max(1,Math.floor(viewport.height));
       this.renderTask=page.render({canvasContext:canvas.getContext('2d'),viewport});await this.renderTask.promise;this.renderTask=null;throwIfAborted(this.signal);
@@ -45,7 +46,7 @@ export class EvidenceCropService {
     let canvas,page;
     try {
       const doc=await this.load();page=await doc.getPage(pageNumber);throwIfAborted(this.signal);
-      const unit=page.getViewport({scale:1});const viewport=page.getViewport({scale:Math.min(2,maxWidth/unit.width)});
+      const unit=page.getViewport({scale:1});const viewport=page.getViewport({scale:boundedRenderScale(unit.width,unit.height,Math.min(2,maxWidth/unit.width))});
       canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.floor(viewport.width));canvas.height=Math.max(1,Math.floor(viewport.height));
       this.renderTask=page.render({canvasContext:canvas.getContext('2d'),viewport});await this.renderTask.promise;this.renderTask=null;throwIfAborted(this.signal);
       const boxes=groups.map(quads=>{const pts=quads.flat().map(p=>point(viewport.transform,p));const xs=pts.map(([x])=>x),ys=pts.map(([,y])=>y);

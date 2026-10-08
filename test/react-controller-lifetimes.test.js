@@ -291,3 +291,18 @@ it("releases export busy state even when source-document cleanup rejects", async
   expect(controller.getSnapshot().busy).toBe(false);
   expect(controller.getSnapshot().message).toContain("cleanup was incomplete");
 });
+
+it("keeps concise and full PDF exports on the captured-source contract with distinct filenames", async () => {
+  const source = { report: report(), file: null, sourceKey: 1 };
+  const download = vi.fn(), createPdfReport = vi.fn(async () => new Blob(['pdf']));
+  const controller = new ExportController(() => source, {
+    download, loadGenerators: async () => ({ createPdfReport }),
+  });
+  await controller.run('pdf');
+  await controller.run('pdf-full');
+  expect(createPdfReport.mock.calls.map(([, options]) => options.includeTechnical)).toEqual([false, true]);
+  expect(createPdfReport.mock.calls[0][0].report).not.toBe(source.report);
+  expect(download.mock.calls[0][1]).toMatch(/-pdf-signal-check\.pdf$/);
+  expect(download.mock.calls[1][1]).toMatch(/-full-report\.pdf$/);
+  expect(controller.getSnapshot().busy).toBe(false);
+});

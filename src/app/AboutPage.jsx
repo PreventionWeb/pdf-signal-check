@@ -13,13 +13,13 @@ const challenges = [
 ];
 
 const phases = [
-  { title: 'Write for people and machines', checks: 'Headings, document title and description',
+  { title: 'Write for people and machines', checks: 'Saved title and description; optional AI comparisons with tagged headings',
     items: ['Use clear, descriptive headings and heading styles. With a tagged export, they can help form the PDF’s structure.', 'Keep one topic per paragraph, around three to five sentences.', 'Spell out acronyms, and name places and dates in the body text, not only in captions or footnotes.', 'Open with a short summary that gives the whole document’s context.'] },
-  { title: 'Explain what the graphics mean', checks: 'Image descriptions, decorative graphics',
+  { title: 'Explain what the graphics mean', checks: 'Whether labelled images have saved descriptions, and which graphics are marked decorative',
     items: ['Write a useful text description when you make the graphic, not at export. Explain its main finding.', 'Include key numbers and what they measure in the text or a data table, not only inside an image.', 'Keep chart labels as text where possible, and check the exported PDF.', 'Mark purely decorative graphics as decoration so they do not interrupt someone listening.'] },
-  { title: 'Lay out with structure', checks: 'Tags, untagged text, reading order',
+  { title: 'Lay out with structure', checks: 'Tag connections, untagged text and limited clues to mixed-up reading order',
     items: ['Use heading, list and table styles in your authoring tool. Enable tagged export and check that those roles are preserved in the PDF.', 'Put table headers in the first row, and don’t merge cells just for looks.', 'Keep layouts simple and consistent, and avoid layered text boxes and decorative sidebars.', 'Rotate pages the right way up before publishing.'] },
-  { title: 'Export a tagged PDF', checks: 'Tags, language, document properties, attachments',
+  { title: 'Export a tagged PDF', checks: 'Tags, saved language and document properties, and declared attachments',
     items: ['Choose “Create Tagged PDF”; don’t rely on defaults, and don’t flatten to print-ready.', 'Aim for PDF/UA, and PDF/A-3 if you embed source files such as CSV data.', 'Embed fonts, and fill in title, author, subject, keywords and language.', 'Keep files under about 10 MB without blurring images.'] },
   { title: 'Check the different ways people use it', checks: 'The checks above, within the tool’s limits',
     items: ['Run PDF Signal Check, review the evidence and give the fix list to whoever can edit the source document.', 'Use a full accessibility checker and test the reading order and chart descriptions with a screen reader.', 'Copy text out and check that steps, numbers and labels still belong together. Also review the page on a phone.', 'Match the saved title, year and authors to the publication. Export an updated PDF and check again.'] },
@@ -147,7 +147,7 @@ cities where an additional 1.2`}</pre>
 
     <section className="about-section" aria-labelledby="about-privacy">
       <h2 id="about-privacy">Privacy and AI</h2>
-      <p>Your PDF is checked in your browser and never leaves your device. The structural checks need no AI. If you choose a local AI model, it downloads once and also runs on your device. AI can make mistakes, and this tool’s rules can miss issues or flag legitimate content, so review the evidence before relying on a result.</p>
+      <p>Your PDF is checked in your browser and never leaves your device. The structural checks need no AI. If you choose a local AI model, its files download with your permission and the checks run on your device. Your browser may reuse downloaded files on later visits. AI can make mistakes, and this tool’s rules can miss issues or flag legitimate content, so review the evidence before relying on a result.</p>
       <Button onClick={onPrivacy}>Read the AI and privacy notice</Button>
     </section>
   </article>;

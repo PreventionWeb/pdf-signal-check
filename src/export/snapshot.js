@@ -1,6 +1,6 @@
 import { findingProvenance, screeningProvenance } from '../review/provenance.js';
 import { normalizeFindings } from '../review/findings.js';
-import { findingGroups, groupHeadingFindings, groupFigureFindings, reviewSummary, fixCard } from '../review/workspace.js';
+import { reviewGroups, reviewLimitText, reviewSummary, fixCard } from '../review/workspace.js';
 export function captureSnapshot({report,file}) {
   if(!report)throw new Error('Complete an analysis before exporting.');
   const copy=structuredClone(report);
@@ -27,7 +27,7 @@ export function screeningReceipt(report) {
 /** The designer hand-off: numbered Fix and Check items as the results screen shows them, from the captured report. */
 export function fixSheet(snapshot) {
   const report=snapshot.report;
-  const groups=groupFigureFindings(groupHeadingFindings(findingGroups(snapshot.normalized.findings)));
+  const groups=reviewGroups(snapshot.normalized.findings);
   const summary=reviewSummary(report,groups);
   let number=0;
   const memberLine=member=>{const figure=member.comparison?.figure;
@@ -38,5 +38,5 @@ export function fixSheet(snapshot) {
     cropFindingId:item.figureGroup==='decorative' || item.source?.path==='readingOrder'?null:item.figureGroup?item.members[0].id:item.members?null:item.id,
     members:[...(item.members || []).map(memberLine),...(fixCard(item,report).also || []).map(text=>`Also fixes: ${text}`)]});
   return {headline:summary.headline,scope:summary.scope,fix:summary.buckets.fix.map(item=>entry(item,'fix')),check:summary.buckets.check.map(item=>entry(item,'check')),
-    unknown:summary.buckets.unknown.map(item=>fixCard(item,report).title)};
+    unknown:summary.buckets.unknown.map(item=>fixCard(item,report).title), limits:summary.buckets.limits.map(reviewLimitText)};
 }

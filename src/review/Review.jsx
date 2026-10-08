@@ -2,7 +2,7 @@ import { buildDocumentEvidence } from "../engine/topic-retrieval.js";
 import { SemanticEvidenceLab } from "./SemanticEvidenceLab.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Checks } from "../app/Checks.jsx";
-import { findingGroups, profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, groupHeadingFindings, groupFigureFindings, fixCard, fixBucket } from "./workspace.js";
+import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, reviewLimitText, reviewGroups, fixCard, fixBucket } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
 import { findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
 import { Button, Card, Actions, Tag, Notice } from "../ui/react.jsx";
@@ -43,7 +43,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     titleRef = useRef(null),
     detailRef = useRef(null);
   const { issueId } = state.reviewCursor;
-  const groups = useMemo(() => groupFigureFindings(groupHeadingFindings(findingGroups(normalized.findings))), [normalized]);
+  const groups = useMemo(() => reviewGroups(normalized.findings), [normalized]);
   const overview = reviewSummary(report, groups);
   const { buckets } = overview;
   const selectable = [...buckets.fix, ...buckets.check, ...buckets.unknown, ...buckets.travel];
@@ -192,7 +192,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     </EvidenceDrawer>}
     {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
   </>;
-  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(limitText)} report={report} file={file}
+  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
     selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })} onShowAll={() => { setSelection(null); setFullOpen(true); }}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
@@ -244,13 +244,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     </>
   );
 }
-function limitText(item) {
-  if (item.source?.checkId === "supported-content") return "Images and charts: this tool cannot judge what they mean.";
-  if (item.source?.path === "semantic") return item.outcome === "error" ? "AI text comparisons: the AI check did not finish." : "AI text comparisons: not run for this PDF.";
-  const skipped = /^semantic:(keywords|sections):unassessed$/.exec(item.id);
-  if (skipped) return `${String(item.summary || "").match(/\d+/)?.[0] || "Some"} ${skipped[1] === "keywords" ? "keywords" : "headings"} were not compared by the AI. It only compares a limited number in each PDF.`;
-  return `${item.title}: ${item.summary || "not checked"}`;
-}
+
 const CHANNELS = { property: "Document properties", "image-description": "Image description", "attachment-description": "Attachment description" };
 /** Each hidden passage: where it is, how it is hidden, what it seems to ask an AI to do, and the text itself. */
 function HiddenInstructions({ matches, onInspect }) {

@@ -1,4 +1,4 @@
-import {findingGroups} from '../review/workspace.js';
+import {reviewGroups,reviewSummary} from '../review/workspace.js';
 import {normalizeFindings} from '../review/findings.js';
 import {ReportStore} from './report-store.js';
 const clone=value=>structuredClone(value);
@@ -7,7 +7,7 @@ const summary=report=>({screeningSelection:clone(report.screeningSelection||null
  checks:(report.checks||[]).map(c=>({id:c.id,status:c.status})),
  advisories:{title:outcome(report.metadataConsistency),authors:outcome(report.authorConsistency),order:outcome(report.readingOrder),visibility:outcome(report.textVisibility)},
  findingCounts:normalizeFindings(report).counts,
- presentationCounts:Object.fromEntries(Object.entries(findingGroups(normalizeFindings(report).findings)).map(([key,items])=>[key,items.length])),
+ presentationCounts:{version:2,...reviewSummary(report,reviewGroups(normalizeFindings(report).findings)).counts},
  semantic:report.semantic?{status:report.semantic.status||'completed',requireInference:report.semantic.requireInference===true,model:report.semantic.model,requestedChecks:report.semantic.requestedChecks,inferencePerformed:report.semantic.inferencePerformed,
  skipReason:report.semantic.skipReason||null,reason:report.semantic.reason||null,error:report.semantic.error||null,errorStage:report.semantic.errorStage||null,errorCode:report.semantic.errorCode||null,skippedChecks:report.semantic.skippedChecks||[],
  checks:Object.fromEntries(['title','titleAI','subject','keywords','sections'].map(field=>[field,outcome(report.semantic[field])])),

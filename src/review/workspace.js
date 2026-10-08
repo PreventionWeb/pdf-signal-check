@@ -48,6 +48,10 @@ export function groupFigureFindings(groups) {
   }
   return result;
 }
+/** Shared task grouping for individual review, batch summaries and captured hand-offs. */
+export function reviewGroups(findings) {
+  return groupFigureFindings(groupHeadingFindings(findingGroups(findings)));
+}
 export function profileReceipt(report) {
   if (report.accepted) return 'Required text checks passed';
   if (report.checks?.some(check => check.status === 'fail')) return 'Required text defects found';
@@ -126,7 +130,9 @@ export function reviewSummary(report, groups) {
       ? ''
       : graphicsOnly ? 'This tool cannot judge image or chart meaning, so check those yourself.'
         : 'This is a partial result: some checks could not give an answer, so the PDF has not met all of this tool’s requirements.';
-  return { headline, nextStep, scope, tasks, buckets, criticalCount };
+  const counts = Object.fromEntries(Object.entries(buckets).map(([key, items]) => [key, items.length]));
+  counts.couldntCheck = counts.unknown + counts.limits;
+  return { headline, nextStep, scope, tasks, buckets, criticalCount, counts };
 }
 
 const documentPaths = /^(metadataConsistency|deterministicTitle|authorConsistency|machineMetadata|semantic\.(subject|keywords|keywordItems|title|titleAI)|checks\.(title|language))/;
@@ -444,4 +450,13 @@ export function reviewLimitEvidence(value) {
   return /non-artifact graphic painting operations/.test(value)
     ? 'This PDF contains graphic content. Check that meaningful images and charts have a useful text description or nearby text that conveys the same information.'
     : value;
+}
+
+
+export function reviewLimitText(item) {
+  if (item.source?.checkId === "supported-content") return "Images and charts: this tool cannot judge what they mean.";
+  if (item.source?.path === "semantic") return item.outcome === "error" ? "AI text comparisons: the AI check did not finish." : "AI text comparisons: not run for this PDF.";
+  const skipped = /^semantic:(keywords|sections):unassessed$/.exec(item.id);
+  if (skipped) return `${String(item.summary || "").match(/\d+/)?.[0] || "Some"} ${skipped[1] === "keywords" ? "keywords" : "headings"} were not compared by the AI. It only compares a limited number in each PDF.`;
+  return `${item.title}: ${item.summary || "not checked"}`;
 }

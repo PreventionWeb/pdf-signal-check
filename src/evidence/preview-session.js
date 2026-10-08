@@ -3,6 +3,7 @@ import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
 import { readingOrderPlacement, hasUnsafePageScope } from "./reading-order-placement.js";
 import { cropBounds, targetQuads } from "./geometry.js";
 import { point } from "../geometry.js";
+import { boundedRenderScale } from './render-budget.js';
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 /** Only canvas/SVG geometry is imperative. React owns all controls, text and layout. */
 export class PreviewSession {
@@ -113,15 +114,10 @@ export class PreviewSession {
         this.zoom.value === "fit"
           ? Math.min(1, Math.max(0.1, (this.scroller.clientWidth - 24) / unit.width))
           : Number(this.zoom.value);
-      scale = Math.min(scale, 4096 / Math.max(unit.width, unit.height));
+      scale = boundedRenderScale(unit.width, unit.height, scale);
       const vp = page.getViewport({ scale });
       this.viewport = vp;
-      const dpr = Math.min(
-        devicePixelRatio || 1,
-        2,
-        Math.sqrt(8_000_000 / (vp.width * vp.height)),
-        4096 / Math.max(vp.width, vp.height),
-      );
+      const dpr = boundedRenderScale(vp.width, vp.height, Math.min(devicePixelRatio || 1, 2));
       this.canvas.width = Math.max(1, Math.floor(vp.width * dpr));
       this.canvas.height = Math.max(1, Math.floor(vp.height * dpr));
       this.sheet.style.width = `${vp.width}px`;
