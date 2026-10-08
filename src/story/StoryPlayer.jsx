@@ -104,7 +104,9 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
     const animations = element.getAnimations({ subtree: true });
     sceneAnimations.current = animations;
     for (const animation of animations) animation.pause();
-    const url = new URL(location.href); url.searchParams.set('scene', index + 1); history.replaceState(null, '', url);
+    if (started || initialTime.current > 0) {
+      const url = new URL(location.href); url.searchParams.set('scene', index + 1); history.replaceState(null, '', url);
+    }
     return () => {
       for (const animation of animations) animation.cancel();
       if (sceneAnimations.current === animations) sceneAnimations.current = [];

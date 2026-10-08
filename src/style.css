@@ -716,3 +716,6 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .about-phase-checks { margin: auto 0 0; padding-top: 8px; border-top: 1px solid rgb(var(--mg-color-neutral-200)); font-size: .875rem; }
 .about-origins li { margin-bottom: 10px; }
 .intake-hero-link { color: inherit; font-weight: 700; text-decoration: underline; white-space: nowrap; }
+
+.about-video { scroll-margin-top: 24px; }
+.about-video-loading { min-height: clamp(240px, 45vw, 600px); padding-block: 24px; }

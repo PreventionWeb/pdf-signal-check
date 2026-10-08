@@ -1,0 +1,79 @@
+.mg-hero--split .mg-hero__media.intake-story-preview {
+  aspect-ratio: auto;
+  height: auto;
+  overflow: visible;
+}
+
+.intake-story-preview__link {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  border-radius: 12px;
+  color: #2b2340;
+  background: #fffaf0;
+  text-decoration: none;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .1), 0 3px 8px rgb(0 0 0 / .1), 0 12px 28px rgb(0 0 0 / .17);
+  transition: transform 180ms cubic-bezier(.2, 0, 0, 1), box-shadow 180ms cubic-bezier(.2, 0, 0, 1);
+}
+
+.intake-story-preview__link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .1), 0 5px 12px rgb(0 0 0 / .12), 0 16px 32px rgb(0 0 0 / .2);
+}
+
+.intake-story-preview__link:active { transform: scale(.96); }
+.intake-story-preview__link:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+
+.intake-story-preview__image {
+  display: block;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.intake-story-preview__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  outline: 1px solid rgb(0 0 0 / .1);
+  outline-offset: -1px;
+}
+
+.intake-story-preview__play {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fff;
+  color: #2b2340;
+  box-shadow: 0 2px 5px rgb(0 0 0 / .15), 0 5px 16px rgb(0 0 0 / .2);
+  transition: transform 180ms cubic-bezier(.2, 0, 0, 1);
+}
+
+.intake-story-preview__link:hover .intake-story-preview__play { transform: scale(1.08); }
+.intake-story-preview__play svg { width: 22px; height: 22px; fill: currentColor; margin-left: 3px; }
+
+.intake-story-preview__caption {
+  display: flex;
+  align-items: baseline;
+  gap: .4em;
+  padding: 13px 17px 14px;
+  font-family: var(--mg-font-family-heading, 'Roboto Condensed', sans-serif);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intake-story-preview__link,
+  .intake-story-preview__play { transition: none; }
+  .intake-story-preview__link:hover,
+  .intake-story-preview__link:active,
+  .intake-story-preview__link:hover .intake-story-preview__play { transform: none; }
+}

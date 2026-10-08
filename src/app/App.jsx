@@ -39,18 +39,27 @@ export function App() {
     openerRef = useRef(null),
     previousStage = useRef(state.stage);
   // About is a separate page at #about so it can be linked and the browser back button returns to the app.
-  const [about, setAbout] = useState(() => globalThis.location?.hash === "#about");
+  const isAbout = () => ["#about", "#about-video"].includes(globalThis.location?.hash);
+  const [about, setAbout] = useState(isAbout);
   useEffect(() => {
-    const sync = () => setAbout(location.hash === "#about");
+    const sync = () => setAbout(isAbout());
     addEventListener("popstate", sync);
-    return () => removeEventListener("popstate", sync);
+    addEventListener("hashchange", sync);
+    return () => { removeEventListener("popstate", sync); removeEventListener("hashchange", sync); };
   }, []);
-  const showAbout = open => {
-    const onAbout = location.hash === "#about";
-    if (open && !onAbout) history.pushState(null, "", "#about");
-    if (!open && onAbout) history.replaceState(null, "", location.pathname + location.search);
+  const showAbout = (open, target = "#about") => {
+    if (open && location.hash !== target) history.pushState(null, "", target);
+    if (!open && isAbout()) {
+      const url = new URL(location.href); url.hash = ''; url.searchParams.delete('scene');
+      history.replaceState(null, "", url);
+    }
     setAbout(open);
-    if (open) requestAnimationFrame(() => { scrollTo({ top: 0, behavior: "instant" }); document.getElementById("about-title")?.focus({ preventScroll: true }); });
+    if (open) requestAnimationFrame(() => {
+      const heading = document.getElementById(target === '#about-video' ? 'about-video-title' : 'about-title');
+      if (target === '#about-video') heading?.scrollIntoView({ block: 'start', behavior: 'instant' });
+      else scrollTo({ top: 0, behavior: 'instant' });
+      heading?.focus({ preventScroll: true });
+    });
   };
   const [batch] = useState(
     () =>
@@ -167,6 +176,7 @@ export function App() {
                 {["document", "setup"].includes(state.stage) && (
                   <Entry
                     onAbout={() => showAbout(true)}
+                    onWatch={() => showAbout(true, '#about-video')}
                     state={state}
                     controller={controller}
                     batchBusy={batch.busy}
@@ -273,12 +283,12 @@ export function App() {
     </>
   );
 }
-function Entry({ state, controller, batchBusy, onAbout }) {
+function Entry({ state, controller, batchBusy, onAbout, onWatch }) {
   const [dragging, setDragging] = useState(false),
     disabled = state.analysisBusy || batchBusy;
   return (
     <div className="document-intake">
-      <IntakeHero onAbout={onAbout} />
+      <IntakeHero onAbout={onAbout} onWatch={onWatch} />
       {state.report && (
         <Actions>
           <Button onClick={() => controller.go("review")}>

@@ -1,6 +1,6 @@
 # Story audio (AI-generated)
 
-Optional audio for `story.html`. Nothing here is a recording of a person or a performance by a musician: both the narration and the music are **AI-generated**.
+Optional audio for the animation embedded on About (`#about-video`); existing `story.html` links forward there. Nothing here is a recording of a person or a performance by a musician: both the narration and the music are **AI-generated**.
 
 The page requests no audio at startup. Play or seeking loads one locally assembled soundtrack; Mute and Volume control its sound. Captions and the transcript also explain the story. Playback always uses the soundtrack as its clock, including when muted and when showing reduced-motion stills. The separate clips and music bed are assembly inputs; the browser does not play them individually.
 

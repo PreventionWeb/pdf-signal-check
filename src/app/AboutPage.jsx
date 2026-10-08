@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { Button, Tag } from '../ui/react.jsx';
 
 const GUIDANCE_TITLE = 'Making PDFs work for Humans and AI';
+const AboutStory = lazy(() => import('../story/AboutStory.jsx'));
 
 const challenges = [
   ['Steps can come out in the wrong order, so a person or tool encounters the result before the action it depends on.', 'Checks for order clues'],
@@ -26,6 +27,15 @@ const phases = [
 
 /** About page: the narrative from the UNDRR–OCHA guidance and where this tool fits. Presentation only. */
 export function AboutPage({ onStart, onPrivacy }) {
+  useEffect(() => {
+    if (location.hash !== '#about-video') return;
+    const frame = requestAnimationFrame(() => {
+      const heading = document.getElementById('about-video-title');
+      heading?.scrollIntoView({ block: 'start', behavior: 'instant' });
+      heading?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
   return <article className="about-page" aria-labelledby="about-title">
     <section className="mg-hero mg-hero--split mg-hero--split-2-3 result-hero intake-hero about-hero" aria-labelledby="about-title">
       <div className="mg-container mg-container--slim">
@@ -47,8 +57,16 @@ export function AboutPage({ onStart, onPrivacy }) {
       </div>
     </section>
 
+    <section id="about-video" className="about-section about-video" aria-labelledby="about-video-title">
+      <h2 id="about-video-title" tabIndex={-1}>Your report says it. But can everyone understand it?</h2>
+      <p>Follow one finding from the page to people and the tools they use. See where meaning gets lost, why it matters, and what you can do.</p>
+      <Suspense fallback={<p role="status" className="about-video-loading">Loading the story…</p>}>
+        <AboutStory onCheck={onStart} />
+      </Suspense>
+    </section>
+
     <section className="about-section" aria-labelledby="about-why">
-      <h2 id="about-why">Why this matters</h2>
+      <h2 id="about-why" tabIndex={-1}>Why this matters</h2>
       <p className="about-lead">A report has more than its visible page. It can also carry text that software extracts and hidden labels called tags, which identify headings, paragraphs, images and reading order.</p>
       <p>When that information is missing or misleading, a person may miss the finding and an AI chatbot may repeat the wrong fact with confidence. Good structure removes some avoidable confusion. It still needs human review: tags can be present but wrong, and a saved chart description may not explain the chart.</p>
       <p><a href="https://www.undrr.org/our-work" target="_blank" rel="noopener noreferrer">UNDRR helps people understand and act on disaster risk ↗</a>. <a href="https://www.preventionweb.net/about-preventionweb" target="_blank" rel="noopener noreferrer">PreventionWeb shares knowledge for disaster risk reduction and resilience ↗</a>.</p>
