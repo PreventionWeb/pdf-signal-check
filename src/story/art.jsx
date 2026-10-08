@@ -183,8 +183,6 @@ const QMARK = { [C.purple]: 'q-purple', [C.teal]: 'q-teal', [C.coral]: 'q-coral'
 export const QMark = ({ fill = C.mustard }) => <Img name={QMARK[fill] || 'q-mustard'} w={82} center />;
 /** Red "no" sign. */
 export const NoSign = ({ r = 46 }) => <Img name="nosign" w={r * 2.1} center />;
-/** Tick on a teal disc; always paired with words or position, never colour alone. */
-export const Tick = ({ r = 30 }) => <Img name="tick" w={r * 2.1} center />;
 /** Warning triangle with an exclamation mark. */
 export const Warning = ({ s = 1 }) => <Img name="warning" w={160 * s} center />;
 

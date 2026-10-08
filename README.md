@@ -72,7 +72,9 @@ Regenerate simple examples with `npm run samples`, or the richer original corpus
 
 ## GitHub Pages
 
-Version 1 is intended for GitHub Pages. [The workflow](.github/workflows/pages.yml) runs tests and builds on pull requests, and deploys successful builds from `main`. In the GitHub repository, choose **Settings → Pages → Source → GitHub Actions**.
+Version 1 is intended for GitHub Pages. [The workflow](.github/workflows/pages.yml) runs tests and builds on pull requests, and deploys successful builds from `main`. The publishing source is **GitHub Actions**, not a `gh-pages` branch. Pull requests only validate; merging to `main` triggers deployment, and a manual run on `main` can redeploy.
+
+Pages setup is currently blocked: on 8 October 2026, GitHub returned “Your current plan does not support GitHub Pages for this repository” when enabling Actions publishing for this private repository. A repository administrator must arrange a plan that supports Pages for private repositories or explicitly choose to make this repository public, then enable **Settings → Pages → Source → GitHub Actions**. The expected project URL is `https://preventionweb.github.io/pdf-signal-check/`; it is not live yet.
 
 Vite uses relative asset URLs so the build works under a repository project path or a custom domain. PDF.js assets are bundled with the site. Optional models use Hugging Face for pinned model/tokenizer files; the inference runtime is bundled with the site. No backend or API key is required.
 
@@ -83,13 +85,12 @@ The private repository is [PreventionWeb/pdf-signal-check](https://github.com/Pr
 - [Interface brand](docs/BRAND.md): working label, positioning, and evidence-focused result hierarchy.
 - [Mangrove presentation](docs/MANGROVE.md): Pinned PreventionWeb theme loaded from assets.undrr.org, component mapping, licenses and refresh instructions.
 - [UX reference architecture](docs/UX-ARCHITECTURE.md): the results design (fix list on the pages, buckets, evidence drawer), workflow hierarchy, component responsibilities and a review rubric.
-- [Validation record](docs/VALIDATION.md): browser, export and test verification, newest entries last.
+- [Validation record](docs/VALIDATION.md): browser, export and test verification, dated verification receipts.
 - [Naming options](docs/NAMING.md): UN-first, cross-industry naming recommendations and observed name conflicts.
 - [Implementation plan](docs/PLAN.md): scope, acceptance rules, architecture, milestones, and evaluation.
 - [Model options](docs/MODEL-OPTIONS.md): compact English and multilingual candidates, deployment considerations, and benchmark requirements.
 - [Implemented profile](docs/PROFILE.md): exact current checks, supported scope, and limitations.
 - [Semantic screening](docs/SEMANTIC.md): model configuration, evidence bounds, provisional thresholds, and limitations.
-- [Validation](docs/VALIDATION.md): automated and browser checks.
 - [Calibration corpus](docs/CALIBRATION.md): original examples and expected observable properties.
 
 ## Reference and credit
@@ -118,4 +119,4 @@ The visual evidence viewer also draws on [pdf-a-go-go](https://github.com/khawki
 
 Profile 0.3 extends the earlier marked-content integrity checks with bounded embedded-file inventory and conservative attachment scope handling. Profile results remain separate from metadata, author, reading-order, and visibility advisories. Known example ground-truth labels appear only for examples loaded through the app, never inferred from an uploaded filename.
 
-A first-visit notice explains local processing, external asset downloads, AI limitations, and AI-assisted development. “I understand” or Escape dismisses it; an optional browser-local preference suppresses future automatic notices. The footer’s “About AI & privacy” link reopens it. Notice preferences, confirmed check settings/download consent, and synthetic benchmark receipts may be saved locally; PDF content and document-specific language assumptions are not saved. A failed notice-preference save produces visible feedback.
+A first-visit notice explains local processing, external asset downloads, AI limitations, and AI-assisted development. “Continue” or Escape dismisses it; an optional browser-local preference suppresses future automatic notices. The footer’s “About AI & privacy” link reopens it. Notice preferences, confirmed check settings/download consent, and synthetic benchmark receipts may be saved locally; PDF content and document-specific language assumptions are not saved. A failed notice-preference save produces visible feedback.

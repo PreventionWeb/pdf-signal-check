@@ -1,5 +1,5 @@
 import { describe,it,expect } from 'vitest';
-import { point,textQuad,rectPoints,findingTargets,candidateBlocks } from '../src/geometry.js';
+import { point,textQuad,rectPoints,candidateBlocks } from '../src/geometry.js';
 describe('preview geometry',()=>{
  it('projects cropped rotated coordinates through the full viewport matrix',()=>{
    const quad=textQuad({transform:[12,0,0,12,40,80],width:60},{ascent:0.75,descent:-0.25});
@@ -13,12 +13,10 @@ describe('preview geometry',()=>{
    expect(textQuad({transform:[1,0,0,1,0,0]})).toBeNull();
  });
  it('transforms all corners of image/path regions',()=>{expect(rectPoints([0,0,1,1],[10,0,3,20,40,50])).toEqual([[40,50],[50,50],[53,70],[43,70]]);});
- it('uses stable IDs for repeated title strings and no fabricated metadata location',()=>{
+ it('uses stable IDs for repeated title strings',()=>{
    const page={number:1,blocks:[{id:0,text:'Title',connected:false},{id:1,text:'Title',connected:true}]};
    expect(candidateBlocks(page,{blockIds:[1]})).toEqual([page.blocks[1]]);
    expect(candidateBlocks({...page,blocks:[{key:'1:0'}]},{blockIds:[],keys:['1:0']})).toEqual([{key:'1:0'}]);
-   expect(findingTargets({pages:[page]},'metadata')).toEqual([]);
-   expect(findingTargets({pages:[page]},'coverage')).toHaveLength(1);
  });
 });
 

@@ -1,6 +1,6 @@
 # Experiment: show supporting passages, not opaque similarity judgments
 
-Status: uncommitted prototype following checkpoint `af656c9`. Normal application behavior is unchanged unless `?experiment=semantic-evidence` is present. The flag applies to single-document subject and keyword comparisons; title, heading, batch, and deterministic profile checks keep their existing behavior. Model downloads still require the existing explicit consent.
+Status: opt-in development prototype included in the implementation branch. Normal application behavior is unchanged unless `?experiment=semantic-evidence` is present. The flag applies to single-document subject and keyword comparisons; title, heading, batch, and deterministic profile checks keep their existing behavior. Model downloads still require the existing explicit consent. Broader accuracy evaluation remains outstanding.
 
 ## What we are trying to learn
 
@@ -19,7 +19,7 @@ The intake explicitly labels experiment mode. A dedicated panel directly below t
 - Existing tokenizer truncation and model language limits still apply; the displayed AI passage uses recorded consumed text when available.
 - No new model, cloud service, uploads, telemetry, generated explanation, or acceptance-policy change was added.
 
-## Decision before committing
+## Decision before making this a default
 
 Compare three approaches on the same independently labelled real reports: existing opening-only embeddings, document word matching alone, and this candidate-selection plus embedding method. Include genuine later-page support, paraphrases with no literal overlap, irrelevant metadata, multilingual reports, repeated boilerplate, negation, and absent metadata. Record false concerns, false reassurance, omitted evidence, model truncation, runtime, and download costs. Split calibration and evaluation documents. Keep the experiment only if it improves useful evidence and reduces mistakes without hiding uncertainty; do not infer an accuracy percentage from a similarity score.
 

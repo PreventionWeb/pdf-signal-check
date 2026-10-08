@@ -20,11 +20,3 @@ export function candidateBlocks(page, candidate) {
   if (candidate.blockIds?.length) return page.blocks.filter(b=>candidate.blockIds.includes(b.id));
   return candidate.keys ? page.blocks.filter(b=>candidate.keys.includes(b.key)) : [];
 }
-export function findingTargets(report, id) {
-  return report.pages.flatMap(page => {
-    const blocks = id === 'coverage' ? page.blocks.filter(b=>!b.connected) : id === 'text' ? page.blocks.filter(b=>b.suspicious) : [];
-    const graphics = id === 'supported-content' ? page.graphics || [] : [];
-    return [...blocks.map(b=>({page:page.number, quads:b.quad?[b.quad]:[], label:b.text, kind:id==='coverage'?'untagged':'suspicious'})),
-      ...graphics.map(g=>({page:page.number,quads:g.quad?[g.quad]:[],label:g.label,kind:'graphic'}))];
-  });
-}
