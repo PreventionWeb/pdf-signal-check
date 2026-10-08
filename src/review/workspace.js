@@ -165,7 +165,7 @@ export function fixCard(item, report = {}) {
     const pages = [...new Set(matches.map(match => match.page).filter(Number.isInteger))].sort((a, b) => a - b);
     return { ...card, title: `Hidden text that gives instructions to AI (${matches.length})`,
       where: pages.length ? `${pages.length === 1 ? 'Page' : 'Pages'} ${pages.join(', ')}${matches.some(match => !match.page) ? ' and document details' : ''}` : 'Document details',
-      summary: `This PDF contains text that people can’t see but AI tools will read, and it reads like instructions to an AI: “${quote(matches[0]?.text)}”`,
+      summary: `This PDF contains text that people can’t see on the page but AI tools may extract, and it reads like instructions to an AI: “${quote(matches[0]?.text)}”`,
       change: 'Ask whoever made the PDF why this text is there. If it isn’t meant to be in the document, delete it from the source, then export again.' };
   }
   if (path === 'attachments') {
@@ -210,7 +210,7 @@ export function fixCard(item, report = {}) {
     change: 'Open the reading order on the page and follow the numbers. If they jump around, ask the designer to fix the reading order. Then export again.' };
   const drawingOnly = report.readingOrder?.findings?.length && report.readingOrder.findings.every(finding => finding.detector === 'numbered-step-drawing-order');
   if (path === 'readingOrder' && item.outcome === 'requires-review' && drawingOnly) return { ...card, title: 'Text is drawn out of order',
-    summary: 'The hidden tags are in the right order, so screen readers are fine. But the text is drawn in a different order, and many text-extraction and AI tools follow the drawing order, so they may read it scrambled.',
+    summary: 'The numbered steps are in sequence in the tags, but the text is drawn in a different order. Tools that extract text in drawing order may scramble the steps. Review both sequences; this does not confirm the whole reading order.',
     change: 'Ask the designer to re-export from the source document with each column or section in one text frame, or fix the content order in a PDF editor (Acrobat: Content or Reading Order panel). Then export again.' };
   if (path === 'readingOrder' && item.outcome === 'requires-review') return { ...card, title: 'Text may be read in the wrong order',
     summary: 'Screen readers and AI tools may read this content in a different order from the page layout.',
@@ -334,7 +334,7 @@ export function reviewTask(finding) {
     finding.outcome === 'match' ? 'The saved title matches a likely title found on the first page. The tool cannot confirm that this is the intended publication title.'
       : finding.outcome === 'suspected-mismatch' ? 'The saved title may identify a different title, year or edition, or the PDF contains conflicting saved titles.' : 'The tool could not confirm that the saved title matches the publication title.',
     'Compare the saved title with the full title on the cover or title page, including the year and edition. Correct the document properties if needed, export again and recheck.',
-    'The saved title can identify the wrong publication even when the page text is readable. A shortened title or a title page later in the PDF may need your judgement.');
+    'A saved title with the wrong year can lead search or other tools to present the wrong edition. A shortened title or a title page later in the PDF may need your judgement.');
   if (path === 'authorConsistency') return task('Check the author names',
     finding.outcome === 'match' ? 'The saved author names agree with a likely author line on the first page. This does not verify authorship.'
       : finding.outcome === 'suspected-mismatch' ? 'Saved author names differ from a likely author line, or the PDF has conflicting saved author lists.' : 'The tool could not confirm whether the saved author names agree with the names on the page.',
@@ -397,8 +397,8 @@ function travelTask(finding) {
     const refs = c.references || [], first = refs[0];
     const pages = [...new Set(refs.map(ref => ref.page))];
     return task(refs.length === 1 ? `“${quote(first.text)}” isn’t a link` : `${refs.length} cross-references aren’t links`,
-      refs.length === 1 ? `The text on page ${first.page} mentions “${quote(first.text)}”, but there’s no link to it. Readers can’t jump to it, and AI tools can’t connect the mention to what it refers to.`
-        : `The text mentions ${listed(refs.slice(0, 3).map(ref => `“${quote(ref.text)}”`))}${refs.length > 3 ? ` and ${refs.length - 3} more` : ''} on page${pages.length === 1 ? '' : 's'} ${pages.slice(0, 5).join(', ')}, without links. Readers can’t jump to them, and AI tools can’t connect each mention to what it refers to.`,
+      refs.length === 1 ? `The text on page ${first.page} mentions “${quote(first.text)}”, but there’s no link to it. Readers cannot follow a link to it, and tools may miss the connection to the evidence it names.`
+        : `The text mentions ${listed(refs.slice(0, 3).map(ref => `“${quote(ref.text)}”`))}${refs.length > 3 ? ` and ${refs.length - 3} more` : ''} on page${pages.length === 1 ? '' : 's'} ${pages.slice(0, 5).join(', ')}, without links. Readers cannot follow links to them, and tools may miss the connections to the evidence they name.`,
       'In the source document, turn each mention into a link to the figure, table, map or section it names, for example with Word’s Cross-reference or InDesign’s Hyperlinks panel, then export again. If a mention refers to another publication, a link to that publication helps too.',
       'Links let people jump straight to what a sentence refers to, and let tools connect a mention with the content it names. This check looks for words such as “Figure 1”, “Map 2” or “see page 4”. It can’t tell whether a mention refers to this PDF or another publication.');
   }
@@ -410,10 +410,10 @@ function travelTask(finding) {
       'Many tools read a PDF in the order its text is drawn, not the order of its tags. A headline number separated from its label loses its meaning. This check looks only at short values next to a tagged sentence.');
   }
   if (path === 'outline' && finding.category === 'opportunity') return task('Add bookmarks for the headings',
-    c.headings >= 2 ? `This PDF has ${c.headings} headings but no bookmarks. Bookmarks give readers a clickable outline, and help AI tools understand how the document is organised.`
-      : `This ${c.pages}-page PDF has no bookmarks. Bookmarks give readers a clickable outline, and help AI tools understand how the document is organised.`,
+    c.headings >= 2 ? `This PDF has ${c.headings} headings but no bookmarks. Bookmarks give readers a clickable outline to jump between sections.`
+      : `This ${c.pages}-page PDF has no bookmarks. Bookmarks give readers a clickable outline to jump between sections.`,
     'When saving as PDF from Word, tick “Create bookmarks using: Headings”. In InDesign, tick “Bookmarks” in the PDF export settings. Then export again.',
-    'Bookmarks are a map of the document. Readers use them to move between sections, and tools use them to see which parts belong together.');
+    'Bookmarks help people navigate a long report. They are an opportunity for easier reuse, not proof that an AI tool will understand its structure.');
   if (path === 'links' && finding.category === 'opportunity') {
     const count = c.count || 0;
     return task('Tag your links so screen readers announce them',
@@ -423,18 +423,18 @@ function travelTask(finding) {
   }
   if (path === 'machineMetadata' && finding.category === 'opportunity') {
     const missing = (c.missingPublication || []).map(field => PUBLICATION_DETAILS[field]).filter(Boolean);
-    return task(missing.length ? 'Add publishing details' : 'Attach a description for catalogues and search engines',
-      missing.length ? `The PDF’s saved properties don’t say ${listed(missing)}${c.structuredData ? '' : ', and no description for catalogues and search engines is attached'}. These details help libraries, search engines and AI tools find, cite and reuse it correctly.`
-        : 'The publishing details are saved, but no description in a standard format, such as schema.org JSON-LD, is attached. Catalogues and search engines can read one directly.',
+    return task(missing.length ? 'Add publishing details' : 'Attach a description for reuse',
+      missing.length ? `The PDF’s saved properties don’t say ${listed(missing)}${c.structuredData ? '' : ', and no description for reuse is attached'}. These details can help people and tools identify, cite and reuse the report.`
+        : 'The publishing details are saved, but no description in a standard format, such as schema.org JSON-LD, is attached. A publishing system that supports it can reuse that information.',
       'Add the publisher, licence, publication date and identifier in the source document’s properties or your publishing system, then export again. Your web or publishing team can also attach a schema.org description (a JSON-LD file).',
-      'Search engines, library catalogues and AI tools use saved details to identify a document and say where it came from. Without them, they guess from the page text and may get it wrong. This tool doesn’t check that saved details are correct.');
+      'Clear publishing details help distinguish reports and editions. An attached description does not guarantee search visibility or correct AI use. This tool checks for declarations, not whether their contents are correct.');
   }
   if (path === 'figureData' && finding.category === 'opportunity') {
     const pages = [...new Set(c.figures || [])], count = (c.figures || []).length;
     return task(`Share the data behind charts (${count})`,
-      `${count === 1 ? `The image labelled as a figure on page ${pages[0]} has` : `${count} images labelled as figures, on page${pages.length === 1 ? '' : 's'} ${pages.join(', ')}, have`} no data table nearby and no data file attached. If ${count === 1 ? 'it is a chart' : 'they are charts'}, people and AI tools can’t read exact values from a picture.`,
+      `${count === 1 ? `The image labelled as a figure on page ${pages[0]} has` : `${count} images labelled as figures, on page${pages.length === 1 ? '' : 's'} ${pages.join(', ')}, have`} no data table nearby and no data file attached. If ${count === 1 ? 'it is a chart' : 'they are charts'}, a table or data file makes exact values easier for people and research tools to reuse.`,
       'For charts, add the values as a table near the chart, or attach the data as a CSV file when you export. Photos and illustrations don’t need this.',
-      'A data table or file gives screen-reader users, search and AI tools the exact values. A description can summarise a chart, but numbers travel best as data. This check doesn’t confirm that a nearby table holds the chart’s values.');
+      'A description explains the chart’s main finding; a data table or file lets people and software inspect and reuse its values. This check doesn’t confirm that a nearby table holds the chart’s values.');
   }
   return null;
 }

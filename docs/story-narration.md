@@ -78,4 +78,4 @@ Then help findings travel further: share the chart's data, add a clear summary, 
 
 ### 18. Check your own PDF
 
-PDF Signal Check finds problems like these: here, 1 to fix and 4 to check. Check your own PDF. It stays on your device.
+PDF Signal Check finds problems like these: here, 1 to fix and 4 to check. Check your own PDF. A free service from UNDRR and PreventionWeb. All processing stays private, on your device.

@@ -33,7 +33,7 @@ export function DocumentProperties({ metadata = {}, title = 'What is saved in th
     </table>
     {descriptionRepeatsTitle(metadata) && <div className="document-properties-note" role="note">
       <h4>The description repeats the title</h4>
-      <p>They do different jobs. The <strong>title</strong> names the document. The <strong>description</strong> (the Subject field) says in one or two sentences what the document covers and who it is for. Search engines, screen readers and AI tools show or use it to decide whether the document is relevant.</p>
+      <p>They do different jobs. The <strong>title</strong> names the document. The <strong>description</strong> (the Subject field) says in one or two sentences what the document covers and who it is for. Software that uses these saved details can help people identify a relevant report without opening every page.</p>
       <p className="model-note">For example: Title “Annual Report 2025”. Description “Summarizes our work in 2025, including results by region, spending and priorities for 2026. Written for partners and member states.”</p>
       <p>Ask the designer to write a short summary in the Subject field of the source document’s properties, then export again.</p>
     </div>}

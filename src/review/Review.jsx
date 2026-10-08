@@ -29,7 +29,7 @@ const BUCKETS = {
   fix: { label: "Fix", intro: "Problems found in this PDF." },
   check: { label: "Check", intro: "Possible problems. Look at each one and decide." },
   unknown: { label: "Couldn’t check", intro: "The tool could not decide these. They are limits of this tool, not problems found in your PDF." },
-  travel: { label: "Make it travel further", intro: "Not problems. Changes that help people and AI tools find, understand and reuse this PDF." },
+  travel: { label: "Make it travel further", intro: "Optional improvements for wider reuse, after the things to fix or check. These are not problems and do not count in the headline." },
 };
 
 export function Review({ state, controller, exportRef, onReturnBatch }) {

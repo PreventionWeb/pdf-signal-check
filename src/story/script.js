@@ -155,9 +155,10 @@ export function storyScript(data) {
     {
         "id": "check",
         "label": "Check your own PDF",
-        "caption": "[Check|teal] your own PDF in your browser. The file stays on your device.",
-        "narration": `PDF Signal Check finds problems like these: here, ${fix} to fix and ${check} to check. Check your own PDF. It stays on your device.`,
-        "speak": `PDF Signal Check finds problems like these: here, ${say(fix)} to fix and ${say(check)} to check. Check your own PDF. It stays on your device.`,
+        "caption": "[Check|teal] your own PDF. A free service from UNDRR and PreventionWeb. All processing stays [private, on your device|teal].",
+        "narration": `PDF Signal Check finds problems like these: here, ${fix} to fix and ${check} to check. Check your own PDF. A free service from UNDRR and PreventionWeb. All processing stays private, on your device.`,
+        "speak": `PDF Signal Check finds problems like these: here, ${say(fix)} to fix and ${say(check)} to check. Check your own PDF. A free service from U N D R R and Prevention Web. All processing stays private, on your device.`,
+        "minDuration": 20,
         "final": true
     }
 ];

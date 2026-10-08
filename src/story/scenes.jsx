@@ -503,7 +503,7 @@ export function scenes(data) {
     },
     // 15. Check your own PDF
     {
-      describe: `A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “${data.scrambled.headline}”, listing ${data.scrambled.pins.map(pin => `${pin.number}. ${pin.title} (${pin.bucket === 'fix' ? 'fix' : 'check'})`).join('; ')}. Paper pins with the same numbers drop onto a page beside it. Torn strips below read “Your PDF stays on your device” and “PreventionWeb.net/signal-check”.`,
+      describe: `A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “${data.scrambled.headline}”, listing ${data.scrambled.pins.map(pin => `${pin.number}. ${pin.title} (${pin.bucket === 'fix' ? 'fix' : 'check'})`).join('; ')}. Paper pins with the same numbers drop onto a page beside it. Torn strips read “A free service from UNDRR and PreventionWeb”, “All processing stays private, on your device”, and “PreventionWeb.net/signal-check”.`,
       stage: <Stage v={14}>
         {'CHECK'.split('').map((ch, i) => <A key={i} anim="drop" delay={i * 110} dur={500} idle="0.8"><At x={590 + i * 96} y={34 + (i % 2) * 10} r={[-4, 3, -2, 5, -3][i]}><Tile ch={ch} size={100} fill={TILE_COLOURS[(i + 1) % TILE_COLOURS.length]} /></At></A>)}
         <A anim="left" delay={500} dur={650} className="sp-wide"><At x={150} y={300} r={-5}>
@@ -519,8 +519,9 @@ export function scenes(data) {
         <A anim="slap" delay={1000} dur={450} className="sp-wide"><At x={512} y={196} r={-1.5}><ResultSheet headline={data.scrambled.headline} rows={allPins} /></At></A>
         {/* …and on narrow screens two rows and an honest count of the rest. */}
         <A anim="slap" delay={1000} dur={450} className="sp-narrow"><At x={512} y={196} r={-1.5}><ResultSheet headline={data.scrambled.headline} rows={allPins.slice(0, 2)} more={allPins.length - 2} /></At></A>
-        <A anim="slap" delay={6200} dur={450} idle="0.8"><At x={800} y={785} r={-1}><Strip text="Your PDF stays on your device" size={24} pad={14} fill={C.ink} color="#fff" center /></At></A>
-        <A anim="slap" delay={6900} dur={450}><At x={800} y={839} r={1}><Strip text="PreventionWeb.net/signal-check" size={31} pad={16} fill={C.teal} color="#fff" center /></At></A>
+        <A anim="slap" delay={8000} dur={450}><At x={800} y={738} r={-1}><Strip text="A free service from UNDRR and PreventionWeb" size={25} pad={18} fill={C.paper} color={C.ink} center /></At></A>
+        <A anim="slap" delay={11000} dur={450}><At x={800} y={785} r={1}><Strip text="All processing stays private, on your device" size={24} pad={14} fill={C.ink} color="#fff" center /></At></A>
+        <A anim="slap" delay={14000} dur={450}><At x={800} y={839} r={-1}><Strip text="PreventionWeb.net/signal-check" size={31} pad={16} fill={C.teal} color="#fff" center /></At></A>
       </Stage>,
     },
   ];

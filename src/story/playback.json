@@ -1,6 +1,6 @@
 {
   "file": "soundtrack.mp3",
-  "duration": 203.65,
+  "duration": 213.94,
   "bitrateKbps": 32,
   "timeline": [
     {
@@ -91,7 +91,7 @@
     {
       "id": "check",
       "start": 193.94,
-      "duration": 9.71
+      "duration": 20
     }
   ],
   "inputs": [
@@ -165,12 +165,12 @@
     },
     {
       "file": "18-check.mp3",
-      "sha256": "b06a2340ba0f991fa271bff9171d511533d401b5dcb997f391f5f2eed926ac18"
+      "sha256": "650a8bb2c54dea82f6fa6fbebc48e6e77cde4b2f984ae85f9b008cb3ae4f6019"
     },
     {
       "file": "music-bed.mp3",
       "sha256": "ce426a96f6ba77c14bfe0ccef2e99176a0f53bda782c54b1eac797cd2139b3ed"
     }
   ],
-  "sha256": "d85fcfee8f51cd7594d3e33d56303f0b5eaa06663a5acbc1de23847ff1f742e8"
+  "sha256": "0b4df2ba7c3becfb39a6b387e53a951c1b72a932da584555a46c9786b2d61528"
 }

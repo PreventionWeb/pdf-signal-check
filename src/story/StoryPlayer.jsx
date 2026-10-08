@@ -213,7 +213,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
         <p id="story-caption" className="story-caption" aria-live="polite"><Caption key={scene.id} caption={scene.caption} /></p>
         {last && <div className="story-cta">
           <button type="button" className="mg-button mg-button-primary" onClick={onCheck}>Check your own PDF</button>
-          <button type="button" className="mg-button mg-button-secondary mg-button-outline" onClick={onAbout}>Why PDFs need to work for AI</button>
+          <button type="button" className="mg-button mg-button-secondary mg-button-outline" onClick={onAbout}>Why this matters</button>
         </div>}
         {last && <p className="story-launch-url">PreventionWeb.net/signal-check</p>}
       </div>

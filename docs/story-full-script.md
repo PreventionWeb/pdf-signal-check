@@ -1,6 +1,6 @@
 # Full animation script: Your report says it. But can everyone understand it?
 
-Integrated script — 2026-10-08. Current runtime: 203.65 seconds (about 3.4 minutes).
+Integrated script — 2026-10-08. Current runtime: 213.94 seconds (about 3.6 minutes).
 
 Narration, captions and visuals below match the current animation. Edit this file freely for the next review; builds never overwrite it. The source is `src/story/script.js`, and recorded narration follows its spoken-number variants.
 
@@ -356,19 +356,19 @@ An open paper passport carries four optional stamps: “Data” with a chart-dat
 
 ### 18. Check your own PDF
 
-**Timing:** 193.94–203.65 seconds (9.71 seconds).
+**Timing:** 193.94–213.94 seconds (20.00 seconds).
 
 **Caption**
 
-**Check** your own PDF in your browser. The file stays on your device.
+**Check** your own PDF. A free service from UNDRR and PreventionWeb. All processing stays **private, on your device**.
 
 **Narration**
 
-PDF Signal Check finds problems like these: here, 1 to fix and 4 to check. Check your own PDF. It stays on your device.
+PDF Signal Check finds problems like these: here, 1 to fix and 4 to check. Check your own PDF. A free service from UNDRR and PreventionWeb. All processing stays private, on your device.
 
 **Visuals**
 
-A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “1 thing to fix, 4 to check”, listing 1. Add descriptions for images (1) (fix); 2. Text is drawn out of order (check); 3. “Map 2” isn’t a link (check); 4. “+0.7 m” is drawn apart from its label (check); 5. Check graphics marked as decorative (2) (check). Paper pins with the same numbers drop onto a page beside it. Torn strips below read “Your PDF stays on your device” and “PreventionWeb.net/signal-check”.
+A paper laptop shows a torn-out screenshot of the real tool's result for the scrambled sample: “1 thing to fix, 4 to check”, listing 1. Add descriptions for images (1) (fix); 2. Text is drawn out of order (check); 3. “Map 2” isn’t a link (check); 4. “+0.7 m” is drawn apart from its label (check); 5. Check graphics marked as decorative (2) (check). Paper pins with the same numbers drop onto a page beside it. Torn strips read “A free service from UNDRR and PreventionWeb”, “All processing stays private, on your device”, and “PreventionWeb.net/signal-check”.
 
 **Your edits / notes**
 

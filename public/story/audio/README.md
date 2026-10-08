@@ -11,7 +11,7 @@ The page requests no audio at startup. Play or seeking loads one locally assembl
 - Generated: 2026-10-08. Earlier passes used ElevenLabs Multilingual v2 with the voice george, first plain and then with inserted beats; reviewers found them flat, then forced.
 - Choice: clips 02, 05 and 06 were read with identical text by george (default and expressive settings), MAI Emily and MAI Harry, then scored by one model with one prompt over two runs in reversed order, with the earlier sets as references. Emily led on every clip (8.3 mean, against 7.2 to 7.3 for george) and was the product owner's second pick by ear. Details: `docs/experiments/STORY-AUDIO.md`.
 - Script: `src/story/script.js` (`speak`, or else `narration`, per scene), with plain punctuation and no inserted pauses. Numbers and years are spelled out for the voice. The manifest with each clip's text and duration is `src/story/narration.json`.
-- Processing: loudness-normalised to −16 LUFS, mono, 24 kHz, 32 kbit/s MP3. The 18 current clips total 196.35 seconds. This revised cut replaces twelve changed passages and reuses six unchanged clips.
+- Processing: loudness-normalised to −16 LUFS, mono, 24 kHz, 32 kbit/s MP3. The 18 current clips total 201.56 seconds. The closing now names the free UNDRR and PreventionWeb service and gives the private-on-device statement a full sentence. This pass replaces only that closing clip; seventeen clips are reused.
 - Regenerate: `node --env-file=<path to .env with OPENROUTER_API_KEY> scripts/generate-story-narration.mjs`. Unchanged lines are kept, and `test/story-narration.test.js` fails if the script and the clips drift apart.
 
 ## Music bed: `music-bed.mp3`
@@ -25,7 +25,7 @@ The page requests no audio at startup. Play or seeking loads one locally assembl
 
 ## Single-clock soundtrack: `soundtrack.mp3`
 
-Run `npm run story:audio` after changing narration or visual timing. This is entirely local, uses ffmpeg and the existing audio, and never calls a paid API. It pads the clips to scene lengths, joins them and mixes in the ducked music bed. The result is 203.65 seconds, mono 24 kHz / 32 kbit/s MP3, 815,085 bytes (about 815 KB). `src/story/playback.json` records the scene boundaries and source/output SHA-256 hashes; the playback test rejects outdated audio or cues.
+Run `npm run story:audio` after changing narration or visual timing. This is entirely local, uses ffmpeg and the existing audio, and never calls a paid API. It pads the clips to scene lengths, joins them and mixes in the ducked music bed. The result is 213.94 seconds, mono 24 kHz / 32 kbit/s MP3, 856,269 bytes (about 856 KB). `src/story/playback.json` records the scene boundaries and source/output SHA-256 hashes; the playback test rejects outdated audio or cues.
 
 A single media element owns playback time, mute, volume, speed and buffering. All stage animations are paused Web Animations sampled at the current media position. Reduced motion changes the visual presentation, not the timeline. There is no independent scene timer or second music player.
 
