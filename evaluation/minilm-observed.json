@@ -1,0 +1,394 @@
+{
+  "schemaVersion": 1,
+  "model": {
+    "dtype": "q8",
+    "device": "wasm",
+    "normalize": true,
+    "prefix": "",
+    "dimensions": 384,
+    "calibrated": false,
+    "key": "minilm",
+    "label": "MiniLM · compact English",
+    "id": "Xenova/all-MiniLM-L6-v2",
+    "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "pooling": "mean",
+    "maxTokens": 256,
+    "language": "English",
+    "languages": [
+      "en"
+    ],
+    "graphBytes": 22972370,
+    "tokenizerBytes": 711661,
+    "tradeoff": "Smallest shipped download; English-only screening with short context.",
+    "thresholds": {
+      "titleLow": 0.35,
+      "titleHigh": 0.75,
+      "topicLow": 0.2,
+      "topicHigh": 0.45
+    }
+  },
+  "rows": [
+    {
+      "id": "year",
+      "split": "development",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "entity",
+      "split": "development",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "subtitle",
+      "split": "development",
+      "task": "title",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.8782415326887452
+    },
+    {
+      "id": "generic",
+      "split": "development",
+      "task": "title",
+      "expected": "uncertain",
+      "outcome": "match",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "de-year",
+      "split": "development",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "edition-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "deterministic-rules",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "entity-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.8958696552717729
+    },
+    {
+      "id": "translated-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "support",
+      "outcome": "uncertain",
+      "method": "unsupported-language",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "unrelated-heldout",
+      "split": "held-out",
+      "task": "title",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.008784327944812442
+    },
+    {
+      "id": "keyword-0",
+      "split": "development",
+      "task": "keyword",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.5405231000067057
+    },
+    {
+      "id": "keyword-1",
+      "split": "development",
+      "task": "keyword",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": -0.026107915205356762
+    },
+    {
+      "id": "keyword-2",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.49700365590010975
+    },
+    {
+      "id": "keyword-3",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.027445016643468365
+    },
+    {
+      "id": "keyword-4",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "support",
+      "outcome": "unassessed",
+      "method": "unsupported-language",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "keyword-5",
+      "split": "held-out",
+      "task": "keyword",
+      "expected": "mismatch",
+      "outcome": "unassessed",
+      "method": "unsupported-language",
+      "inferencePerformed": false,
+      "score": null
+    },
+    {
+      "id": "heading-0",
+      "split": "held-out",
+      "task": "section",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.7174813781232946
+    },
+    {
+      "id": "heading-1",
+      "split": "held-out",
+      "task": "section",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": -0.013915474696976751
+    },
+    {
+      "id": "heading-2",
+      "split": "held-out",
+      "task": "section",
+      "expected": "uncertain",
+      "outcome": "unassessed",
+      "method": "embedding-screening",
+      "inferencePerformed": false,
+      "score": null
+    }
+  ],
+  "thresholdSensitivity": [
+    {
+      "split": "development",
+      "rows": [
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.2,
+          "scoredTopicCases": 2,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.35,
+          "scoredTopicCases": 2,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.45,
+          "scoredTopicCases": 2,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.5,
+          "scoredTopicCases": 2,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.65,
+          "scoredTopicCases": 2,
+          "abstentions": 1,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.75,
+          "scoredTopicCases": 2,
+          "abstentions": 1,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.8,
+          "scoredTopicCases": 2,
+          "abstentions": 1,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.9,
+          "scoredTopicCases": 2,
+          "abstentions": 1,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        }
+      ]
+    },
+    {
+      "split": "held-out",
+      "rows": [
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.2,
+          "scoredTopicCases": 4,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.35,
+          "scoredTopicCases": 4,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.45,
+          "scoredTopicCases": 4,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.5,
+          "scoredTopicCases": 4,
+          "abstentions": 1,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.65,
+          "scoredTopicCases": 4,
+          "abstentions": 1,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 1
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.75,
+          "scoredTopicCases": 4,
+          "abstentions": 2,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 2
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.8,
+          "scoredTopicCases": 4,
+          "abstentions": 2,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 2
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.9,
+          "scoredTopicCases": 4,
+          "abstentions": 2,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 2
+        }
+      ]
+    }
+  ],
+  "development": {
+    "cases": 7,
+    "knownMismatches": 4,
+    "falseIdentityMatches": 0,
+    "wrongMetadataRelated": 0,
+    "missedMismatch": 0,
+    "correctSupportRejected": 0,
+    "uncertain": 0
+  },
+  "heldOut": {
+    "cases": 11,
+    "knownMismatches": 6,
+    "falseIdentityMatches": 0,
+    "wrongMetadataRelated": 1,
+    "missedMismatch": 2,
+    "correctSupportRejected": 0,
+    "uncertain": 4
+  },
+  "note": "Small manually labeled synthetic corpus; functional comparison only, insufficient for thresholds or real-world accuracy. No automatic threshold changes.",
+  "observation": {
+    "observedAt": "2026-10-06T07:00:16.139Z",
+    "backend": "browser WASM",
+    "browserHarness": "agent-browser",
+    "agentBrowserVersion": "agent-browser 0.37.1",
+    "cacheSource": "unknown"
+  }
+}

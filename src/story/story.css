@@ -1,0 +1,135 @@
+/* Story page: a cut-paper collage stage. Chrome uses Mangrove tokens; the collage palette lives in art.jsx and
+   the --story-* tokens below (dark variants for caption key words keep 4.5:1 or better on the caption paper). */
+:root {
+  --story-cream: 242 232 213;
+  --story-paper: 255 250 240;
+  --story-ink: 43 35 64;
+  --story-purple: 150 41 135;
+  --story-teal: 0 107 106;
+  --story-coral: 176 54 26;
+  --story-red: 163 10 29;
+}
+.story-topbar { background: rgb(var(--mg-color-neutral-0)); border-bottom: 1px solid rgb(var(--mg-color-neutral-200)); padding-block: 12px; }
+.story-topbar a { font-weight: 600; }
+.story-hero .story-hero-grid { grid-template-columns: minmax(0, 1fr); }
+.story-player { margin-block: 24px 16px; }
+
+/* Stage and caption share one sheet of paper. */
+.story-frame { position: relative; background: rgb(var(--story-paper)); border-radius: 6px; box-shadow: 0 1px 2px rgb(43 35 64 / .12), 0 8px 24px rgb(43 35 64 / .10); overflow: visible; }
+.story-stage { position: relative; aspect-ratio: 16 / 9; background: rgb(var(--story-cream)); overflow: hidden; }
+.story-scene, .story-scene > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.story-brand { position: absolute; z-index: 1; top: 1.3%; left: 1.6%; width: clamp(88px, 13%, 168px); pointer-events: none; }
+.story-logo { display: block; width: 100%; height: auto; opacity: .92; }
+.story-stage text { font-family: var(--mg-font-family-ui, Roboto, Arial, sans-serif); }
+.story-stage .sp-tile { font-family: var(--mg-font-family-heading, 'Roboto Condensed', Arial Narrow, sans-serif); font-weight: 700; }
+.story-stage .sp-strip { font-family: var(--mg-font-family-heading, 'Roboto Condensed', Arial Narrow, sans-serif); }
+.story-stage .sp-label { font-family: var(--mg-font-family-ui, Roboto, Arial, sans-serif); }
+.story-stage .sp-narrow { display: none; }
+.story-stage .sp-mono, .story-stage .sp-mono text { font-family: var(--mg-font-family-code, 'Roboto Mono', monospace); }
+
+.story-caption-row { padding: 18px clamp(16px, 3vw, 32px) 22px; border-top: 3px solid rgb(var(--story-cream)); }
+.story-caption { font-family: var(--mg-font-family-heading, inherit); font-size: clamp(1.25rem, 1rem + 1.2vw, 1.875rem); line-height: 1.3; font-weight: 600; color: rgb(var(--story-ink)); max-width: 46ch; margin: 0; text-wrap: balance; }
+.story-kw { font-weight: 800; background: linear-gradient(transparent 62%, rgb(var(--kw) / .18) 62%) no-repeat 0 0 / 100% 100%; animation: story-swipe .6s .35s steps(6, end) backwards; }
+.story-kw--purple { --kw: var(--story-purple); color: rgb(var(--story-purple)); }
+.story-kw--teal { --kw: var(--story-teal); color: rgb(var(--story-teal)); }
+.story-kw--coral { --kw: var(--story-coral); color: rgb(var(--story-coral)); }
+.story-kw--red { --kw: var(--story-red); color: rgb(var(--story-red)); }
+@keyframes story-swipe { from { background-size: 0% 100%; } }
+.story-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+.story-note { font-size: .875rem; color: var(--muted); margin: 8px 0 0; }
+.story-transcript { margin-top: 24px; }
+.story-transcript ol { list-style: none; padding: 0; }
+.story-transcript h3 { font-size: 1rem; margin: 16px 0 4px; }
+.story-transcript p { margin: 0 0 4px; max-width: 70ch; }
+.story-describe { font-size: .9375rem; color: var(--muted); }
+.story-footnote { font-size: .875rem; color: var(--muted); margin-block: 8px 48px; }
+.story-footnote a { text-decoration: underline; text-underline-offset: .15em; }
+
+/* Narrow screens keep the central 4:3 of the 16:9 stage (the art's safe area). */
+@media (max-width: 700px) {
+  .story-stage { aspect-ratio: 4 / 3; }
+  .story-stage .sp-wide { display: none; }
+  .story-stage .sp-narrow { display: inline; }
+  .story-brand { position: static; width: auto; padding: 8px 12px 6px; background: rgb(var(--story-cream)); }
+  .story-logo { width: 96px; }
+}
+@media (prefers-reduced-motion: reduce) { .story-kw { animation: none; } }
+
+.story-progress { font-variant-numeric: tabular-nums; }
+.story-playback-status { font-size: .875rem; color: var(--muted); margin: 8px 0 0; }
+.story-player:fullscreen { overflow: auto; background: rgb(var(--story-paper)); padding: 16px; }
+.story-player:fullscreen .story-frame { max-width: min(100%, calc((100vh - 240px) * 16 / 9)); margin-inline: auto; }
+.story-player:fullscreen .story-controls { max-width: 1200px; margin-inline: auto; }
+.story-player:fullscreen .story-transcript { display: none; }
+.story-stage { cursor: pointer; }
+/* Familiar video controls, kept visible for touch, keyboard and low-vision use. */
+.story-video { position: relative; }
+.story-controls { position: relative; z-index: 2; display: block; margin: 0; padding: 0 12px 6px; background: #181818; color: #fff; font-family: var(--mg-font-family-ui, Arial, sans-serif); }
+.story-scrubber { position: relative; display: flex; width: 100%; height: 44px; }
+.story-scrubber input { appearance: none; width: 100%; margin: 0; min-height: 0; height: 44px; background: transparent; cursor: pointer; }
+.story-scrubber input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, #fff var(--progress), #767676 var(--progress)); }
+.story-scrubber input::-moz-range-track { height: 4px; border-radius: 2px; background: #767676; }
+.story-scrubber input::-moz-range-progress { height: 4px; background: #fff; }
+.story-scrubber input::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #fff; }
+.story-scrubber input::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff; }
+.story-control-row { display: flex; align-items: center; gap: 2px; }
+.story-control { position: relative; display: inline-flex; flex: 0 0 44px; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #fff; cursor: pointer; transition: background-color .15s, transform .15s; }
+.story-control:hover { background: #ffffff24; }
+.story-control:active { transform: scale(.96); }
+.story-control:disabled { opacity: .35; cursor: default; }
+.story-control:focus-visible, .story-start:focus-visible, .story-controls input:focus-visible, .story-settings select:focus-visible { outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #181818; }
+.story-tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; background: #181818; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: .75rem; opacity: 0; }
+.story-control:hover .story-tooltip, .story-control:focus-visible .story-tooltip { opacity: 1; }
+.story-progress { color: #fff; font-size: .8125rem; padding-inline: 8px; }
+.story-control-spacer { flex: 1; }
+.story-sound { display: flex; align-items: center; }
+.story-volume { flex: none; width: 72px; margin-inline: 4px 8px; }
+.story-volume input { width: 100%; min-height: 44px; accent-color: #fff; cursor: pointer; }
+.story-settings { position: relative; margin-left: auto; }
+.story-settings summary { list-style: none; }
+.story-settings summary::-webkit-details-marker { display: none; }
+.story-settings-panel { position: absolute; right: -44px; bottom: calc(100% + 12px); width: min(320px, calc(100vw - 64px)); max-height: 65vh; overflow: auto; padding: 16px; background: #222; color: #fff; border-radius: 8px; box-shadow: 0 4px 24px #0005; }
+.story-settings-panel label { display: grid; gap: 6px; font-size: .875rem; margin-bottom: 14px; }
+.story-settings-panel select { width: 100%; min-height: 44px; padding: 8px; border: 1px solid #aaa; border-radius: 4px; background: #333; color: #fff; font: inherit; }
+.story-settings-panel input { width: 100%; min-height: 44px; accent-color: #fff; }
+.story-settings-panel p { font-size: .8125rem; line-height: 1.5; margin: 0; color: #eee; }
+.story-start { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; width: 80px; height: 56px; border: 0; border-radius: 12px; color: #fff; background: #181818ed; box-shadow: 0 2px 10px #0003; cursor: pointer; }
+.story-start svg { width: 32px; height: 44px; }
+.story-start:hover { background: rgb(var(--mg-color-interactive)); }
+.story-video { border-radius: 6px 6px 0 0; }
+.story-caption-row { border-radius: 0 0 6px 6px; }
+.story-player:focus-visible { outline: 3px solid rgb(var(--mg-color-interactive)); outline-offset: 6px; border-radius: 6px; }
+@media (max-width: 700px) {
+  .story-controls { padding-inline: 8px; }
+  .story-control-row { flex-wrap: wrap; }
+  .story-sound .story-volume { width: 64px; display: none; }
+
+  .story-progress { padding-inline: 4px; font-size: .75rem; }
+  .story-settings-panel { right: -44px; max-height: min(45vh, 230px); }
+}
+@media (prefers-reduced-motion: reduce) { .story-control { transition: none; } .story-control:active { transform: none; } }
+@media (forced-colors: active) {
+  .story-controls, .story-settings-panel, .story-start { background: Canvas; color: CanvasText; border: 1px solid CanvasText; }
+  .story-control { color: ButtonText; }
+  .story-scrubber input { appearance: auto; }
+  .story-progress { color: CanvasText; }
+}
+
+.story-control-row > .story-control:last-child .story-tooltip { left: auto; right: 0; transform: none; }
+
+.story-chapter-marks { position: absolute; inset: 20px 0; pointer-events: none; }
+.story-chapter-marks > span { position: absolute; height: 4px; width: 3px; background: #181818; }
+
+.story-transcript-chapter h3 { font-size: 1.125rem; margin-block: 24px 12px; }
+.story-transcript h4 { font-size: 1rem; margin: 16px 0 4px; }
+
+/* Official co-branding assets stay on the UNDRR asset host. */
+.story-brand { display: flex; align-items: center; gap: 12px; width: clamp(216px, 28%, 342px); }
+.story-brand .story-logo { width: calc((100% - 12px) / 2); }
+.story-launch-url { margin: 20px 0 0; color: rgb(var(--mg-color-interactive)); font-family: var(--mg-font-family-ui, Arial, sans-serif); font-size: clamp(1rem, 1rem + .3vw, 1.25rem); font-weight: 700; overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  .story-brand { width: auto; gap: 14px; }
+  .story-brand .story-logo { width: 106px; }
+  .story-brand .story-pw-logo { width: 116px; }
+}

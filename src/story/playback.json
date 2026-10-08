@@ -1,0 +1,176 @@
+{
+  "file": "soundtrack.mp3",
+  "duration": 213.94,
+  "bitrateKbps": 32,
+  "timeline": [
+    {
+      "id": "says-it",
+      "start": 0,
+      "duration": 4.48
+    },
+    {
+      "id": "readers",
+      "start": 4.48,
+      "duration": 9.95
+    },
+    {
+      "id": "machines",
+      "start": 14.43,
+      "duration": 23.94
+    },
+    {
+      "id": "chapter-demonstrations",
+      "start": 38.37,
+      "duration": 3.5
+    },
+    {
+      "id": "picture",
+      "start": 41.87,
+      "duration": 12.68
+    },
+    {
+      "id": "layers",
+      "start": 54.55,
+      "duration": 13.6
+    },
+    {
+      "id": "no-description",
+      "start": 68.15,
+      "duration": 10.57
+    },
+    {
+      "id": "order",
+      "start": 78.72,
+      "duration": 18.78
+    },
+    {
+      "id": "lonely-number",
+      "start": 97.5,
+      "duration": 12.71
+    },
+    {
+      "id": "wrong-title",
+      "start": 110.21,
+      "duration": 18.54
+    },
+    {
+      "id": "chapter-impact",
+      "start": 128.75,
+      "duration": 6.49
+    },
+    {
+      "id": "search-and-listening",
+      "start": 135.24,
+      "duration": 7.26
+    },
+    {
+      "id": "chatbots-and-reach",
+      "start": 142.5,
+      "duration": 17.53
+    },
+    {
+      "id": "garbage-in-garbage-out",
+      "start": 160.03,
+      "duration": 11.18
+    },
+    {
+      "id": "chapter-repair",
+      "start": 171.21,
+      "duration": 3.5
+    },
+    {
+      "id": "repair",
+      "start": 174.71,
+      "duration": 8.03
+    },
+    {
+      "id": "passport",
+      "start": 182.74,
+      "duration": 11.2
+    },
+    {
+      "id": "check",
+      "start": 193.94,
+      "duration": 20
+    }
+  ],
+  "inputs": [
+    {
+      "file": "01-says-it.mp3",
+      "sha256": "8ed3852b0ac6e36732e989642433a85a1b64d2f1386b2c3987dbce611e126b53"
+    },
+    {
+      "file": "02-readers.mp3",
+      "sha256": "3b4288a18ec300ed52614d0545efdbdc306a26a41fcb4fce1a4a475d10178e7f"
+    },
+    {
+      "file": "03-machines.mp3",
+      "sha256": "25f24d3618074c86fa40ad49ec8b9c9be7f8934619ec20ea3b3a72afc6a18cc5"
+    },
+    {
+      "file": "04-chapter-demonstrations.mp3",
+      "sha256": "039b5aebd4c536a5baf60cd74d2a7e550ff363204697a4d6cc656913ac51bc69"
+    },
+    {
+      "file": "05-picture.mp3",
+      "sha256": "20253e4ac33db347b934c88a34bd90797c44714cb0d4ed3dffc3391d9953c0cf"
+    },
+    {
+      "file": "06-layers.mp3",
+      "sha256": "86d8e36063fee43058cf1c5ac2b932ef577d114d254414afa0184638f33fd8a3"
+    },
+    {
+      "file": "07-no-description.mp3",
+      "sha256": "daec5d4085ad36128f82f0ba86af982cf9a0efccace5f38c8f90cf02155c5e56"
+    },
+    {
+      "file": "08-order.mp3",
+      "sha256": "c0da45797504bc753d7ad3013cc3f4ba1445dd0355db23ef28ff096bd3acc9aa"
+    },
+    {
+      "file": "09-lonely-number.mp3",
+      "sha256": "8027f4dedc525ba13cb7702b86580b73892dca25f376369e293b44d46e52f5fe"
+    },
+    {
+      "file": "10-wrong-title.mp3",
+      "sha256": "04c9c7bbfb56a20e80cfb29f8196c05aa6f8de1d735439e2c25705e9ece7a845"
+    },
+    {
+      "file": "11-chapter-impact.mp3",
+      "sha256": "48ba297591018fd1373d7a0e10e4b1d5bf575bddb60e7383b3256c7792e985eb"
+    },
+    {
+      "file": "12-search-and-listening.mp3",
+      "sha256": "2f627a51449a314b837488b5c47593a8c80ad2a7de695eaa11675bd22aa4107d"
+    },
+    {
+      "file": "13-chatbots-and-reach.mp3",
+      "sha256": "6244f3b45e21ef07cf1690408196c372d046de330ee9cc8d23590dcb2da1826b"
+    },
+    {
+      "file": "14-garbage-in-garbage-out.mp3",
+      "sha256": "8b901abd2b95d7192c1a93d06bc91aa8f3fab29dedbfacc81f70a68f6336ee1d"
+    },
+    {
+      "file": "15-chapter-repair.mp3",
+      "sha256": "8742826b94d8532cd6fc38b483d65da183316015cea9987664eb636472b0fba5"
+    },
+    {
+      "file": "16-repair.mp3",
+      "sha256": "f906121c1ae9b25f73092fca450086b35db14ea485caaf745cc98419b59a379e"
+    },
+    {
+      "file": "17-passport.mp3",
+      "sha256": "9da4360ab1b3461feb20ba51ce8327c830e6e4a22da573bb4655cdfbf34156f5"
+    },
+    {
+      "file": "18-check.mp3",
+      "sha256": "650a8bb2c54dea82f6fa6fbebc48e6e77cde4b2f984ae85f9b008cb3ae4f6019"
+    },
+    {
+      "file": "music-bed.mp3",
+      "sha256": "ce426a96f6ba77c14bfe0ccef2e99176a0f53bda782c54b1eac797cd2139b3ed"
+    }
+  ],
+  "sha256": "0b4df2ba7c3becfb39a6b387e53a951c1b72a932da584555a46c9786b2d61528"
+}

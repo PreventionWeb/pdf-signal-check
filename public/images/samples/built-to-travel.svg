@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" aria-hidden="true">
+<rect width="300" height="400" fill="#ffffff"/>
+<rect width="300" height="96" fill="#004f91"/>
+<path d="M0 82 C60 64 120 100 180 82 S270 66 300 78 V96 H0 Z" fill="#066e74"/>
+<text x="24" y="34" font-family="Roboto, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#cfe2f3">HARBOR OBSERVATORY</text>
+<text x="24" y="132" font-family="Roboto Condensed, Arial, sans-serif" font-size="25" font-weight="700" fill="#1f3347">Annual Report</text>
+<text x="24" y="162" font-family="Roboto Condensed, Arial, sans-serif" font-size="25" font-weight="700" fill="#1f3347">2025</text>
+<text x="24" y="184" font-family="Roboto, Arial, sans-serif" font-size="11" fill="#8a97a6">Maya Chen · Leo Martin</text>
+<path d="M252 0 h24 v44 l-12 -10 l-12 10 Z" fill="#1b7f3b"/>
+<rect x="24" y="204" width="160" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="216" width="176" height="5" rx="2.5" fill="#d5dde6"/>
+<rect x="24" y="228" width="150" height="5" rx="2.5" fill="#d5dde6"/>
+<text x="24" y="250" font-family="Roboto, Arial, sans-serif" font-size="10" fill="#1f3347">See <tspan fill="#004f91" text-decoration="underline">Map 2</tspan> in the annex</text>
+<rect x="30" y="310" width="24" height="40" fill="#066e74"/>
+<rect x="64" y="302" width="24" height="48" fill="#066e74"/>
+<rect x="98" y="294" width="24" height="56" fill="#066e74"/>
+<line x1="24" y1="350" x2="134" y2="350" stroke="#1f3347" stroke-width="1.5"/>
+<text x="42" y="304" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="8" fill="#1f3347">2.8</text>
+<text x="76" y="296" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="8" fill="#1f3347">3.1</text>
+<text x="110" y="288" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="8" fill="#1f3347">3.4</text>
+<g font-family="Roboto, Arial, sans-serif" font-size="8" fill="#1f3347"><rect x="146" y="282" width="62" height="70" fill="#f4f8fb" stroke="#d5dde6"/><text x="152" y="296" font-weight="700">Station · m</text><text x="152" y="314">North 2.8</text><text x="152" y="330">Central 3.1</text><text x="152" y="346">South 3.4</text></g>
+<g transform="translate(218 196)"><rect width="58" height="52" rx="4" fill="#eef4f9" stroke="#004f91" stroke-width="2"/><text x="29" y="32" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="700" fill="#004f91">CSV</text></g>
+<g transform="translate(222 258)"><rect width="54" height="52" rx="4" fill="#eef4f9" stroke="#066e74" stroke-width="2"/><text x="27" y="24" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="700" fill="#066e74">{ }</text><text x="27" y="40" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="8" font-weight="700" fill="#066e74">JSON-LD</text></g>
+<path d="M262 188 V226 a8 8 0 0 1 -16 0 V198 a5 5 0 0 1 10 0 V222" fill="none" stroke="#1f3347" stroke-width="2.5" stroke-linecap="round"/>
+<g transform="translate(240 362)"><circle r="16" fill="#1b7f3b"/><path d="M-7 0 L-2 6 L8 -6" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>
