@@ -28,7 +28,7 @@
 
 ## Repository and delivery
 
-- Private remote: `https://github.com/PreventionWeb/pdf-signal-check`.
+- Public remote: `https://github.com/PreventionWeb/pdf-signal-check`.
 - `main` is the empty baseline; initial implementation is on `feature/initial-implementation` for a squash PR.
 - Make focused, reviewable commits. Do not add `Co-authored-by` lines.
 - Create goals, push, merge, deploy, or publish only when the user's request authorizes that action. Do not introduce extra approval steps for ordinary authorized local work.

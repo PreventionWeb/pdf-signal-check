@@ -74,11 +74,11 @@ Regenerate simple examples with `npm run samples`, or the richer original corpus
 
 Version 1 is intended for GitHub Pages. [The workflow](.github/workflows/pages.yml) runs tests and builds on pull requests, and deploys successful builds from `main`. The publishing source is **GitHub Actions**, not a `gh-pages` branch. Pull requests only validate; merging to `main` triggers deployment, and a manual run on `main` can redeploy.
 
-Pages setup is currently blocked: on 8 October 2026, GitHub returned “Your current plan does not support GitHub Pages for this repository” when enabling Actions publishing for this private repository. A repository administrator must arrange a plan that supports Pages for private repositories or explicitly choose to make this repository public, then enable **Settings → Pages → Source → GitHub Actions**. The expected project URL is `https://preventionweb.github.io/pdf-signal-check/`; it is not live yet.
+GitHub Pages is enabled with GitHub Actions publishing. The project URL is [preventionweb.github.io/pdf-signal-check](https://preventionweb.github.io/pdf-signal-check/). The current preview requires PIN **5498**; see [preview access](docs/PREVIEW-ACCESS.md) for launch removal. The planned PreventionWeb redirect is separate from this deployment.
 
 Vite uses relative asset URLs so the build works under a repository project path or a custom domain. PDF.js assets are bundled with the site. Optional models use Hugging Face for pinned model/tokenizer files; the inference runtime is bundled with the site. No backend or API key is required.
 
-The private repository is [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check). `main` is an empty baseline; the initial implementation lives on `feature/initial-implementation` for [draft PR #1](https://github.com/PreventionWeb/pdf-signal-check/pull/1), intended for a squash merge. GitHub Pages has not been deployed. See [AGENTS.md](AGENTS.md) for concise contributor instructions.
+The public repository is [PreventionWeb/pdf-signal-check](https://github.com/PreventionWeb/pdf-signal-check). Changes are reviewed through pull requests; successful builds of `main` publish automatically. See [AGENTS.md](AGENTS.md) for concise contributor instructions.
 
 ## Planning documents
 
