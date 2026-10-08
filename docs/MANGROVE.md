@@ -244,3 +244,7 @@ The publication-metadata advisory findings inside the technical record use a gro
 ### Project mega menu
 
 `SiteNavigation.jsx` uses the published pinned MegaMenu, including desktop mega panels and the progressive mobile sidebar. Its local SVG wordmark carries the project title/tagline. Native local-action interception maps documented anchor targets to existing controller flows; the published component owns hover, keyboard behavior, mobile focus trapping and disclosure state. Scoped adaptations hide desktop items on mobile and place panels below the taller wordmark. No external navigation initializer, fonts or assets are added.
+
+## Story video controls — 8 October 2026
+
+The standalone story player uses a documented native adaptation: a dark, high-contrast media control bar with native buttons, range inputs, select inputs and a details/summary settings disclosure. Hand-authored local SVG icons inherit control colour and are hidden from assistive technology; controls carry explicit accessible names. Mangrove UI font roles and the existing external theme remain in use. The media surface uses neutral black/white for contrast, 44px buttons and slider hit areas, visible focus outlines, text tooltips, tabular time, reduced-motion handling and system-colour fallbacks. Captions, transcript and application calls to action retain their existing presentation. No external player scripts or dependencies are added.
