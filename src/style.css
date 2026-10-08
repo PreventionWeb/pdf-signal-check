@@ -156,11 +156,11 @@ progress {
 .region.graphic { fill:rgb(var(--mg-color-gold-800)); stroke:rgb(var(--mg-color-gold-800)); }
 
 .region.selected,
-.region.order { fill:rgb(var(--mg-color-interactive)); stroke:rgb(var(--mg-color-interactive)); }
+.region.order { fill:rgb(var(--mg-color-blue-900)); stroke:rgb(var(--mg-color-blue-900)); }
 
 .region-halo { fill:none; stroke:#c2410c; stroke-width:2.5; stroke-dasharray:7 4; vector-effect:non-scaling-stroke; }
 
-.order-label { font: bold 14px system-ui; fill:rgb(var(--mg-color-interactive)); paint-order:stroke; stroke:white; stroke-width:3px; }
+.order-label { font: bold 14px system-ui; fill:rgb(var(--mg-color-blue-900)); paint-order:stroke; stroke:white; stroke-width:3px; }
 
 .location-button { display:block; text-align:left; width:100%; background:transparent; border:0; color:rgb(var(--mg-color-interactive)); padding:10px 0; min-height:40px; overflow-wrap:anywhere; }
 

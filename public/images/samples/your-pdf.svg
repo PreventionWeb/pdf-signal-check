@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" aria-hidden="true">
 <rect width="300" height="400" fill="#f4f8fb"/>
-<path d="M60 40 H196 L240 84 V330 H60 Z" fill="#ffffff" stroke="#004f91" stroke-width="4" stroke-dasharray="12 8" stroke-linejoin="round"/>
-<path d="M196 40 V84 H240" fill="none" stroke="#004f91" stroke-width="4" stroke-linejoin="round"/>
-<rect x="88" y="104" width="84" height="34" rx="6" fill="#004f91"/>
+<path d="M60 40 H196 L240 84 V330 H60 Z" fill="#ffffff" stroke="#0a6969" stroke-width="4" stroke-dasharray="12 8" stroke-linejoin="round"/>
+<path d="M196 40 V84 H240" fill="none" stroke="#0a6969" stroke-width="4" stroke-linejoin="round"/>
+<rect x="88" y="104" width="84" height="34" rx="6" fill="#0a6969"/>
 <text x="130" y="128" text-anchor="middle" font-family="Roboto, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">PDF</text>
 <rect x="88" y="156" width="124" height="7" rx="3.5" fill="#d5dde6"/>
 <rect x="88" y="172" width="104" height="7" rx="3.5" fill="#d5dde6"/>

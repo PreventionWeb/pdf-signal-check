@@ -1,6 +1,6 @@
 # Mangrove presentation migration
 
-PDF Signal Check uses the UNDRR theme of Mangrove **2.0.0**, provisionally. Product name, PDF/profile identifiers, source ownership, local processing and optional AI consent remain independent of presentation. This is a static React 19 + Vite application using published Mangrove React modules and documented native adaptations. It does not use Drupal, Gutenberg, server hydration, analytics, cookie scripts or remote footer widgets. Historical receipts below describe earlier vanilla implementation checkpoints.
+PDF Signal Check uses the PreventionWeb theme of Mangrove **2.0.0**, selected on 8 October 2026. Product name, PDF/profile identifiers, source ownership, local processing and optional AI consent remain independent of presentation. This is a static React 19 + Vite application using published Mangrove React modules and documented native adaptations. It does not use Drupal, Gutenberg, server hydration, analytics, cookie scripts or remote footer widgets. Historical receipts below describe earlier vanilla implementation checkpoints.
 
 ## Primary specifications
 
@@ -23,26 +23,32 @@ The native privacy dialog, actual-progress bars, step navigation, queue rows, pu
 
 Color channels use `rgb(var(--mg-...))`; full-color exceptions such as button backgrounds, raised surfaces and modal scrims use `var(--mg-...)` directly. Fonts use `--mg-font-family-text`, `-ui`, `-display` and `-code`. Modal/help behavior uses native top-layer elements. App spacing and source geometry stay with the application; component controls use the published classes and theme radius/focus sources.
 
-`src/brand.js` owns product strings and `PRESENTATION_BRAND`: identity, stylesheet/logo paths, browser theme color, and resolved export colors. `index.html` includes the local theme stylesheet before app styles to avoid an unstyled startup; the initialization adapter keeps its path and logo aligned with brand configuration. A theme change does not change the notice key, profile result, PDF data, queue attempt, model choice or report filename stem.
+`src/brand.js` owns product strings and `PRESENTATION_BRAND`: identity, stylesheet/logo paths, browser theme color, and resolved export colors. `index.html` and the legacy story entry include the pinned PreventionWeb CDN stylesheet before app styles. The initialization adapter keeps its URL, integrity hash, logo and browser theme color aligned with brand configuration. A theme change does not change the notice key, profile result, PDF data, queue attempt, model choice or report filename stem.
 
 The bundled Noto Sans report font is a functional exception to Mangrove web typography. Retaining its tested embedding and Unicode/raster fallback protects report fidelity. PDF/PNG exports adopt colors, not a different font or an institutional certification mark.
 
 ## Asset loading, licenses and refresh
 
-Since 2026-10 the theme is not copied into the repository. Earlier builds copied the CSS, fonts and logos into `public/vendor/mangrove`; that copy was removed because the files were unmodified apart from URL rewrites. `index.html` links the [UNDRR stylesheet](https://assets.undrr.org/mangrove/2.0.0/css/style.css) with `integrity` and `crossorigin="anonymous"`. `src/brand.js` (`PRESENTATION_BRAND`) holds the same stylesheet URL and the [horizontal UNDRR logo](https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg). Fonts and icon masks resolve from the stylesheet's own absolute URLs.
+Since 2026-10 the theme is not copied into the repository. Earlier builds copied the CSS, fonts and logos into `public/vendor/mangrove`; that copy was removed because the files were unmodified apart from URL rewrites. `index.html` and `story.html` link the [PreventionWeb stylesheet](https://assets.undrr.org/mangrove/2.0.0/css/style-preventionweb.css) with `integrity` and `crossorigin="anonymous"`. `src/brand.js` (`PRESENTATION_BRAND`) holds the same stylesheet URL and integrity hash, plus the [official horizontal UNDRR logo](https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg). The header retains that UNDRR identity at 324 × 47 with its documented autocrop, as requested; theme selection and institutional identity are separate. The story retains its UNDRR/PreventionWeb co-branding. Fonts and icon masks resolve from the stylesheet's own absolute URLs.
 
 | Asset | Integrity / hash |
 | --- | --- |
-| Stylesheet (SRI) | `sha384-Lcz+c2JptHwxCU1/elBLGALjwHMFdEOMXKTZDeAZOMhJv+GnlS9Vi9vbSSqZygIM` |
-| Stylesheet (SHA-256) | `1a6c63d258c88d6d4ef2e1e0cb5318dcc6e1f0ec7716803facc0c3d91b71bb76` |
+| Stylesheet (SRI) | `sha384-4QmOSpCHofkhKMzhuwO5GdBLa8hd8cRgHIseQd30LqnpF9eCh4Fd9mnRSwWmHEdm` |
+| Stylesheet (SHA-256) | `c9e3c0ce00e7bec0444f8914491b9dcef70d09d04ab7a97e604532913be71fdd` |
 
-Licensing is recorded in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md): Mangrove and Roboto use Apache 2.0, and Noto Kufi Arabic uses SIL OFL 1.1. The UNDRR logo is an institutional asset, not relicensed.
+Licensing is recorded in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md): Mangrove and Roboto use Apache 2.0, and Noto Kufi Arabic uses SIL OFL 1.1. The PreventionWeb and UNDRR logos are institutional assets, not relicensed.
 
 Without network access to assets.undrr.org, the app still works but loses the theme styling and fonts. The bundled Noto Sans report font in `public/fonts` stays local, because PDF exports are generated on the device.
 
-To refresh or change version: update the URL in `index.html` and `src/brand.js`, recompute the SRI with `openssl dgst -sha384 -binary style.css | openssl base64 -A`, and update the table above. Then run the tests and build, and check desktop, mobile and the repository-prefixed URL, plus a rendered export.
+To refresh or change version: update the URL in `index.html`, `story.html` and `src/brand.js`, recompute the SRI with `openssl dgst -sha384 -binary style.css | openssl base64 -A`, and update the table above. Then run the tests and build, and check desktop, mobile and the repository-prefixed URL, plus a rendered export.
 
-For a future PreventionWeb build, point both at `style-preventionweb.css` and the PreventionWeb logo, recompute the SRI, then update `PRESENTATION_BRAND.id`, the logo alternative text and the export palette from that theme’s official tokens.
+The PreventionWeb switch uses the actual single-theme bundle plus its required `mg-theme-preventionweb` class on the root HTML element in both entry points. The bundle defines its brand overrides under that selector; loading the bundle without the class leaves the shared UNDRR base tokens active. A class on the UNDRR-only stylesheet cannot substitute for the PreventionWeb bundle. Its resolved `--mg-color-interactive` is `10 105 105` (`#0a6969`). Export text, muted text, surface and paper resolve from `--mg-color-text`/`neutral-800`, `neutral-600`, `neutral-25` and `neutral-0`: `26 26 26`, `77 77 77`, `240 243 246`, and `255 255 255`. The local product favicon, wordmark and upload illustration use the same teal. Sample PDF illustrations, severity colors and story artwork are unchanged. Future theme switches must repeat URL, integrity, logo and resolved-token verification.
+
+## PreventionWeb theme verification — 8 October 2026
+
+Fetched the published bundle and official logo directly from `assets.undrr.org`, recomputed the SHA-384/SHA-256 values above, and consulted the published asset instructions and Mangrove theme/header specifications. A production build passed. Browser verification under `/pdf-signal-check/` at 1440 × 1000 and 390 × 844 confirmed that the integrity-protected stylesheet loaded, `--mg-theme-loaded` resolved to `preventionweb`, `--mg-color-interactive` resolved to `10 105 105`, and the hero rendered in that teal. At the initial theme checkpoint, the reversed PreventionWeb logo loaded at its declared aspect ratio (subsequently restored to UNDRR at the user’s request); both viewports had no horizontal overflow. No external startup scripts were present. The mobile About player retained its separate UNDRR and PreventionWeb logos and existing artwork. Export headings consume the same resolved palette through `src/brand.js`; rendered export verification belongs to the accompanying export validation record.
+
+Local QA images: `/tmp/pdf-signal-pw-desktop.png`, `/tmp/pdf-signal-pw-mobile.png`, `/tmp/pdf-signal-pw-story-mobile.png`. The downloaded theme and logo used for verification were temporary files outside the repository; production references the CDN assets directly.
 
 ## Delivered scope and limits
 

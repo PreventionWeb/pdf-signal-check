@@ -6,21 +6,19 @@ Position the product around inspectable input quality: show what machines extrac
 
 “AI-ready” appears in current document-extraction positioning, including [Hancom Data Loader](https://master.hancom.com/en/ai/products/dataloader). An evidence-focused checking identity is more precise for this tool's defined scope. The adopted-name search and shortlist are recorded in [NAMING.md](NAMING.md); these checks do not establish trademark or domain availability.
 
-## Interface decisions
+## Current interface decisions
 
-- Hero: **Inspect the PDF. Understand the input.** Supporting copy names extracted text, connected tags, and publication metadata.
-- Qualify every Yes/No with its text-profile version. A structural pass is separate from publication identity and order review.
-- Show title, author, and reading-order statuses beside the verdict. Missing analysis is visible as not assessed or requiring review rather than silently represented as a pass.
-- Keep deterministic metadata comparison separate from optional local model screening. Relatedness is advisory, with inference provenance and first-use download cost visible.
-- Open failing and indeterminate structural details. Offer page inspection where a location is available; describe document-only findings plainly.
-- Name the corpus **Example PDFs**. Paired author and reading-order fixtures show both the problem and the intended comparison.
-- Provide a tagged-order/content-stream-order selector. Neither extracted sequence proves semantic correctness on its own.
+The application uses the pinned **PreventionWeb Mangrove 2.0.0 theme** while retaining the official UNDRR logo in the top-left institutional header, as requested. See [theme assets, integrity hash and token evidence](MANGROVE.md). The product remains PDF Signal Check; repository/profile/preference identifiers are independent of presentation. The film keeps its UNDRR/PreventionWeb co-branding and approved narration.
 
-Retain the warm neutral surfaces, restrained typography, and explicit preview legend. Red denotes concrete text issues, amber graphics require further inspection, and blue identifies selected evidence. Keep highlights approximate where geometry does not resolve glyph outlines or clipping.
+- Lead the homepage with **Help people and their tools understand your PDF** and concrete examples of lost meaning. Connect diagnosis to source-document repair and rechecking the export.
+- Lead completed results with Fix and Check counts. Keep the formal text-profile receipt and method in Technical details. A structural pass does not guarantee accessibility or accurate AI answers.
+- Keep Couldn’t check and optional Make it travel further separate from tasks and collapsed by default. Optional opportunities do not count toward the headline.
+- Present standard checks as a useful option, with optional multilingual or English AI comparisons. Show language coverage and download costs before explicit consent; keep token and speed details secondary.
+- Use the official PreventionWeb interactive teal (`#0a6969`) for application brand controls, product identity and export headings. Preserve red/amber outcome semantics and the established evidence colors; brand choice never changes a PDF finding.
+- Keep image, identity and reading-order evidence close to the selected task. Show actual saved values and recovered sequences; no extracted order is automatically proof of the intended reading order.
+- Call the public corpus sample reports. Its eight fictional variants run through the same checks; their known labels never establish the outcome of an uploaded PDF.
 
-Extraction rehearsal lets people switch a bounded page transcript between tagged and content-stream order and click evidence on the original page. Paired fixtures show the same visible publication with changed author metadata or tag order. Ground-truth labels are displayed only for explicitly loaded synthetic examples; uploaded filenames never establish truth. A collapsible SHA-256 input receipt records the original file bytes and supports repeatable review without implying correctness.
-
-Summary statuses are interactive disclosures. Title and author cards reveal document metadata beside credible recovered publication text; reading order reveals tagged and content-stream sequences with the actual advisory reason. The comparison opens beside the summary, with explicit page evidence and optional preview navigation. Match and uncertain states expose evidence and limitations as well as suspected mismatches. Disclosure actions do not trigger model inference.
+The October 2026 [UX reference architecture](UX-ARCHITECTURE.md) is the current interaction guide. Historical verification below records earlier layouts and colors rather than prescribing them.
 
 ## Adopted-name verification
 
