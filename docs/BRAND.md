@@ -8,7 +8,7 @@ Position the product around inspectable input quality: show what machines extrac
 
 ## Current interface decisions
 
-The application uses the pinned **PreventionWeb Mangrove 2.0.0 theme** while retaining the official UNDRR logo in the top-left institutional header, as requested. See [theme assets, integrity hash and token evidence](MANGROVE.md). The product remains PDF Signal Check; repository/profile/preference identifiers are independent of presentation. The film keeps its UNDRR/PreventionWeb co-branding and approved narration.
+The application uses the pinned **PreventionWeb Mangrove 2.0.1 theme** while retaining the official UNDRR logo in the top-left institutional header, as requested. See [theme assets, integrity hash and token evidence](MANGROVE.md). The product remains PDF Signal Check; repository/profile/preference identifiers are independent of presentation. The film keeps its UNDRR/PreventionWeb co-branding and approved narration.
 
 - Lead the homepage with **Help people and their tools understand your PDF** and concrete examples of lost meaning. Connect diagnosis to source-document repair and rechecking the export.
 - Lead completed results with Fix and Check counts. Keep the formal text-profile receipt and method in Technical details. A structural pass does not guarantee accessibility or accurate AI answers.

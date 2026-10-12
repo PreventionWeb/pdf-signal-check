@@ -4,9 +4,9 @@ export const REPORT_FILENAME_STEM='pdf-signal-check';
 
 /** Pinned visual identity. Replacing it must not alter PDF/source/profile/preference identifiers. */
 export const PRESENTATION_BRAND=Object.freeze({
-  id:'preventionweb', designSystem:'Mangrove', version:'2.0.0',
-  stylesheet:'https://assets.undrr.org/mangrove/2.0.0/css/style-preventionweb.css',
-  stylesheetIntegrity:'sha384-4QmOSpCHofkhKMzhuwO5GdBLa8hd8cRgHIseQd30LqnpF9eCh4Fd9mnRSwWmHEdm',
+  id:'preventionweb', designSystem:'Mangrove', version:'2.0.1',
+  stylesheet:'https://assets.undrr.org/mangrove/2.0.1/css/style-preventionweb.css',
+  stylesheetIntegrity:'sha384-IINZbcobzMMtu56MM3eKbJtELFfWXb2OFiOyX9jYVY9w6vluEwzdfHvWEFeLF01i',
   logo:'https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg',logoWidth:324,logoHeight:47,logoCrop:'autocrop',
   logoAlt:'United Nations Office for Disaster Risk Reduction (UNDRR)',
   // Resolved official PreventionWeb tokens: interactive, text, neutral-600, neutral-25/0.

@@ -4,7 +4,7 @@ import { MetadataGuidance } from '../review/MetadataGuidance.jsx';
 import { DocumentProperties } from '../review/DocumentProperties.jsx';
 import { getSemanticModel, supportsLanguage } from '../engine/models.js';
 import { formatProgress } from '../ui/progress.js';
-import { Button, Notice, Checkbox } from '../ui/react.jsx';
+import { Button, Notice, Checkbox, ProgressBar } from '../ui/react.jsx';
 
 const choices = [['title', 'Publication title'], ['subject', 'Subject'], ['keywords', 'Each keyword'], ['sections', 'Tagged headings and section text']];
 /** Coverage and explicit recovery, alongside the completed document findings. */
@@ -32,7 +32,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
   const stopped = attempt && ["error", "not-run", "canceled"].includes(attempt.status);
   if (showStatus && state.modelBusy) return <Notice title="AI text checks are running" headingLevel="h2">
     <p role="status">Please wait while the selected model compares this PDF’s text. Your results will appear when the checks finish.</p>
-    <progress aria-label="AI check progress" max={state.progress?.total || undefined} value={state.progress?.total > 0 ? state.progress.completed : undefined} />
+    <ProgressBar label="AI check progress" hideLabel max={state.progress?.total > 0 ? state.progress.total : undefined} value={state.progress?.total > 0 ? state.progress.completed : undefined} valueText={state.progress?.total > 0 && Number.isFinite(state.progress.completed) ? formatProgress(state.progress) : undefined} />
     <p>{state.progress?.stage === 'asset-download' ? Number.isFinite(state.progress.completed) ? `Downloading model files: ${formatProgress(state.progress)}` : 'Waiting for model files…'
       : state.progress?.stage === 'inference' && state.progress.total > 0 ? `Comparing text: ${state.progress.completed} of ${state.progress.total} groups completed`
         : 'Preparing the model on this device…'}</p>

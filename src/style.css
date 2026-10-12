@@ -81,12 +81,8 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
 .upload-card:has(input:disabled) .upload-button { opacity: .5; cursor: not-allowed; }
 @media (min-width: 900px) { .upload-card.mg-card-book__hc:has(.mg-card__visual) { grid-template-columns: 200px 1fr; } }
 
-progress {
-  width: 100%;
-  height: 5px;
-  accent-color: rgb(var(--mg-color-interactive));
-  margin-top: 16px;
-}
+/* Mangrove ProgressBar owns the track, fill and motion; the app only spaces it. */
+.mg-progress-bar { margin-block: 16px; }
 
 .metadata-dl {
   display: grid;
@@ -218,7 +214,7 @@ progress {
 
 .flow-file {color:var(--muted);font-size:.9rem;overflow-wrap:anywhere;}
 
-#guided-flow progress {width:100%;max-width:600px;}
+#guided-flow .mg-progress-bar {max-width:600px;}
 
 .finding-evidence {display:grid;gap:8px;}
 
@@ -238,8 +234,6 @@ progress {
 .batch-hash {overflow-wrap:anywhere;}
 
 .batch-item pre {white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;}
-
-.batch-item progress {width:100%;}
 
 .problem-frame .sequence-comparison h4 { margin:8px 0; }
 

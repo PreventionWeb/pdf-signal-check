@@ -28,6 +28,7 @@ import {
   Button,
   Actions,
   Loader,
+  ProgressBar,
   Notice,
 } from "../ui/react.jsx";
 export function App() {
@@ -195,17 +196,14 @@ export function App() {
                   {state.progress?.total > 0 &&
                   Number.isFinite(state.progress.completed) ? (
                     <>
-                      <progress
-                        aria-label="Current processing step"
+                      <ProgressBar
+                        label="Current processing step"
+                        hideLabel
                         max={state.progress.total}
                         value={state.progress.completed}
+                        valueText={formatProgress(state.progress)}
+                        helpText={`${formatProgress(state.progress)}${state.progress.asset ? ` · ${state.progress.asset}` : ""}`}
                       />
-                      <p className="model-note">
-                        {formatProgress(state.progress)}
-                        {state.progress.asset
-                          ? ` · ${state.progress.asset}`
-                          : ""}
-                      </p>
                     </>
                   ) : (
                     <>

@@ -4,6 +4,7 @@ export { Radio } from "@undrr/undrr-mangrove/components/Radio.js";
 export { Select } from "@undrr/undrr-mangrove/components/Select.js";
 export { FormGroup } from "@undrr/undrr-mangrove/components/FormGroup.js";
 export { Loader } from "@undrr/undrr-mangrove/components/Loader.js";
+export { ProgressBar } from "@undrr/undrr-mangrove/components/ProgressBar.js";
 export { StatsCard } from "@undrr/undrr-mangrove/components/StatsCard.js";
 import { Notice as PublishedNotice } from "@undrr/undrr-mangrove/components/Notice.js";
 export function Tag({

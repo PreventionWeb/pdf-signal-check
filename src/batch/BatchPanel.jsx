@@ -9,6 +9,7 @@ import {
   Select,
   FormGroup,
   Actions,
+  ProgressBar,
 } from "../ui/react.jsx";
 import { REPORT_FILENAME_STEM } from "../brand.js";
 import { SEMANTIC_MODELS, getSemanticModel } from "../engine/models.js";
@@ -73,17 +74,17 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
           {item.progress.total > 0 &&
           Number.isFinite(item.progress.completed) ? (
             <>
-              <progress
+              <ProgressBar
+                label={`${item.name} progress`}
+                hideLabel
                 max={item.progress.total}
                 value={item.progress.completed}
-                aria-label={`${item.name} progress`}
+                valueText={formatProgress(item.progress)}
+                helpText={formatProgress(item.progress)}
               />
-              <p className="model-note">
-                {formatProgress(item.progress)}
-              </p>
             </>
           ) : (
-            <progress aria-label={`${item.name} preparing`} />
+            <ProgressBar label={`${item.name} preparing`} hideLabel />
           )}
         </div>
       )}
@@ -440,10 +441,12 @@ export function BatchPanel({ controller, requireAI = false }) {
           {count("queued")} waiting{queue.activeId ? " · 1 current" : ""}
         </p>
         {queue.items.length > 0 && (
-          <progress
+          <ProgressBar
+            label="Finished PDFs"
+            hideLabel
             max={queue.items.length}
             value={finished}
-            aria-label="Finished PDFs"
+            valueText={`${finished} of ${queue.items.length} PDFs`}
           />
         )}
         <p>
