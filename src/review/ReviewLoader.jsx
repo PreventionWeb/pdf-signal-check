@@ -22,5 +22,5 @@ export function ReviewLoader(props) {
     <Button onClick={() => props.controller.go("document")}>Back to PDF selection</Button>
     <Button onClick={() => downloadJson(props.state.report, 'pdf-signal-check-analysis.json')}>Download analysis JSON</Button>
   </Notice>;
-  return <div role="status"><h1 id="flow-title" className="flow-title" tabIndex={-1}>{props.state.modelBusy ? "Checking your PDF" : "Loading your results"}</h1><Loader label="Loading the review interface…" /></div>;
+  return <div><h1 id="flow-title" className="flow-title" tabIndex={-1}>{props.state.modelBusy ? "Checking your PDF" : "Loading your results"}</h1><Loader label="Loading the review interface…" /></div>;
 }

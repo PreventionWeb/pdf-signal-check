@@ -7,7 +7,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from "react";
-import { Button, Details } from "../ui/react.jsx";
+import { Button, Details, ProgressBar } from "../ui/react.jsx";
 import { getSemanticModel } from "../engine/models.js";
 import { rateDevice } from "./preferences.js";
 import { CalibrationController } from "./controller.js";
@@ -82,7 +82,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
       <h2 className="mg-card__title">Testing speed on your device</h2>
       <p>Testing {model.label} with sample text. Keep this tab open and visible.</p>
       <p role="status">{phase}</p>
-      <progress aria-label={progressLabel} max={determinate ? progress.total : undefined} value={determinate ? progress.completed : undefined} />
+      <ProgressBar label={progressLabel} hideLabel max={determinate ? progress.total : undefined} value={determinate ? progress.completed : undefined} valueText={determinate ? formatProgress(progress) : undefined} />
       {progress?.unit === "bytes" && Number.isFinite(progress.completed) && <p className="model-note">{formatProgress(progress)}</p>}
       <div className="flow-actions"><Button onClick={() => controller.cancel()}>Cancel speed test</Button></div>
     </section>

@@ -1,6 +1,6 @@
 # Mangrove presentation migration
 
-PDF Signal Check uses the PreventionWeb theme of Mangrove **2.0.0**, selected on 8 October 2026. Product name, PDF/profile identifiers, source ownership, local processing and optional AI consent remain independent of presentation. This is a static React 19 + Vite application using published Mangrove React modules and documented native adaptations. It does not use Drupal, Gutenberg, server hydration, analytics, cookie scripts or remote footer widgets. Historical receipts below describe earlier vanilla implementation checkpoints.
+PDF Signal Check uses the PreventionWeb theme of Mangrove **2.0.1** (2.0.0 selected on 8 October 2026; updated to 2.0.1 on 12 October 2026). Product name, PDF/profile identifiers, source ownership, local processing and optional AI consent remain independent of presentation. This is a static React 19 + Vite application using published Mangrove React modules and documented native adaptations. It does not use Drupal, Gutenberg, server hydration, analytics, cookie scripts or remote footer widgets. Historical receipts below describe earlier vanilla implementation checkpoints.
 
 ## Primary specifications
 
@@ -17,7 +17,7 @@ The implementation follows the [Mangrove guide](https://mangrove.undrr.org/llms.
 | Unrelated export colors | PDF headings and dedicated PNG accents/background share `PRESENTATION_BRAND.exportPalette`; captured data, original crops and inference receipts stay unchanged. |
 | Potential CDN font/image requests | The theme CSS, fonts and logo load from the versioned UNDRR asset library (assets.undrr.org), which sends `Access-Control-Allow-Origin: *`. The stylesheet carries a Subresource Integrity hash, so a changed file fails closed rather than silently restyling the app. These requests carry no PDF data. |
 
-The native privacy dialog, actual-progress bars, step navigation, queue rows, publication cards, reading-order illustration and evidence crops remain app-specific components. There is no Mangrove JavaScript initializer or global DOM observer; a view rebuild cannot add independent listeners or replace ownership/cancellation policy. Model selection still makes no download request.
+The native privacy dialog, step navigation, queue rows, publication cards, reading-order illustration and evidence crops remain app-specific components. There is no Mangrove JavaScript initializer or global DOM observer; a view rebuild cannot add independent listeners or replace ownership/cancellation policy. Model selection still makes no download request.
 
 ## Tokens and brand boundaries
 
@@ -29,11 +29,11 @@ The bundled Noto Sans report font is a functional exception to Mangrove web typo
 
 ## Asset loading, licenses and refresh
 
-Since 2026-10 the theme is not copied into the repository. Earlier builds copied the CSS, fonts and logos into `public/vendor/mangrove`; that copy was removed because the files were unmodified apart from URL rewrites. `index.html` and `story.html` link the [PreventionWeb stylesheet](https://assets.undrr.org/mangrove/2.0.0/css/style-preventionweb.css) with `integrity` and `crossorigin="anonymous"`. `src/brand.js` (`PRESENTATION_BRAND`) holds the same stylesheet URL and integrity hash, plus the [official horizontal UNDRR logo](https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg). The header retains that UNDRR identity at 324 × 47 with its documented autocrop, as requested; theme selection and institutional identity are separate. The story retains its UNDRR/PreventionWeb co-branding. Fonts and icon masks resolve from the stylesheet's own absolute URLs.
+Since 2026-10 the theme is not copied into the repository. Earlier builds copied the CSS, fonts and logos into `public/vendor/mangrove`; that copy was removed because the files were unmodified apart from URL rewrites. `index.html` and `story.html` link the [PreventionWeb stylesheet](https://assets.undrr.org/mangrove/2.0.1/css/style-preventionweb.css) with `integrity` and `crossorigin="anonymous"`. `src/brand.js` (`PRESENTATION_BRAND`) holds the same stylesheet URL and integrity hash, plus the [official horizontal UNDRR logo](https://assets.undrr.org/logos/undrr/undrr-logo-horizontal.svg). The header retains that UNDRR identity at 324 × 47 with its documented autocrop, as requested; theme selection and institutional identity are separate. The story retains its UNDRR/PreventionWeb co-branding. Fonts and icon masks resolve from the stylesheet's own absolute URLs.
 
 | Asset | Integrity / hash |
 | --- | --- |
-| Stylesheet (SRI) | `sha384-4QmOSpCHofkhKMzhuwO5GdBLa8hd8cRgHIseQd30LqnpF9eCh4Fd9mnRSwWmHEdm` |
+| Stylesheet (SRI) | `sha384-IINZbcobzMMtu56MM3eKbJtELFfWXb2OFiOyX9jYVY9w6vluEwzdfHvWEFeLF01i` |
 | Stylesheet (SHA-256) | `c9e3c0ce00e7bec0444f8914491b9dcef70d09d04ab7a97e604532913be71fdd` |
 
 Licensing is recorded in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md): Mangrove and Roboto use Apache 2.0, and Noto Kufi Arabic uses SIL OFL 1.1. The PreventionWeb and UNDRR logos are institutional assets, not relicensed.
@@ -119,7 +119,7 @@ The footer's generic “do not omit elements” guidance applies to the selected
 | Single-document upload/drop | Native file input/label plus Card and Icon. Catalog has no file-upload/drop-zone component; PDF admission/drag state remains application-owned. |
 | Samples/gallery | Cards, Buttons, native Details and Select/FormAction. Analyzer state, sample bytes and manifest labels stay separate. |
 | Guided process stages | Native ordered list and `aria-current=step`. Catalog has no wizard-stepper; breadcrumbs would imply a false page hierarchy. |
-| Preparation/actual progress | Loader for unknown preparation; native progress for measured units. Catalog has no determinate-progress component. |
+| Preparation/actual progress | Loader for unknown preparation; published ProgressBar (2.0.1) for measured units and for indeterminate per-file and AI waits. |
 | Completed checks / queue decisions | Complete Notice header/title/description/actions; explicit profile scope and severity words. |
 | Profile/model execution receipt | Text and subtle Tags with native Details; these receipt facts are not publication/editorial workflow statuses. |
 | Finding category choice | Named native SegmentedControl radio group, with checked state and keyboard focus restoration. |
@@ -150,7 +150,7 @@ Shell verification: 153 tests and build passed (`index-D-GJEezr.js`, `index-D158
 | UI-bound worker/export state | DOM-free cached external stores subscribed with `useSyncExternalStore`; explicit source/generation guards, cancellation and reusable mount/dispose. |
 | Full page UI owned by imperative preview | React controls/status/layout around an isolated canvas/SVG PreviewSession. Source crops remain independently canceled and disposed. |
 
-React and React DOM are pinned to 19.3.0, Mangrove to 2.0.0, Vite to 8.3.2 and its React plugin to 6.1.2. Dependencies were installed with lifecycle scripts disabled. Direct component subpaths are used because this Mangrove package has no root entry point. Package JSX uses React 19 element identity; hooks share the app React runtime.
+React and React DOM are pinned to 19.3.0, Mangrove to 2.0.1, Vite to 8.3.2 and its React plugin to 6.1.2. Dependencies were installed with lifecycle scripts disabled. Direct component subpaths are used because this Mangrove package has no root entry point. Package JSX uses React 19 element identity; hooks share the app React runtime.
 
 The component catalog does not imply every package API accepts arbitrary app content. Mangrove CtaButton renders links, so disabled/Space-operable actions remain native React buttons with published classes. VerticalCard accepts string data rather than arbitrary children, so evidence/canvas/multi-control cards use the documented no-link/content structure in a composable React adapter. EmptyState, Icon, Details and Accordion are CSS-only patterns. Native measured progress, file input, ordered workflow navigation, privacy dialog and interactive help popovers retain the functional-fit exceptions in the coverage table above. Help uses a React portal to avoid nesting block content inside publication headings/paragraphs. No global widget or component initializer is imported.
 
@@ -256,3 +256,14 @@ The publication-metadata advisory findings inside the technical record use a gro
 The standalone story player uses a documented native adaptation: a dark, high-contrast media control bar with native buttons, range inputs, select inputs and a details/summary settings disclosure. Hand-authored local SVG icons inherit control colour and are hidden from assistive technology; controls carry explicit accessible names. Mangrove UI font roles and the existing external theme remain in use. The media surface uses neutral black/white for contrast, 44px buttons and slider hit areas, visible focus outlines, text tooltips, tabular time, reduced-motion handling and system-colour fallbacks. Captions, transcript and application calls to action retain their existing presentation. No external player scripts or dependencies are added.
 
 The story's co-branding pairs the existing UNDRR logo with the official PreventionWeb dark SVG (`https://assets.undrr.org/logos/pw/pw-logo.svg`) on its cream header. Both remain remote asset-library images with alternative text. This adds publication identity while retaining the pinned UNDRR theme and existing presentation tokens.
+
+## Mangrove 2.0.1 — 12 October 2026
+
+Updated the npm package, the theme stylesheet URL and its SRI hash (`index.html`, `story.html`, `src/brand.js`) from 2.0.0 to 2.0.1. The resolved export-palette tokens (interactive, text, neutral-600, neutral-25, neutral-0) are unchanged, so `exportPalette` stays as it is. `test/theme-pin.test.js` fails if the package version, brand pin and both entry-point links disagree.
+
+| Before | After |
+| --- | --- |
+| Native `<progress>` styled by a global app rule (5px, `accent-color`) | Published [ProgressBar](https://mangrove.undrr.org/?path=/docs/components-progress-bar--docs) for analysis, AI check, speed test, per-file and queue progress. Labels stay hidden accessible names; measured values pass `valueText` (for example “1 of 3 PDFs”). The app keeps only a margin and the 600px cap in the guided flow. Reduced-motion and forced-colours states come from Mangrove. |
+| Loader 1.2: fixed blue, 2s turn | Loader 1.3: theme interactive colour, faster turn, announced when React inserts it. The review-loading wrapper no longer adds its own `role="status"` around the Loader, which would have nested two live regions. |
+
+Announcements still come from the existing status paragraphs; per Mangrove guidance, `role`/`aria-live` is not put on the bars. Verified with `npm test`, `npm run build`, and headless Chrome under `/pdf-signal-check/` at 1440 × 1000 and 390 × 844: the SRI-protected 2.0.1 stylesheet loaded, only the page origin and assets.undrr.org were requested, there were no console errors, and determinate, indeterminate and reduced-motion bars rendered as documented.
