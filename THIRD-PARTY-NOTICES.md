@@ -33,8 +33,8 @@ The ONNX Runtime notice in `third-party/onnxruntime-LICENSE.txt` was obtained fr
 
 ## Mangrove presentation assets
 
-The PreventionWeb theme of [Mangrove 2.0.0](https://github.com/PreventionWeb/undrr-mangrove) (Apache License 2.0) is loaded at runtime from UNDRR’s versioned asset library, https://assets.undrr.org/mangrove/2.0.0/css/style-preventionweb.css, pinned with a Subresource Integrity hash. It is not redistributed in this repository. The stylesheet references Roboto and Roboto Condensed (Apache License 2.0) and Noto Kufi Arabic (SIL OFL 1.1) from the same library.
+The PreventionWeb theme of [Mangrove 2.0.1](https://github.com/PreventionWeb/undrr-mangrove) (Apache License 2.0) is loaded at runtime from UNDRR’s versioned asset library, https://assets.undrr.org/mangrove/2.0.1/css/style-preventionweb.css, pinned with a Subresource Integrity hash. It is not redistributed in this repository. The stylesheet references Roboto and Roboto Condensed (Apache License 2.0) and Noto Kufi Arabic (SIL OFL 1.1) from the same library.
 
 The application header uses the official UNDRR horizontal logo from the UNDRR asset library. The story retains both UNDRR and PreventionWeb logos. The project’s Apache licence does not relicense these institutional identity assets. See [migration and refresh instructions](docs/MANGROVE.md) for the pinned theme and external-asset policy.
 
-React and React DOM 19.3.0 are distributed under the MIT license; Vite’s React plugin 6.1.2 is MIT. The published `@undrr/undrr-mangrove` 2.0.0 React components are Apache-2.0 and use the same independently attributed CDN theme/fonts/assets described above. Package component imports do not load remote institutional widgets or styles.
+React and React DOM 19.3.0 are distributed under the MIT license; Vite’s React plugin 6.1.2 is MIT. The published `@undrr/undrr-mangrove` 2.0.1 React components are Apache-2.0 and use the same independently attributed CDN theme/fonts/assets described above. Package component imports do not load remote institutional widgets or styles.
