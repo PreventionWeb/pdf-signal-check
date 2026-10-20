@@ -765,3 +765,10 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .page-pins-detail-pane .result-hero { margin: 0; }
 .page-pins-technical { min-width: 0; }
 .page-pins-detail-pane .result-hero .mg-hero__title { font-size: clamp(1.5rem, 2vw, 2rem); }
+/* Pin tooltips: one-line explanation on hover or focus. Outlines take hover only to show it; they stay hidden from assistive tech. */
+.page-pins-box { pointer-events: auto; cursor: pointer; }
+.page-pins-tooltip { position: absolute; z-index: 5; width: min(320px, 45%); margin-top: 8px; display: grid; gap: 4px; padding: 10px 12px;
+  background: rgb(var(--mg-color-neutral-900, 23 23 23)); color: rgb(var(--mg-color-neutral-0)); border-radius: 6px; font-size: .875rem; line-height: 1.4;
+  box-shadow: 0 6px 18px rgb(0 0 0 / .25); pointer-events: none; }
+.page-pins-tooltip.is-above { transform: translateY(calc(-100% - 16px)); }
+.page-pins-tooltip-eyebrow, .page-pins-tooltip-hint { font-size: .75rem; opacity: .8; }

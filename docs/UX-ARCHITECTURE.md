@@ -60,6 +60,10 @@ The issue list works like an inbox. Its first entry, **Overview**, is selected w
 
 From 1200 px the workspace spans the full window as three docked panes: list, detail, then pages (or the technical record); each scrolls on its own. From 820 to 1199 px the list and detail stack in one docked column beside the pages. Below 820 px the summary leads the page, the Overview entry is omitted, and the list and detail become a bottom sheet: a persistent “Issues (n)” bar opens it, choosing a pin, item or Technical details opens it, and Close or Escape returns to the pages.
 
+### Page pins and reading order
+
+Hovering or focusing a page pin, or hovering its outline, shows a tooltip with the item's number, bucket, title and a one-line summary (Escape hides it); clicking selects the item. The reading-order switch is disabled when the PDF has no tagged text, with a caution notice explaining that adding tags gives it a reading order.
+
 ### Buckets
 
 Items are grouped into four buckets, decided by recorded category and review priority (`fixBucket` in `src/review/workspace.js`), never by a confidence score:
@@ -74,7 +78,7 @@ Consistency advisories ([CONSISTENCY.md](CONSISTENCY.md)) go under **Check**: co
 
 Cross-references that aren’t links moved to **Make it travel further** in October 2026: linking them is a bar to strive for, and they had outranked real concerns. A short value drawn apart from its tagged label stays under **Check** with page pins (“‘+0.7 m’ is drawn apart from its label”, pinned across the value and its label). Successful link, bookmark, metadata and figure-data results stay in the technical record.
 
-Not yet done: the fix-list PDF download does not list Make it travel further entries, and the Technical evidence drawer shows them through the generic method/evidence view, without a dedicated link or bookmark inventory.
+The fix-list PDF lists Make it travel further entries in an unnumbered “Optional” section after Fix and Check (October 2026). Not yet done: the Technical evidence drawer shows them through the generic method/evidence view, without a dedicated link or bookmark inventory.
 
 The verb carries the certainty: Add / Set / Export for confirmed defects, “doesn’t match” or “may” for suspected ones, and “could not judge” for undecided ones. Do not flatten confirmed, suspected and undecided into one status.
 

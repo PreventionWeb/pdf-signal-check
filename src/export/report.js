@@ -60,6 +60,7 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,includ
         y-=10;
       }
     }
+    if(sheet.travel?.length){ensure(75+sheet.travel.length*36);await heading(`Optional: make it travel further (${sheet.travel.length})`);await write('Improvements for wider reuse, after the things to fix or check. These are not problems and do not count in the totals above.',{size:9.5,color:pdfColor(palette.muted)});await list(sheet.travel.map(item=>item.change?`${item.title}: ${item.change}`:item.title),{size:10,gap:2});await write(' ',{size:8});}
     if(sheet.unknown.length || sheet.limits.length){ensure(75+(sheet.unknown.length+sheet.limits.length)*30);await heading(`Couldn’t check (${sheet.unknown.length+sheet.limits.length})`);await write('The tool could not decide these. They are limits of this tool, not problems found in the PDF.',{size:9.5,color:pdfColor(palette.muted)});await list([...sheet.unknown,...sheet.limits],{size:10,gap:2});}
     if(!sheet.fix.length && !sheet.check.length)await write('Nothing to fix or check was found automatically. Image and chart meaning, factual accuracy and intended reading order still need a person to review.');
     if(includeTechnical) {

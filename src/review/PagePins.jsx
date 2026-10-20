@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { EvidenceCropService } from "../evidence/crops.js";
-import { Button, Switch } from "../ui/react.jsx";
+import { Button, Notice, Switch } from "../ui/react.jsx";
 import { fixCard } from "./workspace.js";
 import { pagePins } from "./page-pins.js";
 import { readingOrderPlacement } from "../evidence/reading-order-placement.js";
@@ -45,7 +45,10 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     }
     return [...byPage.values()].sort((a, b) => a.page - b.page);
   }, [pinnedPages, showOrder, report]);
-  const orderToggle = <Switch className="page-pins-order-toggle" label="Show reading order on the pages" checked={showOrder} onChange={event => setShowOrder(event.target.checked)} />;
+  // Only tagged text gives a reading order to show; without it the switch is unavailable and says why.
+  const hasOrder = useMemo(() => (report.pages || []).some(page => page.logicalBlocks?.some(block => block.text?.trim())), [report]);
+  const orderToggle = <Switch className="page-pins-order-toggle" label="Show reading order on the pages" checked={hasOrder && showOrder} disabled={!hasOrder}
+    aria-describedby={hasOrder ? undefined : "page-pins-order-unavailable"} onChange={event => setShowOrder(event.target.checked)} />;
   const [shown, setShown] = useState(PAGE_BATCH);
   const service = useRef(null);
   const pageRefs = useRef(new Map());
@@ -128,7 +131,10 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     <div className="page-pins-main">
     {narrow && lead}
     {special === "technical" ? <section className="page-pins-technical" aria-label="Technical details">{technical}</section> : <div className="page-pins-pages">
-      <div className="page-pins-toolbar">{orderToggle}<Button className="page-pins-show-all" onClick={onShowAll}>Show the whole PDF</Button>{showOrder && <span className="model-note">Blue numbers show the order screen readers follow. Pages without a recovered order have no numbers.</span>}</div>
+      <div className="page-pins-toolbar">{orderToggle}<Button className="page-pins-show-all" onClick={onShowAll}>Show the whole PDF</Button>{hasOrder && showOrder && <span className="model-note">Blue numbers show the order screen readers follow. Pages without a recovered order have no numbers.</span>}</div>
+      {!hasOrder && <div id="page-pins-order-unavailable" className="page-pins-order-unavailable"><Notice variant="warning">
+        <p>The reading order can’t be shown: this PDF has no tags, so screen readers and AI tools have no reading order to follow. Adding tags (the first fix) gives it one.</p>
+      </Notice></div>}
       <section className="page-pins-page" aria-labelledby="page-pins-properties-title"
         ref={element => element ? pageRefs.current.set("properties", element) : pageRefs.current.delete("properties")}>
         <h3 id="page-pins-properties-title">Document properties</h3>
@@ -157,14 +163,14 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
                 <p className="fix-card-where">{unplacedLabel(entry)}</p>
                 <p>{entry.summary}</p>
                 {entry.change && <p><strong>What to change:</strong> {entry.change}</p>}
-                {entry.item.source?.path === "readingOrder" && orderToggle}
+                {entry.item.source?.path === "readingOrder" && hasOrder && orderToggle}
               </div>
             </li>;
           })}</ol>
         </div>
       </section>}
       {pages.slice(0, shown).map(({ page, pins, order }) => <PinnedPage key={page} page={page} pins={pins} order={order} service={service} selected={selected}
-        onSelect={number => onSelect(byNumber(number).item, mobile())} onShowPage={onShowPage}
+        onSelect={number => onSelect(byNumber(number).item, mobile())} onShowPage={onShowPage} describe={number => byNumber(number)?.summary}
         pageRef={element => element ? pageRefs.current.set(page, element) : pageRefs.current.delete(page)} />)}
       {shown < pages.length && <Button onClick={() => setShown(value => value + PAGE_BATCH)}>Show {Math.min(PAGE_BATCH, pages.length - shown)} more pages ({pages.length - shown} remaining)</Button>}
     </div>}
@@ -191,8 +197,18 @@ const propertyFor = item => {
 const unplacedLabel = entry => /^Pages? /.test(entry.where || "") ? `${entry.where} · exact position unknown` : entry.where || "Whole document";
 
 /** Renders one page only when it scrolls near the viewport, then keeps the image until unmount. */
-function PinnedPage({ page, pins, order, service, selected, onSelect, onShowPage, pageRef }) {
+const TOOLTIP_BUCKET = { fix: "Fix", check: "Check" };
+const brief = text => { const value = String(text || "").trim(); return value.length > 160 ? `${value.slice(0, 159)}…` : value; };
+function PinnedPage({ page, pins, order, service, selected, onSelect, onShowPage, pageRef, describe = () => null }) {
   const element = useRef(null);
+  // Hover or keyboard focus on a pin or its outline explains the issue in one line; Escape hides it.
+  const [tip, setTip] = useState(null);
+  useEffect(() => {
+    if (tip == null) return undefined;
+    const hide = event => { if (event.key === "Escape") setTip(null); };
+    document.addEventListener("keydown", hide);
+    return () => document.removeEventListener("keydown", hide);
+  }, [tip]);
   const [image, setImage] = useState(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -233,10 +249,20 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, onShowPage
         const isSelected = pin.number === selected;
         return <React.Fragment key={pin.number}>
           <span className={`page-pins-box page-pins-box--${pin.bucket} ${isSelected ? "is-selected" : ""}`} aria-hidden="true"
-            style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, width: `${box.width * 100}%`, height: `${box.height * 100}%` }} />
+            style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, width: `${box.width * 100}%`, height: `${box.height * 100}%` }}
+            onMouseEnter={() => setTip(pin.number)} onMouseLeave={() => setTip(null)} onClick={() => onSelect(pin.number)} />
           <button type="button" className={`page-pin page-pin--${pin.bucket} page-pins-marker ${isSelected ? "is-selected" : ""}`}
             style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, marginLeft: `${index * 4}px` }}
-            aria-label={`${pin.number}: ${pin.title}`} aria-pressed={isSelected} onClick={() => onSelect(pin.number)}>{pin.number}</button>
+            aria-label={`${pin.number}: ${pin.title}`} aria-pressed={isSelected} aria-describedby={tip === pin.number ? `pin-tip-${page}-${pin.number}` : undefined}
+            onMouseEnter={() => setTip(pin.number)} onMouseLeave={() => setTip(null)} onFocus={() => setTip(pin.number)} onBlur={() => setTip(null)}
+            onClick={() => onSelect(pin.number)}>{pin.number}</button>
+          {tip === pin.number && <span role="tooltip" id={`pin-tip-${page}-${pin.number}`} className={`page-pins-tooltip ${box.y > 0.7 ? "is-above" : ""}`}
+            style={{ left: `${Math.min(box.x, 0.55) * 100}%`, top: `${(box.y > 0.7 ? box.y : box.y + box.height) * 100}%` }}>
+            <span className="page-pins-tooltip-eyebrow">{pin.number} · {TOOLTIP_BUCKET[pin.bucket] || pin.bucket}</span>
+            <strong>{pin.title}</strong>
+            {describe(pin.number) && <span>{brief(describe(pin.number))}</span>}
+            <span className="page-pins-tooltip-hint">Click for what to change</span>
+          </span>}
         </React.Fragment>;
       })}
     </div>
