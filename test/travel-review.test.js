@@ -9,18 +9,15 @@ const load = async name => analyzePdf(new Uint8Array(await readFile(new URL(`../
 const review = report => reviewSummary(report, groupFigureFindings(groupHeadingFindings(findingGroups(normalizeFindings(report).findings))));
 
 describe('travel-further presentation', () => {
-  it('pins the unlinked cross-reference under Check and keeps opportunities out of Fix and Check', async () => {
+  it('lists an unlinked cross-reference under Make it travel further, unnumbered, and keeps detached values in Check', async () => {
     const report = await load('image-chart-scrambled-text');
     const { buckets, headline } = review(report);
-    const reference = buckets.check.find(item => item.source?.path === 'crossReferences');
-    expect(fixCard(reference, report)).toMatchObject({ title: '“Map 2” isn’t a link', where: 'Page 2' });
-    const entries = [...buckets.fix, ...buckets.check].map((item, index) => ({ number: index + 1, item }));
-    const { pages, unlocated } = pagePins(entries, report);
-    expect(unlocated.map(entry => entry.item.id)).not.toContain(reference.id);
-    expect(pages.find(page => page.page === 2).pins.map(pin => pin.item.id)).toContain(reference.id);
+    const reference = buckets.travel.find(item => item.source?.path === 'crossReferences');
+    expect(reference).toBeTruthy();
+    expect(buckets.check.some(item => item.source?.path === 'crossReferences')).toBe(false);
     expect(buckets.check.some(item => item.source?.path === 'detachedValues')).toBe(true);
 
-    expect(buckets.travel.map(item => item.source.path).sort()).toEqual(['figureData', 'machineMetadata', 'outline']);
+    expect(buckets.travel.map(item => item.source.path).sort()).toEqual(['crossReferences', 'figureData', 'machineMetadata', 'outline']);
     expect([...buckets.fix, ...buckets.check].some(item => item.category === 'opportunity')).toBe(false);
     // Opportunities never inflate the headline count of things to fix or check.
     expect(headline).toBe(`${buckets.fix.length} thing${buckets.fix.length === 1 ? '' : 's'} to fix, ${buckets.check.length} to check`);

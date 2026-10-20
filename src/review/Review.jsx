@@ -30,6 +30,7 @@ const BUCKETS = {
   check: { label: "Check", intro: "Possible problems. Look at each one and decide." },
   unknown: { label: "Couldn’t check", intro: "The tool could not decide these. They are limits of this tool, not problems found in your PDF." },
   travel: { label: "Make it travel further", intro: "Optional improvements for wider reuse, after the things to fix or check. These are not problems and do not count in the headline." },
+  tip: { label: "Tip", intro: "" },
 };
 
 export function Review({ state, controller, exportRef, onReturnBatch }) {
@@ -46,7 +47,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   const groups = useMemo(() => reviewGroups(normalized.findings), [normalized]);
   const overview = { ...reviewSummary(report, groups), checkedWith: checkedWith(report) };
   const { buckets } = overview;
-  const selectable = [...buckets.fix, ...buckets.check, ...buckets.unknown, ...buckets.travel];
+  const selectable = [...buckets.fix, ...buckets.check, ...buckets.unknown, ...buckets.travel, ...buckets.tip];
   const defaultItem = buckets.fix[0] || buckets.check[0];
   const finding = selectable.find(item => item.id === issueId) || defaultItem,
     execution = screeningProvenance(report),
@@ -189,7 +190,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     </EvidenceDrawer>}
     {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
   </>;
-  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
+  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
     selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })} onShowAll={() => { setSelection(null); setFullOpen(true); }}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {detailArticle || <p className="model-note">Choose an item to see what to change.</p>}

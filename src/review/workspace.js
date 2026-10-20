@@ -65,11 +65,20 @@ export function groupConsistencyFindings(groups) {
     const drop = item => item.source?.path === 'metadataConsistency' && item.outcome === 'uncertain';
     groups = { ...groups, problems: groups.problems.filter(item => !drop(item)), uncertainty: groups.uncertainty.filter(item => !drop(item)) };
   }
+  // Maps and charts beside captions lead; the page-by-page decorative list becomes context in the same task.
+  const decorative = all.filter(item => item.comparison?.consistency?.kind === 'decorative');
+  const generic = decorative.length ? [...groups.problems, ...groups.uncertainty].find(item => item.figureGroup === 'decorative') : null;
+  if (generic) {
+    const keep = item => item !== generic;
+    groups = { ...groups, problems: groups.problems.filter(keep), uncertainty: groups.uncertainty.filter(keep) };
+    if (!sets.some(([id]) => id === 'review:consistency:decorative')) sets.push(['review:consistency:decorative', decorative]);
+  }
   if (!sets.length) return groups;
   const ids = new Set(sets.flatMap(([, members]) => members.map(item => item.id)));
   return { ...groups, uncertainty: groups.uncertainty.filter(item => !ids.has(item.id)),
     problems: [...groups.problems.filter(item => !ids.has(item.id)), ...sets.map(([id, members]) => ({ ...members[0], id, consistencyGroup: id,
-      source: { path: id.replace(':', '.') }, members, targets: [], evidence: [], comparison: null }))] };
+      source: { path: id.replace(':', '.') }, members, targets: [], evidence: [], comparison: null,
+      ...(id === 'review:consistency:decorative' && generic ? { decorativeContext: generic.members.map(member => member.comparison.figure.page) } : {}) }))] };
 }
 /** Shared task grouping for individual review, batch summaries and captured hand-offs. */
 export function reviewGroups(findings) {
@@ -105,6 +114,8 @@ export function fixBucket(item) {
   if (item.category === 'opportunity') return 'travel';
   if (reviewPriority(item).key === 'critical') return 'fix';
   // Reading order always needs a person to confirm it, even when the tool found no problem.
+  // A recovered order with no detected problem is a tip to listen for yourself, not a task.
+  if (item.source?.path === 'readingOrder' && item.outcome !== 'requires-review' && !item.comparison?.readingSequenceMissing) return 'tip';
   if (item.figureGroup || item.source?.path === 'attachments' || item.source?.path === 'readingOrder') return 'check';
   // A saved title or author list beside page text the tool could not match is a comparison a person can make.
   if (identityPaths.test(item.source?.path || '') && item.comparison?.candidates?.length && item.outcome !== 'match') return 'check';
@@ -117,7 +128,7 @@ const identityPaths = /^(metadataConsistency|deterministicTitle|authorConsistenc
 const byPriority = (a, b) => reviewPriority(a).rank - reviewPriority(b).rank || rootCause(a) - rootCause(b);
 /** Selectable review items by bucket, plus tool limits that only explain what was not checked. */
 export function fixList(groups) {
-  const lists = { fix: [], check: [], unknown: [], limits: [...groups.limits, ...groups.coverage], travel: [...(groups.opportunities || [])] };
+  const lists = { fix: [], check: [], unknown: [], tip: [], limits: [...groups.limits, ...groups.coverage], travel: [...(groups.opportunities || [])] };
   for (const item of [...groups.problems, ...groups.uncertainty].sort(byPriority)) lists[fixBucket(item)].push(item);
   // Without any tags, untagged text and a missing reading order are consequences of the same fix.
   const noTags = lists.fix.find(item => item.source?.checkId === 'structure' && item.outcome === 'fail' && item.summary === 'No structure tree found.');
@@ -525,8 +536,9 @@ function consistencyTask(finding) {
     'Pick one form of the title. Use it for the saved title in the document properties, on the cover and in page headers and footers, then export again.', sameTitle);
   if (finding.consistencyGroup === 'review:consistency:decorative') {
     const pages = finding.members.map(member => member.comparison.consistency.page);
-    return task(`Maps or charts marked as decoration (${pages.length} pages)`,
-      `On pages ${pageList(pages)}, a large graphic next to a caption or source line is marked as decoration. Screen readers and AI tools skip decoration, so the information in these maps or charts is lost to them.`,
+    const others = (finding.decorativeContext || []).filter(page => !pages.includes(page)).length;
+    return task(`Maps or charts marked as decoration (${pages.length} ${pages.length === 1 ? 'page' : 'pages'})`,
+      `On ${pages.length === 1 ? 'page' : 'pages'} ${pageList(pages)}, a large graphic next to a caption or source line is marked as decoration. Screen readers and AI tools skip decoration, so the information in these maps or charts is lost to them.${others ? ` Graphics on ${plural(others, 'other page')} are also marked as decoration; most are probably backgrounds and borders, so start with the pages listed here.` : ''}`,
       'Give each map or chart an image label (a Figure tag) with a short description of what it shows, or state its key finding in nearby text. Keep only purely decorative graphics marked as decoration. Export again and recheck.',
       'Marking a graphic as decoration tells assistive technology and AI tools to ignore it. That is right for backgrounds and borders, but not for a map or chart that carries information.');
   }

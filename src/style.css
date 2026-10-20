@@ -720,3 +720,5 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .consistency-values dt { font-weight: 600; color: var(--muted); }
 .consistency-values dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 40rem) { .consistency-values { grid-template-columns: 1fr; } .consistency-values dd + dt { margin-top: 8px; } }
+.fix-tip { font-size: .9375rem; margin: 12px 0; padding: 8px 12px; border-left: 3px solid rgb(var(--mg-color-neutral-300)); }
+.fix-tip-link { background: none; border: 0; padding: 0; font: inherit; color: var(--mg-color-link, #0468b1); text-decoration: underline; cursor: pointer; }

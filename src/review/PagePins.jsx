@@ -14,7 +14,7 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  * The fix list placed on the PDF pages. The grouped legend is the accessible equivalent of the page images; pins
  * are buttons. Numbers match the PDF download. The side panel shows the selected item's detail (passed in as `detail`).
  */
-export function PagePins({ entries, unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect, detail, onShowPage, onShowAll }) {
+export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect, detail, onShowPage, onShowAll }) {
   const { pages: pinnedPages, unlocated } = useMemo(() => pagePins(entries, report), [entries, report]);
   const [showOrder, setShowOrder] = useState(false);
   // With reading order on, every page with a recovered sequence is shown, not only pages with issues.
@@ -100,6 +100,7 @@ export function PagePins({ entries, unknown = [], travel = [], travelIntro = "",
           })}</ul>
           {limits.length > 0 && <><h4 className="fix-limits-title">Not checked by this tool</h4><ul className="fix-limits">{limits.map(text => <li key={text}>{text}</li>)}</ul></>}
         </details>}
+        {tips.map(item => <p key={item.id} className="fix-tip"><strong>Tip:</strong> the reading order looks right to this tool, but only a person can confirm it. Listen to a page with a screen reader, or <button type="button" className="fix-tip-link" onClick={() => onSelect(item, mobile())}>see the reading order</button>.</p>)}
         <p className="fix-list-note">This tool doesn’t change your PDF. Fix the source document, export again and check the new PDF.</p>
       </nav>
       {detail}

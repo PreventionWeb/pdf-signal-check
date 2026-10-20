@@ -48,7 +48,8 @@ function addTravelFindings(report, add) {
   const refs = report.crossReferences;
   if (refs?.status === 'requires-review' || refs?.status === 'present') {
     const unlinked = (refs.references || []).filter(reference => reference.linked !== true);
-    add(base('travel:cross-references', 'crossReferences', refs, { category: unlinked.length ? 'advisory-concern' : 'success',
+    // Linking cross-references helps readers jump around; it is a bar to strive for, not a defect.
+    add(base('travel:cross-references', 'crossReferences', refs, { category: unlinked.length ? 'opportunity' : 'success',
       title: unlinked.length ? 'Cross-references without links' : 'Cross-references are linked', method: 'cross-reference-pattern-and-link-overlap',
       evidence: (unlinked.length ? unlinked : refs.references).map(reference => ({ page: reference.page, blockIds: [reference.blockId], ...(reference.quad ? { quad: reference.quad } : {}), text: reference.text })),
       comparison: { references: unlinked.map(({ page, text, context }) => ({ page, text, context })), linked: refs.linked, found: refs.found } }));
