@@ -1,0 +1,53 @@
+# Consistency advisories
+
+Status: delivered on `khawkins98/consistency-checks` (October 2026). Advisory only: profile acceptance is unchanged.
+
+## Why
+
+Most real reports we tried have no saved title, description or keywords, so the earlier AI checks (saved metadata against opening text) usually had nothing to compare. The more common, more useful question is whether the PDF **agrees with itself**: does the title read the same on the cover, in the properties and in the page headers; do the dates line up; is the language right; are maps and charts hidden from screen readers? These checks use what is already in the PDF, and most of them need no AI.
+
+## What is checked
+
+`src/engine/consistency.js` produces `report.consistency.items`. Each item has a **severity**:
+
+| Severity | Meaning | Shown as |
+| --- | --- | --- |
+| `concern` | Likely wrong or out of date | Check, Warning |
+| `minor` | A small difference to tidy up | Check, Minor (ranked last; title differences grouped into one task) |
+| `unresolved` | Rules cannot tell | Couldn’t check, unless a completed AI comparison settles it |
+
+| Check | Severity | Rule |
+| --- | --- | --- |
+| Title written differently: saved title, cover (adjacent large cover lines joined), most frequent running header/footer | year differs or one word swapped: concern. Punctuation, word order, Latin-script spelling (≤2 letters), saved title missing words: minor. Different wording: unresolved | Case-only differences are ignored. Punctuation differences against the cover are ignored, because joining wrapped cover lines loses the punctuation a line break stood for. A shortened running title is normal and not flagged. Headers that share few content words with the title are treated as chapter names. Only the most frequent header can be sent for reworded comparison |
+| Still marked Draft | concern | “Draft”, “for review”, “not for circulation”, “embargoed” and similar, on the first page or a running header only (body text such as “the draft law” is ignored) |
+| Leftover placeholders | concern | “Error! Reference source not found.”, lorem ipsum, `[insert …]`/`[TBC]`, `XX%` |
+| Figures older than the first-page date | concern | Only when pages 1–2 state “as of / updated &lt;Month Year&gt;”. Sentences elsewhere saying “by / as of / until &lt;earlier Month Year&gt;” that also contain another number (a data claim) |
+| Declared language vs text | concern | Script share (≥60% Arabic, Cyrillic, Han, …) or common-word counts for en/fr/es/de/pt/it/nl, requiring a clear winner (≥30 hits, ≥1.8× the runner-up). Silent when unsure |
+| Saved title in a different script from the text | concern | Latin-script title on non-Latin text, or the reverse |
+| Placeholder saved values | title: concern; description that is only a link: minor | Numeric or file-name titles (`report_final`), `Untitled`, `Microsoft Word - …`; keywords that are `docId:` values or mixed-case ID tokens (Canva/InDesign) |
+| Map or chart marked as decoration | concern | A decorative image covering ≥12% of the page beside a Figure/Map/Chart caption or a `Source:` line, or ≥150 decorative drawing operations beside a Figure/Map/Chart caption. Table captions never count (decorative table borders are correct). A caption must be followed by punctuation, so “Figure 20 identifies…” does not count. A labelled Figure on the page raises the bar to ≥25% / ≥600 |
+
+`page.js` now records header/footer lines (including artifact text, split into left/right segments), the size of decorative images (including inside form XObjects) and decorative drawing counts. `titles.js` also matches saved titles against wrapped cover lines, which removed several false “couldn’t confirm the title” results.
+
+## Where AI helps
+
+Rules decide everything they can. The local embedding model is used only for title pairs the rules leave **unresolved** (different wording). These are sent with the title check (`names` in the screening request, at most eight). The model's provisional title thresholds turn a pair into minor (“worded differently”, related) or concern (“may name a different document”). The AI never overrides a rule-based concern or minor result, and never runs when the declared language is outside the selected model's coverage. Results record `nameItems` with actual inference provenance.
+
+## Observed on real reports (local files, not committed)
+
+Twenty public reports from the maintainer's machine, run with `analyzePdf` in Node:
+
+- GAR 2025: 19 pages where maps and charts are marked as decoration (spot-checked visually: pages 34, 44 and 99 are a map, an illustration with a chart, and a chart with a table).
+- Sendai Framework snapshot, April 2026: the first page says “Data as of April 2026”, but “176 countries reported … by October 2025”.
+- EW4ALL handbook (French): declared `en-US`; keywords contain a `docId:` value.
+- Arabic GP information note: the saved title is an English title from another document.
+- HIPs review: the first page still says “Draft Report 8 May 2025”.
+- A job opening whose saved title is its number, and a school bulletin whose keywords are Canva IDs.
+- OECD report: saved title adds “(EN)”; the description is only a DOI link (minor).
+
+False positives found and fixed during this pass: footer page-number stripping cut “-2030” from a year range; joined cover lines produced punctuation differences; decorative table borders; Arabic extraction differences; chapter headers compared as titles. Remaining known limits: cover-title detection uses the four largest first-page lines and can include the publisher name. The decorative check is page-level (a caption and a large decorative graphic on the same page), not a geometric caption-to-graphic association. Running headers drawn inside images are invisible to it. Language detection covers a handful of Latin-script languages. Thresholds are hand-set from this small set, not a labelled evaluation.
+
+## Not changed
+
+- The missing-information gate (`needsDocumentInformation`) still hides all results when a PDF has no saved title, description or keywords. That covered 11 of the 20 reports above, including GAR 2025 and the Annual Report 2025, so these findings are not shown for them. Whether to keep the gate is an open product decision (see [UX architecture](UX-ARCHITECTURE.md)).
+- The page-by-page “Check graphics marked as decorative” group stays in Check. Moving it would change the story's recorded headline counts and narration.

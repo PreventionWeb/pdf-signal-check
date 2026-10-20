@@ -48,9 +48,28 @@ export function groupFigureFindings(groups) {
   }
   return result;
 }
+/** Small title differences become one tidy-up task; maps and charts marked as decoration become one task. */
+export function groupConsistencyFindings(groups) {
+  const all = [...groups.problems, ...groups.uncertainty];
+  const sets = [
+    ['review:consistency:minor-names', all.filter(item => item.comparison?.consistency?.left && item.severity === 'minor')],
+    ['review:consistency:decorative', all.filter(item => item.comparison?.consistency?.kind === 'decorative').sort((a, b) => a.comparison.consistency.page - b.comparison.consistency.page)],
+  ].filter(([, members]) => members.length > 1);
+  // A saved-title/cover pair from the consistency rules replaces the older "couldn't confirm the title" comparison for the same pair.
+  const coverPair = all.some(item => item.comparison?.consistency?.left?.role === 'saved' && item.comparison.consistency.right?.role === 'cover');
+  if (coverPair) {
+    const drop = item => item.source?.path === 'metadataConsistency' && item.outcome === 'uncertain';
+    groups = { ...groups, problems: groups.problems.filter(item => !drop(item)), uncertainty: groups.uncertainty.filter(item => !drop(item)) };
+  }
+  if (!sets.length) return groups;
+  const ids = new Set(sets.flatMap(([, members]) => members.map(item => item.id)));
+  return { ...groups, uncertainty: groups.uncertainty.filter(item => !ids.has(item.id)),
+    problems: [...groups.problems.filter(item => !ids.has(item.id)), ...sets.map(([id, members]) => ({ ...members[0], id, consistencyGroup: id,
+      source: { path: id.replace(':', '.') }, members, targets: [], evidence: [], comparison: null }))] };
+}
 /** Shared task grouping for individual review, batch summaries and captured hand-offs. */
 export function reviewGroups(findings) {
-  return groupFigureFindings(groupHeadingFindings(findingGroups(findings)));
+  return groupConsistencyFindings(groupFigureFindings(groupHeadingFindings(findingGroups(findings))));
 }
 export function profileReceipt(report) {
   if (report.accepted) return 'Required text checks passed';
@@ -66,6 +85,7 @@ export function profileReasons(report) {
 export function reviewPriority(finding) {
   if (finding.figureGroup === 'missing' || (finding.comparison?.figure?.tagged && !finding.comparison.figure.alt)) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.members?.length) return finding.members.map(reviewPriority).reduce((highest, item) => item.rank < highest.rank ? item : highest);
+  if (finding.severity === 'minor') return { rank: 3, key: 'minor', label: 'Minor', noticeVariant: 'info' };
   if (finding.source?.path === 'readingOrder' && finding.comparison?.readingSequenceMissing) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.category === 'required-defect') return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.category === 'advisory-concern') return { rank: 1, key: 'warning', label: 'Warning', noticeVariant: 'warning' };
@@ -135,7 +155,7 @@ export function reviewSummary(report, groups) {
   return { headline, nextStep, scope, tasks, buckets, criticalCount, counts };
 }
 
-const documentPaths = /^(metadataConsistency|deterministicTitle|authorConsistency|machineMetadata|semantic\.(subject|keywords|keywordItems|title|titleAI)|checks\.(title|language))/;
+const documentPaths = /^(metadataConsistency|deterministicTitle|authorConsistency|machineMetadata|semantic\.(subject|keywords|keywordItems|title|titleAI)|checks\.(title|language)|consistency\.(placeholder|language))/;
 /** Where the person should look: pages, document properties, or the whole document. */
 export function fixLocation(item) {
   const members = item.members || [item];
@@ -151,6 +171,12 @@ export function fixCard(item, report = {}) {
   const task = reviewTask(item);
   const card = { title: task.title, summary: task.summary || item.summary, change: task.action, where: fixLocation(item) };
   const path = item.source?.path || '';
+  if (item.comparison?.consistency?.left || item.consistencyGroup === 'review:consistency:minor-names') {
+    const members = item.members || [item];
+    const pages = [...new Set(members.flatMap(member => member.comparison?.consistency?.right?.pages || []))].sort((a, b) => a - b);
+    const cover = members.some(member => [member.comparison?.consistency?.left?.role, member.comparison?.consistency?.right?.role].includes('cover'));
+    return { ...card, where: [cover && 'Page 1', pages.length && 'Page headers and footers', members.some(member => member.comparison?.consistency?.left?.role === 'saved') && 'Document properties'].filter(Boolean).join(' · ') };
+  }
   if ((path === 'metadataConsistency' || path === 'deterministicTitle') && item.outcome === 'suspected-mismatch') {
     const saved = report.metadata?.infoTitle || report.metadata?.xmpTitles?.[0]?.text;
     const page = report.metadataConsistency?.publicationCandidates?.[0]?.text;
@@ -221,15 +247,21 @@ export function fixCard(item, report = {}) {
   if (path === 'readingOrder' && item.outcome === 'requires-review') return { ...card, title: 'Text may be read in the wrong order',
     summary: 'Screen readers and AI tools may read this content in a different order from the page layout.',
     change: 'Ask the designer to fix the reading order: in the source document, or in Acrobat’s Reading Order or Tags panel. Then export again.' };
-  if (item.members && !item.figureGroup && fixBucket(item) === 'unknown') return { ...card, title: `Headings the AI could not judge (${item.members.length})`,
+  if (item.consistencyGroup === 'review:consistency:decorative') {
+    const pages = item.members.map(member => member.comparison.consistency.page);
+    return { ...card, where: pages.length === 1 ? `Page ${pages[0]}` : `Pages ${pageList(pages)}` };
+  }
+  if (item.members && !item.figureGroup && !item.consistencyGroup && fixBucket(item) === 'unknown') return { ...card, title: `Headings the AI could not judge (${item.members.length})`,
     summary: 'The AI could not tell whether these headings describe the text below them. This is not a problem found in your PDF.', change: '' };
-  if (item.members && !item.figureGroup) return { ...card, title: `Headings that may not match their sections (${item.members.length})`,
+  if (item.members && !item.figureGroup && !item.consistencyGroup) return { ...card, title: `Headings that may not match their sections (${item.members.length})`,
     summary: 'The AI found little connection between these headings and the text below them. Read each one and decide.',
     change: 'If a heading doesn’t describe its section, reword it in the source document. If the wrong text follows it, ask the designer to fix the reading order. Then export again.' };
   return card;
 }
 
 export function reviewTask(finding) {
+  const consistency = consistencyTask(finding);
+  if (consistency) return consistency;
   if (finding.figureGroup) {
     const count = finding.members.length;
     const descriptions = {
@@ -459,4 +491,91 @@ export function reviewLimitText(item) {
   const skipped = /^semantic:(keywords|sections):unassessed$/.exec(item.id);
   if (skipped) return `${String(item.summary || "").match(/\d+/)?.[0] || "Some"} ${skipped[1] === "keywords" ? "keywords" : "headings"} were not compared by the AI. It only compares a limited number in each PDF.`;
   return `${item.title}: ${item.summary || "not checked"}`;
+}
+
+const KIND_WORDS = { punctuation: 'punctuation differs', order: 'words are in a different order', spelling: 'spelling differs', shortened: 'one leaves words out',
+  reworded: 'worded differently', year: 'the year differs', substitution: 'one word is different', different: 'the wording is different' };
+const ROLES = { saved: 'saved title', cover: 'cover', running: 'page header' };
+const languageName = tag => { try { return new Intl.DisplayNames(['en'], { type: 'language' }).of(tag) || tag; } catch { return tag; } };
+const pageList = pages => pages.length <= 6 ? listed(pages.map(String)) : `${pages.slice(0, 5).join(', ')} and ${pages.length - 5} more`;
+/** One consistency pair as a line of plain text, for lists and the PDF hand-off. */
+export function consistencyLine(finding) {
+  const item = finding.comparison?.consistency;
+  if (!item?.left) return finding.title;
+  const kind = finding.comparison?.ai ? (finding.severity === 'minor' ? 'worded differently (the AI found them closely related)' : 'worded differently') : KIND_WORDS[item.kind] || item.kind;
+  return `${ROLES[item.left.role]} “${quote(item.left.text)}” · ${ROLES[item.right.role]} “${quote(item.right.text)}”: ${kind}`;
+}
+/** Plain-language task for a consistency advisory: what disagrees, and the single change to make. */
+function consistencyTask(finding) {
+  const path = finding.source?.path || '';
+  if (!path.startsWith('consistency.') && !path.startsWith('review.consistency')) return null;
+  const task = (title, summary, detailAction, why) => ({ title, summary, action: detailAction.split(/(?<=\.) /)[0], detailAction, why });
+  const sameTitle = 'People, catalogues and AI tools use the title to identify and cite a report. When it is written differently in different places, they cannot tell which version is right.';
+  if (finding.consistencyGroup === 'review:consistency:minor-names') return task(`Tidy small differences in the title (${finding.members.length})`,
+    'The title is written in slightly different ways. These are small differences, not errors, but the title should read the same everywhere.',
+    'Pick one form of the title. Use it for the saved title in the document properties, on the cover and in page headers and footers, then export again.', sameTitle);
+  if (finding.consistencyGroup === 'review:consistency:decorative') {
+    const pages = finding.members.map(member => member.comparison.consistency.page);
+    return task(`Maps or charts marked as decoration (${pages.length} pages)`,
+      `On pages ${pageList(pages)}, a large graphic next to a caption or source line is marked as decoration. Screen readers and AI tools skip decoration, so the information in these maps or charts is lost to them.`,
+      'Give each map or chart an image label (a Figure tag) with a short description of what it shows, or state its key finding in nearby text. Keep only purely decorative graphics marked as decoration. Export again and recheck.',
+      'Marking a graphic as decoration tells assistive technology and AI tools to ignore it. That is right for backgrounds and borders, but not for a map or chart that carries information.');
+  }
+  const item = finding.comparison?.consistency;
+  if (!item) return null;
+  if (item.left) {
+    const left = `the ${ROLES[item.left.role]} “${quote(item.left.text)}”`, right = `the ${ROLES[item.right.role]} “${quote(item.right.text)}”`;
+    const ai = finding.comparison?.ai;
+    if (finding.category === 'uncertain') return task('Check whether these titles name the same document',
+      `Compare ${left} with ${right}. The tool could not tell whether they name the same document.`,
+      'If they name the same document, use one form of the title everywhere. If one belongs to another document, correct it in the source, then export again.', sameTitle);
+    if (item.kind === 'year') return task('The year in the title doesn’t match',
+      `${left[0].toUpperCase()}${left.slice(1)}, but ${right}. One of them may be out of date.`,
+      'Decide which year is correct. Update the saved title in the document properties and the cover, headers or footers in the source, then export again.', sameTitle);
+    if (item.kind === 'substitution') return task('The title changes one word',
+      `${left[0].toUpperCase()}${left.slice(1)}, but ${right}. When only one word changes, part of the document may have been copied from another report.`,
+      'Check which wording is correct. Update the other one in the source document, then export again.', sameTitle);
+    if (ai && finding.severity === 'concern') return task('This may name a different document',
+      `${left[0].toUpperCase()}${left.slice(1)}, but ${right}. The AI found little connection between them, so one may have been left over from another document.`,
+      'Check which title is correct. Update the other one in the source document, then export again.', `${sameTitle} The AI compares meaning; it can be wrong, so check before changing anything.`);
+    return task('Tidy a small difference in the title', `${left[0].toUpperCase()}${left.slice(1)}, and ${right}: ${ai ? 'they are worded differently' : KIND_WORDS[item.kind]}.`,
+      'Pick one form of the title and use it everywhere, then export again.', sameTitle);
+  }
+  const value = item.value ? `“${quote(item.value)}”` : '';
+  switch (item.kind) {
+    case 'draft': return task(`Still marked “${item.label}”`,
+      `${item.pages[0] === 1 ? 'The first page says' : `Page headers on ${pageList(item.pages)} say`} “${quote(item.text || item.label)}”. If this is the published version, the label is out of date.`,
+      'Remove the draft label from the cover, headers and footers in the source document, then export again.',
+      'A draft label tells readers, catalogues and AI tools that the content may not be final or may change.');
+    case 'leftovers': return task('Leftover placeholder text',
+      `Found ${listed([...new Set(item.evidence.map(entry => entry.label))])} on page ${pageList([...new Set(item.evidence.map(entry => entry.page))])}: “${quote(item.evidence[0].text)}”.`,
+      'Replace or remove the placeholder in the source document. For broken cross-references, update the fields (in Word: select all, then F9) before exporting again.',
+      'Placeholder text reads as part of the report to people, screen readers and AI tools.');
+    case 'stale': return task('Figures older than the date on the first page',
+      `The first page gives figures “${item.promised}”, but a sentence on page ${item.evidence[0].page} uses an earlier date: “${quote(item.evidence[0].text.replace(/[.\s]+$/, ''))}”.${item.evidence.length > 1 ? ` ${item.evidence.length - 1} more statement${item.evidence.length === 2 ? '' : 's'} use an earlier date.` : ''}`,
+      'Check whether these figures were updated. Update them, or say clearly which date they refer to, then export again.',
+      'Readers and AI tools take the date on the first page as the date of all the figures. Older figures may be repeated as current.');
+    case 'language': return task(`Language set to ${languageName(item.declared)}, but the text looks ${item.detected.name}`,
+      `The PDF says its language is “${item.declared}”, but most of its text appears to be ${item.detected.name}. Screen readers will pronounce it with the wrong rules, and search and AI tools may misread it.`,
+      `Set the document language to ${item.detected.name} in the source document’s properties (or a PDF editor), then export again.`,
+      'The language setting tells screen readers how to pronounce words and tells search and AI tools how to read the text.');
+    case 'title-language': return task('Saved title is in a different language from the document',
+      `The saved title is ${value}, but the text is in ${item.detected.name}. The title may have been left over from a template or another document.`,
+      'Set the saved title in the document properties to the title shown on the cover, then export again.', sameTitle);
+    case 'title': return task(`Saved title looks like a placeholder: ${value}`,
+      'The title saved in the document properties is a number, file name or template default, not the publication title.',
+      'Set the saved title in the document properties to the full publication title, then export again.', sameTitle);
+    case 'keywords': return task('Saved keywords contain internal codes',
+      `The saved keywords include ${listed(item.terms.map(term => `“${quote(term)}”`))}. These are codes from the authoring tool, not topics.`,
+      'Replace the keywords in the document properties with a few topics the report covers, separated by commas. Then export again.',
+      'Catalogues, search engines and AI tools read keywords as the topics of a document.');
+    case 'subject-link': return task('Description is only a link', `The saved description is ${value}. A link does not tell people or tools what the report is about.`,
+      'Write a one- or two-sentence summary in the description (Subject) field of the document properties. Keep the link elsewhere, then export again.',
+      'Search results, catalogues and AI tools often show the saved description as the summary of a report.');
+    case 'decorative': return task(`A ${/map/i.test(item.captions[0]?.text || '') ? 'map' : 'chart or figure'} is marked as decoration`,
+      `On page ${item.page}, a large graphic next to “${quote(item.captions[0]?.text || item.source?.text)}” is marked as decoration. Screen readers and AI tools skip decoration, so its information is lost to them.`,
+      'Give the map or chart an image label (a Figure tag) with a short description of what it shows, or state its key finding in nearby text. Export again and recheck.',
+      'Marking a graphic as decoration tells assistive technology and AI tools to ignore it.');
+    default: return null;
+  }
 }

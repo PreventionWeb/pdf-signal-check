@@ -20,6 +20,7 @@ import { MetadataGuidance } from "./MetadataGuidance.jsx";
 import { needsDocumentInformation } from "../runtime/screening-recovery.js";
 import { FigureContext } from "./FigureContext.jsx";
 import { FigureGroup } from "./FigureGroup.jsx";
+import { ConsistencyDetail } from "./ConsistencyDetail.jsx";
 import { ResultHero } from "./ResultHero.jsx";
 import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins } from "./PagePins.jsx";
@@ -137,6 +138,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       <Notice variant={{ fix: "negative", check: "warning", unknown: "info", travel: "info" }[bucket]} icon={false}><p>{card.summary}</p></Notice>
       {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
       {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} onInspect={inspect} />
+        : finding.source?.path?.startsWith("consistency.") || finding.consistencyGroup ? <ConsistencyDetail finding={finding} file={file} report={report} onInspect={inspect} />
         : finding.members ? <section aria-label="Headings" className="heading-review-list">
           {finding.members.map(member => <section key={member.id} className="heading-review-pair">
             <h3>{member.comparison?.query || member.title.replace(/^Heading: /, "")}</h3>

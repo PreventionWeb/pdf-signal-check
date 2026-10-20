@@ -1,6 +1,6 @@
 import { findingProvenance, screeningProvenance } from '../review/provenance.js';
 import { normalizeFindings } from '../review/findings.js';
-import { reviewGroups, reviewLimitText, reviewSummary, fixCard } from '../review/workspace.js';
+import { consistencyLine, reviewGroups, reviewLimitText, reviewSummary, fixCard } from '../review/workspace.js';
 export function captureSnapshot({report,file}) {
   if(!report)throw new Error('Complete an analysis before exporting.');
   const copy=structuredClone(report);
@@ -30,7 +30,8 @@ export function fixSheet(snapshot) {
   const groups=reviewGroups(snapshot.normalized.findings);
   const summary=reviewSummary(report,groups);
   let number=0;
-  const memberLine=member=>{const figure=member.comparison?.figure;
+  const memberLine=member=>{const figure=member.comparison?.figure,consistency=member.comparison?.consistency;
+    if(consistency)return consistency.left?consistencyLine(member):`Page ${consistency.page}: ${consistency.captions[0]?.text || consistency.source?.text || 'graphic marked as decoration'}`;
     if(figure)return `Page ${figure.page}, ${figure.decorative?'decorative graphics':figure.tagged?`image ${member.comparison.figureNumber || 1}`:'unlabelled graphics'}`;
     const page=member.targets?.[0]?.page;return `“${member.comparison?.query || member.title.replace(/^Heading: /,'')}”${page?`, page ${page}`:''}`;};
   const entry=(item,bucket)=>({number:++number,bucket,...fixCard(item,report),

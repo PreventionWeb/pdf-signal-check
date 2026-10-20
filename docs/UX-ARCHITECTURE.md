@@ -66,6 +66,8 @@ Items are grouped into four buckets, decided by recorded category and review pri
 
 - **Make it travel further** — collapsed by default, after Check and before Couldn’t check. Opportunities, not problems (`category: 'opportunity'`, `fixBucket` → `travel`): no bookmarks, missing publication details or attached schema.org description, and figures with no nearby data table or attached data file. The intro says they are not problems. Entries carry a “+” marker instead of a number, get no page pins, and never count towards the headline, so the numbered Fix and Check list and the PDF download keep their numbering. Each card uses “Add” or “Share” and one authoring-tool step.
 
+Consistency advisories ([CONSISTENCY.md](CONSISTENCY.md)) go under **Check**: concerns (a year that differs between titles, a leftover Draft label, figures older than the first-page date, a wrong declared language, placeholder saved values, maps or charts marked as decoration) rank as Warning; minor differences (punctuation, word order, spelling, a saved title missing words) rank last as Minor, and title differences are grouped into one “Tidy small differences in the title” task. Maps and charts marked as decoration are grouped into one task with each page listed. Title pairs the rules cannot classify go in **Couldn’t check** unless a completed AI comparison settles them.
+
 Two of the travel-further advisories are suspected problems and go under **Check** with page pins: a cross-reference that isn’t a link (“‘Map 2’ isn’t a link”, pinned on the estimated position of the words) and a short value drawn apart from its tagged label (“‘+0.7 m’ is drawn apart from its label”, pinned across the value and its label). Successful link, bookmark, metadata and figure-data results stay in the technical record.
 
 Not yet done: the fix-list PDF download does not list Make it travel further entries, and the Technical evidence drawer shows them through the generic method/evidence view, without a dedicated link or bookmark inventory.
@@ -141,6 +143,7 @@ Deterministic acceptance is independent of AI advisories and UI grouping. An AI 
 
 ## Open decisions and tradeoffs
 
+- **Gate scope and real reports:** in October 2026, 11 of 20 real public reports tried had no saved title, description or keywords, so this gate hid all their other results, including consistency findings that need no saved metadata.
 - **Gate scope:** the current all-metadata-absent gate is deliberately narrower than “every title defect” and independent of AI eligibility. Adding only keywords currently unblocks it. Whether a usable saved title should instead be required is unresolved product policy; do not change the threshold during a copy/layout audit.
 - **Gate wording:** “cannot be evaluated” is the requested stop headline, but parsing has already occurred and some checks may be possible. Supporting copy must make the application's repair prerequisite clear without asserting a universal PDF requirement.
 - **Disclosure:** correction guidance stays visible as one “What to change” line; full steps, method, AI inputs and locations sit one click away in the drawer. Repair instructions on the blocking metadata screen stay visible.

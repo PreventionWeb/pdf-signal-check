@@ -9,6 +9,10 @@ export function findingProvenance(finding,report) {
     if(method==='deterministic-rules')return {kind:'rules',label:'Extracted PDF + rules',help:'rules',detail:'This result was settled by title comparison rules; no inference was used for this check.'};
     return {kind:'unassessed',label:'AI check not assessed',help:'bounded',detail:actual?.reason || actual?.error || finding.summary || 'No completed model inference is recorded for this check.'};
   }
+  if(path.startsWith('consistency.')) {
+    if(finding.method==='embedding-screening'&&completedModel(report.semantic)&&finding.comparison?.ai?.inferencePerformed===true)return {kind:'ai',label:'Rules + local AI relatedness',help:'ai',detail:`Rules found the two titles worded differently; ${modelName(report.semantic?.model)} compared their meaning. This is not identity verification.`};
+    return {kind:'rules',label:'Extracted PDF + consistency rules',help:'rules',detail:'Values the PDF states in different places are compared with rules: titles, dates, draft labels, language and decorative graphics beside captions. Rules can miss differences or flag intended ones.'};
+  }
   if(['authorConsistency','readingOrder'].includes(path))return {kind:'heuristic',label:'Rule-based heuristic',help:'heuristic',detail:path==='authorConsistency'?'Recovered metadata is compared with a heuristic first-page byline candidate; authorship is not authenticated.':'A bounded numbered/spatial order clue; intended reading order still requires visual inspection.'};
   if(path==='metadataConsistency')return {kind:'rules',label:'Extracted PDF + title rules',help:'rules',detail:'Title strings are compared with recovered publication candidates. Candidate selection and normalization can miss issues.'};
   if(path==='attachments'&&actual?.status==='not-assessed')return {kind:'unassessed',label:'Attachment inventory not assessed',help:'attachments',detail:actual.reason || 'No completed attachment inventory is recorded.'};

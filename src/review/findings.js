@@ -1,3 +1,4 @@
+import { addConsistencyFindings } from './consistency-findings.js';
 const hash = value => { let n=2166136261; for(const c of String(value)) n=Math.imul(n^c.codePointAt(0),16777619); return (n>>>0).toString(16); };
 const normalize = text => String(text || '').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
 const advisoryCategory = result => (result?.method==='embedding-screening' && result?.inferencePerformed===false) || ['not-requested','unsupported-language','insufficient-evidence'].includes(result?.method) ? 'unassessed' :
@@ -25,6 +26,7 @@ const guidance = {
   hiddenInstructions:['AI tools read text that people cannot see. Hidden instructions can steer AI summaries, reviews, search results or decisions about the document.','Ask whoever produced the PDF why the text is there. If it is not meant to be in the document, remove it from the source and export again.'],
   visibility:['Invisible extracted text can differ from content people see.','Compare extracted text with the rendered page; invisible OCR/accessibility text can be legitimate. Color, clipping and occlusion remain unverified.'],
   travel:['Links, bookmarks, saved publication details and data help people and tools find, understand and reuse a PDF. These are opportunities, separate from the required text checks.','Read the recorded evidence and the limits of each advisory. Make changes in the source document or publishing system, export again and recheck.'],
+  consistency:['When a PDF names or dates itself in different ways, people and AI tools cannot tell which version is right, and may cite the wrong one.','Compare the values shown. Decide which is correct, update the others in the source document, export again and recheck.'],
   semantic:['Topical relatedness is evidence to inspect, not proof of identity or truth.','Compare the bounded excerpts and metadata/heading. Check token truncation, later sections, alternate wording and the provisional model policy before changing source content.'],
 };
 const target = e => {
@@ -90,11 +92,11 @@ function addTravelFindings(report, add) {
 /** Normalizes completed reports only. Review annotations never modify engine outcomes. */
 export function normalizeFindings(report) {
   const findings=[],seen=new Set(),pages=report.pages || [];
-  const add = ({id,category,title,outcome,method,summary,evidence=[],comparison={},source,kind='semantic'}) => {
+  const add = ({id,category,title,outcome,method,summary,evidence=[],comparison={},source,kind='semantic',severity}) => {
     if(seen.has(id))return;seen.add(id);
     const orderGuidance = kind === 'order' ? !pages.some(page => page.logicalBlocks?.some(block => block.text?.trim())) ? guidance.orderMissing : !report.readingOrder?.findings?.length ? guidance.orderUnconfirmed : guidance.order : null;
     const [whyItMatters,whatToInspect]=orderGuidance || guidance[kind] || (source?.checkId ? guidance.required : guidance.semantic);
-    findings.push({id,category,title,outcome,method,summary,whyItMatters,whatToInspect,comparison,evidence,targets:targets(evidence),source});
+    findings.push({id,category,title,outcome,method,summary,whyItMatters,whatToInspect,comparison,evidence,targets:targets(evidence),source,...(severity?{severity}:{})});
   };
   for(const c of report.checks || []) {
     let evidence=[...(c.evidence || [])];
@@ -137,6 +139,7 @@ export function normalizeFindings(report) {
     evidence:(hidden.matches || []).map(match=>match.quads?.length && match.page ? {page:match.page,quads:match.quads,text:match.text} : `${match.field || match.kind}: ${match.text}`)});
   if(report.attachments){const a=report.attachments,files=a.files || [],evidence=files.map(file=>`File: ${file.unicodeFilename || file.filename || `Unnamed (${file.id})`}; ${file.embedded?(file.payloads?.length?'located embedded payload stream(s)':'embedded-file declaration; no payload stream located'):'associated reference only'}; declared media type: ${(file.payloads || []).map(p=>p.mediaType || 'not declared').join(', ') || 'not declared'}; description: ${file.description || 'not set'}; declared relationship: ${file.relationship || 'not set'}; related filename declarations: ${(file.payloads || []).map(p=>p.relatedFilename).filter(Boolean).join(', ') || 'none recovered'}; guidance: ${(file.guidanceIssues || []).map(i=>typeof i==='string'?i:i.message || JSON.stringify(i)).join('; ') || 'no missing-declaration issue recorded; instruction usability is not verified'}.`);evidence.push(...(a.orphanStreams || []).map(stream=>`Unlinked embedded payload declaration: ${stream.origin || 'unknown origin'}; reference ${stream.streamRef || 'not recovered'}; declared media type ${stream.mediaType || 'not declared'}; encoded size ${stream.encodedBytes ?? 'unknown'} bytes; context ${stream.path || 'not recovered'}. It is not established as an active attachment.`));evidence.push(...(a.warnings || []).map(w=>typeof w==='string'?w:w.message || JSON.stringify(w)));add({id:'advisory:attachments',category:a.status==='none'&&a.inventoryComplete===true?'success':a.status==='requires-review'?'advisory-concern':a.status==='not-assessed'?'unassessed':'uncertain',title:'Embedded and associated files',outcome:a.status,method:'attachment-metadata-inspection',summary:a.reason,evidence,comparison:{inventory:a},source:{path:'attachments'},kind:'attachments'});}
   addTravelFindings(report, add);
+  addConsistencyFindings(report, add);
   const semantic=report.semantic;
   if(!semantic) add({id:'semantic:unassessed',category:'unassessed',title:'AI screening not completed',outcome:'not-assessed',method:'not-requested',summary:'No completed model screening is available.',source:{path:'semantic'}});
   else if(semantic.status==='skipped')add({id:'semantic:skipped',category:'unassessed',title:'Requested AI screening skipped',outcome:'skipped',method:semantic.skipReason||'screening-skipped',summary:semantic.reason||'The requested optional screening was not performed.',comparison:{model:semantic.model||null,requestedChecks:semantic.requestedChecks||[],skipReason:semantic.skipReason||null},source:{path:'semantic'},kind:'semanticError'});

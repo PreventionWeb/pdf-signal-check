@@ -714,3 +714,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 
 .about-video { scroll-margin-top: 24px; }
 .about-video-loading { min-height: clamp(240px, 45vw, 600px); padding-block: 24px; }
+.consistency-values { display: grid; grid-template-columns: minmax(8rem, max-content) 1fr; gap: 4px 16px; margin: 12px 0 0; flex-basis: 100%; }
+.consistency-values dt { font-weight: 600; color: var(--muted); }
+.consistency-values dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 40rem) { .consistency-values { grid-template-columns: 1fr; } .consistency-values dd + dt { margin-top: 8px; } }
