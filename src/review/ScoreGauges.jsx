@@ -27,7 +27,7 @@ export function ScoreGauges({ scores }) {
       <Gauge category={overall} large />
       <div className="score-gauges-lead-text">
         <h2 id="score-gauges-title" className="score-gauges-title">Overall score{overall.band ? <span className={`score-gauges-band score-gauges-band--${overall.band}`}> · {BAND_WORDS[overall.band]}</span> : null}</h2>
-        <p className="model-note">The average of People, AI and search, and Consistency. Uses {scores.decided} of {scores.total} measures; the rest couldn’t be decided and don’t count. Not an accessibility certificate.</p>
+        <p className="model-note">The average of People, AI and search, and Consistency. Uses {scores.decided} of {scores.total} checks; the rest couldn’t be decided and don’t count. Not an accessibility certificate.</p>
       </div>
     </div>
     <div className="score-gauges-row">
@@ -38,7 +38,7 @@ export function ScoreGauges({ scores }) {
     </div>
     <details className="score-gauges-detail">
       <summary>How the scores are worked out</summary>
-      <p className="model-note">Each measure has a weight; a score is the weighted share of its measures that passed. “Travels further” is a bonus for wider reuse and never enters the overall score. The weights are this tool’s judgement, not a standard.</p>
+      <p className="model-note">Each check has a weight; a score is the weighted share of its checks that passed. “Travels further” is a bonus for wider reuse and never enters the overall score. The weights are this tool’s judgement, not a standard.</p>
       {[...scores.categories, scores.bonus].map(category => <section key={category.id}>
         <h3>{category.label}{category.score != null ? `: ${category.score}` : ""}</h3>
         <ul>{category.audits.map(audit => <li key={audit.id}><span>{audit.label}</span> <span className={`score-audit score-audit--${audit.score == null ? "none" : audit.score >= 1 ? "pass" : audit.score <= 0 ? "fail" : "partial"}`}>{auditMark(audit.score)}</span></li>)}</ul>
