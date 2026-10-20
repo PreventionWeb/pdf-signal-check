@@ -6,7 +6,6 @@ import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitE
 import { normalizeFindings } from "./findings.js";
 import { checkedWith, findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
 import { Button, Card, Actions, Tag, Notice } from "../ui/react.jsx";
-import { Tabs } from "../ui/Tabs.jsx";
 import { Help } from "../help/Help.jsx";
 import { IdentityComparison } from "./IdentityComparison.jsx";
 import { OrderComparison, OrderTechnical } from "./OrderComparison.jsx";
@@ -192,8 +191,17 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     </EvidenceDrawer>}
     {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
   </>;
-  const pagesView = <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
+  // The summary heads the main column, beside the docked issue list.
+  const lead = <>
+    <ResultHero overview={overview} file={file}
+      exports={<ExportMenu ref={exportRef} getState={() => ({ report: controller.getSnapshot().report, file: controller.getSnapshot().file })} sourceKey={state.sourceKey} disabled={state.modelBusy} secondary compact />}
+      titleId={state.modelBusy ? undefined : "flow-title"} />
+    {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
+      <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
+  </>;
+  const pagesView = () => <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
     selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })} onShowAll={() => { setSelection(null); setFullOpen(true); }}
+    lead={lead} view={view} onView={setView} technical={technical}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
     </section>} />;
@@ -229,15 +237,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         <Checks state={state} controller={controller} batchBusy={state.batchBusy} showSettings={false} />
       </section>}
       <div hidden={state.modelBusy} inert={state.modelBusy || undefined}>
-      <ResultHero overview={overview} file={file}
-        exports={<ExportMenu ref={exportRef} getState={() => ({ report: controller.getSnapshot().report, file: controller.getSnapshot().file })} sourceKey={state.sourceKey} disabled={state.modelBusy} secondary compact />}
-        titleId={state.modelBusy ? undefined : "flow-title"} />
-      {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
-        <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
-      <Tabs label="Results" value={view} onChange={setView} tabs={[
-        { value: "pages", label: "What to fix", content: pagesView },
-        { value: "technical", label: "Technical details", content: technical },
-      ]} />
+      {pagesView()}
       {overlays}
       {state.batchId && <Actions><Button onClick={onReturnBatch}>Return to batch</Button></Actions>}
       </div>

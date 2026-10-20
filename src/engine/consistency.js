@@ -67,7 +67,12 @@ const words = text => tokens(text).length;
 function coverTitle(candidates, reference) {
   const cover = publicationCandidates(candidates).filter(c => /cover|tagged H1?$/.test(c.source || '') && withoutYears(tokens(c.text)).length >= 2);
   if (!cover.length) return null;
-  const score = c => (reference ? overlap(reference, c.text) : 0) + c.height / (c.maxHeight || c.height || 1) / 10 + Math.min(words(c.text), 12) / 200;
+  // Best word overlap with the reference, then the largest type. Among overlapping lines, fewer extra words wins (no run-on
+  // subtitles or headings); with no overlap at all, the fuller cover title wins over a fragment.
+  const score = c => {
+    const shared = reference ? overlap(reference, c.text) : 0;
+    return shared + c.height / (c.maxHeight || c.height || 1) / 10 + (shared > 0 ? -1 : 1) * Math.min(words(c.text), 30) / 300;
+  };
   return [...cover].sort((a, b) => score(b) - score(a))[0];
 }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { EvidenceCropService } from "../evidence/crops.js";
 import { Button, Switch } from "../ui/react.jsx";
+import { Tabs } from "../ui/Tabs.jsx";
 import { fixCard } from "./workspace.js";
 import { pagePins } from "./page-pins.js";
 import { readingOrderPlacement } from "../evidence/reading-order-placement.js";
@@ -14,7 +15,17 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  * The fix list placed on the PDF pages. The grouped legend is the accessible equivalent of the page images; pins
  * are buttons. Numbers match the PDF download. The side panel shows the selected item's detail (passed in as `detail`).
  */
-export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect, detail, onShowPage, onShowAll }) {
+export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect: select, detail, onShowPage, onShowAll,
+  lead = null, view = "pages", onView = () => {}, technical = null }) {
+  // On narrow screens the list and detail live in a bottom sheet; choosing anything opens it.
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const onSelect = (item, moveFocus) => { if (mobile()) setSheetOpen(true); select(item, moveFocus); };
+  useEffect(() => {
+    if (!sheetOpen) return undefined;
+    const close = event => { if (event.key === "Escape") setSheetOpen(false); };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [sheetOpen]);
   const { pages: pinnedPages, unlocated } = useMemo(() => pagePins(entries, report), [entries, report]);
   const [showOrder, setShowOrder] = useState(false);
   // With reading order on, every page with a recovered sequence is shown, not only pages with issues.
@@ -62,7 +73,8 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     </li>;
   };
   return <div className="page-pins">
-    <aside className="page-pins-panel">
+    <aside id="page-pins-panel" className={`page-pins-panel ${sheetOpen ? "is-open" : ""}`} aria-label="Issues and details">
+      <div className="page-pins-sheet-header"><strong>Issues ({entries.length})</strong><Button onClick={() => setSheetOpen(false)}>Close</Button></div>
       <nav className="page-pins-legend" aria-labelledby="page-pins-title">
         <h2 id="page-pins-title" className="mg-u-sr-only">Issues in this PDF</h2>
         {!entries.length && <p className="fix-bucket-empty">Nothing to fix or check was found automatically.</p>}
@@ -105,7 +117,9 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       </nav>
       {detail}
     </aside>
-    <div className="page-pins-pages">
+    <div className="page-pins-main">
+    {lead}
+    <Tabs label="Results" value={view} onChange={onView} tabs={[{ value: "pages", label: "What to fix", content: <div className="page-pins-pages">
       <div className="page-pins-toolbar">{orderToggle}<Button className="page-pins-show-all" onClick={onShowAll}>Show the whole PDF</Button>{showOrder && <span className="model-note">Blue numbers show the order screen readers follow. Pages without a recovered order have no numbers.</span>}</div>
       <section className="page-pins-page" aria-labelledby="page-pins-properties-title"
         ref={element => element ? pageRefs.current.set("properties", element) : pageRefs.current.delete("properties")}>
@@ -145,7 +159,12 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
         onSelect={number => onSelect(byNumber(number).item, mobile())} onShowPage={onShowPage}
         pageRef={element => element ? pageRefs.current.set(page, element) : pageRefs.current.delete(page)} />)}
       {shown < pages.length && <Button onClick={() => setShown(value => value + PAGE_BATCH)}>Show {Math.min(PAGE_BATCH, pages.length - shown)} more pages ({pages.length - shown} remaining)</Button>}
+    </div> }, { value: "technical", label: "Technical details", content: technical }]} />
     </div>
+    {/* Narrow screens: a persistent bar opens the list and the selected item's detail as a bottom sheet. */}
+    <button type="button" className="page-pins-sheet-toggle" aria-controls="page-pins-panel" aria-expanded={sheetOpen} onClick={() => setSheetOpen(open => !open)}>
+      <span>Issues ({entries.length}){selected ? ` · item ${selected} selected` : ""}</span><span aria-hidden="true">{sheetOpen ? "▾" : "▴"}</span>
+    </button>
   </div>;
 }
 
