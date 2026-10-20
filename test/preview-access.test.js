@@ -38,6 +38,12 @@ it('shares unlock between the app and legacy story in one base path, while isola
   expect(previewAccess({ storage: memory(), local, scope: previewScope('https://example.org/other/') }).isUnlocked()).toBe(false);
 });
 
+it('fingerprints PINs exactly as Mangrove PreviewAccess does, per UTF-16 unit', () => {
+  // Reference values from the 2.2.0 js/preview-access.js FNV-1a implementation.
+  expect(pinFingerprint('5498')).toBe('6ad1ce55');
+  expect(pinFingerprint('😀1')).toBe('685863ab');
+});
+
 it('relocks and removes local unlocks that expired, are future-dated, malformed or made with another PIN', () => {
   let time = 1000 * DAY;
   const local = memory(), now = () => time, scope = 'test';

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { previewAccess } from './preview-access.js';
+import { PREVIEW_MAX_AGE_DAYS, previewAccess } from './preview-access.js';
 import './preview-gate.css';
 
 /** Published Mangrove PreviewAccess markup, with React and a native dialog owning its lifetime. */
@@ -54,7 +54,7 @@ export function PreviewGate({ children, access: suppliedAccess }) {
         </div>
         <p className="mg-preview-access__error" id="preview-access-error" role="alert">{error}</p>
       </form>
-      <p className="mg-preview-access__contact">To get the PIN, contact the person who shared this preview with you.</p>
+      <p className="mg-preview-access__contact">To get the PIN, contact the person who shared this preview with you. After you enter it, this browser stays unlocked for {PREVIEW_MAX_AGE_DAYS} days.</p>
     </section>
   </dialog>;
 }

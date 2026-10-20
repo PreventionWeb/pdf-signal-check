@@ -1,6 +1,6 @@
 // This is a client-side preview notice, following Mangrove PreviewAccess, not authentication.
 export const PREVIEW_PIN = '5498';
-// Mangrove 2.2 `persist="local"`: unlocks are shared across visits and tabs until they expire.
+// Mangrove 2.2 `persist="local"`: unlocks are shared across visits and tabs until they expire. A non-positive age never expires, as upstream.
 export const PREVIEW_MAX_AGE_DAYS = 30;
 const DAY_MS = 86400000;
 function browserStorage(name) {
@@ -14,7 +14,8 @@ export function previewScope(baseURI = globalThis.document?.baseURI || 'http://l
 /** Mangrove's 32-bit FNV-1a PIN fingerprint, so a changed PIN relocks stored local unlocks. Not a security measure. */
 export function pinFingerprint(pin) {
   let hash = 0x811c9dc5;
-  for (const char of String(pin)) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 0x01000193); }
+  const str = String(pin);
+  for (let i = 0; i < str.length; i++) { hash ^= str.charCodeAt(i); hash = Math.imul(hash, 0x01000193); }
   return (hash >>> 0).toString(16);
 }
 export function previewAccess({ storage = previewStorage(), local = previewLocalStorage(), scope = previewScope(), pin = PREVIEW_PIN,
@@ -25,7 +26,7 @@ export function previewAccess({ storage = previewStorage(), local = previewLocal
     let entry;
     try { entry = JSON.parse(raw); } catch { return false; }
     const age = now() - entry?.at;
-    return entry?.pin === pinFingerprint(pin) && Number.isFinite(entry.at) && entry.at >= 0 && age >= 0 && age < maxAgeDays * DAY_MS;
+    return entry?.pin === pinFingerprint(pin) && Number.isFinite(entry.at) && entry.at >= 0 && age >= 0 && (!(maxAgeDays > 0) || age < maxAgeDays * DAY_MS);
   };
   const hasLocal = () => {
     try {

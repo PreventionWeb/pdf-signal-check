@@ -700,7 +700,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .about-compare-column { margin: 0; padding: 16px; border-radius: var(--mg-card-border-radius); background: rgb(var(--mg-color-neutral-25)); border: 1px solid rgb(var(--mg-color-neutral-200)); }
 .about-compare-column figcaption { font-weight: 700; margin-bottom: 8px; }
 /* Mangrove 2.2 still sizes every `.mg-content blockquote` as a pull quote, even inside classed islands; keep this comparison at body size. */
-.about-compare-column blockquote { margin: 0; font-size: inherit; line-height: inherit; }
+.about-compare-column blockquote { margin: 0; font-size: inherit; font-weight: inherit; line-height: inherit; }
 .about-compare-column blockquote p { margin: 0 0 10px; }
 .about-compare-column pre { margin: 0; white-space: pre-wrap; font-family: var(--mg-font-family-code, monospace); font-size: .875rem; line-height: 1.5; color: rgb(var(--mg-color-red-900)); }
 .about-phases { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 16px; }
