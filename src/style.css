@@ -509,6 +509,9 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
 .result-hero .mg-button { color: rgb(var(--mg-color-neutral-0)); border-color: rgb(var(--mg-color-neutral-0)); background: transparent; }
 .result-hero .mg-button:hover { background: rgb(var(--mg-color-neutral-0) / .12); }
 .result-hero .mg-button:focus-visible { outline: 2px solid rgb(var(--mg-color-neutral-0)); outline-offset: 4px; }
+/* The main download reads as the main action on the dark hero: filled, with the hero colour as text. */
+.result-hero .mg-button.mg-button-primary { background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-neutral-900, 23 23 23)); }
+.result-hero .mg-button.mg-button-primary:hover { background: rgb(var(--mg-color-neutral-0) / .88); }
 .figure-context { margin-block: 16px 24px; }
 .figure-context .evidence-crop { margin-block: 12px; }
 .figure-context .evidence-crop img { max-height: 420px; object-fit: contain; }
@@ -724,3 +727,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fix-tip-link { background: none; border: 0; padding: 0; font: inherit; color: var(--mg-color-link, #0468b1); text-decoration: underline; cursor: pointer; }
 .figure-description-note { font-weight: 600; margin: 8px 0; }
 .fix-ai-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 4px; font-size: .75rem; font-weight: 600; background: rgb(var(--mg-color-neutral-200, 230 230 230)); vertical-align: middle; }
+.review-export-json { margin: 4px 0 8px; }
+.review-export-link { background: none; border: 0; padding: 0; font: inherit; font-size: .875rem; color: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.review-export-link:disabled { opacity: .6; cursor: not-allowed; }
+.review-export-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
