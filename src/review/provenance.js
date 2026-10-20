@@ -19,6 +19,7 @@ export function findingProvenance(finding,report) {
     }
     return {kind:'rules',label:'Extracted PDF + consistency rules',help:'rules',detail:'Values the PDF states in different places are compared with rules: titles, dates, draft labels, language and decorative graphics beside captions. Rules can miss differences or flag intended ones.'};
   }
+  if(['machineMetadata','links','outline','crossReferences','figureData','detachedValues'].includes(path))return {kind:'rules',label:'Saved properties and PDF structure, read by rules',help:'rules',detail:'The tool reads the PDF’s saved properties, links, bookmarks and tags without AI. It checks that details are present, not that they are correct.'};
   if(['authorConsistency','readingOrder'].includes(path))return {kind:'heuristic',label:'Rule-based heuristic',help:'heuristic',detail:path==='authorConsistency'?'Recovered metadata is compared with a heuristic first-page byline candidate; authorship is not authenticated.':'A bounded numbered/spatial order clue; intended reading order still requires visual inspection.'};
   if(path==='metadataConsistency')return {kind:'rules',label:'Extracted PDF + title rules',help:'rules',detail:'Title strings are compared with recovered publication candidates. Candidate selection and normalization can miss issues.'};
   if(path==='attachments'&&actual?.status==='not-assessed')return {kind:'unassessed',label:'Attachment inventory not assessed',help:'attachments',detail:actual.reason || 'No completed attachment inventory is recorded.'};

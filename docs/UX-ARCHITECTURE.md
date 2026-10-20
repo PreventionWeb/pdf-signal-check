@@ -102,9 +102,13 @@ Cards whose bucket was decided by the on-device AI carry a small “AI” tag in
 
 Under the count headline, one bold sentence names where to start (“Start with: Add a document title.”), taken from the first Fix item (or Check item if there is no Fix), with how many other items it should also fix. It stops the count being read as a severity score and comes before any caveat. A small receipt line follows: “Checked with standard checks”, “…and on-device AI (MiniLM)”, or that AI was selected but had nothing to compare, with the scope caveat (such as image and chart meaning) appended to it rather than placed above the action. A saved-title or author comparison is not listed when nothing is saved, because the missing value is already its own Fix item.
 
+### For the person fixing it (October 2026)
+
+The former Technical evidence drawer opens from a “Details for whoever fixes it” link and is headed “For the person fixing it”. It has four parts and does not repeat the card: **What the tool found** (for document-property and language items, every saved property with its value or “Not saved”; for hidden text, each match with where and why; otherwise the recorded evidence, plus page links); **Where to change it** (the longer step text when it differs from the card, then one line each for Word, InDesign and Acrobat Pro); **PDF fields, for developers** (the exact dictionary, XMP or structure names); and **How the tool decided** (the source label and one sentence). Tool steps live in `src/review/fixer.js` and are general guidance for current tool versions.
+
 ### Quiet detail pane (October 2026)
 
-The detail pane has no card chrome. The plain notice is shown as larger lead text with a thin rule in the bucket colour (red Fix, gold Check), not a tinted box. Evidence is plain text and quotes without nested cards; a single hidden-instruction match is quoted once (in the lead), not again in the evidence. “What to change” keeps its heading without a panel. There is one main action (“Show on page”); “Technical evidence” is a text link.
+The detail pane has no card chrome. The plain notice is shown as larger lead text with a thin rule in the bucket colour (red Fix, gold Check), not a tinted box. Evidence is plain text and quotes without nested cards; a single hidden-instruction match is quoted once (in the lead), not again in the evidence. “What to change” keeps its heading without a panel. There is one main action (“Show on page”); “Details for whoever fixes it” is a text link.
 
 ### Item detail
 

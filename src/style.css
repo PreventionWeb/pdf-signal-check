@@ -821,3 +821,18 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fix-detail-lead--check { border-color: rgb(var(--mg-color-gold-800)); }
 .fix-detail-secondary { background: none; border: 0; padding: 0 4px; font: inherit; color: rgb(var(--mg-color-interactive)); text-decoration: underline; cursor: pointer; }
 .fix-detail-secondary:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
+/* "For the person fixing it" drawer. */
+.fixer-section { margin-bottom: 20px; }
+.fixer-section h3 { font-size: 1rem; margin: 0 0 6px; }
+.fixer-section p { margin: 0 0 6px; }
+.fixer-properties { width: 100%; border-collapse: collapse; font-size: .9375rem; }
+.fixer-properties th, .fixer-properties td { text-align: start; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); overflow-wrap: anywhere; }
+.fixer-properties th { width: 40%; font-weight: 600; }
+.fixer-missing { color: rgb(var(--mg-color-red-900)); font-weight: 600; }
+.fixer-steps { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; font-size: .9375rem; }
+.fixer-steps dt { font-weight: 600; }
+.fixer-steps dd { margin: 0; }
+.fixer-fields { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8125rem; color: var(--muted); }
+.fixer-list { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; }
+.fixer-where { display: block; font-size: .875rem; font-weight: 600; color: var(--muted); }
+.fixer-section .finding-evidence h4 { font-size: .9375rem; margin: 12px 0 4px; }

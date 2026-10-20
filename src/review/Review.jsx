@@ -15,13 +15,13 @@ import { EvidenceDrawer } from "./EvidenceDrawer.jsx";
 import { Crop } from "../evidence/Crop.jsx";
 import { PreviewDialog } from "../evidence/PreviewDialog.jsx";
 import { candidateBlocks } from "../geometry.js";
-import { MetadataGuidance } from "./MetadataGuidance.jsx";
 import { FigureContext } from "./FigureContext.jsx";
 import { FigureGroup } from "./FigureGroup.jsx";
 import { ConsistencyDetail } from "./ConsistencyDetail.jsx";
 import { ResultHero } from "./ResultHero.jsx";
 import { ScoreGauges } from "./ScoreGauges.jsx";
 import { pdfScores } from "./scores.js";
+import { fixerDetails } from "./fixer.js";
 import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins } from "./PagePins.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
@@ -176,7 +176,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       </section>}
       <Actions className="fix-actions">
         {firstTarget && <Button variant="primary" onClick={() => inspect(firstTarget)}>Show on page {firstTarget.page}</Button>}
-        <button type="button" className="fix-detail-secondary" onClick={() => setDrawerOpen(true)}>Technical evidence</button>
+        <button type="button" className="fix-detail-secondary" onClick={() => setDrawerOpen(true)}>Details for whoever fixes it</button>
       </Actions>
       {(task.why || finding.whyItMatters) && <details className="fix-why">
         <summary>Why this matters</summary>
@@ -186,11 +186,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   );
   const overlays = <>
     {drawerOpen && finding && <EvidenceDrawer title={card.title} onClose={() => setDrawerOpen(false)}>
-      <section>
-        <h3>Detailed steps</h3>
-        <Guidance text={task.detailAction || (task.summary ? task.action : finding.whatToInspect)} />
-        {finding.source?.checkId === "title" && finding.outcome === "fail" && <MetadataGuidance />}
-      </section>
+      <FixerSections finding={finding} report={report} method={method} change={card.change} detail={task.detailAction} targets={drawerTargets} onInspect={inspect} />
       {headingGroup ? <section aria-label="Headings and the text the AI compared">
         {headingGroup.sharedModel && <p className="model-note">Model used for these headings: {headingGroup.sharedModel.label || headingGroup.sharedModel.id}.</p>}
         {headingGroup.members.map(({ finding: member, method: memberMethod }) => <section key={member.id} className="heading-review-pair">
@@ -201,12 +197,10 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         </section>)}
         {headingGroup.sharedModel && <p className="model-note">The AI compares short excerpts and may miss important context. The detailed JSON retains exact inputs and technical scores.</p>}
       </section> : <>
-        <MethodEvidence finding={finding.figureGroup ? finding.members[0] : finding} method={method} />
         <ScreeningInputs finding={finding} method={method} />
       </>}
       {kind === "order" && <OrderTechnical report={report} onInspect={inspect} />}
       {kind === "attachments" && <AttachmentInventory inventory={report.attachments} />}
-      {drawerTargets.length > 0 && <PageLocations targets={drawerTargets} onInspect={inspect} />}
     </EvidenceDrawer>}
     {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
   </>;
@@ -298,7 +292,7 @@ function SemanticExcerpts({ finding }) {
 function PageLocations({ targets, onInspect }) {
   const [limit, setLimit] = useState(12);
   return <section className="finding-evidence">
-    <h3>Page locations</h3>
+    <h4>Where in the PDF</h4>
     {targets.slice(0, limit).map((t, i) => <Button className="location-button" key={i} onClick={() => onInspect(t)}>
       {t.page ? `Page ${t.page}: ${t.text || "evidence"}` : "Document finding · no page location"}
     </Button>)}
@@ -318,6 +312,37 @@ function Guidance({ text }) {
         "Compare the recovered evidence with the source document, then export a revised PDF and recheck it."}
     </p>
   );
+}
+/** For the person fixing it: what was found, where to change it, field names, and how the tool decided. */
+function FixerSections({ finding, report, method, change, detail, targets = [], onInspect }) {
+  const matches = finding.comparison?.matches || [];
+  const details = fixerDetails(finding, report);
+  const evidence = (finding.figureGroup ? finding.members[0] : finding).evidence?.filter(item => typeof item === "string").slice(0, 12) || [];
+  return <>
+    <section className="fixer-section">
+      <h3>What the tool found</h3>
+      {details.properties ? <table className="fixer-properties"><tbody>{details.properties.map(row => <tr key={row.label}><th scope="row">{row.label}</th>
+        <td className={row.value ? undefined : "fixer-missing"}>{row.value || "Not saved"}</td></tr>)}</tbody></table>
+        : matches.length ? <ul className="fixer-list">{matches.map((match, i) => <li key={i}>
+          <span className="fixer-where">{match.page ? `Page ${match.page}` : match.field || "Document details"}{match.reasons?.length ? ` · ${hidingLabel(match.reasons)}` : ""}</span>
+          <q>{match.text}</q></li>)}</ul>
+        : evidence.length ? evidence.map((text, i) => <p key={i}>{text}</p>) : <p>{finding.summary}</p>}
+      {targets.length > 0 && <PageLocations targets={targets} onInspect={onInspect} />}
+    </section>
+    {(details.steps.length > 0 || (detail && detail !== change)) && <section className="fixer-section">
+      <h3>Where to change it</h3>
+      {detail && detail !== change && <p>{detail}</p>}
+      {details.steps.length > 0 && <dl className="fixer-steps">{details.steps.map(([tool, step]) => <React.Fragment key={tool}><dt>{tool}</dt><dd>{step}</dd></React.Fragment>)}</dl>}
+    </section>}
+    {details.fields && <section className="fixer-section">
+      <h3>PDF fields, for developers</h3>
+      <p className="fixer-fields">{details.fields}</p>
+    </section>}
+    <section className="fixer-section">
+      <h3>How the tool decided</h3>
+      <p><strong>{method.label}.</strong> {method.detail}</p>
+    </section>
+  </>;
 }
 function MethodEvidence({ finding, method, headingLevel = 'h3' }) {
   const Heading = headingLevel;
