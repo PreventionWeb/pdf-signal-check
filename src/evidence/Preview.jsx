@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { readingOrderPlacement } from "./reading-order-placement.js";
 import { PreviewSession } from "./preview-session.js";
 import { Button, Select, Notice } from "../ui/react.jsx";
+import { SegmentedControl } from "@undrr/undrr-mangrove/components/SegmentedControl.js";
 export function Preview({ file, report, selection }) {
   const canvas = useRef(null),
     svg = useRef(null),
@@ -123,18 +124,13 @@ export function Preview({ file, report, selection }) {
             ["2", "200%"],
           ].map(([value, label]) => ({ value, label }))}
         />
-        <Select
-          id="preview-overlay"
-          label="Evidence overlay"
-          hideLabel
-          value={mode}
-          onChange={(e) => setMode(e.target.value)}
+        {/* What to draw over the page: a pill toggle (published SegmentedControl), not a menu. */}
+        <SegmentedControl legend="Show on the page" hideLegend name="preview-overlay" size="small" value={mode} onChange={event => setMode(event.target.value)}
           options={[
-            ["issues", "Issue regions"],
-            ["order", !hasReadingOrder ? "Reading order (none found)" : placement.located === 0 ? "Reading order (text only)" : "Reading order"],
-            ["none", "No overlay"],
-          ].map(([value, label]) => ({ value, label }))}
-        />
+            { value: "issues", label: "Issues" },
+            { value: "order", label: placement.located === 0 && hasReadingOrder ? "Reading order (text only)" : "Reading order", disabled: !hasReadingOrder },
+            { value: "none", label: "Page only" },
+          ]} />
       </div>
       <p role="status">{view.message}</p>
       {!(mode === 'order' && placement.located === 0) && <p className="model-note">{mode === 'order' ? 'Numbers show the order screen readers follow on this page. Compare it with the order you expect. Some text may have no number if its position couldn’t be found.' : 'Outlines: red for text screen readers can’t reach, amber for graphics, a dashed orange box around the selected item. Positions are approximate.'}</p>}

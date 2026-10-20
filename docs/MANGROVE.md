@@ -289,3 +289,7 @@ Verified with `npm test` (all passing), `npm run build`, and headless Chromium u
 ## Snackbar (toast) for downloads — 20 October 2026
 
 The pinned 2.2.0 package ships the Snackbar as theme CSS (`mg-snackbar-wrapper`, `mg-snackbar`, `mg-snackbar__message`) with no React module. `src/ui/Toast.jsx` is a documented native adaptation: the theme's fixed wrapper, portalled to the body, around the published `Notice` with `className="mg-snackbar"`. Export progress stays open; a completed download closes after six seconds; failures use the negative notice and stay until dismissed. Progress uses `role="status"`, failures `role="alert"`. The inline export status line and the “keep them after closing this tab” note were removed from the results hero.
+
+## Inspect your PDF overlay toggle — 20 October 2026
+
+The preview's overlay choice (Issues / Reading order / Page only) uses the published, pinned `SegmentedControl` (small) instead of a select menu. Reading order is a disabled option when the PDF has no recovered sequence.
