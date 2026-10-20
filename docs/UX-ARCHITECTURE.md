@@ -36,17 +36,15 @@ Choose the workflow state before rendering content. A later section must not com
 | First-use setup | Purpose-first choice: standard checks, or standard checks plus multilingual AI (recommended) or English AI. Keep supported languages and model/tokenizer/runtime download costs visible before explicit consent. Stack the choices on phones. | Model identifiers; a technical disclosure for excerpt limits and speed details; an optional device speed test with its limitations. | PDF processing before setup completion; fake speed or cache certainty; treating standard checks as a failed or inappropriate choice. |
 | Structural analysis | A checking heading and observed page progress. | Relevant preparation status and cancellation/recovery. | Provisional final results competing with ongoing work. |
 | AI analysis | “Checking your PDF”; a stable progress notice, plain stage text, visible small progress detail and Cancel AI checks. | Short explanation that cancellation retains completed checks. | Fix list, headline, exports and technical record while processing is active. |
-| Repair-first gate | “This PDF needs basic fixes first”; critical missing-information notice, practical repair instructions and Choose an updated PDF. | Official Word, Acrobat and InDesign guidance. | Checklist, other findings, technical record, exports and useless repeat-analysis actions. |
+| Missing document information | No separate gate (removed October 2026). The missing saved title is a Fix item like any other, and every other result is shown. When AI was selected, a plain notice explains that AI comparisons need a saved title, description or keywords, with the saved values and Word/Acrobat/InDesign steps. | Official authoring-tool guidance. | Hiding other findings; useless repeat-analysis actions. |
 | Completed review | Small filename; outcome H1; Choose another PDF beside the headline on desktop; review task list and selected analysis. | Specific scope caveat, limitations, explanations and report downloads. | Redundant overview paragraphs, separate full-findings browser, successful checks competing with actions. |
 | AI failure, cancellation or no usable comparisons | Plain recovery notice identifying what stopped and what remains available. A useful retry or corrective action. | Technical error reference and settings. | Indefinite preparation state; raw exception as the only explanation; retry for identical known unusable inputs. |
 
 Successful checks remain represented in reports and the secondary technical record. Removing a full-findings browser must not remove report data. “No problems detected” describes completed detection, not certification that the PDF is accessible, factually accurate or suitable for every AI system. Scope limitations must remain understandable even in this state.
 
-### Repair gate policy
+### Missing document information
 
-The current `needsDocumentInformation(report)` gate applies to a **completed analysis with no nonblank saved Info/XMP title, subject or keywords**. It applies in the no-AI workflow too. It hides presentation, while the original report and structural acceptance remain intact. A subsequent analysis with any of these values present ends this specific gate; remaining defects still require review.
-
-This is a product prerequisite requested for the missing-information case. It does **not** establish that all three fields are mandatory under a PDF standard, that every PDF lacking them is unreadable, or that AI cannot compare tagged section text without them. Keep “cannot be evaluated” tied to continuing this application's evaluation, rather than a universal statement about the file.
+Until October 2026, `needsDocumentInformation(report)` hid all results when a completed analysis had no saved title, subject or keywords. In a set of 20 real public reports, 11 had none of these, so the gate hid most results, including consistency findings that need no saved metadata. It was removed at the product owner's request. The function remains: it now only decides whether to show the “AI comparisons need a saved title, description or keywords” notice when AI was selected. A missing saved title is still a required-check Fix item. This does not claim the three fields are mandatory under a PDF standard.
 
 The separate `hasUnchangedNoInputs` guard concerns a recorded AI attempt with the same pinned model, selected checks and language. It prevents a pointless repeat attempt; it must not become a structural failure or silently change the selected model.
 
@@ -143,8 +141,7 @@ Deterministic acceptance is independent of AI advisories and UI grouping. An AI 
 
 ## Open decisions and tradeoffs
 
-- **Gate scope and real reports:** in October 2026, 11 of 20 real public reports tried had no saved title, description or keywords, so this gate hid all their other results, including consistency findings that need no saved metadata.
-- **Gate scope:** the current all-metadata-absent gate is deliberately narrower than “every title defect” and independent of AI eligibility. Adding only keywords currently unblocks it. Whether a usable saved title should instead be required is unresolved product policy; do not change the threshold during a copy/layout audit.
+- **Missing document information:** the results gate was removed in October 2026 (see above). Whether a missing description or keywords should rank higher than other fixes is still open.
 - **Gate wording:** “cannot be evaluated” is the requested stop headline, but parsing has already occurred and some checks may be possible. Supporting copy must make the application's repair prerequisite clear without asserting a universal PDF requirement.
 - **Disclosure:** correction guidance stays visible as one “What to change” line; full steps, method, AI inputs and locations sit one click away in the drawer. Repair instructions on the blocking metadata screen stay visible.
 - **Task grouping:** headings are explicitly grouped. Other repeated findings may benefit from grouping, but an audit should recommend the grouping boundary and preserve member contracts before changing it.

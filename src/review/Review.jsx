@@ -17,7 +17,6 @@ import { Crop } from "../evidence/Crop.jsx";
 import { PreviewDialog } from "../evidence/PreviewDialog.jsx";
 import { candidateBlocks } from "../geometry.js";
 import { MetadataGuidance } from "./MetadataGuidance.jsx";
-import { needsDocumentInformation } from "../runtime/screening-recovery.js";
 import { FigureContext } from "./FigureContext.jsx";
 import { FigureGroup } from "./FigureGroup.jsx";
 import { ConsistencyDetail } from "./ConsistencyDetail.jsx";
@@ -123,10 +122,6 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             ? "attachments"
             : null
     : null;
-  if (!state.modelBusy && needsDocumentInformation(report)) return <section aria-labelledby="flow-title">
-    <h1 id="flow-title" className="flow-title" tabIndex={-1}>This PDF needs basic fixes first</h1>
-    <Checks state={state} controller={controller} batchBusy={state.batchBusy} showSettings={false} />
-  </section>;
   const firstTarget = kind === "order" || finding?.figureGroup || finding?.members ? null : targets.find(t => t.page);
   const drawerTargets = finding?.members ? finding.members.flatMap(member => member.targets || []) : targets;
   const showOrder = kind === "order" && !finding.comparison?.readingSequenceMissing;

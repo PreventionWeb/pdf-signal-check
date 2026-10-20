@@ -13,7 +13,7 @@ import { summarizeAnnotations, inspectLinks, inspectCrossReferences, inspectOutl
 
 export { pdfjs };
 export const PROFILE = 'text-actionability-0.3';
-export const LIMITS = { maxBytes: 50 * 1024 * 1024, maxPages: 200, maxOperators: 1_000_000, maxTextItems: 250_000 };
+export const LIMITS = { maxBytes: 50 * 1024 * 1024, maxPages: 500, maxOperators: 1_000_000, maxTextItems: 250_000 };
 const check = (id, label, status, summary, evidence = []) => ({ id, label, required: true, status, summary, evidence });
 
 export function finalize(report) {

@@ -309,7 +309,7 @@ export function BatchPanel({ controller, requireAI = false }) {
             }}
           />
           <p className="model-note">
-            Up to 20 files · 300 MB total · 50 MB each · engine limit 200 pages
+            Up to 20 files · 300 MB total · 50 MB each · engine limit 500 pages
             per file
           </p>
         </Card>

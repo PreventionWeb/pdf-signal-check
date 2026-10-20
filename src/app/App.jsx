@@ -19,7 +19,6 @@ import { SetupDialog } from "./SetupDialog.jsx";
 import { LanguageDialog } from "./LanguageDialog.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
 import { ReviewLoader } from "../review/ReviewLoader.jsx";
-import { needsDocumentInformation } from "../runtime/screening-recovery.js";
 import {
   PRESENTATION_BRAND,
   PRODUCT_NAME,
@@ -174,7 +173,7 @@ export function App() {
                     {title}
                   </h1>
                 )}
-                {state.file && state.stage !== "batch" && state.stage !== "document" && (!["checks", "review"].includes(state.stage) || needsDocumentInformation(state.report)) && (
+                {state.file && state.stage !== "batch" && state.stage !== "document" && !["checks", "review"].includes(state.stage) && (
                   <p className="flow-file">
                     {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
                   </p>
@@ -333,7 +332,7 @@ function Entry({ state, controller, batchBusy, onAbout, onWatch }) {
           <div className="mg-card__content">
             <div className="mg-card__meta"><span className="mg-card__label">Your PDF</span></div>
             <h2 className="mg-card__title" id="upload-title">Check your own PDF</h2>
-            <p className="mg-card__summary">Drag a PDF onto this box or choose one from your device. Up to 50 MB and 200 pages. It never leaves this device.</p>
+            <p className="mg-card__summary">Drag a PDF onto this box or choose one from your device. Up to 50 MB and 500 pages. It never leaves this device.</p>
             {/* The visually hidden file input is the focusable control; its label is styled as the primary button. */}
             <label className="mg-button mg-button-primary upload-button" htmlFor="file-input">Choose a PDF</label>
             <input

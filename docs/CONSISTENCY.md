@@ -49,5 +49,5 @@ False positives found and fixed during this pass: footer page-number stripping c
 
 ## Not changed
 
-- The missing-information gate (`needsDocumentInformation`) still hides all results when a PDF has no saved title, description or keywords. That covered 11 of the 20 reports above, including GAR 2025 and the Annual Report 2025, so these findings are not shown for them. Whether to keep the gate is an open product decision (see [UX architecture](UX-ARCHITECTURE.md)).
+- The missing-information gate that hid all results for PDFs without a saved title, description or keywords was removed after this pass, so these findings now show for those reports too. The analysis page cap was raised from 200 to 500 pages: GAR 2025 (253 pages, 36 MB) took about 16 s in Node and produced a 21 MB report, within the existing 50 MB, operation and text-item limits.
 - The page-by-page “Check graphics marked as decorative” group stays in Check. Moving it would change the story's recorded headline counts and narration.

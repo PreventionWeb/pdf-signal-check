@@ -40,12 +40,11 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
     <p className="model-note">Cancelling keeps the completed text checks and any previous AI results.</p>
     {state.message && <p className="model-note">{state.message}</p>}
   </Notice>;
-  if (showStatus && needsDocumentInformation(state.report)) return <Notice headingLevel="h2" variant="negative" title="Critical document information is missing">
-    <p>No title, subject description or keywords are saved in this PDF’s document properties. This basic information is needed before continuing with more detailed analysis.</p>
-    <p>A title printed on the page or used as the file name does not supply the saved document title that software needs.</p>
+  // Missing document information no longer hides results: the title Fix item leads, and AI comparisons explain why they could not run.
+  if (showStatus && needsDocumentInformation(state.report)) return <Notice headingLevel="h2" variant="info" title="AI comparisons need a saved title, description or keywords">
+    <p>No title, description or keywords are saved in this PDF’s document properties, so there was nothing for the AI to compare with the text. All the other checks ran, and their results are below.</p>
     <DocumentProperties metadata={state.report.metadata} />
     <MetadataGuidance headingLevel="h3" />
-    <Button onClick={() => controller.go('document')} disabled={busy}>Choose an updated PDF</Button>
   </Notice>;
   return <section className="check-coverage" aria-label="Check coverage">
     {showStatus && noInputs && <Notice headingLevel="h3" variant="warning" title={metadataHelp ? 'Add document information before running AI checks' : 'AI needs usable text to compare'}>
