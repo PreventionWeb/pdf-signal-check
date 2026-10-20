@@ -150,7 +150,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       <Button className="review-list-back" onClick={() => { const current = document.querySelector('.page-pins-entry[aria-current="true"]'); current?.scrollIntoView({ block: "center", behavior: "instant" }); current?.focus({ preventScroll: true }); }}>Back to the list</Button>
       <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? ` · ${card.where}` : ""}</p>
       <h2 className="review-detail-title" id="finding-title" tabIndex={-1} ref={titleRef}>{card.title}</h2>
-      <Notice variant={{ fix: "negative", check: "warning", unknown: "info", travel: "info" }[bucket]} icon={false}><p>{card.summary}</p></Notice>
+      {/* The one sentence that matters: plain lead text with a thin bucket-coloured rule, not a boxed notice. */}
+      <p className={`fix-detail-lead fix-detail-lead--${bucket}`}>{card.summary}</p>
       {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
       {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} onInspect={inspect} />
         : finding.source?.path?.startsWith("consistency.") || finding.consistencyGroup ? <ConsistencyDetail finding={finding} file={file} report={report} onInspect={inspect} />
@@ -175,7 +176,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       </section>}
       <Actions className="fix-actions">
         {firstTarget && <Button variant="primary" onClick={() => inspect(firstTarget)}>Show on page {firstTarget.page}</Button>}
-        <Button onClick={() => setDrawerOpen(true)}>Technical evidence</Button>
+        <button type="button" className="fix-detail-secondary" onClick={() => setDrawerOpen(true)}>Technical evidence</button>
       </Actions>
       {(task.why || finding.whyItMatters) && <details className="fix-why">
         <summary>Why this matters</summary>
@@ -276,9 +277,10 @@ const CHANNELS = { property: "Document properties", "image-description": "Image 
 function HiddenInstructions({ matches, onInspect }) {
   return <ul className="hidden-instructions">{matches.map((match, index) => <li key={index}>
     <p className="hidden-instructions-where">{match.kind === "page" ? `Page ${match.page} · ${hidingLabel(match.reasons)}` : `${CHANNELS[match.kind] || "Document details"}${match.field ? ` · ${match.field}` : ""}${match.page ? ` · page ${match.page}` : ""}`}</p>
-    <blockquote>{match.text}</blockquote>
+    {/* A single match is already quoted in the lead sentence; quote it again only when there are several. */}
+    {matches.length > 1 && <blockquote>{match.text}</blockquote>}
     <p className="hidden-instructions-why">{match.labels?.join("; ")}</p>
-    {match.kind === "page" && match.quads?.length > 0 && <Button onClick={() => onInspect({ page: match.page, quads: match.quads, text: match.text })}>Show on page {match.page}</Button>}
+    {matches.length > 1 && match.kind === "page" && match.quads?.length > 0 && <Button onClick={() => onInspect({ page: match.page, quads: match.quads, text: match.text })}>Show on page {match.page}</Button>}
   </li>)}</ul>;
 }
 const excerpt = text => { const value = String(text || "").replace(/\s+/g, " ").trim(); return value.length > 220 ? `${value.slice(0, 219)}…` : value; };

@@ -569,7 +569,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fix-dot--check { background: rgb(var(--mg-color-gold-800)); }
 .fix-dot--unknown { background: rgb(var(--mg-color-neutral-300)); }
 .fix-dot--travel { background: rgb(var(--mg-color-interactive)); }
-.fix-change { margin-block: 20px 12px; padding: 12px 16px; background: rgb(var(--mg-color-neutral-25)); border-radius: var(--mg-card-border-radius); }
+.fix-change { margin-block: 20px 12px; }
 .fix-change h3 { font-size: 1rem; margin: 0 0 4px; }
 .fix-change p { margin: 0; }
 .fix-actions { margin-block: 12px; }
@@ -702,7 +702,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .intake-hero-points span { font-size: .9375rem; line-height: 1.45; }
 @media (max-width: 700px) { .intake-hero .mg-hero__split-grid { grid-template-columns: minmax(0, 1fr); } }
 .hidden-instructions { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 12px; }
-.hidden-instructions li { padding: 12px 14px; border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: var(--mg-card-border-radius); }
+.hidden-instructions li { padding: 0; }
 .hidden-instructions-where { margin: 0 0 6px; font-size: .875rem; font-weight: 600; color: var(--muted); }
 .hidden-instructions blockquote { margin: 0 0 6px; padding-inline-start: 12px; border-inline-start: 3px solid rgb(var(--mg-color-gold-800)); overflow-wrap: anywhere; }
 .hidden-instructions-why { margin: 0 0 8px; font-size: .875rem; }
@@ -812,3 +812,12 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .score-gauges-detail li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); padding: 4px 0; }
 .score-audit { white-space: nowrap; font-weight: 600; }
 .score-audit--pass { color: #0b7a3e; } .score-audit--fail { color: #c5221f; } .score-audit--partial { color: #b35a00; } .score-audit--none { color: rgb(var(--mg-color-neutral-600, 90 90 90)); font-weight: 400; }
+
+/* Quiet detail pane: no card chrome, one lead sentence, plain evidence, one main action. */
+.page-pins-detail-pane .problem-frame { border: 0; box-shadow: none; background: transparent; }
+.page-pins-detail-pane .problem-frame > .mg-card__content, .page-pins-detail-pane .problem-frame { padding-inline: 0; }
+.fix-detail-lead { font-size: 1.125rem; line-height: 1.5; margin: 12px 0 16px; padding-inline-start: 14px; border-inline-start: 4px solid rgb(var(--mg-color-neutral-300)); }
+.fix-detail-lead--fix { border-color: rgb(var(--mg-color-red-900)); }
+.fix-detail-lead--check { border-color: rgb(var(--mg-color-gold-800)); }
+.fix-detail-secondary { background: none; border: 0; padding: 0 4px; font: inherit; color: rgb(var(--mg-color-interactive)); text-decoration: underline; cursor: pointer; }
+.fix-detail-secondary:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
