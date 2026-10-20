@@ -748,3 +748,12 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .review-export-link:disabled { opacity: .6; cursor: not-allowed; }
 .review-export-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .page-pins-panel .review-detail-title { scroll-margin-top: 72px; }
+/* Wide screens: three docked panes across the full window — issue list, selected item, then summary and pages. */
+@media (min-width: 1200px) {
+  .page-pins { grid-template-columns: minmax(260px, 320px) minmax(360px, 480px) minmax(0, 1fr); gap: 24px;
+    width: 100vw; margin-inline: calc(50% - 50vw); padding-inline: 24px; box-sizing: border-box; }
+  .page-pins-panel { display: contents; }
+  .page-pins-legend, .page-pins-detail-pane { position: sticky; top: 0; max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .page-pins-legend { border-bottom: 0; padding: 4px 8px 16px 4px; }
+  .page-pins-detail-pane { padding: 4px; }
+}

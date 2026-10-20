@@ -56,7 +56,7 @@ The results screen has two tabs: **What to fix** (the pages view) and **Technica
 
 ### Docked layout (October 2026)
 
-The issue list (grouped legend and the selected item's detail) is a docked panel on the left, full window height with its own scroll. The main column on the right holds the results summary (headline, start-with line, receipt, downloads), then the What to fix / Technical details tabs, then the pages or the technical record. Switching tabs keeps the issue list in place. Below 820 px the list and detail become a bottom sheet: a persistent “Issues (n)” bar opens it, choosing a pin or item opens it at that item's detail, and Close or Escape returns to the pages.
+The issue list (grouped legend and the selected item's detail) is a docked panel on the left, full window height with its own scroll. The main column on the right holds the results summary (headline, start-with line, receipt, downloads), then the What to fix / Technical details tabs, then the pages or the technical record. Switching tabs keeps the issue list in place. From 1200 px the workspace spans the full window as three docked panes: issue list, selected item's detail, then the summary and pages; each pane scrolls on its own. Below 820 px the list and detail become a bottom sheet: a persistent “Issues (n)” bar opens it, choosing a pin or item opens it at that item's detail, and Close or Escape returns to the pages.
 
 ### Buckets
 
