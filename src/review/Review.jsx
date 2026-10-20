@@ -26,16 +26,15 @@ import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins } from "./PagePins.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
 
-/** Below 820 px the summary leads the page and the issue list becomes a bottom sheet. */
-function useNarrow() {
-  const query = "(max-width: 820px)";
-  const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
+/** Whether a media query matches, kept in step with the window. */
+function useMedia(query) {
+  const [matches, setMatches] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
   useEffect(() => {
-    const media = window.matchMedia(query), update = () => setNarrow(media.matches);
+    const media = window.matchMedia(query), update = () => setMatches(media.matches);
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, []);
-  return narrow;
+  }, [query]);
+  return matches;
 }
 const BUCKETS = {
   fix: { label: "Fix", intro: "Problems found in this PDF." },
@@ -53,7 +52,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     [drawerOpen, setDrawerOpen] = useState(false),
     // Inbox-style selection: the Overview and Technical details entries, or null when an issue is selected.
     [special, setSpecial] = useState("overview"),
-    narrow = useNarrow(),
+    // Below 1200 px there is no third pane, so the summary leads the main column instead of being an inbox entry (below 820 px the list is a bottom sheet).
+    summaryLeads = useMedia("(max-width: 1199px)"),
     focusFinding = useRef(false),
     titleRef = useRef(null),
     detailRef = useRef(null);
@@ -220,9 +220,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   </>;
   const pagesView = () => <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
     selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })} onShowAll={() => { setSelection(null); setFullOpen(true); }}
-    lead={lead} special={narrow && special === "overview" ? null : special} onSpecial={setSpecial} technical={technical} narrow={narrow}
+    lead={lead} special={summaryLeads && special === "overview" ? null : special} onSpecial={setSpecial} technical={technical} summaryLeads={summaryLeads}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
-      {special === "overview" && !narrow ? lead
+      {special === "overview" && !summaryLeads ? lead
         : special === "technical" ? methodCard
         : detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
     </section>} />;

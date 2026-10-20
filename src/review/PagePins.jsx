@@ -15,7 +15,7 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  * are buttons. Numbers match the PDF download. The side panel shows the selected item's detail (passed in as `detail`).
  */
 export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect: select, detail, onShowPage, onShowAll,
-  lead = null, special = null, onSpecial = () => {}, technical = null, narrow = false }) {
+  lead = null, special = null, onSpecial = () => {}, technical = null, summaryLeads = false }) {
   // On narrow screens the list and detail live in a bottom sheet; choosing anything opens it.
   const [sheetOpen, setSheetOpen] = useState(false);
   const onSelect = (item, moveFocus) => { if (mobile()) setSheetOpen(true); select(item, moveFocus); };
@@ -86,7 +86,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       <div className="page-pins-sheet-header"><strong>Issues ({entries.length})</strong><Button onClick={() => setSheetOpen(false)}>Close</Button></div>
       <nav className="page-pins-legend" aria-labelledby="page-pins-title">
         <h2 id="page-pins-title" className="mg-u-sr-only">Issues in this PDF</h2>
-        {!narrow && specialEntry("overview", "Overview", "Summary and downloads")}
+        {!summaryLeads && specialEntry("overview", "Overview", "Summary and downloads")}
         {!entries.length && <p className="fix-bucket-empty">Nothing to fix or check was found automatically.</p>}
         {["fix", "check"].map(bucket => {
           const items = entries.filter(entry => entry.bucket === bucket);
@@ -129,7 +129,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       {detail}
     </aside>
     <div className="page-pins-main">
-    {narrow && lead}
+    {summaryLeads && lead}
     {special === "technical" ? <section className="page-pins-technical" aria-label="Technical details">{technical}</section> : <div className="page-pins-pages">
       <div className="page-pins-toolbar">{orderToggle}<Button className="page-pins-show-all" onClick={onShowAll}>Show the whole PDF</Button>{hasOrder && showOrder && <span className="model-note">Blue numbers show the order screen readers follow. Pages without a recovered order have no numbers.</span>}</div>
       {!hasOrder && <div id="page-pins-order-unavailable" className="page-pins-order-unavailable"><Notice variant="warning">
@@ -161,8 +161,8 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
               <div>
                 <h4>{entry.title}</h4>
                 <p className="fix-card-where">{unplacedLabel(entry)}</p>
-                <p>{entry.summary}</p>
-                {entry.change && <p><strong>What to change:</strong> {entry.change}</p>}
+                {/* A pointer like a page pin: one line here, the full summary and What to change in the detail pane. */}
+                {entry.summary && <p>{brief(entry.summary)}</p>}
                 {entry.item.source?.path === "readingOrder" && hasOrder && orderToggle}
               </div>
             </li>;
@@ -219,7 +219,7 @@ function TippedPin({ entry, selected, onSelect }) {
     </span>}
   </span>;
 }
-const brief = text => { const value = String(text || "").trim(); return value.length > 160 ? `${value.slice(0, 159)}…` : value; };
+const brief = text => { const value = String(text || "").trim(); if (value.length <= 160) return value; const cut = value.slice(0, 159); return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 120))}…`; };
 function PinnedPage({ page, pins, order, service, selected, onSelect, onShowPage, pageRef, describe = () => null }) {
   const element = useRef(null);
   // Hover or keyboard focus on a pin or its outline explains the issue in one line; Escape hides it.
