@@ -73,6 +73,12 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       <ul>
         <li>Selected model: {model?.label || 'No AI model selected for new checks'}. Completed AI checks are recorded above.</li>
         {coverage.map(f => <li key={f.id}><strong>{f.title}:</strong> {f.summary}</li>)}
+        {semantic?.inferencePerformed && <li><strong>Consistency comparisons:</strong> {[
+          semantic.factCoverage && `${semantic.factCoverage.compared} of ${semantic.factCoverage.candidates} sentences stating a figure compared (${(semantic.factPairs || []).length} pair${(semantic.factPairs || []).length === 1 ? '' : 's'} with different numbers)`,
+          `${(semantic.figureItems || []).length} image description${(semantic.figureItems || []).length === 1 ? '' : 's'} compared with ${(semantic.figureItems || []).length === 1 ? 'its caption' : 'their captions'}`,
+          `${(semantic.contentItems || []).length} contents entr${(semantic.contentItems || []).length === 1 ? 'y' : 'ies'} compared with headings`,
+          `${(semantic.nameItems || []).length} differently worded title${(semantic.nameItems || []).length === 1 ? '' : 's'} compared`,
+        ].filter(Boolean).join('; ')}.</li>}
         <li>Text the AI did not check is a limit of this evaluation, not evidence of a PDF problem.</li>
         <li>AI compares how closely texts relate. It does not verify facts or the meaning of images.</li>
       </ul>
