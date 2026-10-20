@@ -838,3 +838,26 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fixer-section .finding-evidence h4 { font-size: .9375rem; margin: 12px 0 4px; }
 .page-pin--properties { background: rgb(var(--mg-color-interactive)); color: rgb(var(--mg-color-neutral-0)); }
 .properties-panel .properties-intro { color: var(--muted); font-size: .9375rem; margin: 8px 0 16px; }
+/* In-place page viewer: a sticky toolbar over the pages column. */
+.viewer-toolbar { position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 0;
+  background: rgb(var(--mg-color-neutral-0)); border-bottom: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); }
+.viewer-toolbar .mg-segmented-control { margin: 0; }
+.viewer-group { display: inline-flex; align-items: center; gap: 4px; }
+.viewer-button { min-width: 36px; min-height: 36px; padding: 0 8px; border: 1px solid rgb(var(--mg-color-interactive)); border-radius: 4px;
+  background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-interactive)); font: inherit; font-weight: 600; cursor: pointer; }
+.viewer-button:disabled { opacity: .4; cursor: not-allowed; }
+.viewer-button:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
+.viewer-zoom-value { min-width: 56px; }
+.viewer-page-input { display: inline-flex; align-items: center; gap: 6px; font-size: .9375rem; white-space: nowrap; }
+.viewer-page-input input { width: 4.5em; min-height: 36px; padding: 0 6px; font: inherit; text-align: center; border: 1px solid rgb(var(--mg-color-neutral-400, 160 160 160)); border-radius: 4px; }
+.viewer-note { margin: 0; }
+.viewer-more { padding: 16px 0; }
+.page-pins-zoom { overflow-x: auto; }
+.page-pins-zoom > .page-pins-sheet { margin: 0; }
+.page-pins-focus { position: absolute; z-index: 3; margin: -6px; padding: 6px; box-sizing: content-box; border: 3px solid rgb(var(--mg-color-interactive));
+  border-radius: 4px; pointer-events: none; animation: viewer-pulse 1.2s ease-out 2; }
+@keyframes viewer-pulse { 0% { box-shadow: 0 0 0 0 rgb(var(--mg-color-interactive) / .5); } 100% { box-shadow: 0 0 0 14px rgb(var(--mg-color-interactive) / 0); } }
+@media (prefers-reduced-motion: reduce) { .page-pins-focus { animation: none; } }
+.viewer-order-text { margin-top: 8px; font-size: .9375rem; }
+.viewer-order-text summary { cursor: pointer; font-weight: 600; }
+.page-pins-page { scroll-margin-top: 72px; }

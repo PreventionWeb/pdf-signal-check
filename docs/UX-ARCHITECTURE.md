@@ -102,6 +102,10 @@ Cards whose bucket was decided by the on-device AI carry a small “AI” tag in
 
 Under the count headline, one bold sentence names where to start (“Start with: Add a document title.”), taken from the first Fix item (or Check item if there is no Fix), with how many other items it should also fix. It stops the count being read as a severity score and comes before any caveat. A small receipt line follows: “Checked with standard checks”, “…and on-device AI (MiniLM)”, or that AI was selected but had nothing to compare, with the scope caveat (such as image and chart meaning) appended to it rather than placed above the action. A saved-title or author comparison is not listed when nothing is saved, because the missing value is already its own Fix item.
 
+### Page viewer (October 2026)
+
+The main column is the PDF viewer; there is no preview modal. A sticky toolbar holds page navigation (‹ Page [n] of N ›, type a number and press Enter), All pages / With issues, Issues / Reading order / Page only (Mangrove segmented controls; Reading order is disabled with a note when the PDF has no tags), and zoom (− Fit + up to 200%, re-rendered sharply). All pages show by default and load as you scroll. Every “Show on page” action scrolls the viewer to the page and outlines the spot with a brief pulse (no pulse with reduced motion). In Reading order mode each page has a “Text in reading order” disclosure.
+
 ### Document properties entry (October 2026)
 
 Document properties is an inbox entry after Overview. It opens in the detail pane with every saved value (title, description, keywords, author, language, publisher, publication date) and pins for the issues about each one. The pages column no longer repeats a Document properties sheet or a Whole document sheet: those items are in the list, and their detail opens in the detail pane. The site header shows the wordmark only, without the tagline.

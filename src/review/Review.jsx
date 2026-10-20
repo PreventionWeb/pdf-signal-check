@@ -13,7 +13,6 @@ import { AttachmentInventory } from "./AttachmentInventory.jsx";
 import { AdvancedReport } from "./AdvancedReport.jsx";
 import { EvidenceDrawer } from "./EvidenceDrawer.jsx";
 import { Crop } from "../evidence/Crop.jsx";
-import { PreviewDialog } from "../evidence/PreviewDialog.jsx";
 import { candidateBlocks } from "../geometry.js";
 import { FigureContext } from "./FigureContext.jsx";
 import { FigureGroup } from "./FigureGroup.jsx";
@@ -47,8 +46,8 @@ const BUCKETS = {
 export function Review({ state, controller, exportRef, onReturnBatch }) {
   const { report, file } = state,
     normalized = useMemo(() => normalizeFindings(report), [report]),
-    [selection, setSelection] = useState(null),
-    [fullOpen, setFullOpen] = useState(false),
+    // Where the page viewer should scroll and highlight: set by every "Show on page" action.
+    [focus, setFocus] = useState(null),
     [drawerOpen, setDrawerOpen] = useState(false),
     // Inbox-style selection: the Overview and Technical details entries, or null when an issue is selected.
     [special, setSpecial] = useState("overview"),
@@ -98,20 +97,14 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   }, [finding, report.metadataConsistency]);
   const inspect = (t) => {
     const page = report.pages.find((p) => p.number === t.page);
-    setSelection({
-      ...t,
-      quads: t.quads?.length
-        ? t.quads
-        : page
-          ? candidateBlocks(page, t).flatMap((b) => (b.quad ? [b.quad] : []))
-          : [],
-      label: t.text || t.label || "Finding evidence",
-      overlay: t.overlay,
+    setDrawerOpen(false);
+    setFocus({
+      page: t.page,
+      quads: t.quads?.length ? t.quads : page ? candidateBlocks(page, t).flatMap((b) => (b.quad ? [b.quad] : [])) : [],
+      key: Date.now(),
     });
-    setFullOpen(true);
   };
   useEffect(() => {
-    setSelection(null);
     setDrawerOpen(false);
   }, [finding?.id]);
   useEffect(() => {
@@ -202,7 +195,6 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       {kind === "order" && <OrderTechnical report={report} onInspect={inspect} />}
       {kind === "attachments" && <AttachmentInventory inventory={report.attachments} />}
     </EvidenceDrawer>}
-    {fullOpen && !state.modelBusy && <PreviewDialog file={file} report={report} selection={selection} onClose={() => setFullOpen(false)} />}
   </>;
   // The summary heads the main column, beside the docked issue list.
   const lead = <>
@@ -214,7 +206,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
   </>;
   const pagesView = () => <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
-    selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })} onShowAll={() => { setSelection(null); setFullOpen(true); }}
+    selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} focus={focus}
     lead={lead} special={summaryLeads && special === "overview" ? null : special} onSpecial={setSpecial} technical={technical} summaryLeads={summaryLeads}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {special === "overview" && !summaryLeads ? lead
