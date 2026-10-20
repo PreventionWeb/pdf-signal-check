@@ -197,8 +197,14 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
 }
 
 /** Which saved property an issue is about, so its pin can sit beside that row. */
+const PROPERTY_KINDS = { title: "Title", "title-language": "Title", keywords: "Keywords", "subject-link": "Description (Subject)", language: "Language" };
 const propertyFor = item => {
   const path = item.source?.path || "", check = item.source?.checkId;
+  // Consistency findings about saved values: a title compared with the saved title, or a placeholder or language mismatch.
+  const consistency = [item, ...(item.members || [])].map(member => member.comparison?.consistency).filter(Boolean);
+  if (consistency.some(found => found.left?.role === "saved" || found.right?.role === "saved")) return "Title";
+  const kind = consistency.map(found => PROPERTY_KINDS[found.kind]).find(Boolean);
+  if (kind) return kind;
   if (/^(metadataConsistency|deterministicTitle)$/.test(path) || check === "title" || /^semantic\.(title|titleAI)$/.test(path)) return "Title";
   if (path === "authorConsistency") return "Author";
   if (path === "machineMetadata") return "Publisher";
@@ -216,17 +222,26 @@ const TOOLTIP_BUCKET = { fix: "Fix", check: "Check" };
 /** A numbered pin outside the page images (document properties, whole-document sheet) with the same hover/focus tooltip. */
 function TippedPin({ entry, selected, onSelect }) {
   const [open, setOpen] = useState(false);
+  const [place, setPlace] = useState(null);
+  const button = useRef(null);
+  const show = () => {
+    const rect = button.current?.getBoundingClientRect();
+    if (rect) setPlace({ top: rect.bottom + 8, left: Math.max(8, Math.min(rect.right - 300, window.innerWidth - 308)) });
+    setOpen(true);
+  };
   useEffect(() => {
     if (!open) return undefined;
     const hide = event => { if (event.key === "Escape") setOpen(false); };
+    const close = () => setOpen(false);
     document.addEventListener("keydown", hide);
-    return () => document.removeEventListener("keydown", hide);
+    window.addEventListener("scroll", close, true);
+    return () => { document.removeEventListener("keydown", hide); window.removeEventListener("scroll", close, true); };
   }, [open]);
   const id = `pin-tip-doc-${entry.number}`;
-  return <span className="page-pins-tipped" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-    <button type="button" className={`page-pin page-pin--${entry.bucket} page-pins-docpin ${selected ? "is-selected" : ""}`} aria-label={`${entry.number}: ${entry.title}`}
-      aria-pressed={selected} aria-describedby={open ? id : undefined} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onClick={onSelect}>{entry.number}</button>
-    {open && <span role="tooltip" id={id} className="page-pins-tooltip page-pins-tooltip--inline">
+  return <span className="page-pins-tipped" onMouseEnter={show} onMouseLeave={() => setOpen(false)}>
+    <button ref={button} type="button" className={`page-pin page-pin--${entry.bucket} page-pins-docpin ${selected ? "is-selected" : ""}`} aria-label={`${entry.number}: ${entry.title}`}
+      aria-pressed={selected} aria-describedby={open ? id : undefined} onFocus={show} onBlur={() => setOpen(false)} onClick={onSelect}>{entry.number}</button>
+    {open && <span role="tooltip" id={id} className="page-pins-tooltip page-pins-tooltip--fixed" style={place || undefined}>
       <span className="page-pins-tooltip-eyebrow">{entry.number} · {TOOLTIP_BUCKET[entry.bucket] || entry.bucket}</span>
       <strong>{entry.title}</strong>
       {entry.summary && <span>{brief(entry.summary)}</span>}

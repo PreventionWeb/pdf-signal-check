@@ -865,3 +865,5 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .figure-group-list .figure-context { padding-bottom: 12px; border-bottom: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); }
 .figure-context h4 { font-size: 1rem; margin: 0 0 6px; }
 .figure-context blockquote { margin: 0 0 8px; padding-inline-start: 12px; border-inline-start: 3px solid rgb(var(--mg-color-neutral-300)); }
+/* Pins outside the page images: a tooltip fixed to the window cannot resize or scroll the panel it belongs to. */
+.page-pins-tooltip--fixed { position: fixed; z-index: 50; width: 300px; margin: 0; text-align: start; font-weight: 400; white-space: normal; }
