@@ -20,6 +20,8 @@ import { FigureContext } from "./FigureContext.jsx";
 import { FigureGroup } from "./FigureGroup.jsx";
 import { ConsistencyDetail } from "./ConsistencyDetail.jsx";
 import { ResultHero } from "./ResultHero.jsx";
+import { ScoreGauges } from "./ScoreGauges.jsx";
+import { pdfScores } from "./scores.js";
 import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins } from "./PagePins.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
@@ -58,6 +60,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   const { issueId } = state.reviewCursor;
   const groups = useMemo(() => reviewGroups(normalized.findings), [normalized]);
   const overview = { ...reviewSummary(report, groups), checkedWith: checkedWith(report) };
+  const scores = useMemo(() => pdfScores(report), [report]);
   const { buckets } = overview;
   const selectable = [...buckets.fix, ...buckets.check, ...buckets.unknown, ...buckets.travel, ...buckets.tip];
   const defaultItem = buckets.fix[0] || buckets.check[0];
@@ -211,6 +214,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     <ResultHero overview={overview} file={file}
       exports={<ExportMenu ref={exportRef} getState={() => ({ report: controller.getSnapshot().report, file: controller.getSnapshot().file })} sourceKey={state.sourceKey} disabled={state.modelBusy} secondary compact />}
       titleId={state.modelBusy ? undefined : "flow-title"} />
+    <ScoreGauges scores={scores} />
     {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
       <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
   </>;

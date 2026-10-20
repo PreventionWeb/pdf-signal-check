@@ -60,6 +60,10 @@ The issue list works like an inbox. Its first entry, **Overview**, is selected w
 
 From 1200 px the workspace spans the full window as three docked panes: list, detail, then pages (or the technical record); each scrolls on its own. From 820 to 1199 px the list and detail stack in one docked column beside the pages. Below 820 px the summary leads the page, the Overview entry is omitted, and the list and detail become a bottom sheet: a persistent “Issues (n)” bar opens it, choosing a pin, item or Technical details opens it, and Close or Escape returns to the pages.
 
+### Scores (October 2026)
+
+The Overview shows Lighthouse-style 0–100 gauges (red below 50, amber below 90, green from 90): **Overall**, the mean of **People**, **AI and search** and **Consistency**, plus a separate **Travels further** bonus that never enters the overall. Each category is a weighted share of its checks that passed (`src/review/scores.js`). Checks the tool couldn’t make are left out and reported (“Based on 15 of 20 checks”), so uncertainty never moves a score. A “How the scores are worked out” disclosure lists every check with Passed / Partly / Not passed / Not checked. The copy says scores summarise this tool’s checks and are not an accessibility certificate. Weights are hand-set product judgements, not calibrated measurements.
+
 ### Publishing details as a fix (October 2026)
 
 A PDF with no saved publisher or publication date gets “Add publishing details” in **Fix**, ranked after the structural fixes (“Fix (publishing details)”). The product owner treats it as a fix because catalogues, search and AI tools otherwise have to guess who issued a report and which edition it is. The card says that PDF/UA does not require these details. A missing licence or identifier alone, or no attached schema.org description, stays in Make it travel further.
