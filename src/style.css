@@ -30,7 +30,7 @@ body { -webkit-font-smoothing: antialiased; }
 .sample-intro { color: var(--muted); margin-top: 0; }
 /* Native Mangrove horizontal book cards; the title button is stretched so the whole card starts the check. */
 .sample-cards { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 20px; }
-.sample-card { position: relative; height: 100%; transition: box-shadow .15s ease; }
+.sample-card { position: relative; height: 100%; transition: box-shadow var(--mg-motion-duration-fast) var(--mg-motion-easing-standard); }
 .sample-card:hover:not(.is-disabled) { box-shadow: 0 4px 16px rgb(var(--mg-color-neutral-900) / .12); }
 .sample-card .mg-card__visual { background: #fff; }
 .sample-card .mg-card__image { display: block; width: 100%; height: auto; }
@@ -72,7 +72,8 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
 }
 
 /* Upload card: the same horizontal book-card shape as the samples, with a dashed "drop here" border. */
-.upload-card { border: 2px dashed rgb(var(--mg-color-interactive) / .45); background: rgb(var(--mg-color-neutral-0)); transition: background-color .15s, border-color .15s; }
+/* Mangrove 2.2 publication cards run edge to edge; this drop zone keeps an inset inside its dashed frame. */
+.upload-card { --mg-card-publication-padding: var(--mg-spacing-150); border: 2px dashed rgb(var(--mg-color-interactive) / .45); background: rgb(var(--mg-color-neutral-0)); transition: background-color var(--mg-motion-duration-fast) var(--mg-motion-easing-standard), border-color var(--mg-motion-duration-fast) var(--mg-motion-easing-standard); }
 .upload-card.dragging, .upload-card:hover { border-color: rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .04); }
 .upload-card .mg-card__image { display: block; width: 100%; height: auto; }
 .upload-card .mg-card__title { margin: 0; }
@@ -686,11 +687,10 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .hidden-instructions blockquote { margin: 0 0 6px; padding-inline-start: 12px; border-inline-start: 3px solid rgb(var(--mg-color-gold-800)); overflow-wrap: anywhere; }
 .hidden-instructions-why { margin: 0 0 8px; font-size: .875rem; }
 
-/* About page: full-bleed hero, then readable sections in the slim container. */
+/* About page: full-bleed hero, then readable sections in the slim container. Mangrove Rich content (`mg-content`) owns their prose rhythm; classed islands keep their own styles. */
 .about-main { outline: none; }
 .about-page .about-section { max-width: 1164px; margin: 40px auto 0; padding-inline: 10px; }
 .about-page .about-section > p, .about-page .about-section > ul { max-width: 72ch; }
-.about-page .about-section h2 { margin-bottom: 8px; }
 .about-lead { font-size: 1.125rem; font-weight: 600; }
 .about-hero .mg-hero__buttons .mg-button { color: rgb(var(--mg-color-neutral-0)); border-color: rgb(var(--mg-color-neutral-0)); }
 .about-challenges { list-style: none; padding: 0; display: grid; gap: 8px; }
@@ -699,7 +699,8 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .about-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 16px; margin-block: 16px; }
 .about-compare-column { margin: 0; padding: 16px; border-radius: var(--mg-card-border-radius); background: rgb(var(--mg-color-neutral-25)); border: 1px solid rgb(var(--mg-color-neutral-200)); }
 .about-compare-column figcaption { font-weight: 700; margin-bottom: 8px; }
-.about-compare-column blockquote { margin: 0; }
+/* Mangrove 2.2 still sizes every `.mg-content blockquote` as a pull quote, even inside classed islands; keep this comparison at body size. */
+.about-compare-column blockquote { margin: 0; font-size: inherit; line-height: inherit; }
 .about-compare-column blockquote p { margin: 0 0 10px; }
 .about-compare-column pre { margin: 0; white-space: pre-wrap; font-family: var(--mg-font-family-code, monospace); font-size: .875rem; line-height: 1.5; color: rgb(var(--mg-color-red-900)); }
 .about-phases { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 16px; }

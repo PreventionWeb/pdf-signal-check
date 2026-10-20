@@ -74,7 +74,7 @@
 .story-scrubber input::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #fff; }
 .story-scrubber input::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff; }
 .story-control-row { display: flex; align-items: center; gap: 2px; }
-.story-control { position: relative; display: inline-flex; flex: 0 0 44px; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #fff; cursor: pointer; transition: background-color .15s, transform .15s; }
+.story-control { position: relative; display: inline-flex; flex: 0 0 44px; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #fff; cursor: pointer; transition: background-color var(--mg-motion-duration-fast) var(--mg-motion-easing-standard), transform var(--mg-motion-duration-fast) var(--mg-motion-easing-standard); }
 .story-control:hover { background: #ffffff24; }
 .story-control:active { transform: scale(.96); }
 .story-control:disabled { opacity: .35; cursor: default; }

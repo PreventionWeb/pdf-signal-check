@@ -14,7 +14,7 @@
   background: #fffaf0;
   text-decoration: none;
   box-shadow: 0 0 0 1px rgb(0 0 0 / .1), 0 3px 8px rgb(0 0 0 / .1), 0 12px 28px rgb(0 0 0 / .17);
-  transition: transform 180ms cubic-bezier(.2, 0, 0, 1), box-shadow 180ms cubic-bezier(.2, 0, 0, 1);
+  transition: transform var(--mg-motion-duration-fast) var(--mg-motion-easing-standard), box-shadow var(--mg-motion-duration-fast) var(--mg-motion-easing-standard);
 }
 
 .intake-story-preview__link:hover {
@@ -53,7 +53,7 @@
   background: #fff;
   color: #2b2340;
   box-shadow: 0 2px 5px rgb(0 0 0 / .15), 0 5px 16px rgb(0 0 0 / .2);
-  transition: transform 180ms cubic-bezier(.2, 0, 0, 1);
+  transition: transform var(--mg-motion-duration-fast) var(--mg-motion-easing-standard);
 }
 
 .intake-story-preview__link:hover .intake-story-preview__play { transform: scale(1.08); }
