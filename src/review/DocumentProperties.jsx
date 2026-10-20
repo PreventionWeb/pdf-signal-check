@@ -20,6 +20,8 @@ export function DocumentProperties({ metadata = {}, title = 'What is saved in th
     // XMP stores authors as a list; join it so a matching PDF-properties author line is not repeated name by name.
     ['Author', merged(metadata.author, (metadata.xmpAuthors || []).map(text).filter(Boolean).join('; ')), !!metadata.xmpError],
     ['Language', text(metadata.language)],
+    ['Publisher', merged(metadata.xmpProperties?.publisher || [])],
+    ['Publication date', merged(metadata.xmpProperties?.date || [])],
   ];
   return <section className="document-properties" aria-labelledby={title ? "document-properties-title" : undefined} aria-label={title ? undefined : "Saved document properties"}>
     {title && <h3 id="document-properties-title">{title}</h3>}

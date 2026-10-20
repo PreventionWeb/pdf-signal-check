@@ -23,7 +23,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
   const chooseSpecial = kind => { if (mobile()) setSheetOpen(true); onSpecial(kind); };
   const specialEntry = (kind, title, where) => <button type="button" className={`page-pins-entry page-pins-special ${special === kind ? "is-selected" : ""}`}
     aria-current={special === kind ? "true" : undefined} aria-controls="selected-item-analysis" onClick={() => chooseSpecial(kind)}>
-    <span className={`page-pin page-pin--${kind}`} aria-hidden="true">{kind === "overview" ? "★" : "i"}</span>
+    <span className={`page-pin page-pin--${kind}`} aria-hidden="true">{{ overview: "★", properties: "≡" }[kind] || "i"}</span>
     <span><span className="fix-card-title">{title}</span><span className="fix-card-where">{where}</span></span>
   </button>;
   useEffect(() => {
@@ -68,7 +68,6 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       if (index >= shown) setShown(index + PAGE_BATCH);
       return scrollTo(pages[index].page);
     }
-    scrollTo(propertyFor(entry.item) ? "properties" : "document");
   };
   const byNumber = number => entries.find(entry => entry.number === number);
   const legendEntry = entry => {
@@ -87,6 +86,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       <nav className="page-pins-legend" aria-labelledby="page-pins-title">
         <h2 id="page-pins-title" className="mg-u-sr-only">Issues in this PDF</h2>
         {!summaryLeads && specialEntry("overview", "Overview", "Summary and downloads")}
+        {specialEntry("properties", "Document properties", "Title, author, language and other saved details")}
         {!entries.length && <p className="fix-bucket-empty">Nothing to fix or check was found automatically.</p>}
         {["fix", "check"].map(bucket => {
           const items = entries.filter(entry => entry.bucket === bucket);
@@ -135,40 +135,6 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       {!hasOrder && <div id="page-pins-order-unavailable" className="page-pins-order-unavailable"><Notice variant="warning">
         <p>The reading order can’t be shown: this PDF has no tags, so screen readers and AI tools have no reading order to follow. Adding tags (the first fix) gives it one.</p>
       </Notice></div>}
-      <section className="page-pins-page" aria-labelledby="page-pins-properties-title"
-        ref={element => element ? pageRefs.current.set("properties", element) : pageRefs.current.delete("properties")}>
-        <h3 id="page-pins-properties-title">Document properties</h3>
-        <div className="page-pins-sheet page-pins-docsheet">
-          <p className="page-pins-docsheet-intro">This information is saved inside the PDF, not printed on its pages. Search engines, screen readers and AI tools use it to identify the document. The designer can change it in the source document’s file properties.</p>
-          <DocumentProperties metadata={report.metadata} title={null} annotate={label => {
-            const related = entries.filter(entry => propertyFor(entry.item) === label);
-            return related.length > 0 && <span className="page-pins-property-pins">{related.map(entry =>
-              <TippedPin key={entry.number} entry={entry} selected={entry.number === selected} onSelect={() => onSelect(entry.item, mobile())} />)}</span>;
-          }} />
-        </div>
-      </section>
-      {unlocated.length > 0 && <section className="page-pins-page" aria-labelledby="page-pins-document-title"
-        ref={element => element ? pageRefs.current.set("document", element) : pageRefs.current.delete("document")}>
-        <h3 id="page-pins-document-title">Whole document</h3>
-        <div className="page-pins-sheet page-pins-docsheet">
-          <p className="page-pins-docsheet-intro">These issues can’t be pinned to one spot on a page. They affect the document’s settings or the whole PDF, or the tool couldn’t find their exact position.</p>
-          <ol className="page-pins-docsheet-list">{unlocated.map(entry => {
-            const isSelected = entry.number === selected;
-            // The whole card selects the item for pointer users; the numbered button stays the keyboard and screen-reader control.
-            return <li key={entry.number} className={`page-pins-doccard ${isSelected ? "is-selected" : ""}`}
-              onClick={event => { if (!event.target.closest("button, a, input, label")) onSelect(entry.item, mobile()); }}>
-              <TippedPin entry={entry} selected={isSelected} onSelect={() => onSelect(entry.item, mobile())} />
-              <div>
-                <h4>{entry.title}</h4>
-                <p className="fix-card-where">{unplacedLabel(entry)}</p>
-                {/* A pointer like a page pin: one line here, the full summary and What to change in the detail pane. */}
-                {entry.summary && <p>{brief(entry.summary)}</p>}
-                {entry.item.source?.path === "readingOrder" && hasOrder && orderToggle}
-              </div>
-            </li>;
-          })}</ol>
-        </div>
-      </section>}
       {pages.slice(0, shown).map(({ page, pins, order }) => <PinnedPage key={page} page={page} pins={pins} order={order} service={service} selected={selected}
         onSelect={number => onSelect(byNumber(number).item, mobile())} onShowPage={onShowPage} describe={number => byNumber(number)?.summary}
         pageRef={element => element ? pageRefs.current.set(page, element) : pageRefs.current.delete(page)} />)}
@@ -187,6 +153,7 @@ const propertyFor = item => {
   const path = item.source?.path || "", check = item.source?.checkId;
   if (/^(metadataConsistency|deterministicTitle)$/.test(path) || check === "title" || /^semantic\.(title|titleAI)$/.test(path)) return "Title";
   if (path === "authorConsistency") return "Author";
+  if (path === "machineMetadata") return "Publisher";
   if (check === "language") return "Language";
   if (path === "semantic.subject") return "Description (Subject)";
   if (path.startsWith("semantic.keyword")) return "Keywords";
@@ -288,4 +255,18 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, onShowPage
       })}
     </div>
   </section>;
+}
+
+/** Document properties in the detail pane: every saved value, with pins for the issues about each one. */
+export function PropertiesPanel({ report, entries, selectedNumber = null, onSelect }) {
+  return <article className="properties-panel">
+    <p className="fix-detail-eyebrow">Document properties</p>
+    <h2 className="review-detail-title" tabIndex={-1}>What is saved in this PDF</h2>
+    <p className="properties-intro">This information is saved inside the PDF, not printed on its pages. Search engines, screen readers and AI tools use it to identify the document. The designer can change it in the source document’s file properties.</p>
+    <DocumentProperties metadata={report.metadata} title={null} annotate={label => {
+      const related = entries.filter(entry => propertyFor(entry.item) === label);
+      return related.length > 0 && <span className="page-pins-property-pins">{related.map(entry =>
+        <TippedPin key={entry.number} entry={entry} selected={entry.number === selectedNumber} onSelect={() => onSelect(entry.item)} />)}</span>;
+    }} />
+  </article>;
 }

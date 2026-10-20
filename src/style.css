@@ -836,3 +836,5 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fixer-list { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; }
 .fixer-where { display: block; font-size: .875rem; font-weight: 600; color: var(--muted); }
 .fixer-section .finding-evidence h4 { font-size: .9375rem; margin: 12px 0 4px; }
+.page-pin--properties { background: rgb(var(--mg-color-interactive)); color: rgb(var(--mg-color-neutral-0)); }
+.properties-panel .properties-intro { color: var(--muted); font-size: .9375rem; margin: 8px 0 16px; }

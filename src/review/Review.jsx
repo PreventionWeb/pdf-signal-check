@@ -23,7 +23,7 @@ import { ScoreGauges } from "./ScoreGauges.jsx";
 import { pdfScores } from "./scores.js";
 import { fixerDetails } from "./fixer.js";
 import { ExportMenu } from "../export/ExportMenu.jsx";
-import { PagePins } from "./PagePins.jsx";
+import { PagePins, PropertiesPanel } from "./PagePins.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
 
 /** Whether a media query matches, kept in step with the window. */
@@ -219,6 +219,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {special === "overview" && !summaryLeads ? lead
         : special === "technical" ? methodCard
+        : special === "properties" ? <PropertiesPanel report={report} entries={pinEntries} onSelect={item => choose(item)} />
         : detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
     </section>} />;
   // The Technical details inbox entry: method and limits in the detail pane, the full record in the wide pane.
