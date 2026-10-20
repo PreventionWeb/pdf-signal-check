@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { Button } from "../ui/react.jsx";
 import { ExportController } from "./controller.js";
+import { Toast } from "../ui/Toast.jsx";
 
 export const ExportMenu = forwardRef(function ExportMenu(
   { getState, sourceKey, disabled = false, secondary = false, compact = false },
@@ -47,8 +48,9 @@ export const ExportMenu = forwardRef(function ExportMenu(
       </div>
       <p className="model-note">Send the fix list to whoever edits the original document, then check the updated PDF. The full report adds the technical evidence. This tool does not change your PDF.</p>
       <p className="review-export-json"><button type="button" className="review-export-link" disabled={disabled || state.busy} onClick={() => controller.run('json')}>Download detailed report (JSON)</button></p>
-      <p className="model-note">Download the results to keep them after closing this tab.{!compact && ' Reports may contain document text and page images; downloads are generated on your device.'}</p>
-        <p role="status">{state.message}</p>
+      {!compact && <p className="model-note">Reports may contain document text and page images; downloads are generated on your device.</p>}
+      <Toast message={state.message} busy={state.busy}
+        variant={state.busy ? "info" : /unavailable|incomplete|failed/i.test(state.message) ? "negative" : /cancel/i.test(state.message) ? "warning" : "positive"} />
     </section>
   );
 });
