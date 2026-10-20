@@ -46,7 +46,7 @@ export const ExportMenu = forwardRef(function ExportMenu(
         <Button variant="secondary" disabled={disabled || state.busy} onClick={() => controller.run('pdf-full')}>Download full report (PDF)</Button>
         {state.busy && <Button onClick={() => controller.cancel()}>Cancel export</Button>}
       </div>
-      <p className="model-note">Send the fix list to whoever edits the original document, then check the updated PDF. The full report adds the technical evidence. This tool does not change your PDF.</p>
+      <p className="model-note">Send the fix list to whoever edits the original document, then check the updated PDF. The full report adds the technical evidence.</p>
       <p className="review-export-json"><button type="button" className="review-export-link" disabled={disabled || state.busy} onClick={() => controller.run('json')}>Download detailed report (JSON)</button></p>
       {!compact && <p className="model-note">Reports may contain document text and page images; downloads are generated on your device.</p>}
       <Toast message={state.message} busy={state.busy}

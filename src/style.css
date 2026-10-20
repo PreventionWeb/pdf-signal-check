@@ -502,7 +502,6 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
 .result-hero .mg-hero__content { padding: 0; }
 .result-hero .mg-hero__title { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.1; text-wrap: balance; }
 .result-hero p { margin-block: 8px; color: inherit; max-width: 70ch; }
-.result-hero .result-hero-scope { font-size: .9375rem; }
 .result-hero .result-hero-lead { font-weight: 600; }
 .result-hero .result-hero-receipt { font-size: .875rem; margin-top: -.5rem; }
 .result-hero .mg-hero__buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
