@@ -8,7 +8,8 @@ export function ResultHero({ overview, titleId, file, exports }) {
       <h1 id={titleId} className="mg-hero__title flow-title" tabIndex={-1}>{overview.headline}</h1>
       {file && <p className="result-hero-file">{file.name} · {(file.size / 1e6).toFixed(2)} MB</p>}
       {overview.scope && <p className="result-hero-scope">{overview.scope}</p>}
-      {overview.nextStep && <p>{overview.nextStep}</p>}
+      {overview.nextStep && <p className="result-hero-lead">{overview.nextStep}</p>}
+      {overview.checkedWith && <p className="result-hero-receipt">{overview.checkedWith}</p>}
       {exports}
     </div>
     </div>

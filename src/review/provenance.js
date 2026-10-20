@@ -52,3 +52,13 @@ export function groupedFindingProvenance(findings, report) {
     && finding.comparison?.model?.id === model.id && finding.comparison?.model?.revision === model.revision) ? model : null;
   return { members, sharedModel };
 }
+
+/** One plain receipt line: which kinds of check produced these results. */
+export function checkedWith(report) {
+  const semantic = report.semantic;
+  if (!semantic) return 'Checked with standard checks.';
+  const model = semantic.model?.label ? ` (${semantic.model.label.split(' · ')[0]})` : '';
+  if (semantic.status === 'error' || semantic.status === 'skipped') return 'Checked with standard checks. The AI checks did not run.';
+  if (semantic.inferencePerformed !== true) return `Checked with standard checks. AI${model} was selected but had nothing to compare in this PDF.`;
+  return `Checked with standard checks and on-device AI${model}.`;
+}

@@ -6,6 +6,10 @@ export function findingGroups(findings) {
     // Keep the normalized finding in technical records and exports.
     if (finding.source?.path === 'attachments' && !finding.comparison?.inventory?.files?.length &&
       !finding.comparison?.inventory?.orphanStreams?.some(stream=>stream.origin === 'reachable-unassociated')) continue;
+    // Comparing a saved title or author list with the page means nothing when none is saved; the missing value is its own Fix item.
+    const saved = finding.comparison?.metadata;
+    if (['metadataConsistency', 'authorConsistency'].includes(finding.source?.path) && finding.outcome === 'uncertain' && saved &&
+      !Object.values(saved).flat().some(value => String(value?.text ?? value ?? '').trim())) continue;
     const semantic = finding.source?.path?.startsWith('semantic');
     if (semantic && finding.category === 'unassessed') groups.coverage.push(finding);
     else if (finding.source?.checkId === 'supported-content' && finding.category !== 'success' && finding.category !== 'required-defect') groups.limits.push(finding);
@@ -137,8 +141,13 @@ export function reviewSummary(report, groups) {
       : check ? `Nothing confirmed to fix, ${plural(check, 'thing')} to check`
         : report.checks?.some(check => check.status === 'fail') ? 'This PDF needs work'
           : 'No problems auto-detected';
-  const nextStep = tasks.length
-    ? ''
+  // One plain sentence on where to start, so the count is not read as a severity score.
+  const first = buckets.fix[0] || buckets.check[0];
+  const firstCard = first ? fixCard(first, report) : null;
+  const also = firstCard?.also?.length || 0;
+  const nextStep = firstCard?.title
+    ? `Start with: ${firstCard.title.replace(/\s*\(\d+[^)]*\)$/, '')}.${also ? ` Doing this should also fix ${plural(also, 'other item')}.` : ''}`
+    : tasks.length ? ''
     : 'Download a report to keep the results, including successful checks.';
   const unresolved = (report.checks || []).filter(check => !["pass", "not-applicable"].includes(check.status));
   const graphicsOnly = unresolved.length === 1 && unresolved[0].id === "supported-content"

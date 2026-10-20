@@ -74,6 +74,10 @@ The verb carries the certainty: Add / Set / Export for confirmed defects, “doe
 
 Grouping preserves member evidence, outcomes and provenance. Images group by corrective action. Headings split into suspected mismatches (Check) and pairs the AI could not judge (Couldn’t check).
 
+### Headline lead and receipt
+
+Under the count headline, one bold sentence names where to start (“Start with: Add a document title.”), taken from the first Fix item (or Check item if there is no Fix), with how many other items it should also fix. It stops the count being read as a severity score. A small receipt line follows: “Checked with standard checks”, “…and on-device AI (MiniLM)”, or that AI was selected but had nothing to compare. A saved-title or author comparison is not listed when nothing is saved, because the missing value is already its own Fix item.
+
 ### Item detail
 
 1. **Eyebrow and title:** the bucket and where to look (“Page 2”, “Pages 1, 2”, “Document properties”, “Whole document”), then a card title that names the change or the problem in plain words.

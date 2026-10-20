@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Checks } from "../app/Checks.jsx";
 import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, reviewLimitText, reviewGroups, fixCard, fixBucket } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
-import { findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
+import { checkedWith, findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
 import { Button, Card, Actions, Tag, Notice } from "../ui/react.jsx";
 import { Tabs } from "../ui/Tabs.jsx";
 import { Help } from "../help/Help.jsx";
@@ -44,7 +44,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     detailRef = useRef(null);
   const { issueId } = state.reviewCursor;
   const groups = useMemo(() => reviewGroups(normalized.findings), [normalized]);
-  const overview = reviewSummary(report, groups);
+  const overview = { ...reviewSummary(report, groups), checkedWith: checkedWith(report) };
   const { buckets } = overview;
   const selectable = [...buckets.fix, ...buckets.check, ...buckets.unknown, ...buckets.travel];
   const defaultItem = buckets.fix[0] || buckets.check[0];
