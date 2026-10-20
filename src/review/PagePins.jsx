@@ -57,7 +57,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       <button type="button" className={`page-pins-entry ${current ? "is-selected" : ""}`} aria-current={current ? "true" : undefined}
         aria-controls="selected-item-analysis" onClick={() => choose(entry, true)}>
         <span className={`page-pin page-pin--${entry.bucket}`} aria-hidden="true">{entry.number}</span>
-        <span><span className="fix-card-title">{entry.title}</span><span className="fix-card-where">{located ? entry.where : unplacedLabel(entry)}</span></span>
+        <span><span className="fix-card-title">{entry.title}{entry.ai && <span className="fix-ai-tag" title="The on-device AI decided this item"> AI</span>}</span><span className="fix-card-where">{located ? entry.where : unplacedLabel(entry)}</span></span>
       </button>
     </li>;
   };

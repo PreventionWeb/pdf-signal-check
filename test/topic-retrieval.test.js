@@ -36,20 +36,15 @@ describe('uncommitted document evidence experiment', () => {
     expect(selectTopicEvidence('flood preparedness', built).receipt.baseline.page).toBe(1);
     expect(buildDocumentEvidence([page(2, 'Flood preparedness')]).passages).toHaveLength(1);
   });
-  it('keeps the baseline request unchanged unless explicitly enabled and records broader AI inputs', async () => {
+  it('compares saved descriptions and keywords with passages from across the PDF by default', async () => {
     const source = report();
-    const normal = buildScreeningRequest(source, { modelId: 'minilm', checks: ['subject', 'keywords'] });
-    const experimental = buildScreeningRequest(source, { modelId: 'minilm', checks: ['subject', 'keywords'], semanticExperiment: true });
-    expect(normal.documentEvidence).toBeUndefined();
-    expect(experimental.documentEvidence.coverage.retainedPages).toEqual([1, 2, 12]);
+    const request = buildScreeningRequest(source, { modelId: 'minilm', checks: ['subject', 'keywords'] });
+    expect(request.documentEvidence.coverage.retainedPages).toEqual([1, 2, 12]);
     const embed = vi.fn(async texts => texts.map(text => /flood|evacuations/i.test(text) ? [1, 0] : [0, 1]));
-    const result = await assessSemantic(experimental, embed);
+    const result = await assessSemantic(request, embed);
     expect(result.subject.evidence[0].page).toBe(12);
     expect(result.subject.retrieval.baseline.page).toBe(12);
     expect(result.keywordItems[0].retrieval.mode).toBe('document-evidence-v1');
     expect(source.accepted).toBe(false);
-    const baselineResult = await assessSemantic(normal, embed);
-    expect(baselineResult.subject.retrieval).toBeUndefined();
-    expect(baselineResult.subject.evidence.every(e => e.page <= 2)).toBe(true);
   });
 });

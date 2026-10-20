@@ -10,7 +10,13 @@ export function findingProvenance(finding,report) {
     return {kind:'unassessed',label:'AI check not assessed',help:'bounded',detail:actual?.reason || actual?.error || finding.summary || 'No completed model inference is recorded for this check.'};
   }
   if(path.startsWith('consistency.')) {
-    if(finding.method==='embedding-screening'&&completedModel(report.semantic)&&finding.comparison?.ai?.inferencePerformed===true)return {kind:'ai',label:'Rules + local AI relatedness',help:'ai',detail:`Rules found the two titles worded differently; ${modelName(report.semantic?.model)} compared their meaning. This is not identity verification.`};
+    if(finding.method==='embedding-screening'&&completedModel(report.semantic)&&finding.comparison?.ai?.inferencePerformed===true){
+      const kind=finding.comparison?.consistency?.kind,model=modelName(report.semantic?.model);
+      const detail=kind==='same-fact'?`${model} found two sentences that say the same thing; rules found they give different numbers. The model compares meaning and can pair sentences about different things.`
+        :/^contents-/.test(kind||'')?`Rules could not find this contents entry as a heading on its page; ${model} compared it with the headings there.`
+        :`Rules found the two titles worded differently; ${model} compared their meaning. This is not identity verification.`;
+      return {kind:'ai',label:'Rules + local AI relatedness',help:'ai',detail};
+    }
     return {kind:'rules',label:'Extracted PDF + consistency rules',help:'rules',detail:'Values the PDF states in different places are compared with rules: titles, dates, draft labels, language and decorative graphics beside captions. Rules can miss differences or flag intended ones.'};
   }
   if(['authorConsistency','readingOrder'].includes(path))return {kind:'heuristic',label:'Rule-based heuristic',help:'heuristic',detail:path==='authorConsistency'?'Recovered metadata is compared with a heuristic first-page byline candidate; authorship is not authenticated.':'A bounded numbered/spatial order clue; intended reading order still requires visual inspection.'};

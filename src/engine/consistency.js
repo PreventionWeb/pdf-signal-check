@@ -1,4 +1,6 @@
 import { normalizeTitle, publicationCandidates } from './titles.js';
+import { inspectContents } from './contents.js';
+import { factCandidates, identicalWordingPairs } from './facts.js';
 
 /**
  * Consistency advisories: places where a PDF disagrees with itself.
@@ -128,12 +130,13 @@ const LEFTOVERS = [
 ];
 const pageText = page => (page.blocks || []).map(block => block.text).join(' ').replace(/\s+/g, ' ');
 /** Page text split into sentences, each remembering the text fragments it came from. */
-function sentences(page) {
+export function sentences(page) {
   let text = '';
   const spans = [];
   for (const block of page.blocks || []) { spans.push([text.length, text.length + block.text.length, block.id]); text += `${block.text} `; }
   const result = [];
-  for (const match of text.matchAll(/[^.!?•\n]+(?:[.!?]+|$)/g)) {
+  // A full stop between digits is a decimal point, not the end of a sentence.
+  for (const match of text.matchAll(/(?:[^.!?•\n]|\.(?=\d))+(?:[.!?]+|$)/g)) {
     const start = match.index, end = start + match[0].length;
     const sentence = match[0].replace(/\s+/g, ' ').trim();
     if (sentence) result.push({ text: sentence, blockIds: spans.filter(([from, to]) => to > start && from < end).map(([, , id]) => id) });
@@ -282,10 +285,18 @@ function decorativeContent(report, limits) {
   return items;
 }
 
+/** Candidate sentences stating a quantity, shared by the rules here and the optional AI comparison. */
+export const factSentences = report => factCandidates((report.pages || []).map(page => ({ page: page.number, sentences: sentences(page) })));
+/** Sentences worded identically apart from a number: found without AI. */
+function sameFactRules(report) {
+  return identicalWordingPairs(factSentences(report)).map(pair => ({ id: `fact:${pair.a.page}:${pair.b.page}:${pair.values[0].a}:${pair.values[0].b}`,
+    kind: 'same-fact', severity: 'concern', ...pair }));
+}
+
 export function inspectConsistency(report, limits = CONSISTENCY_LIMITS) {
   const names = nameConsistency(report, limits);
   const items = [...names.items, ...dateConsistency(report, names.running, limits), ...languageConsistency(report, limits), ...titleScript(report, limits),
-    ...placeholderMetadata(report), ...decorativeContent(report, limits)];
+    ...placeholderMetadata(report), ...decorativeContent(report, limits), ...inspectContents(report).items, ...sameFactRules(report)];
   return { status: items.some(item => item.severity === 'concern') ? 'requires-review' : items.length ? 'minor' : 'consistent',
     method: 'consistency-rules-v1', names: { cover: names.cover, saved: names.saved, running: names.running }, items };
 }

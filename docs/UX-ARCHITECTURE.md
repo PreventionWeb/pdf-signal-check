@@ -74,6 +74,10 @@ The verb carries the certainty: Add / Set / Export for confirmed defects, “doe
 
 Grouping preserves member evidence, outcomes and provenance. Images group by corrective action. Headings split into suspected mismatches (Check) and pairs the AI could not judge (Couldn’t check).
 
+### AI-decided items
+
+Cards whose bucket was decided by the on-device AI carry a small “AI” tag in the list, and concerns the AI decided rank as “Warning (AI)” after rule-based warnings. Rule findings never carry the tag, even when AI ran. Image descriptions that are authoring-tool placeholders, generic words or file names count as missing descriptions (Fix); within “Review image descriptions”, shared descriptions and descriptions the AI found unrelated to their caption are listed first with a one-line reason.
+
 ### Headline lead and receipt
 
 Under the count headline, one bold sentence names where to start (“Start with: Add a document title.”), taken from the first Fix item (or Check item if there is no Fix), with how many other items it should also fix. It stops the count being read as a severity score. A small receipt line follows: “Checked with standard checks”, “…and on-device AI (MiniLM)”, or that AI was selected but had nothing to compare. A saved-title or author comparison is not listed when nothing is saved, because the missing value is already its own Fix item.

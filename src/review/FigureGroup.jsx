@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Select } from '../ui/react.jsx';
 import { FigureContext } from './FigureContext.jsx';
+import { descriptionNote } from './workspace.js';
 
 /** Render one source crop at a time, even for documents with hundreds of figures. */
 export function FigureGroup({ finding, file, report, onInspect }) {
@@ -15,6 +16,7 @@ export function FigureGroup({ finding, file, report, onInspect }) {
       <Button disabled={index === finding.members.length - 1} onClick={() => setIndex(index + 1)}>Next</Button>
     </div>
     </>}
+    {descriptionNote(member) && <p className="figure-description-note">{descriptionNote(member)}</p>}
     <FigureContext key={member.id} finding={member} file={file} report={report} targets={member.targets || []} onInspect={onInspect} />
   </section>;
 }

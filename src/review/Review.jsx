@@ -55,7 +55,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     task = finding && reviewTask(finding),
     card = finding && fixCard(finding, report),
     bucket = finding && fixBucket(finding);
-  const pinEntries = useMemo(() => [...buckets.fix, ...buckets.check].map((item, index) => ({ number: index + 1, item, bucket: fixBucket(item), ...fixCard(item, report) })), [groups, report]);
+  // "AI" marks only cards whose bucket the model's comparison decided, never rule findings.
+  const decidedByAI = item => [item, ...(item.members || [])].some(member => findingProvenance(member, report).kind === 'ai' && member.category === 'advisory-concern');
+  const pinEntries = useMemo(() => [...buckets.fix, ...buckets.check].map((item, index) => ({ number: index + 1, item, bucket: fixBucket(item), ai: decidedByAI(item), ...fixCard(item, report) })), [groups, report]);
   const experimentEvidence = useMemo(() => state.semanticExperiment ? buildDocumentEvidence(report.pages) : null, [state.semanticExperiment, report.pages]);
   const headingGroup = finding?.members && !finding.figureGroup ? groupedFindingProvenance(finding.members, report) : null;
   useEffect(() => {

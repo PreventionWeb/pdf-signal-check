@@ -722,3 +722,5 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 @media (max-width: 40rem) { .consistency-values { grid-template-columns: 1fr; } .consistency-values dd + dt { margin-top: 8px; } }
 .fix-tip { font-size: .9375rem; margin: 12px 0; padding: 8px 12px; border-left: 3px solid rgb(var(--mg-color-neutral-300)); }
 .fix-tip-link { background: none; border: 0; padding: 0; font: inherit; color: var(--mg-color-link, #0468b1); text-decoration: underline; cursor: pointer; }
+.figure-description-note { font-weight: 600; margin: 8px 0; }
+.fix-ai-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 4px; font-size: .75rem; font-weight: 600; background: rgb(var(--mg-color-neutral-200, 230 230 230)); vertical-align: middle; }

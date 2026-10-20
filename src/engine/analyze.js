@@ -9,6 +9,7 @@ import { compareAuthors, inspectReadingOrder, inspectTextVisibility } from './ad
 import { inspectHiddenInstructions } from './hidden-instructions.js';
 import { inspectAttachments } from './attachments.js';
 import { inspectConsistency } from './consistency.js';
+import { inspectFigureDescriptions } from './figure-descriptions.js';
 import { summarizeAnnotations, inspectLinks, inspectCrossReferences, inspectOutline, inspectMachineMetadata, inspectFigureData, inspectDetachedValues, inspectReferenceTargets } from './travel.js';
 
 export { pdfjs };
@@ -112,6 +113,7 @@ export async function analyzePdf(input, options = {}) {
     report.machineMetadata = inspectMachineMetadata(report.metadata, report.attachments);
     report.figureData = inspectFigureData(report.figureAlternatives, structure, report.attachments);
     report.detachedValues = inspectDetachedValues(report.pages);
+    report.figureDescriptions = inspectFigureDescriptions(report);
     report.consistency = inspectConsistency(report);
     report.hiddenInstructions = inspectHiddenInstructions({ pages: report.pages, metadata: report.metadata, figures: report.figureAlternatives?.items || [], attachments: report.attachments?.files || [] });
     // Hidden runs can be a whole OCR layer; keep only a summary in the report. Matches retain their own snippets.

@@ -108,7 +108,14 @@ export function normalizeFindings(report) {
       title:c.id==='supported-content' && c.status==='indeterminate' ? 'Content this tool cannot fully assess' : c.label,outcome:c.status,method:'profile-rules',summary:c.summary,evidence,
       comparison:c.id==='title'?{metadata:{infoTitle:report.metadata?.infoTitle,xmpTitles:report.metadata?.xmpTitles}}:{},source:{path:`checks.${c.id}`,checkId:c.id},kind:c.id});
   }
+  const descriptions = new Map((report.figureDescriptions?.items || []).map(item => [item.id, item]));
+  const describedByAI = new Map(report.semantic?.inferencePerformed === true ? (report.semantic.figureItems || []).filter(item => item.inferencePerformed).map(item => [item.figureId, item]) : []);
   for (const [index, figure] of (report.figureAlternatives?.items || []).entries()) {
+    const rules = descriptions.get(figure.id), ai = describedByAI.get(figure.id);
+    // Authoring-tool placeholders, generic words and file names describe nothing: treat them as missing.
+    const description = rules ? { flags: rules.flags, duplicates: rules.duplicates, caption: rules.context?.caption || null,
+      unusable: rules.flags.some(flag => ['auto-generated', 'generic', 'file-name'].includes(flag)),
+      ai: ai ? { status: ai.status, similarity: ai.evidence?.[0]?.similarity ?? null } : null } : null;
     const summary = !figure.tagged ? 'Graphic content was detected, but no unambiguous Figure tag was recovered for it. It may be meaningful or decorative; inspect its intended role.'
       : !figure.alt ? 'A Figure tag was found, but its alternate text is missing or empty.'
       : figure.status === 'uncertain' ? 'Alternate text is present, but tag connection problems prevent a reliable association with page content.'
@@ -117,7 +124,7 @@ export function normalizeFindings(report) {
       title:!figure.tagged?'Graphics without a recovered figure tag':figure.alt?'Figure alternate text present':'Figure alternate text missing',
       outcome:figure.status, method:'figure-alternative-inspection', summary,
       evidence:[...(figure.alt ? [`Alternate text: ${figure.alt}`] : []), {page:figure.page,keys:figure.keys,node:figure.node,quads:figure.quads,text:figure.tagged?'Figure content':'Graphic content'}],
-      comparison:{figure, figureNumber: report.figureAlternatives.items.slice(0, index + 1).filter(item => item.page === figure.page).length}, source:{path:`figureAlternatives.items[${index}]`}, kind:figure.tagged?'figure':'figureUnknown'});
+      comparison:{figure, figureNumber: report.figureAlternatives.items.slice(0, index + 1).filter(item => item.page === figure.page).length, ...(description ? { description } : {})}, source:{path:`figureAlternatives.items[${index}]`}, kind:figure.tagged?'figure':'figureUnknown'});
   }
   for (const [index, figure] of (report.figureAlternatives?.decorativeItems || []).entries()) {
     add({ id: `figure:${figure.id}`, category: 'uncertain', title: 'Graphics marked as decorative',

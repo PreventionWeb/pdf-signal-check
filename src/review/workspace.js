@@ -35,6 +35,22 @@ export function groupHeadingFindings(groups) {
     uncertainty: [...groups.uncertainty.filter(item => !ids.has(item.id)), ...(unresolved.length ? [group('review:heading-pairs:unresolved', unresolved)] : [])],
   };
 }
+/** Descriptions to review first: shared by several images, or unrelated to their caption according to the AI. */
+export const descriptionConcern = item => {
+  const description = item.comparison?.description;
+  return description ? (description.flags.includes('duplicate') ? 2 : 0) + (description.ai?.status === 'suspected-mismatch' ? 1 : 0) : 0;
+};
+/** One plain note on why a description is listed, or null. */
+export function descriptionNote(item) {
+  const description = item.comparison?.description;
+  if (!description) return null;
+  if (description.flags.includes('auto-generated')) return 'This is a placeholder written by the authoring tool, not a description.';
+  if (description.flags.includes('file-name')) return 'This is a file name, not a description.';
+  if (description.flags.includes('generic')) return 'This only names the kind of image; it does not say what it shows.';
+  if (description.flags.includes('duplicate')) return `The same description is used for ${description.duplicates} images.`;
+  if (description.ai?.status === 'suspected-mismatch') return `The AI found little in common between this description and the caption “${quote(description.caption)}”. It may describe a different image.`;
+  return null;
+}
 /** Group all image review, including descriptions that passed the presence check. */
 export function groupFigureFindings(groups) {
   const figures = Object.values(groups).flat().filter(item => item.comparison?.figure);
@@ -44,8 +60,8 @@ export function groupFigureFindings(groups) {
   for (const type of ['missing', 'described', 'unlabelled', 'decorative']) {
     const members = figures.filter(item => {
       const figure = item.comparison.figure;
-      return (figure.decorative ? 'decorative' : !figure.tagged ? 'unlabelled' : !figure.alt ? 'missing' : 'described') === type;
-    }).sort((a, b) => a.comparison.figure.page - b.comparison.figure.page);
+      return (figure.decorative ? 'decorative' : !figure.tagged ? 'unlabelled' : !figure.alt || item.comparison.description?.unusable ? 'missing' : 'described') === type;
+    }).sort((a, b) => descriptionConcern(b) - descriptionConcern(a) || a.comparison.figure.page - b.comparison.figure.page);
     if (!members.length) continue;
     result[type === 'missing' ? 'problems' : 'uncertainty'].push({ ...members[0], id: `review:figures:${type}`,
       source: { path: 'review.figures' }, figureGroup: type, members, targets: [], evidence: [], comparison: null });
@@ -58,7 +74,16 @@ export function groupConsistencyFindings(groups) {
   const sets = [
     ['review:consistency:minor-names', all.filter(item => item.comparison?.consistency?.left && item.severity === 'minor')],
     ['review:consistency:decorative', all.filter(item => item.comparison?.consistency?.kind === 'decorative').sort((a, b) => a.comparison.consistency.page - b.comparison.consistency.page)],
+    ['review:consistency:contents', groups.problems.filter(item => /^contents-/.test(item.comparison?.consistency?.kind || ''))],
+    ['review:consistency:contents-unresolved', groups.uncertainty.filter(item => /^contents-/.test(item.comparison?.consistency?.kind || ''))],
   ].filter(([, members]) => members.length > 1);
+  const undecided = id => id.endsWith('-unresolved');
+  // Keywords the rules already identified as internal codes need no separate AI card.
+  const codes = new Set(all.flatMap(item => item.comparison?.consistency?.kind === 'keywords' ? item.comparison.consistency.terms : []));
+  if (codes.size) {
+    const code = item => item.source?.path?.startsWith('semantic.keywordItems[') && codes.has(item.comparison?.query);
+    groups = { ...groups, problems: groups.problems.filter(item => !code(item)), uncertainty: groups.uncertainty.filter(item => !code(item)) };
+  }
   // A saved-title/cover pair from the consistency rules replaces the older "couldn't confirm the title" comparison for the same pair.
   const coverPair = all.some(item => item.comparison?.consistency?.left?.role === 'saved' && item.comparison.consistency.right?.role === 'cover');
   if (coverPair) {
@@ -75,10 +100,11 @@ export function groupConsistencyFindings(groups) {
   }
   if (!sets.length) return groups;
   const ids = new Set(sets.flatMap(([, members]) => members.map(item => item.id)));
-  return { ...groups, uncertainty: groups.uncertainty.filter(item => !ids.has(item.id)),
-    problems: [...groups.problems.filter(item => !ids.has(item.id)), ...sets.map(([id, members]) => ({ ...members[0], id, consistencyGroup: id,
-      source: { path: id.replace(':', '.') }, members, targets: [], evidence: [], comparison: null,
-      ...(id === 'review:consistency:decorative' && generic ? { decorativeContext: generic.members.map(member => member.comparison.figure.page) } : {}) }))] };
+  const grouped = ([id, members]) => ({ ...members[0], id, consistencyGroup: id,
+    source: { path: id.replace(':', '.') }, members, targets: [], evidence: [], comparison: null,
+    ...(id === 'review:consistency:decorative' && generic ? { decorativeContext: generic.members.map(member => member.comparison.figure.page) } : {}) });
+  return { ...groups, uncertainty: [...groups.uncertainty.filter(item => !ids.has(item.id)), ...sets.filter(([id]) => undecided(id)).map(grouped)],
+    problems: [...groups.problems.filter(item => !ids.has(item.id)), ...sets.filter(([id]) => !undecided(id)).map(grouped)] };
 }
 /** Shared task grouping for individual review, batch summaries and captured hand-offs. */
 export function reviewGroups(findings) {
@@ -96,9 +122,12 @@ export function profileReasons(report) {
 
 /** Review urgency is presentation-only; uncertainty never becomes a confirmed defect. */
 export function reviewPriority(finding) {
-  if (finding.figureGroup === 'missing' || (finding.comparison?.figure?.tagged && !finding.comparison.figure.alt)) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
+  if (finding.figureGroup === 'missing' || (finding.comparison?.figure?.tagged && (!finding.comparison.figure.alt || finding.comparison.description?.unusable))) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.members?.length) return finding.members.map(reviewPriority).reduce((highest, item) => item.rank < highest.rank ? item : highest);
   if (finding.severity === 'minor') return { rank: 3, key: 'minor', label: 'Minor', noticeVariant: 'info' };
+  // Concerns the AI decided rank after rule-based warnings.
+  if (finding.category === 'advisory-concern' && finding.method === 'embedding-screening' && finding.source?.path?.startsWith('consistency.'))
+    return { rank: 1.5, key: 'ai-warning', label: 'Warning (AI)', noticeVariant: 'warning' };
   if (finding.source?.path === 'readingOrder' && finding.comparison?.readingSequenceMissing) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.category === 'required-defect') return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.category === 'advisory-concern') return { rank: 1, key: 'warning', label: 'Warning', noticeVariant: 'warning' };
@@ -284,9 +313,11 @@ export function reviewTask(finding) {
   if (consistency) return consistency;
   if (finding.figureGroup) {
     const count = finding.members.length;
+    const placeholders = finding.members.filter(member => member.comparison?.description?.unusable).length;
+    const flagged = finding.members.filter(member => descriptionConcern(member) > 0).length;
     const descriptions = {
-      missing: ['Add descriptions for images', `${count} image${count === 1 ? '' : 's'} labelled as meaningful ${count === 1 ? 'has' : 'have'} no saved text description. People and tools that cannot see them may miss important information.`, 'Add useful alt text or equivalent nearby text. Mark an image as decorative only if it conveys no essential information.'],
-      described: ['Review image descriptions', `${count} image${count === 1 ? '' : 's'} ${count === 1 ? 'has a saved description' : 'have saved descriptions'}. Review whether each description explains the important information; presence alone does not establish accuracy.`, 'Compare each image with its saved description. For charts, include key values and relationships or a data table.'],
+      missing: ['Add descriptions for images', `${count} image${count === 1 ? '' : 's'} labelled as meaningful ${count === 1 ? 'has' : 'have'} no useful text description${placeholders ? ` (${placeholders} only ${placeholders === 1 ? 'has' : 'have'} a placeholder such as “${quote(finding.members.find(member => member.comparison.description?.unusable).comparison.figure.alt.split('\n')[0])}”)` : ''}. People and tools that cannot see them may miss important information.`, 'Add useful alt text or equivalent nearby text. Mark an image as decorative only if it conveys no essential information.'],
+      described: ['Review image descriptions', `${count} image${count === 1 ? '' : 's'} ${count === 1 ? 'has a saved description' : 'have saved descriptions'}.${flagged ? ` Start with the first ${flagged}: ${flagged === 1 ? 'its description is' : 'their descriptions are'} shared with other images or ${flagged === 1 ? 'doesn’t' : 'don’t'} seem to match ${flagged === 1 ? 'its' : 'their'} caption.` : ''} Review whether each description explains the important information; presence alone does not establish accuracy.`, 'Compare each image with its saved description. For charts, include key values and relationships or a data table.'],
       unlabelled: ['Decide whether unlabelled graphics are content or decoration', `Graphics on ${count} page${count === 1 ? '' : 's'} could not be linked to an image label. Check their intended role.`, 'Label meaningful graphics and add useful descriptions. Mark backgrounds, borders and purely decorative shapes as artifacts.'],
       decorative: ['Check graphics marked as decorative', `Graphics on ${count} page${count === 1 ? '' : 's'} are marked as decoration and excluded from machine-readable content. Check that they convey no essential information.`, 'Keep purely decorative graphics marked as artifacts. If a graphic conveys information, give it an image label and a useful description.'],
     };
@@ -513,6 +544,24 @@ export function reviewLimitText(item) {
   return `${item.title}: ${item.summary || "not checked"}`;
 }
 
+/** A grouped consistency member in a few plain words (detail lists and the PDF hand-off). */
+export function consistencyMemberText(item) {
+  if (item.kind === 'decorative') return `Page ${item.page}: ${item.captions[0]?.text || item.source?.text || 'graphic marked as decoration'}`;
+  if (item.kind === 'contents-conflict') return `“${quote(item.entry.text)}”: page ${item.entry.printed} in one contents list, page ${item.other.printed} in another`;
+  if (item.kind === 'contents-page') return `“${quote(item.entry.text)}”: listed as page ${item.entry.printed}${item.foundPage ? `, heading found on PDF page ${item.foundPage}` : ''}`;
+  if (item.kind === 'contents-wording') return `“${quote(item.entry.text)}”: no matching heading on PDF page ${item.expected}`;
+  return item.label || item.kind;
+}
+const contentsWhy = 'People use the contents to find sections, and so do AI tools that read the document. An out-of-date contents list sends them to the wrong place.';
+function contentsLine(item, finding) {
+  const entry = `“${quote(item.entry.text)}”`;
+  if (item.kind === 'contents-conflict') return `The contents on page ${item.entry.contentsPage} give ${entry} as page ${item.entry.printed}, but the contents on page ${item.other.contentsPage} say page ${item.other.printed}.`;
+  if (item.kind === 'contents-page') return item.foundPage ? `The contents list ${entry} on page ${item.entry.printed}, but that heading is on PDF page ${item.foundPage}, not ${item.expected}.` : `The contents list ${entry} on page ${item.entry.printed}, which is past the end of the document.`;
+  const ai = finding?.comparison?.ai;
+  return ai?.status === 'semantically-related' ? `The contents list ${entry}, but the heading on PDF page ${item.expected} is worded differently: “${quote(ai.evidence?.[0]?.text)}”.`
+    : ai?.status === 'suspected-mismatch' ? `The contents list ${entry} on PDF page ${item.expected}, but no heading there seems related (checked by AI).`
+      : `The contents list ${entry} on PDF page ${item.expected}; the tool could not find that heading there.`;
+}
 const KIND_WORDS = { punctuation: 'punctuation differs', order: 'words are in a different order', spelling: 'spelling differs', shortened: 'one leaves words out',
   reworded: 'worded differently', year: 'the year differs', substitution: 'one word is different', different: 'the wording is different' };
 const ROLES = { saved: 'saved title', cover: 'cover', running: 'page header' };
@@ -542,8 +591,25 @@ function consistencyTask(finding) {
       'Give each map or chart an image label (a Figure tag) with a short description of what it shows, or state its key finding in nearby text. Keep only purely decorative graphics marked as decoration. Export again and recheck.',
       'Marking a graphic as decoration tells assistive technology and AI tools to ignore it. That is right for backgrounds and borders, but not for a map or chart that carries information.');
   }
+  if (finding.consistencyGroup === 'review:consistency:contents') {
+    const lines = finding.members.slice(0, 2).map(member => contentsLine(member.comparison.consistency, member)).join(' ');
+    return task(`Contents don’t match the pages (${finding.members.length})`, `${lines}${finding.members.length > 2 ? ` ${finding.members.length - 2} more entries are listed below.` : ''}`,
+      'Update the table of contents in the source document so its entries and page numbers match the headings (in Word: right-click the table, Update Field, Update entire table). Then export again.', contentsWhy);
+  }
+  if (finding.consistencyGroup === 'review:consistency:contents-unresolved') return task(`Contents entries the tool couldn’t match (${finding.members.length})`,
+    'The tool could not find these contents entries as headings on the pages they point to, and could not tell whether the headings are just worded differently.',
+    'Compare each entry with the heading on its page.', contentsWhy);
   const item = finding.comparison?.consistency;
   if (!item) return null;
+  if (/^contents-/.test(item.kind)) return task(finding.category === 'uncertain' ? 'A contents entry the tool couldn’t match' : 'The contents don’t match the page',
+    contentsLine(item, finding), 'Update the table of contents in the source document so it matches the headings, then export again.', contentsWhy);
+  if (item.kind === 'same-fact') {
+    const [value] = item.values, unit = value.unit === '%' ? '%' : ` ${value.unit}`;
+    return task(`The same figure is given differently: ${value.a}${unit} and ${value.b}${unit}`,
+      `Page ${item.a.page} says “${quote(item.a.text)}” and page ${item.b.page} says “${quote(item.b.text)}”. ${item.method === 'identical-wording' ? 'The sentences are worded the same apart from the number' : 'The AI found these sentences describe the same thing'}, but they give different numbers.`,
+      'Check which figure is right in the source data. Make both places use it, or say clearly why they differ (for example, a different year or scope). Then export again.',
+      `Readers and AI tools may quote either number. ${item.method === 'identical-wording' ? '' : 'The AI compares meaning and can be wrong: the sentences may describe different things, so check before changing anything.'}`.trim());
+  }
   if (item.left) {
     const left = `the ${ROLES[item.left.role]} “${quote(item.left.text)}”`, right = `the ${ROLES[item.right.role]} “${quote(item.right.text)}”`;
     const ai = finding.comparison?.ai;
