@@ -223,33 +223,33 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     lead={lead} special={narrow && special === "overview" ? null : special} onSpecial={setSpecial} technical={technical} narrow={narrow}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {special === "overview" && !narrow ? lead
-        : special === "technical" ? <Card as="article" className="problem-frame">
-          <p className="fix-detail-eyebrow">Technical details</p>
-          <h2 className="review-detail-title" tabIndex={-1}>How this PDF was checked</h2>
-          <p>{overview.checkedWith} The full technical record is open beside this panel: the checks that ran, what this tool cannot check, and every recorded value.</p>
-          <Actions><Button onClick={() => setSpecial("overview")}>Back to the overview</Button></Actions>
-        </Card>
+        : special === "technical" ? methodCard
         : detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
     </section>} />;
-  const technical = <div className="technical-details">
-    <section aria-labelledby="check-method-title">
-      <h2 id="check-method-title">How this PDF was checked</h2>
-      <ul>
-        <li><div className="execution-receipt"><span>PDF extraction and rules</span> <Tag subtle>{execution.label}</Tag><Help topic={execution.kind === 'ai' ? 'ai' : 'bounded'} label="About actual AI execution" extraText={execution.detail} /></div></li>
-        {screeningLanguageNote(report) && <li>{screeningLanguageNote(report)}</li>}
-        <li><strong>Text profile {report.profile.replace("text-actionability-", "")}:</strong> {profileReceipt(report)}.</li>
-        {profileReasons(report).map((reason, i) => <li key={i}>{reason}</li>)}
-        {state.example && <li className="model-note">Synthetic example labels: {state.example.defects?.join('; ') || 'Matching control'}. These labels do not determine results.</li>}
-      </ul>
-      <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showStatus={false} />
-    </section>
+  // The Technical details inbox entry: method and limits in the detail pane, the full record in the wide pane.
+  const methodCard = <Card as="article" className="problem-frame technical-method">
+    <p className="fix-detail-eyebrow">Technical details</p>
+    <h2 className="review-detail-title" id="check-method-title" tabIndex={-1}>How this PDF was checked</h2>
+    <p>{overview.checkedWith}</p>
+    <ul>
+      <li><div className="execution-receipt"><span>PDF extraction and rules</span> <Tag subtle>{execution.label}</Tag><Help topic={execution.kind === 'ai' ? 'ai' : 'bounded'} label="About actual AI execution" extraText={execution.detail} /></div></li>
+      {screeningLanguageNote(report) && <li>{screeningLanguageNote(report)}</li>}
+      <li><strong>Text profile {report.profile.replace("text-actionability-", "")}:</strong> {profileReceipt(report)}. This deterministic result is independent of the AI, the scores and the grouping above.</li>
+      {profileReasons(report).map((reason, i) => <li key={i}>{reason}</li>)}
+      {state.example && <li className="model-note">Synthetic example labels: {state.example.defects?.join('; ') || 'Matching control'}. These labels do not determine results.</li>}
+    </ul>
+    <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showStatus={false} />
     <section className="review-limits" aria-labelledby="review-limits-title">
-      <h2 id="review-limits-title">What this tool cannot check</h2>
+      <h3 id="review-limits-title">What this tool cannot check</h3>
       <ul>
         {groups.limits.flatMap(item => item.evidence?.filter(value => typeof value === 'string').map(reviewLimitEvidence) || []).map((value, i) => <li key={i}>{value}</li>)}
         <li>Image and chart meaning, factual accuracy and intended reading order are not fully verified by this tool.</li>
       </ul>
     </section>
+    <p className="model-note">The full record is open beside this panel: every check that ran, each recorded value and the successful checks.</p>
+    <Actions><Button onClick={() => setSpecial("overview")}>Back to the overview</Button></Actions>
+  </Card>;
+  const technical = <div className="technical-details">
     {experimentEvidence && <SemanticEvidenceLab key={state.sourceKey} report={report} documentEvidence={experimentEvidence} onInspect={inspect} />}
     <section id="advanced-evidence" aria-labelledby="technical-record-title">
       <h2 id="technical-record-title">Technical analysis record</h2>
