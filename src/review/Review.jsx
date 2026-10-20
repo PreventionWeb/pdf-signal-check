@@ -12,7 +12,6 @@ import { OrderComparison, OrderTechnical } from "./OrderComparison.jsx";
 import { AttachmentInventory } from "./AttachmentInventory.jsx";
 import { AdvancedReport } from "./AdvancedReport.jsx";
 import { EvidenceDrawer } from "./EvidenceDrawer.jsx";
-import { Crop } from "../evidence/Crop.jsx";
 import { candidateBlocks } from "../geometry.js";
 import { FigureContext } from "./FigureContext.jsx";
 import { FigureGroup } from "./FigureGroup.jsx";
@@ -162,7 +161,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         : finding.source?.path?.startsWith("semantic.") ? <SemanticExcerpts finding={finding} />
         : finding.comparison?.figure ? <FigureContext key={finding.id} finding={finding} file={file} report={report} targets={targets} onInspect={inspect} />
         : kind === "order" ? null
-        : <Crop file={file} report={report} targets={targets} />}
+        : null}
       {card.change && <section className="fix-change">
         <h3>{bucket === "unknown" ? "To check it yourself" : "What to change"}</h3>
         <p>{card.change}</p>

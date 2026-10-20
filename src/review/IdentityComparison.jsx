@@ -2,7 +2,6 @@ import React from "react";
 import { Card, Button } from "../ui/react.jsx";
 import { Help } from "../help/Help.jsx";
 import { identitySavedValues } from "./identity-values.js";
-import { Crop } from "../evidence/Crop.jsx";
 export function IdentityComparison({ kind, report, file, targets, onInspect, compact = false }) {
   const result =
       kind === "title" ? report.metadataConsistency : report.authorConsistency,
@@ -31,9 +30,6 @@ export function IdentityComparison({ kind, report, file, targets, onInspect, com
       </Card>
       <Card className="identity-source identity-publication">
         <h3>{kind === 'title' ? 'Possible title found on the page' : 'Possible author names found on the page'}</h3>
-        <div className="finding-crop-slot">
-          <Crop file={file} report={report} targets={targets} />
-        </div>
         {!compact && <h4>Text found on the first page</h4>}
         {!compact && <p className="model-note">
           {kind === "title"

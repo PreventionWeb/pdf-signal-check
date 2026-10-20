@@ -1,22 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Select } from '../ui/react.jsx';
+import { Button } from '../ui/react.jsx';
 import { FigureContext } from './FigureContext.jsx';
-import { descriptionNote } from './workspace.js';
 
-/** Render one source crop at a time, even for documents with hundreds of figures. */
-export function FigureGroup({ finding, file, report, onInspect }) {
-  const [index, setIndex] = useState(0);
-  const member = finding.members[Math.min(index, finding.members.length - 1)];
-  return <section aria-label="Images in this group">
-    {finding.members.length > 1 && <>
-    <Select label={`Image ${index + 1} of ${finding.members.length}`} value={String(index)} onChange={event => setIndex(Number(event.target.value))}
-      options={finding.members.map((item, position) => ({ value: String(position), label: `${position + 1}. Page ${item.comparison.figure.page}, ${item.comparison.figure.decorative ? 'decorative graphics' : item.comparison.figure.tagged ? `image ${item.comparison.figureNumber || 1}` : 'graphics'}` }))} />
-    <div className="figure-group-actions">
-      <Button disabled={index === 0} onClick={() => setIndex(index - 1)}>Previous</Button>
-      <Button disabled={index === finding.members.length - 1} onClick={() => setIndex(index + 1)}>Next</Button>
-    </div>
-    </>}
-    {descriptionNote(member) && <p className="figure-description-note">{descriptionNote(member)}</p>}
-    <FigureContext key={member.id} finding={member} file={file} report={report} targets={member.targets || []} onInspect={onInspect} />
+const LIMIT = 30;
+/** Every image in the group as a short list; each one opens in the page viewer, which does the showing. */
+export function FigureGroup({ finding, onInspect }) {
+  const [limit, setLimit] = useState(LIMIT);
+  return <section aria-label="Images in this group" className="figure-group-list">
+    {finding.members.slice(0, limit).map(member => <FigureContext key={member.id} finding={member} targets={member.targets || []} onInspect={onInspect} compact />)}
+    {finding.members.length > limit && <Button onClick={() => setLimit(value => value + LIMIT)}>Show {Math.min(LIMIT, finding.members.length - limit)} more ({finding.members.length - limit} remaining)</Button>}
   </section>;
 }

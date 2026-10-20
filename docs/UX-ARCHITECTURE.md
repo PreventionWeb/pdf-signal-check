@@ -104,7 +104,7 @@ Under the count headline, one bold sentence names where to start (“Start with:
 
 ### Page viewer (October 2026)
 
-The main column is the PDF viewer; there is no preview modal. A sticky toolbar holds page navigation (‹ Page [n] of N ›, type a number and press Enter), All pages / With issues, Issues / Reading order / Page only (Mangrove segmented controls; Reading order is disabled with a note when the PDF has no tags), and zoom (− Fit + up to 200%, re-rendered sharply). All pages show by default and load as you scroll. Every “Show on page” action scrolls the viewer to the page and outlines the spot with a brief pulse (no pulse with reduced motion). In Reading order mode each page has a “Text in reading order” disclosure.
+The main column is the PDF viewer; there is no preview modal. A sticky toolbar holds page navigation (‹ Page [n] of N ›, type a number and press Enter), All pages / With issues, Issues / Reading order / Page only (Mangrove segmented controls; Reading order is disabled with a note when the PDF has no tags), and zoom (− Fit + up to 200%, re-rendered sharply). All pages show by default and load as you scroll. Every “Show on page” action scrolls the viewer to the page and outlines the spot with a brief pulse (no pulse with reduced motion). The detail pane no longer renders its own page crops or thumbnails: image groups are a short list (page, kind, saved description, any note) with a “Show on page” action per image, and title or author comparisons show the recovered text without a crop. In Reading order mode each page has a “Text in reading order” disclosure.
 
 ### Document properties entry (October 2026)
 

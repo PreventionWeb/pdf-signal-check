@@ -1,6 +1,5 @@
 import React from "react";
 import { Button } from "../ui/react.jsx";
-import { Crop } from "../evidence/Crop.jsx";
 import { consistencyMemberText } from "./workspace.js";
 
 const ROLES = { saved: "Saved title (document properties)", cover: "Cover", running: "Page headers and footers" };
@@ -33,5 +32,5 @@ export function ConsistencyDetail({ finding, file, report, onInspect }) {
       {finding.targets?.[index] && <Button onClick={() => onInspect(finding.targets[index])}>Show on page {sentence.page}</Button>}
     </section>)}
   </section>;
-  return finding.targets?.length ? <Crop file={file} report={report} targets={finding.targets} /> : null;
+  return null;
 }
