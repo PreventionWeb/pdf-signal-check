@@ -757,3 +757,11 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
   .page-pins-legend { border-bottom: 0; padding: 4px 8px 16px 4px; }
   .page-pins-detail-pane { padding: 4px; }
 }
+/* Inbox entries: Overview above the issues, Technical details below them. */
+.page-pins-special { margin-bottom: 16px; border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: var(--mg-card-border-radius, 4px); background: rgb(var(--mg-color-neutral-0)); }
+.page-pins-legend > .page-pins-special:last-of-type { margin-top: 8px; }
+.page-pin--overview { background: rgb(var(--mg-color-interactive)); color: rgb(var(--mg-color-neutral-0)); }
+.page-pin--technical { background: rgb(var(--mg-color-neutral-600, 90 90 90)); color: rgb(var(--mg-color-neutral-0)); font-style: italic; }
+.page-pins-detail-pane .result-hero { margin: 0; }
+.page-pins-technical { min-width: 0; }
+.page-pins-detail-pane .result-hero .mg-hero__title { font-size: clamp(1.5rem, 2vw, 2rem); }

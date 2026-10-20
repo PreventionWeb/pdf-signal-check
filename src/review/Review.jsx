@@ -24,6 +24,17 @@ import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins } from "./PagePins.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
 
+/** Below 820 px the summary leads the page and the issue list becomes a bottom sheet. */
+function useNarrow() {
+  const query = "(max-width: 820px)";
+  const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
+  useEffect(() => {
+    const media = window.matchMedia(query), update = () => setNarrow(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  return narrow;
+}
 const BUCKETS = {
   fix: { label: "Fix", intro: "Problems found in this PDF." },
   check: { label: "Check", intro: "Possible problems. Look at each one and decide." },
@@ -38,7 +49,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     [selection, setSelection] = useState(null),
     [fullOpen, setFullOpen] = useState(false),
     [drawerOpen, setDrawerOpen] = useState(false),
-    [view, setView] = useState("pages"),
+    // Inbox-style selection: the Overview and Technical details entries, or null when an issue is selected.
+    [special, setSpecial] = useState("overview"),
+    narrow = useNarrow(),
     focusFinding = useRef(false),
     titleRef = useRef(null),
     detailRef = useRef(null);
@@ -107,7 +120,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       focusFinding.current = false;
     }
   }, [finding?.id]);
+  useEffect(() => setSpecial("overview"), [state.sourceKey]);
   const choose = (item, moveFocus = window.matchMedia("(max-width: 820px)").matches) => {
+    setSpecial(null);
     focusFinding.current = moveFocus;
     controller.setReviewCursor({ category: fixBucket(item), issueId: item.id });
   };
@@ -201,9 +216,16 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   </>;
   const pagesView = () => <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
     selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} onShowPage={page => inspect({ page, label: `Page ${page}` })} onShowAll={() => { setSelection(null); setFullOpen(true); }}
-    lead={lead} view={view} onView={setView} technical={technical}
+    lead={lead} special={narrow && special === "overview" ? null : special} onSpecial={setSpecial} technical={technical} narrow={narrow}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
-      {detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
+      {special === "overview" && !narrow ? lead
+        : special === "technical" ? <Card as="article" className="problem-frame">
+          <p className="fix-detail-eyebrow">Technical details</p>
+          <h2 className="review-detail-title" tabIndex={-1}>How this PDF was checked</h2>
+          <p>{overview.checkedWith} The full technical record is open beside this panel: the checks that ran, what this tool cannot check, and every recorded value.</p>
+          <Actions><Button onClick={() => setSpecial("overview")}>Back to the overview</Button></Actions>
+        </Card>
+        : detailArticle || <p className="model-note">Choose an item to see what to change.</p>}
     </section>} />;
   const technical = <div className="technical-details">
     <section aria-labelledby="check-method-title">

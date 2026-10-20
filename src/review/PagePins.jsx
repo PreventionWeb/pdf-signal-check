@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { EvidenceCropService } from "../evidence/crops.js";
 import { Button, Switch } from "../ui/react.jsx";
-import { Tabs } from "../ui/Tabs.jsx";
 import { fixCard } from "./workspace.js";
 import { pagePins } from "./page-pins.js";
 import { readingOrderPlacement } from "../evidence/reading-order-placement.js";
@@ -16,10 +15,17 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  * are buttons. Numbers match the PDF download. The side panel shows the selected item's detail (passed in as `detail`).
  */
 export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect: select, detail, onShowPage, onShowAll,
-  lead = null, view = "pages", onView = () => {}, technical = null }) {
+  lead = null, special = null, onSpecial = () => {}, technical = null, narrow = false }) {
   // On narrow screens the list and detail live in a bottom sheet; choosing anything opens it.
   const [sheetOpen, setSheetOpen] = useState(false);
   const onSelect = (item, moveFocus) => { if (mobile()) setSheetOpen(true); select(item, moveFocus); };
+  // Inbox-style entries above and below the issues: the overview and the technical record.
+  const chooseSpecial = kind => { if (mobile()) setSheetOpen(true); onSpecial(kind); };
+  const specialEntry = (kind, title, where) => <button type="button" className={`page-pins-entry page-pins-special ${special === kind ? "is-selected" : ""}`}
+    aria-current={special === kind ? "true" : undefined} aria-controls="selected-item-analysis" onClick={() => chooseSpecial(kind)}>
+    <span className={`page-pin page-pin--${kind}`} aria-hidden="true">{kind === "overview" ? "★" : "i"}</span>
+    <span><span className="fix-card-title">{title}</span><span className="fix-card-where">{where}</span></span>
+  </button>;
   useEffect(() => {
     if (!sheetOpen) return undefined;
     const close = event => { if (event.key === "Escape") setSheetOpen(false); };
@@ -48,7 +54,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     service.current = new EvidenceCropService(file, report, { signal: abort.signal });
     return () => { abort.abort(); service.current?.destroy(); service.current = null; };
   }, [file, report]);
-  const selected = entries.find(entry => entry.item.id === selectedId)?.number ?? null;
+  const selected = special ? null : entries.find(entry => entry.item.id === selectedId)?.number ?? null;
   const scrollTo = key => requestAnimationFrame(() => pageRefs.current.get(key)?.scrollIntoView({ block: "start", behavior: "smooth" }));
   // Legend selection also brings the item's page into view; on narrow screens the detail comes first instead.
   const choose = (entry, scroll) => {
@@ -77,6 +83,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       <div className="page-pins-sheet-header"><strong>Issues ({entries.length})</strong><Button onClick={() => setSheetOpen(false)}>Close</Button></div>
       <nav className="page-pins-legend" aria-labelledby="page-pins-title">
         <h2 id="page-pins-title" className="mg-u-sr-only">Issues in this PDF</h2>
+        {!narrow && specialEntry("overview", "Overview", "Summary and downloads")}
         {!entries.length && <p className="fix-bucket-empty">Nothing to fix or check was found automatically.</p>}
         {["fix", "check"].map(bucket => {
           const items = entries.filter(entry => entry.bucket === bucket);
@@ -91,7 +98,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
           <summary className="fix-bucket-summary">Make it travel further <span className="fix-bucket-count">({travel.length})</span></summary>
           <p className="fix-bucket-intro">{travelIntro}</p>
           <ul className="page-pins-list">{travel.map(item => {
-            const current = item.id === selectedId, card = fixCard(item, report);
+            const current = !special && item.id === selectedId, card = fixCard(item, report);
             return <li key={item.id}><button type="button" className={`page-pins-entry ${current ? "is-selected" : ""}`} aria-current={current ? "true" : undefined}
               aria-controls="selected-item-analysis" onClick={() => onSelect(item, mobile())}>
               <span className="page-pin page-pin--travel" aria-hidden="true">+</span>
@@ -103,7 +110,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
           <summary className="fix-bucket-summary">Couldn’t check <span className="fix-bucket-count">({unknown.length + limits.length})</span></summary>
           <p className="fix-bucket-intro">The tool could not decide these. They are limits of this tool, not problems found in your PDF.</p>
           <ul className="page-pins-list">{unknown.map(item => {
-            const current = item.id === selectedId, card = fixCard(item, report);
+            const current = !special && item.id === selectedId, card = fixCard(item, report);
             return <li key={item.id}><button type="button" className={`page-pins-entry ${current ? "is-selected" : ""}`} aria-current={current ? "true" : undefined}
               aria-controls="selected-item-analysis" onClick={() => onSelect(item, mobile())}>
               <span className="page-pin page-pin--unknown" aria-hidden="true">?</span>
@@ -113,13 +120,14 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
           {limits.length > 0 && <><h4 className="fix-limits-title">Not checked by this tool</h4><ul className="fix-limits">{limits.map(text => <li key={text}>{text}</li>)}</ul></>}
         </details>}
         {tips.map(item => <p key={item.id} className="fix-tip"><strong>Tip:</strong> the reading order looks right to this tool, but only a person can confirm it. Listen to a page with a screen reader, or <button type="button" className="fix-tip-link" onClick={() => onSelect(item, mobile())}>see the reading order</button>.</p>)}
+        {specialEntry("technical", "Technical details", "How this PDF was checked")}
         <p className="fix-list-note">This tool doesn’t change your PDF. Fix the source document, export again and check the new PDF.</p>
       </nav>
       {detail}
     </aside>
     <div className="page-pins-main">
-    {lead}
-    <Tabs label="Results" value={view} onChange={onView} tabs={[{ value: "pages", label: "What to fix", content: <div className="page-pins-pages">
+    {narrow && lead}
+    {special === "technical" ? <section className="page-pins-technical" aria-label="Technical details">{technical}</section> : <div className="page-pins-pages">
       <div className="page-pins-toolbar">{orderToggle}<Button className="page-pins-show-all" onClick={onShowAll}>Show the whole PDF</Button>{showOrder && <span className="model-note">Blue numbers show the order screen readers follow. Pages without a recovered order have no numbers.</span>}</div>
       <section className="page-pins-page" aria-labelledby="page-pins-properties-title"
         ref={element => element ? pageRefs.current.set("properties", element) : pageRefs.current.delete("properties")}>
@@ -159,7 +167,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
         onSelect={number => onSelect(byNumber(number).item, mobile())} onShowPage={onShowPage}
         pageRef={element => element ? pageRefs.current.set(page, element) : pageRefs.current.delete(page)} />)}
       {shown < pages.length && <Button onClick={() => setShown(value => value + PAGE_BATCH)}>Show {Math.min(PAGE_BATCH, pages.length - shown)} more pages ({pages.length - shown} remaining)</Button>}
-    </div> }, { value: "technical", label: "Technical details", content: technical }]} />
+    </div>}
     </div>
     {/* Narrow screens: a persistent bar opens the list and the selected item's detail as a bottom sheet. */}
     <button type="button" className="page-pins-sheet-toggle" aria-controls="page-pins-panel" aria-expanded={sheetOpen} onClick={() => setSheetOpen(open => !open)}>
