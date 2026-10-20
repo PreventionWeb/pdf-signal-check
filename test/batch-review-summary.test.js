@@ -20,7 +20,8 @@ it.each(['partly-prepared', 'graphics-and-decoration', 'well-prepared'])('keeps 
   expect(summary.presentationCounts.fix).toBe(sheet.fix.length);
   expect(summary.presentationCounts.check).toBe(sheet.check.length);
   expect(summary.presentationCounts.unknown).toBe(sheet.unknown.length);
-  expect(summary.presentationCounts.couldntCheck).toBe(sheet.unknown.length + sheet.limits.length);
+  // Standing tool limits are a footnote, not counted items.
+  expect(summary.presentationCounts.couldntCheck).toBe(sheet.unknown.length);
   expect(summary.findingCounts).toEqual(normalized.counts);
   expect(summary.accepted).toBe(before.accepted);
   queue.releaseDetails([id], { consent: true });

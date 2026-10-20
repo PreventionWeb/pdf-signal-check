@@ -110,7 +110,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
           })}</ul>
         </details>}
         {(unknown.length > 0 || limits.length > 0) && <details className="fix-bucket fix-bucket--unknown" open={unknown.some(item => item.id === selectedId) || undefined}>
-          <summary className="fix-bucket-summary">Couldn’t check <span className="fix-bucket-count">({unknown.length + limits.length})</span></summary>
+          <summary className="fix-bucket-summary">Couldn’t check {unknown.length > 0 && <span className="fix-bucket-count">({unknown.length})</span>}</summary>
           <p className="fix-bucket-intro">The tool could not decide these. They are limits of this tool, not problems found in your PDF.</p>
           <ul className="page-pins-list">{unknown.map(item => {
             const current = !special && item.id === selectedId, card = fixCard(item, report);

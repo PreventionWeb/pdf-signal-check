@@ -126,7 +126,7 @@ export function reviewPriority(finding) {
   if (finding.members?.length) return finding.members.map(reviewPriority).reduce((highest, item) => item.rank < highest.rank ? item : highest);
   if (finding.severity === 'minor') return { rank: 3, key: 'minor', label: 'Minor', noticeVariant: 'info' };
   // A fix for catalogues and AI tools rather than an accessibility-standard failure: after the structural fixes.
-  if (finding.source?.path === 'machineMetadata' && finding.category === 'advisory-concern') return { rank: 0.5, key: 'important', label: 'Fix (publishing details)', noticeVariant: 'warning' };
+  if (finding.source?.path === 'machineMetadata' && finding.category === 'advisory-concern') return { rank: 0.5, key: 'important', label: 'Important', noticeVariant: 'warning' };
   // Concerns the AI decided rank after rule-based warnings.
   if (finding.category === 'advisory-concern' && finding.method === 'embedding-screening' && finding.source?.path?.startsWith('consistency.'))
     return { rank: 1.5, key: 'ai-warning', label: 'Warning (AI)', noticeVariant: 'warning' };
@@ -203,7 +203,8 @@ export function reviewSummary(report, groups) {
       : graphicsOnly ? 'This tool cannot judge image or chart meaning, so check those yourself.'
         : 'This is a partial result: some checks could not give an answer, so the PDF has not met all of this tool’s requirements.';
   const counts = Object.fromEntries(Object.entries(buckets).map(([key, items]) => [key, items.length]));
-  counts.couldntCheck = counts.unknown + counts.limits;
+  // Standing tool limits are listed under Couldn’t check but never counted: the count is undecided items only.
+  counts.couldntCheck = counts.unknown;
   return { headline, nextStep, scope, tasks, buckets, criticalCount, counts };
 }
 
@@ -277,6 +278,9 @@ export function fixCard(item, report = {}) {
   if (failed && check === 'language') return { ...card, title: 'Set the document language',
     change: 'Set the document language, such as English, in the source document’s settings or a PDF editor. Then export again.' };
   if (failed && check === 'title') return { ...card, title: 'Add a document title' };
+  if (failed && check === 'text') return { ...card, title: item.summary === 'No non-artifact text could be extracted.' ? 'Add real text to the pages' : 'Fix text that doesn’t copy out correctly',
+    summary: item.summary === 'No non-artifact text could be extracted.' ? 'The pages have no text that software can read, apart from anything marked as decoration. They may be scanned images of text. Screen readers, search and AI tools get nothing from them.'
+      : 'Some characters come out missing or wrong when the text is copied, even though the page looks right. Screen readers, search and AI tools read those wrong characters.' };
   if (failed && check === 'structure' && item.summary !== 'No structure tree found.') {
     const pages = [...new Set((item.evidence || []).map(text => /^Page (\d+):|^Content reference (\d+):/.exec(String(text))).filter(Boolean).map(match => Number(match[1] || match[2])))].sort((a, b) => a - b);
     return { ...card, title: 'Re-export the PDF so its tags are complete',
@@ -288,6 +292,10 @@ export function fixCard(item, report = {}) {
     summary: 'The PDF has no tags: the hidden labels that tell screen readers and AI tools which text is a heading, paragraph, list or table. A visible table of contents doesn’t add them.',
     also: item.related?.map(related => related.source?.checkId === 'coverage' ? 'Text that screen readers can’t reach' : 'The missing reading order'),
     change: 'In the source document, use heading, list and table styles, then export with PDF tags turned on (often called an accessible or tagged PDF).' };
+  if (path === 'textVisibility' && fixBucket(item) === 'unknown') return { ...card, title: 'The tool couldn’t tell whether hidden text matches the page' };
+  // Undecided results are never tasks: say what the tool couldn’t decide instead of telling the person to check it.
+  if (fixBucket(item) === 'unknown' && /^Check (that |whether )?/.test(card.title) && !item.members)
+    return { ...card, title: card.title.replace(/^Check (that |whether )?/, (match, word) => `The tool couldn’t check ${word ? 'whether ' : ''}`) };
   if (path === 'readingOrder' && item.comparison?.readingSequenceMissing) return { ...card, where: 'Whole document' };
   if (path === 'readingOrder' && item.outcome !== 'requires-review') return { ...card, title: 'Check the reading order',
     summary: 'The tool found no ordering problem, but it cannot confirm the order is right. Check that screen readers will read the page in the order you intend.',

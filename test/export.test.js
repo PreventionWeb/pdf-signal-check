@@ -57,6 +57,6 @@ it('builds the designer fix sheet from the captured report in the same buckets a
   expect(sheet.fix.map(item => item.title)).toEqual(['Set the document language']);
   expect(sheet.check.map(item => [item.number, item.title])).toEqual([[2, 'Saved title doesn’t match the cover']]);
   expect(sheet.check[0].summary).toContain('“Report 2025”');
-  expect(sheet.unknown).toContain('Compare extracted words with the visible page');
+  expect(sheet.unknown).toContain('The tool couldn’t tell whether hidden text matches the page');
   expect([...sheet.fix, ...sheet.check].every(item => item.change)).toBe(true);
 });
