@@ -65,7 +65,7 @@ export function AboutPage({ onStart, onPrivacy }) {
       </Suspense>
     </section>
 
-    <section className="about-section" aria-labelledby="about-why">
+    <section className="about-section mg-content" aria-labelledby="about-why">
       <h2 id="about-why" tabIndex={-1}>Why this matters</h2>
       <p className="about-lead">A report has more than its visible page. It can also carry text that software extracts and hidden labels called tags, which identify headings, paragraphs, images and reading order.</p>
       <p>When that information is missing or misleading, a person may miss the finding and an AI chatbot may repeat the wrong fact with confidence. Good structure removes some avoidable confusion. It still needs human review: tags can be present but wrong, and a saved chart description may not explain the chart.</p>
@@ -77,7 +77,7 @@ export function AboutPage({ onStart, onPrivacy }) {
       </li>)}</ul>
     </section>
 
-    <section className="about-section" aria-labelledby="about-example">
+    <section className="about-section mg-content" aria-labelledby="about-example">
       <h2 id="about-example">The same page, read two ways</h2>
       <p>UNDRR and the United Nations Office for the Coordination of Humanitarian Affairs (OCHA) compared how a page of the <a href="https://www.undrr.org/media/107058/" target="_blank" rel="noopener noreferrer">Global Assessment Report 2025 Summary for Policymakers ↗</a> is meant to be read with what a PDF text extractor actually returns. The page mixes narrative text with a chart about urban population growth.</p>
       <div className="about-compare">
@@ -109,7 +109,7 @@ cities where an additional 1.2`}</pre>
       <p>Sentences start mid-thought, numbers like “+1.2” and “98.4%” lose what they measure and the chart’s title isn’t tagged as a heading. In this example, Copilot missed the link to urbanization when given only the extracted text. With a correctly ordered version, it answered correctly. That illustrates why the input matters; it does not establish how every AI system will respond.</p>
     </section>
 
-    <section className="about-section" aria-labelledby="about-flow">
+    <section className="about-section mg-content" aria-labelledby="about-flow">
       <h2 id="about-flow">A production flow for PDFs that work</h2>
       <p>Start in the source document, where you can repair the meaning as well as the appearance. These steps adapt the guidance; each card names the checks this tool contributes. Review the evidence yourself, then export and check again.</p>
       <ol className="about-phases">{phases.map((phase, index) => <li key={phase.title} className="mg-card about-phase">
@@ -122,20 +122,20 @@ cities where an additional 1.2`}</pre>
       </li>)}</ol>
     </section>
 
-    <section className="about-section" aria-labelledby="about-reuse">
+    <section className="about-section mg-content" aria-labelledby="about-reuse">
       <h2 id="about-reuse">Then help the findings travel further</h2>
       <p>Once the basic problems are addressed, make the report easier to use elsewhere. Share the data behind charts, add a clear summary and publishing details, make references clickable and add bookmarks that jump to sections.</p>
       <p>In the results, optional suggestions under “Make it travel further” are separate from the things to fix or check and do not add to their count. Suspected problems, such as a reference without a link, still need review under Check. An attached data file or description does not guarantee that a search engine or AI tool will use it.</p>
     </section>
 
-    <section className="about-section" aria-labelledby="about-fit">
+    <section className="about-section mg-content" aria-labelledby="about-fit">
       <h2 id="about-fit">Where PDF Signal Check fits</h2>
       <p>PDF Signal Check looks for problems you may not notice on the page: missing or broken tags, missing image descriptions, clues to mixed-up reading order and document details that disagree with the publication. It also lists attachments and screens for hidden instruction-like text. You get a fix list with evidence and page pins where the issue can be located.</p>
       <p>Start with Fix, then review Check. “Couldn’t check” describes limits of the tool, not tasks in your PDF. Make changes in the source document or a PDF editor; this tool does not repair the file for you.</p>
       <p>A clear result does not guarantee accessibility, search visibility or accurate AI answers. The tool does not interpret chart pixels, verify facts or certify PDF/UA or PDF/A conformance. Use it alongside a full accessibility check and a human review of the report’s meaning.</p>
     </section>
 
-    <section className="about-section" aria-labelledby="about-origins">
+    <section className="about-section mg-content" aria-labelledby="about-origins">
       <h2 id="about-origins">Where this comes from</h2>
       <p>PDF Signal Check is a free service from UNDRR and PreventionWeb. It builds on two pieces of work:</p>
       <ul className="about-origins">
@@ -145,7 +145,7 @@ cities where an additional 1.2`}</pre>
       <p>Before this tool, the same team experimented with an AI chat agent for reviewing PDFs; its <a href="https://gist.github.com/khawkins98/c19d0d699455a9fc26ebfeb1f28ea6ba" target="_blank" rel="noopener noreferrer">review prompt is published ↗</a>. PDF Signal Check runs its structural checks with rules instead, so your PDF never has to be uploaded to a chatbot.</p>
     </section>
 
-    <section className="about-section" aria-labelledby="about-privacy">
+    <section className="about-section mg-content" aria-labelledby="about-privacy">
       <h2 id="about-privacy">Privacy and AI</h2>
       <p>Your PDF is checked in your browser and never leaves your device. The structural checks need no AI. If you choose a local AI model, its files download with your permission and the checks run on your device. Your browser may reuse downloaded files on later visits. AI can make mistakes, and this tool’s rules can miss issues or flag legitimate content, so review the evidence before relying on a result.</p>
       <Button onClick={onPrivacy}>Read the AI and privacy notice</Button>

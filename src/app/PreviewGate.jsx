@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { previewAccess } from './preview-access.js';
+import { PREVIEW_MAX_AGE_DAYS, previewAccess } from './preview-access.js';
 import './preview-gate.css';
 
 /** Published Mangrove PreviewAccess markup, with React and a native dialog owning its lifetime. */
@@ -7,7 +7,24 @@ export function PreviewGate({ children, access: suppliedAccess }) {
   const [access] = useState(() => suppliedAccess || previewAccess());
   const [unlocked, setUnlocked] = useState(() => access.isUnlocked());
   const [error, setError] = useState('');
+  const [entered, setEntered] = useState(false);
   const dialog = useRef(null), input = useRef(null);
+  // As in Mangrove 2.2, a PIN unlock moves focus into the revealed page rather than leaving it on body.
+  // The app loads lazily, so wait for its main landmark; restored unlocks keep normal page-load focus.
+  useEffect(() => {
+    if (!entered) return;
+    const focusMain = () => {
+      const main = document.getElementById('main');
+      if (!main) return false;
+      if (document.activeElement === document.body || !document.activeElement) main.focus({ preventScroll: true });
+      return true;
+    };
+    if (focusMain()) return;
+    const observer = new MutationObserver(() => { if (focusMain()) observer.disconnect(); });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const timeout = setTimeout(() => observer.disconnect(), 10000);
+    return () => { observer.disconnect(); clearTimeout(timeout); };
+  }, [entered]);
   useEffect(() => {
     if (unlocked) return;
     const element = dialog.current;
@@ -25,7 +42,7 @@ export function PreviewGate({ children, access: suppliedAccess }) {
       <p className="mg-preview-access__body" id="preview-access-body">PDF Signal Check is a preview version for testing. It is not ready for general distribution. Enter the access PIN provided by the project team to continue.</p>
       <form className="mg-preview-access__form" noValidate onSubmit={event => {
         event.preventDefault();
-        if (access.unlock(input.current.value)) setUnlocked(true);
+        if (access.unlock(input.current.value)) { setUnlocked(true); setEntered(true); }
         else { setError('Incorrect PIN. Try again.'); input.current.focus(); input.current.select(); }
       }}>
         <label className="mg-preview-access__label" htmlFor="preview-access-pin">Access PIN</label>
@@ -37,7 +54,7 @@ export function PreviewGate({ children, access: suppliedAccess }) {
         </div>
         <p className="mg-preview-access__error" id="preview-access-error" role="alert">{error}</p>
       </form>
-      <p className="mg-preview-access__contact">To get the PIN, contact the person who shared this preview with you.</p>
+      <p className="mg-preview-access__contact">To get the PIN, contact the person who shared this preview with you. After you enter it, this browser stays unlocked for {PREVIEW_MAX_AGE_DAYS} days.</p>
     </section>
   </dialog>;
 }
