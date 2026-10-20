@@ -1,15 +1,37 @@
 import { textQuad, multiply, rectPoints } from '../geometry.js';
 const mergeQuads = (a, b) => { const xs = [...a, ...b].map(p => p[0]), ys = [...a, ...b].map(p => p[1]);
   return [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)], [Math.min(...xs), Math.max(...ys)]]; };
+/** Split one header/footer baseline into separately placed segments, such as a title on the left and a chapter on the right. */
+function marginSegments(items) {
+  const segments = [];
+  let current = null, end = -Infinity;
+  for (const item of [...items].sort((a, b) => a.x - b.x)) {
+    const gap = item.x - end, height = item.height || 10;
+    if (!current || gap > height * 3) { current = { text: '' }; segments.push(current); }
+    else if (gap > height * 0.15 && !/\s$/.test(current.text) && !/^\s/.test(item.text)) current.text += ' ';
+    current.text += item.text;
+    end = Math.max(end, item.x + item.width);
+  }
+  return segments.map(segment => segment.text.replace(/\s+/g, ' ').trim()).filter(Boolean);
+}
 /** Inspect extracted text and drawing operators against raw page-scoped tag links. */
 export function inspectPage(text, operators, tree, pageNumber, structure, OPS, view = null) {
-  const stack = [], blocks = [], byKey = new Map();
+  const stack = [], blocks = [], byKey = new Map(), margin = new Map();
   let untaggedCharacters = 0, characters = 0, suspicious = 0;
+  // Running headers and footers are often artifacts, so collect them before artifact text is skipped.
+  const [, pageBottom, , pageTop] = view || [0, 0, 0, 0];
+  const marginBand = (pageTop - pageBottom) * 0.08;
   const bad = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffd\ue000-\uf8ff\u{f0000}-\u{ffffd}\u{100000}-\u{10fffd}]/gu;
   for (const item of text.items) {
     if (item.type === 'beginMarkedContent' || item.type === 'beginMarkedContentProps') stack.push(item);
     else if (item.type === 'endMarkedContent') stack.pop();
     else if (typeof item.str === 'string' && item.str.trim()) {
+      const y = item.transform?.[5];
+      if (view && Number.isFinite(y) && (y > pageTop - marginBand || y < pageBottom + marginBand)) {
+        const line = Math.round(y);
+        if (margin.has(line) || margin.size < 12) margin.set(line, [...(margin.get(line) || []),
+          { x: item.transform[4], width: item.width || 0, height: Math.abs(item.height || item.transform[3] || 0), text: item.str }]);
+      }
       if (stack.some(s => s.tag === 'Artifact')) continue;
       const owner = [...stack].reverse().find(s => s.id);
       const mcid = owner?.id?.match(/_mc(\d+)$/)?.[1];
@@ -33,7 +55,9 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
   const HIDDEN_CHARACTER_LIMIT = 50_000, HIDDEN_RUN_LIMIT = 300;
   const translate = (m, tx, ty) => [m[0], m[1], m[2], m[3], m[0]*tx + m[2]*ty + m[4], m[1]*tx + m[3]*ty + m[5]];
   const nearWhite = hex => /^#[0-9a-f]{6}$/i.test(hex) && [1, 3, 5].every(i => parseInt(hex.slice(i, i + 2), 16) >= 0xf0);
-  const graphicRegions = [], decorativeGraphics = [], matrices = []; let matrix = [1,0,0,1,0,0], formDepth = 0, formXObjectInvocations = 0;
+  const graphicRegions = [], decorativeGraphics = [], matrices = [];
+  const pageArea = view ? Math.abs((view[2] - view[0]) * (view[3] - view[1])) : 0;
+  const decorativeExtent = { images: 0, largestImage: 0, paths: 0 }; let matrix = [1,0,0,1,0,0], formDepth = 0, formXObjectInvocations = 0;
   const usedKeys = new Set(), opStack = [];
   const pageTextKeys = new Set(), reusedTextKeys = new Set();
   const graphics = new Set(['paintImageXObject', 'paintInlineImageXObject', 'paintImageMaskXObject',
@@ -80,7 +104,13 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
         if (!formDepth && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
         if (!formDepth && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
         const region = { key: !formDepth && owner ? `${pageNumber}:${owner.mcid}` : null, quad: box ? rectPoints(box,matrix) : null, label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
-        if (artifact) { if (decorativeGraphics.length < 16) decorativeGraphics.push(region); }
+        if (artifact) {
+          if (decorativeGraphics.length < 16) decorativeGraphics.push(region);
+          if ([OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) {
+            decorativeExtent.images++;
+            if (pageArea) decorativeExtent.largestImage = Math.max(decorativeExtent.largestImage, Math.min(1, Math.abs(matrix[0]*matrix[3] - matrix[1]*matrix[2]) / pageArea));
+          } else decorativeExtent.paths++;
+        }
         else graphicRegions.push(region);
       }
       if (fn === OPS.showText) {
@@ -133,7 +163,7 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
       else lines.push({ ...block, blockIds: [block.id] });
     }
     for (const line of lines.sort((a, b) => b.height - a.height || b.y - a.y).slice(0, 4)) {
-      if (line.text.length <= 350) candidates.push({ height: line.height, maxHeight: Math.max(...lines.map(l=>l.height)), blockIds: line.blockIds, text: line.text.trim(), page: 1, source: 'cover text candidate', node: null });
+      if (line.text.length <= 350) candidates.push({ height: line.height, maxHeight: Math.max(...lines.map(l=>l.height)), y: line.y, blockIds: line.blockIds, text: line.text.trim(), page: 1, source: 'cover text candidate', node: null });
     }
   }
   const logicalBlocks = [];
@@ -156,5 +186,7 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
     evidenceGeometryScoped: true,
     contentErrors: [...new Set(contentErrors)], invisibleKeys: [...invisibleKeys], invisibleTextOperations,
     hiddenText: hiddenText.map(({ lastIndex, ...run }) => ({ ...run, text: run.text.replace(/\s+/g, ' ').trim() })),
+    marginLines: [...margin].sort((a, b) => b[0] - a[0]).map(([y, items]) => ({ y, segments: marginSegments(items) })).filter(line => line.segments.length),
+    decorativeExtent: { ...decorativeExtent, largestImage: Math.round(decorativeExtent.largestImage * 1000) / 1000 },
     nonArtifactGraphics, graphics: graphicRegions, decorativeGraphics, dangling, emptyContent, blocks, logicalBlocks, candidates, structure: enrichedTree };
 }

@@ -8,6 +8,7 @@ import { compareTitles } from './titles.js';
 import { compareAuthors, inspectReadingOrder, inspectTextVisibility } from './advisories.js';
 import { inspectHiddenInstructions } from './hidden-instructions.js';
 import { inspectAttachments } from './attachments.js';
+import { inspectConsistency } from './consistency.js';
 import { summarizeAnnotations, inspectLinks, inspectCrossReferences, inspectOutline, inspectMachineMetadata, inspectFigureData, inspectDetachedValues, inspectReferenceTargets } from './travel.js';
 
 export { pdfjs };
@@ -32,7 +33,7 @@ export async function analyzePdf(input, options = {}) {
     readingOrder: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     textVisibility: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     hiddenInstructions: { status: 'not-assessed', reason: 'Analysis not completed.', matches: [] },
-    ...Object.fromEntries(['links', 'crossReferences', 'outline', 'machineMetadata', 'figureData', 'detachedValues'].map(field => [field, { status: 'not-assessed', reason: 'Analysis not completed.' }])), checks: [], pages: [], limitations: [
+    ...Object.fromEntries(['links', 'crossReferences', 'outline', 'machineMetadata', 'figureData', 'detachedValues', 'consistency'].map(field => [field, { status: 'not-assessed', reason: 'Analysis not completed.' }])), checks: [], pages: [], limitations: [
       'This is a project-specific text profile, not PDF/UA or PDF/A validation.',
       'Decoding checks identify suspicious output; they do not prove glyph-to-text semantic correctness.',
       'Logical order and role meaning are not visually verified. Artifact declarations are trusted.',
@@ -111,6 +112,7 @@ export async function analyzePdf(input, options = {}) {
     report.machineMetadata = inspectMachineMetadata(report.metadata, report.attachments);
     report.figureData = inspectFigureData(report.figureAlternatives, structure, report.attachments);
     report.detachedValues = inspectDetachedValues(report.pages);
+    report.consistency = inspectConsistency(report);
     report.hiddenInstructions = inspectHiddenInstructions({ pages: report.pages, metadata: report.metadata, figures: report.figureAlternatives?.items || [], attachments: report.attachments?.files || [] });
     // Hidden runs can be a whole OCR layer; keep only a summary in the report. Matches retain their own snippets.
     for (const page of report.pages) {

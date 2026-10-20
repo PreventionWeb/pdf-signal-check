@@ -92,7 +92,7 @@ export async function assessSemantic(input, embed) {
   const warnings = identityWarnings(metadata, candidates, deterministicTitle);
   const result = { schemaVersion: 2, model, languageContext, requireInference: input.requireInference === true, thresholds: model.thresholds, limits, requestedChecks: checks,
     assessedAt: new Date().toISOString(), inferencePerformed: false, embeddedTextCount: 0,
-    inferenceProvenance: [], skippedChecks: [], keywordItems: [], sectionItems: [],
+    inferenceProvenance: [], skippedChecks: [], keywordItems: [], sectionItems: [], nameItems: [],
     title: uncertain('No credible cover or first-page title evidence.'),
     subject: uncertain('No subject metadata or sufficient opening text.'),
     keywords: uncertain('No delimited keywords or sufficient opening text.'),
@@ -121,6 +121,11 @@ export async function assessSemantic(input, embed) {
     const selected = input.documentEvidence && query?.trim() ? selectTopicEvidence(query, input.documentEvidence, excerpts) : { evidence: excerpts, receipt: null };
     addTask(field, query, selected.evidence, { ...extra, retrieval: selected.receipt });
   };
+  // Titles the PDF writes differently in different places, which the consistency rules could not classify.
+  if (requested('title')) for (const pair of (input.names || []).slice(0, 8)) {
+    if (typeof pair?.id === 'string' && words(pair.left || '').length >= 2 && words(pair.right || '').length >= 2)
+      addTask('name', pair.left, [{ text: pair.right, source: 'other title' }], { nameId: pair.id });
+  }
   if (requested('subject')) topicTask('subject',metadata.subject);
   const rawKeywords = typeof metadata.keywords === 'string' ? metadata.keywords.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean) : [];
   const keywordTerms = [...new Set(rawKeywords)];
@@ -158,8 +163,9 @@ export async function assessSemantic(input, embed) {
       const evidence = task.evidence.map(e => ({...e, similarity:cosine(vectors[task.queryIndex],vectors[e.embeddingIndex]),
         modelInput:result.inferenceProvenance[e.embeddingIndex] || null})).sort((a,b)=>b.similarity-a.similarity);
       const best = evidence[0].similarity;
-      const low = task.field.startsWith('title') ? limits.titleLow : limits.topicLow;
-      const high = task.field.startsWith('title') ? limits.titleHigh : limits.topicHigh;
+      const titleLike = task.field.startsWith('title') || task.field === 'name';
+      const low = titleLike ? limits.titleLow : limits.topicLow;
+      const high = titleLike ? limits.titleHigh : limits.topicHigh;
       const assessment = { status:best>=high?'semantically-related':best<low?'suspected-mismatch':'uncertain',
         retrieval: task.retrieval || undefined, method:'embedding-screening',inferencePerformed:true,evidence, queryInput:result.inferenceProvenance[task.queryIndex] || null,
         reason:best>=high?'The bounded evidence is topically related; identity and factual correctness remain unconfirmed.':best<low?'The query is weakly related to the bounded evidence. Inspect the text; later sections, generic headings or alternate wording may supply missing context.':'Similarity falls in this model’s provisional review range.' };
@@ -167,6 +173,7 @@ export async function assessSemantic(input, embed) {
       else if(task.field==='title-support')result.titleAI=assessment;
       else if(task.field==='subject')result.subject=assessment;
       else if(task.field==='keyword')result.keywordItems.push({...assessment,keyword:task.keyword});
+      else if(task.field==='name')result.nameItems.push({...assessment,nameId:task.nameId,reason:assessment.status==='semantically-related'?'The two titles are closely related in meaning; they likely name the same document.':assessment.status==='suspected-mismatch'?'The two titles have little in common in meaning; one may name a different document.':assessment.reason});
       else result.sectionItems.push({...assessment,heading:task.heading});
     }
   }
