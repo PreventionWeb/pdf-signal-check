@@ -125,6 +125,8 @@ export function reviewPriority(finding) {
   if (finding.figureGroup === 'missing' || (finding.comparison?.figure?.tagged && (!finding.comparison.figure.alt || finding.comparison.description?.unusable))) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.members?.length) return finding.members.map(reviewPriority).reduce((highest, item) => item.rank < highest.rank ? item : highest);
   if (finding.severity === 'minor') return { rank: 3, key: 'minor', label: 'Minor', noticeVariant: 'info' };
+  // A fix for catalogues and AI tools rather than an accessibility-standard failure: after the structural fixes.
+  if (finding.source?.path === 'machineMetadata' && finding.category === 'advisory-concern') return { rank: 0.5, key: 'important', label: 'Fix (publishing details)', noticeVariant: 'warning' };
   // Concerns the AI decided rank after rule-based warnings.
   if (finding.category === 'advisory-concern' && finding.method === 'embedding-screening' && finding.source?.path?.startsWith('consistency.'))
     return { rank: 1.5, key: 'ai-warning', label: 'Warning (AI)', noticeVariant: 'warning' };
@@ -142,6 +144,7 @@ export function fixBucket(item) {
   // Opportunities are improvements, not problems: they never enter Fix or Check.
   if (item.category === 'opportunity') return 'travel';
   if (reviewPriority(item).key === 'critical') return 'fix';
+  if (item.source?.path === 'machineMetadata' && item.category === 'advisory-concern') return 'fix';
   // Reading order always needs a person to confirm it, even when the tool found no problem.
   // A recovered order with no detected problem is a tip to listen for yourself, not a task.
   if (item.source?.path === 'readingOrder' && item.outcome !== 'requires-review' && !item.comparison?.readingSequenceMissing) return 'tip';
@@ -509,6 +512,13 @@ function travelTask(finding) {
       `This PDF has ${count} link${count === 1 ? '' : 's'}, but ${c.linksTagged === 'some' ? 'not all of them are' : count === 1 ? 'it isn’t' : 'they aren’t'} in the PDF’s tags. People using screen readers may hear the words without knowing they can follow them, and some tools may miss where they lead.`,
       'Export again from the source document with tags turned on; Word and InDesign tag links automatically when they are real hyperlinks. In an existing PDF, use the Tags panel in Acrobat to add a Link tag for each link.',
       'A link only helps people who know it is there. Tagging it lets screen readers announce it and lets tools connect the words to their destination. This tool doesn’t check where links lead.');
+  }
+  if (path === 'machineMetadata' && finding.category === 'advisory-concern') {
+    const missing = (c.missingPublication || []).map(field => PUBLICATION_DETAILS[field]).filter(Boolean);
+    return task('Add publishing details',
+      `The PDF’s saved properties don’t say ${listed(missing)}. Catalogues, search engines and AI tools read these to tell who issued the report and which edition it is; without them they have to guess from the pages, and may cite an old edition as current.`,
+      'In the source document’s properties or your publishing system, set the publisher and the publication date (and, if you have them, the licence and an identifier such as a DOI). Then export again.',
+      'PDF/UA does not require these details, but metadata systems and AI tools depend on them to identify, date and cite a report. This tool checks that they are saved, not that they are correct.');
   }
   if (path === 'machineMetadata' && finding.category === 'opportunity') {
     const missing = (c.missingPublication || []).map(field => PUBLICATION_DETAILS[field]).filter(Boolean);

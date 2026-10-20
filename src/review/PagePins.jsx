@@ -143,8 +143,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
           <DocumentProperties metadata={report.metadata} title={null} annotate={label => {
             const related = entries.filter(entry => propertyFor(entry.item) === label);
             return related.length > 0 && <span className="page-pins-property-pins">{related.map(entry =>
-              <button key={entry.number} type="button" className={`page-pin page-pin--${entry.bucket} page-pins-docpin ${entry.number === selected ? "is-selected" : ""}`}
-                aria-label={`${entry.number}: ${entry.title}`} aria-pressed={entry.number === selected} onClick={() => onSelect(entry.item, mobile())}>{entry.number}</button>)}</span>;
+              <TippedPin key={entry.number} entry={entry} selected={entry.number === selected} onSelect={() => onSelect(entry.item, mobile())} />)}</span>;
           }} />
         </div>
       </section>
@@ -155,9 +154,10 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
           <p className="page-pins-docsheet-intro">These issues can’t be pinned to one spot on a page. They affect the document’s settings or the whole PDF, or the tool couldn’t find their exact position.</p>
           <ol className="page-pins-docsheet-list">{unlocated.map(entry => {
             const isSelected = entry.number === selected;
-            return <li key={entry.number} className={isSelected ? "is-selected" : undefined}>
-              <button type="button" className={`page-pin page-pin--${entry.bucket} page-pins-docpin`} aria-label={`${entry.number}: ${entry.title}`} aria-pressed={isSelected}
-                onClick={() => onSelect(entry.item, mobile())}>{entry.number}</button>
+            // The whole card selects the item for pointer users; the numbered button stays the keyboard and screen-reader control.
+            return <li key={entry.number} className={`page-pins-doccard ${isSelected ? "is-selected" : ""}`}
+              onClick={event => { if (!event.target.closest("button, a, input, label")) onSelect(entry.item, mobile()); }}>
+              <TippedPin entry={entry} selected={isSelected} onSelect={() => onSelect(entry.item, mobile())} />
               <div>
                 <h4>{entry.title}</h4>
                 <p className="fix-card-where">{unplacedLabel(entry)}</p>
@@ -198,6 +198,27 @@ const unplacedLabel = entry => /^Pages? /.test(entry.where || "") ? `${entry.whe
 
 /** Renders one page only when it scrolls near the viewport, then keeps the image until unmount. */
 const TOOLTIP_BUCKET = { fix: "Fix", check: "Check" };
+/** A numbered pin outside the page images (document properties, whole-document sheet) with the same hover/focus tooltip. */
+function TippedPin({ entry, selected, onSelect }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return undefined;
+    const hide = event => { if (event.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", hide);
+    return () => document.removeEventListener("keydown", hide);
+  }, [open]);
+  const id = `pin-tip-doc-${entry.number}`;
+  return <span className="page-pins-tipped" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <button type="button" className={`page-pin page-pin--${entry.bucket} page-pins-docpin ${selected ? "is-selected" : ""}`} aria-label={`${entry.number}: ${entry.title}`}
+      aria-pressed={selected} aria-describedby={open ? id : undefined} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onClick={onSelect}>{entry.number}</button>
+    {open && <span role="tooltip" id={id} className="page-pins-tooltip page-pins-tooltip--inline">
+      <span className="page-pins-tooltip-eyebrow">{entry.number} · {TOOLTIP_BUCKET[entry.bucket] || entry.bucket}</span>
+      <strong>{entry.title}</strong>
+      {entry.summary && <span>{brief(entry.summary)}</span>}
+      <span className="page-pins-tooltip-hint">Click for what to change</span>
+    </span>}
+  </span>;
+}
 const brief = text => { const value = String(text || "").trim(); return value.length > 160 ? `${value.slice(0, 159)}…` : value; };
 function PinnedPage({ page, pins, order, service, selected, onSelect, onShowPage, pageRef, describe = () => null }) {
   const element = useRef(null);

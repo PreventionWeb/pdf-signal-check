@@ -60,9 +60,13 @@ The issue list works like an inbox. Its first entry, **Overview**, is selected w
 
 From 1200 px the workspace spans the full window as three docked panes: list, detail, then pages (or the technical record); each scrolls on its own. From 820 to 1199 px the list and detail stack in one docked column beside the pages. Below 820 px the summary leads the page, the Overview entry is omitted, and the list and detail become a bottom sheet: a persistent “Issues (n)” bar opens it, choosing a pin, item or Technical details opens it, and Close or Escape returns to the pages.
 
+### Publishing details as a fix (October 2026)
+
+A PDF with no saved publisher or publication date gets “Add publishing details” in **Fix**, ranked after the structural fixes (“Fix (publishing details)”). The product owner treats it as a fix because catalogues, search and AI tools otherwise have to guess who issued a report and which edition it is. The card says that PDF/UA does not require these details. A missing licence or identifier alone, or no attached schema.org description, stays in Make it travel further.
+
 ### Page pins and reading order
 
-Hovering or focusing a page pin, or hovering its outline, shows a tooltip with the item's number, bucket, title and a one-line summary (Escape hides it); clicking selects the item. The reading-order switch is disabled when the PDF has no tagged text, with a caution notice explaining that adding tags gives it a reading order.
+Hovering or focusing a pin (on a page, in Document properties or on a Whole document card), or hovering a page outline, shows a tooltip with the item's number, bucket, title and a one-line summary (Escape hides it); clicking selects the item, as does clicking anywhere on a Whole document card. The reading-order switch is disabled when the PDF has no tagged text, with a caution notice explaining that adding tags gives it a reading order.
 
 ### Buckets
 
@@ -72,7 +76,7 @@ Items are grouped into four buckets, decided by recorded category and review pri
 - **Check** — suspected problems (advisory concerns such as a title or author mismatch, or an out-of-order sequence) and human-judgement tasks (image descriptions, unlabelled or decorative graphics, attachments). A detected reading-order problem appears here. When a sequence exists and no problem was detected, it is not counted: a short tip under the list suggests listening to a page with a screen reader and links to the recovered order (October 2026).
 - **Couldn’t check** — collapsed by default. Undecided results (`uncertain`, `required-indeterminate`), AI results the model could not judge, and tool limits. These are never shown as tasks to fix. The intro says they are limits of the tool, not problems found in the PDF.
 
-- **Make it travel further** — collapsed by default, after Check and before Couldn’t check. Opportunities, not problems (`category: 'opportunity'`, `fixBucket` → `travel`): no bookmarks, missing publication details or attached schema.org description, and figures with no nearby data table or attached data file. The intro says they are not problems. Entries carry a “+” marker instead of a number, get no page pins, and never count towards the headline, so the numbered Fix and Check list and the PDF download keep their numbering. Each card uses “Add” or “Share” and one authoring-tool step.
+- **Make it travel further** — collapsed by default, after Check and before Couldn’t check. Opportunities, not problems (`category: 'opportunity'`, `fixBucket` → `travel`): no bookmarks, a missing licence or identifier or attached schema.org description, and figures with no nearby data table or attached data file. The intro says they are not problems. Entries carry a “+” marker instead of a number, get no page pins, and never count towards the headline, so the numbered Fix and Check list and the PDF download keep their numbering. Each card uses “Add” or “Share” and one authoring-tool step.
 
 Consistency advisories ([CONSISTENCY.md](CONSISTENCY.md)) go under **Check**: concerns (a year that differs between titles, a leftover Draft label, figures older than the first-page date, a wrong declared language, placeholder saved values, maps or charts marked as decoration) rank as Warning; minor differences (punctuation, word order, spelling, a saved title missing words) rank last as Minor, and title differences are grouped into one “Tidy small differences in the title” task. Maps and charts marked as decoration are grouped into one task with each page listed; when present, the page-by-page “graphics marked as decorative” list folds into it as context instead of being a second card. Title pairs the rules cannot classify go in **Couldn’t check** unless a completed AI comparison settles them.
 

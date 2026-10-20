@@ -73,8 +73,11 @@ function addTravelFindings(report, add) {
     evidence: (outline.titles || []).slice(0, 50).map(title => `Bookmark: ${title}`), comparison: { headings: outline.headings, count: outline.count, pages: report.file?.pages } }));
   else unassessed('travel:outline', 'outline', outline, 'Bookmarks not checked');
   const machine = report.machineMetadata;
+  // No saved publisher or publication date is a fix: catalogues, search and AI tools cannot tell who issued the report or which
+  // edition it is. A missing licence or identifier alone, or no attached schema.org description, stays an opportunity.
+  const undated = (machine?.missingPublication || []).some(field => ['publisher', 'date'].includes(field));
   if (machine?.status === 'opportunity' || machine?.status === 'present') add(base('travel:metadata', 'machineMetadata', machine, {
-    category: machine.status === 'present' ? 'success' : 'opportunity', title: 'Publication details for catalogues and search', method: 'metadata-property-inventory',
+    category: machine.status === 'present' ? 'success' : undated ? 'advisory-concern' : 'opportunity', title: 'Publication details for catalogues and search', method: 'metadata-property-inventory',
     evidence: [`Saved: ${machine.present.join(', ') || 'none'}`, `Not saved: ${machine.missing.join(', ') || 'none'}`, ...machine.structuredData.map(file => `Attached description: ${file.name || file.id} (${file.mediaTypes.join(', ') || 'type not declared'}; relationship ${file.relationship || 'not set'})`)],
     comparison: { missingPublication: machine.missingPublication, structuredData: machine.structuredData.length } }));
   else unassessed('travel:metadata', 'machineMetadata', machine, 'Publication details not checked');

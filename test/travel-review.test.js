@@ -17,7 +17,11 @@ describe('travel-further presentation', () => {
     expect(buckets.check.some(item => item.source?.path === 'crossReferences')).toBe(false);
     expect(buckets.check.some(item => item.source?.path === 'detachedValues')).toBe(true);
 
-    expect(buckets.travel.map(item => item.source.path).sort()).toEqual(['crossReferences', 'figureData', 'machineMetadata', 'outline']);
+    expect(buckets.travel.map(item => item.source.path).sort()).toEqual(['crossReferences', 'figureData', 'outline']);
+    // No saved publisher or date is a fix for catalogues and AI tools, ranked after the structural fixes.
+    const publishing = buckets.fix.find(item => item.source.path === 'machineMetadata');
+    expect(fixCard(publishing, report).title).toBe('Add publishing details');
+    expect(buckets.fix.at(-1)).toBe(publishing);
     expect([...buckets.fix, ...buckets.check].some(item => item.category === 'opportunity')).toBe(false);
     // Opportunities never inflate the headline count of things to fix or check.
     expect(headline).toBe(`${buckets.fix.length} thing${buckets.fix.length === 1 ? '' : 's'} to fix, ${buckets.check.length} to check`);
