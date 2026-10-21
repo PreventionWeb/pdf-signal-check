@@ -68,7 +68,7 @@ export function fixTopic(finding) {
   const path = finding.source?.path || '', check = finding.source?.checkId, kind = finding.comparison?.consistency?.kind;
   if (PROPERTY_PATHS.test(path)) return 'properties';
   if (check === 'language' || kind === 'language') return 'language';
-  if (['structure', 'coverage', 'content-integrity'].includes(check) || path === 'readingOrder' || path.startsWith('semantic.section')) return 'tags';
+  if (['structure', 'coverage', 'content-integrity'].includes(check) || ['readingOrder', 'detachedValues'].includes(path) || path.startsWith('semantic.section')) return 'tags';
   if (check === 'text') return 'text';
   if (finding.figureGroup || finding.comparison?.figure || kind === 'decorative' || path === 'review.consistency:decorative') return 'images';
   if (path === 'hiddenInstructions' || path === 'textVisibility') return 'hidden';

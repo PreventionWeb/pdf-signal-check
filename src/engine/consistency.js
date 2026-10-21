@@ -156,10 +156,13 @@ function dateConsistency(report, running, limits) {
   const coverLines = (report.metadataConsistency?.candidates || []).filter(c => c.page === 1).map(c => c.text);
   const draftCover = [...coverLines, pageText(pages[0] || {}).slice(0, 600)].map(text => text.match(DRAFT)?.[0]).find(Boolean);
   const draftRunning = running.find(entry => DRAFT.test(entry.text));
-  const draftBlock = draftCover && (pages[0]?.blocks || []).find(block => DRAFT.test(block.text));
+  // Locate the label: a fragment containing it, else the cover line that does (cover lines join split fragments).
+  const draftLine = draftCover && (report.metadataConsistency?.candidates || []).find(c => c.page === 1 && DRAFT.test(c.text) && c.blockIds?.length);
+  const draftBlock = draftCover && ((pages[0]?.blocks || []).find(block => DRAFT.test(block.text))
+    || (draftLine && { id: null, ids: draftLine.blockIds, text: draftLine.text }));
   if (draftCover || draftRunning) items.push({ id: 'date:draft', kind: 'draft', severity: 'concern',
     label: draftCover || draftRunning.text.match(DRAFT)[0], pages: draftCover ? [1] : draftRunning.pages,
-    text: draftBlock?.text.trim().slice(0, 160) || draftRunning?.text || null, blockIds: draftBlock ? [draftBlock.id] : [] });
+    text: draftBlock?.text.trim().slice(0, 160) || draftRunning?.text || null, blockIds: draftBlock ? draftBlock.ids || [draftBlock.id] : [] });
   const leftovers = [];
   for (const page of pages) for (const block of page.blocks || []) for (const [pattern, label] of LEFTOVERS) {
     const match = block.text.match(pattern);

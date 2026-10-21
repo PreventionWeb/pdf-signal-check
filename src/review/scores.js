@@ -47,6 +47,8 @@ function aiAndSearch(report) {
       score: Array.isArray(missing) ? ['publisher', 'date'].filter(field => !missing.includes(field)).length / 2 : null },
     { id: 'description', label: 'A description is saved', weight: 3, score: report.analysisComplete ? (String(metadata.subject || '').trim() ? 1 : 0) : null },
     { id: 'keywords', label: 'Keywords are saved and meaningful', weight: 2, score: report.analysisComplete ? (!String(metadata.keywords || '').trim() || keywordCodes ? 0 : 1) : null },
+    { id: 'authors', label: 'Saved authors match the page', weight: 3,
+      score: report.authorConsistency?.status === 'match' ? 1 : report.authorConsistency?.status === 'suspected-mismatch' ? 0 : null },
     { id: 'hidden', label: 'No hidden instructions for AI', weight: 8,
       score: report.hiddenInstructions?.status === 'requires-review' ? 0 : report.hiddenInstructions?.status && report.hiddenInstructions.status !== 'not-assessed' ? 1 : null },
     { id: 'values', label: 'Values sit with their labels', weight: 3,
