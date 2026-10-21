@@ -38,11 +38,13 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       : `Please wait while the selected model compares this PDF’s text.${state.imageAI ? " Image checks follow." : ""} Your results will appear when the checks finish.`}</p>
     <ProgressBar label="AI check progress" hideLabel max={state.progress?.total > 0 ? state.progress.total : undefined} value={state.progress?.total > 0 ? state.progress.completed : undefined} valueText={state.progress?.total > 0 && Number.isFinite(state.progress.completed) ? formatProgress(state.progress) : undefined} />
     <p className="progress-text">{state.progress?.stage === 'asset-download' ? Number.isFinite(state.progress.completed) ? `Downloading model files: ${formatProgress(state.progress)}` : 'Waiting for model files…'
-      : state.progress?.stage === 'inference' && state.progress.total > 0 ? `Comparing text: ${state.progress.completed} of ${state.progress.total} groups completed`
+      : state.progress?.stage === 'inference' && state.progress.total > 0 ? (state.modelTask === 'image' || state.progress.unit === 'images'
+        ? `Looking at images: ${state.progress.completed} of ${state.progress.total} done`
+        : `Comparing text: ${state.progress.completed} of ${state.progress.total} groups completed`)
         : 'Preparing the model on this device…'}</p>
     <Button onClick={() => controller.cancelScreening()}>Cancel AI checks</Button>
     <p className="model-note">Cancelling keeps the completed text checks and any previous AI results.</p>
-    {state.message && <p className="model-note">{state.message}</p>}
+    {state.message && !(state.modelTask === 'image' && state.progress?.stage === 'inference') && <p className="model-note">{state.message}</p>}
   </Notice>;
   // Missing document information no longer hides results: the title Fix item leads, and AI comparisons explain why they could not run.
   if (showStatus && needsDocumentInformation(state.report)) return <Notice headingLevel="h2" variant="info" title="AI comparisons need a saved title, description or keywords">
