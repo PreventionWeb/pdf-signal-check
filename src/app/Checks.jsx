@@ -6,6 +6,7 @@ import { MetadataGuidance } from '../review/MetadataGuidance.jsx';
 import { DocumentProperties } from '../review/DocumentProperties.jsx';
 import { getSemanticModel, supportsLanguage } from '../engine/models.js';
 import { formatProgress } from '../ui/progress.js';
+import { ScanVisual } from '../ui/ScanVisual.jsx';
 import { Button, Notice, Checkbox, ProgressBar } from '../ui/react.jsx';
 
 const choices = [['title', 'Publication title'], ['subject', 'Subject'], ['keywords', 'Each keyword'], ['sections', 'Tagged headings and section text']];
@@ -36,15 +37,19 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
     <p role="status">{state.modelTask === "image"
       ? "Please wait while the image model looks at graphics marked as decoration and compares photo descriptions with their pictures. Your results will appear when it finishes."
       : `Please wait while the selected model compares this PDF’s text.${state.imageAI ? " Image checks follow." : ""} Your results will appear when the checks finish.`}</p>
+    {state.progress?.stage === 'inference' && state.progress.total > 0 && (state.modelTask === 'image'
+      ? <ScanVisual kind="images" completed={state.progress.completed} total={state.progress.total} previews={state.imagePreviews} />
+      : <ScanVisual kind="text" completed={state.progress.completed} total={state.progress.total} />)}
     <ProgressBar label="AI check progress" hideLabel max={state.progress?.total > 0 ? state.progress.total : undefined} value={state.progress?.total > 0 ? state.progress.completed : undefined} valueText={state.progress?.total > 0 && Number.isFinite(state.progress.completed) ? formatProgress(state.progress) : undefined} />
     <p className="progress-text">{state.progress?.stage === 'asset-download' ? Number.isFinite(state.progress.completed) ? `Downloading model files: ${formatProgress(state.progress)}` : 'Waiting for model files…'
       : state.progress?.stage === 'inference' && state.progress.total > 0 ? (state.modelTask === 'image' || state.progress.unit === 'images'
         ? `Looking at images: ${state.progress.completed} of ${state.progress.total} done`
-        : `Comparing text: ${state.progress.completed} of ${state.progress.total} groups completed`)
+        : Number.isFinite(state.progress.totalTexts) ? `Comparing passages: ${state.progress.completedTexts ?? 0} of ${state.progress.totalTexts}`
+          : `Comparing text: ${state.progress.completed} of ${state.progress.total} steps done`)
         : 'Preparing the model on this device…'}</p>
     <Button onClick={() => controller.cancelScreening()}>Cancel AI checks</Button>
     <p className="model-note">Cancelling keeps the completed text checks and any previous AI results.</p>
-    {state.message && !(state.modelTask === 'image' && state.progress?.stage === 'inference') && <p className="model-note">{state.message}</p>}
+    {state.message && state.progress?.stage !== 'inference' && <p className="model-note">{state.message}</p>}
   </Notice>;
   // Missing document information no longer hides results: the title Fix item leads, and AI comparisons explain why they could not run.
   if (showStatus && needsDocumentInformation(state.report)) return <Notice headingLevel="h2" variant="info" title="AI comparisons need a saved title, description or keywords">

@@ -86,10 +86,13 @@ describe('controller', () => {
     const worker = workers.find(item => item.kind === 'image');
     const request = worker.postMessage.mock.calls[0][0];
     expect(request.items).toEqual([expect.objectContaining({ index: 0, page: 2 })]);
+    // The waiting screen shows the crops already made on this device, and lets go of them once the result arrives.
+    expect(app.getSnapshot().imagePreviews).toHaveLength(1);
     worker.onmessage({ data: { type: 'result', requestId: request.requestId, imageScreening: { inferencePerformed: true, items: [{ index: 0, page: 2, verdict: 'content', label: 'a map', contentScore: 0.9 }] } } });
     expect(app.getSnapshot().report.imageScreening.items[0].verdict).toBe('content');
     expect(app.getSnapshot().report.decorative.items[0].kind).toBe('unclear');
     expect(app.getSnapshot().modelBusy).toBe(false);
+    expect(app.getSnapshot().imagePreviews).toBeNull();
   });
   it('says why when image checks are on but nothing qualifies, instead of skipping silently', async () => {
     const workers = [], imageCropper = vi.fn();

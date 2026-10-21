@@ -307,6 +307,7 @@ export function createAppController({
         message:
           "AI checks cancelled. Standard results and any previous completed AI comparisons are still available.",
         progress: null,
+        imagePreviews: null,
       });
     },
     takeOwnership() {
@@ -537,7 +538,7 @@ export function createAppController({
       const fail = message => {
         if (!active()) return;
         abort.abort(); stopModel();
-        emit({ stage: "review", message: `The image check didn’t finish: ${message}. All other results are unchanged.`, progress: null });
+        emit({ stage: "review", message: `The image check didn’t finish: ${message}. All other results are unchanged.`, progress: null, imagePreviews: null });
       };
       let crops, descriptionCrops;
       try {
@@ -548,6 +549,8 @@ export function createAppController({
       } catch (e) { fail(e.message); return; }
       if (!active()) return;
       if (!crops.length && !descriptionCrops.length) { emit({ modelBusy: false, stage: "review", progress: null }); return; }
+      // The crops already exist here; the waiting screen shows them passing as the worker reports each one done (same order).
+      emit({ imagePreviews: [...crops, ...descriptionCrops].map(crop => crop.blob) });
       let worker;
       try { worker = workerFactory("image"); } catch (e) { fail(e.message); return; }
       modelWorker = worker;
@@ -558,7 +561,7 @@ export function createAppController({
         else if (data.type === "error") fail(data.message);
         else if (data.type === "result") {
           worker.terminate(); modelWorker = null;
-          emit({ report: { ...state.report, imageScreening: data.imageScreening }, modelBusy: false, modelTask: null, stage: "review", progress: null,
+          emit({ report: { ...state.report, imageScreening: data.imageScreening }, modelBusy: false, modelTask: null, stage: "review", progress: null, imagePreviews: null,
             message: "Image check complete. The rule-based results are unchanged." });
         }
       };

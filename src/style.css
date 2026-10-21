@@ -915,3 +915,43 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
   color: rgb(var(--mg-color-interactive)); font: inherit; font-size: .9375rem; cursor: pointer; font-variant-numeric: tabular-nums; }
 .figure-group-page:hover { background: rgb(var(--mg-color-interactive) / .08); }
 .figure-group-page[aria-pressed="true"] { background: rgb(var(--mg-color-interactive)); color: #fff; }
+
+/* Work-in-progress picture: items pass a fixed scan line, moving only when real progress arrives. Decorative (aria-hidden). */
+.scan { --line: 34%; --item: 64px; --gap: 18px; position: relative; block-size: 120px; margin: 4px 0 16px; overflow: hidden; contain: layout paint;
+  border-radius: 4px; background: rgb(255 255 255 / .7); border: 1px solid rgb(var(--mg-color-interactive) / .15); max-inline-size: 600px; }
+.scan-line { position: absolute; inset-block: 10px; inset-inline-start: var(--line); inline-size: 2px; z-index: 2; background: rgb(var(--mg-color-interactive));
+  box-shadow: 0 0 10px rgb(var(--mg-color-interactive) / .5); animation: scan-breathe 2.4s ease-in-out infinite alternate; }
+@keyframes scan-breathe { to { opacity: .45; } }
+@keyframes scan-arrive { from { opacity: 0; } }
+.scan-item { position: absolute; inset-block-start: 50%; inset-inline-start: calc(var(--line) - var(--item) / 2); inline-size: var(--item);
+  transform: translate(calc(var(--offset) * (var(--item) + var(--gap))), -50%);
+  transition: transform .45s cubic-bezier(.2, .7, .3, 1), opacity .45s ease-out; animation: scan-arrive .45s ease-out; }
+.scan-item.is-done { opacity: .4; }
+.scan-item.is-waiting { opacity: .75; }
+/* Pages: white sheets with a few grey lines of "text". */
+.scan-page { block-size: 84px; background: #fff; border: 1px solid rgb(var(--mg-color-neutral-300, 200 200 200)); border-radius: 2px;
+  display: grid; align-content: start; gap: 6px; padding: 10px 8px; box-sizing: border-box; }
+.scan-page > span { block-size: 4px; border-radius: 2px; background: rgb(var(--mg-color-neutral-300, 200 200 200)); }
+.scan-page > span:nth-child(1) { inline-size: 70%; block-size: 6px; }
+.scan-page > span:nth-child(3) { inline-size: 85%; }
+.scan-page > span:nth-child(4) { inline-size: 55%; }
+.scan-page.is-current { border-color: rgb(var(--mg-color-interactive)); box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
+/* Text: lines rise past a horizontal reading line. */
+.scan--text .scan-line { inset-block: auto; inset-block-start: 50%; inset-inline: 8%; inline-size: auto; block-size: 2px; }
+.scan-text { inset-inline-start: 12%; inline-size: calc(var(--width) * .76); block-size: 8px; border-radius: 4px; background: rgb(var(--mg-color-interactive) / .25);
+  transform: translateY(calc(var(--offset) * 18px - 50%)); }
+.scan-text.is-current { background: rgb(var(--mg-color-interactive)); }
+/* Images: the real crops pass through a lens. */
+.scan--images { --item: 76px; }
+.scan-lens { position: absolute; inset-block-start: 50%; inset-inline-start: var(--line); inline-size: 96px; block-size: 96px; z-index: 1;
+  transform: translate(-50%, -50%); border: 2px solid rgb(var(--mg-color-interactive)); border-radius: 50%; }
+.scan-image { block-size: var(--item); border-radius: 4px; overflow: hidden; background: rgb(var(--mg-color-neutral-300, 200 200 200)); }
+.scan-image img { inline-size: 100%; block-size: 100%; object-fit: cover; display: block; }
+/* Pages can arrive many times a second: a short move keeps the current page at the line. */
+.scan--pages .scan-item { transition-duration: .15s; transition-timing-function: linear; }
+.scan-image.is-done { transform: translate(calc(var(--offset) * (var(--item) + var(--gap))), -50%) scale(.7); }
+@media (prefers-reduced-motion: reduce) {
+  .scan-line, .scan-item { animation: none; }
+  .scan-item { transition: none; }
+}
+.scan--images .scan-line { display: none; }

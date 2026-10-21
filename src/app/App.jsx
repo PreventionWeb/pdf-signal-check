@@ -1,4 +1,5 @@
 import { SiteNavigation } from "./SiteNavigation.jsx";
+import { ScanVisual } from "../ui/ScanVisual.jsx";
 import { Capabilities } from './Capabilities.jsx';
 import { IntakeHero } from './IntakeHero.jsx';
 import { AboutPage } from './AboutPage.jsx';
@@ -195,6 +196,7 @@ export function App() {
                   {state.progress?.total > 0 &&
                   Number.isFinite(state.progress.completed) ? (
                     <>
+                      {state.progress.unit === "pages" && <ScanVisual kind="pages" completed={state.progress.completed} total={state.progress.total} />}
                       <ProgressBar
                         label="Current processing step"
                         hideLabel
