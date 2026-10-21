@@ -36,15 +36,15 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
   }, [sheetOpen]);
   const { pages: pinnedPages, unlocated } = useMemo(() => pagePins(entries, report), [entries, report]);
   // The viewer: which pages, what to draw over them, and how large.
-  const [mode, setMode] = useState("issues"), [filter, setFilter] = useState("all"), [zoomIndex, setZoomIndex] = useState(0);
+  const [mode, setMode] = useState("issues"), [zoomIndex, setZoomIndex] = useState(0);
   // Only tagged text gives a reading order to show; without it the option is unavailable and says why.
   const hasOrder = useMemo(() => (report.pages || []).some(page => page.logicalBlocks?.some(block => block.text?.trim())), [report]);
   const pages = useMemo(() => {
     const pinsByPage = new Map(pinnedPages.map(page => [page.page, page.pins]));
-    const numbers = filter === "issues" ? pinnedPages.map(page => page.page) : (report.pages || []).map(page => page.number);
+    const numbers = (report.pages || []).map(page => page.number);
     return numbers.map(page => ({ page, pins: mode === "none" ? [] : pinsByPage.get(page) || [],
       order: mode === "order" && hasOrder ? readingOrderPlacement(report, page).regions : [] }));
-  }, [pinnedPages, filter, mode, hasOrder, report]);
+  }, [pinnedPages, mode, hasOrder, report]);
   const [shown, setShown] = useState(PAGE_BATCH);
   const service = useRef(null);
   const pageRefs = useRef(new Map());
@@ -59,7 +59,6 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
   const jump = page => {
     if (!page) return;
     let index = pages.findIndex(item => item.page === page);
-    if (index < 0 && filter === "issues") { setFilter("all"); index = page - 1; }
     if (index >= shown) setShown(index + PAGE_BATCH);
     scrollTo(page);
   };
@@ -69,7 +68,8 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     if (!focus) return;
     setSheetOpen(false);
     const rect = pageRefs.current.get(focus.page)?.getBoundingClientRect();
-    if (!rect || rect.bottom < 160 || rect.top > window.innerHeight * 0.6) jump(focus.page);
+    // Without a spot to highlight (a whole-document issue), go to the top of the page.
+    if (!focus.quads?.length || !rect || rect.bottom < 160 || rect.top > window.innerHeight * 0.6) jump(focus.page);
   }, [focus?.key]);
   const [current, setCurrent] = useState(pages[0]?.page || 1);
   useEffect(() => onPageChange(current), [current]);
@@ -103,8 +103,6 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
         onKeyDown={event => { if (event.key === "Enter") { const page = Math.min(total, Math.max(1, Number(pageInput) || current)); setPageInput(""); jump(page); } }} /> of {total}</label>
       <button type="button" className="viewer-button" aria-label="Next page" disabled={position < 0 || position >= pages.length - 1} onClick={() => jump(pages[position + 1]?.page)}>›</button>
     </div>
-    <SegmentedControl legend="Pages to show" hideLegend name="viewer-filter" size="small" value={filter} onChange={event => setFilter(event.target.value)}
-      options={[{ value: "all", label: "All pages" }, { value: "issues", label: `With issues (${pinnedPages.length})` }]} />
     <SegmentedControl legend="Show on the pages" hideLegend name="viewer-mode" size="small" value={mode} onChange={event => setMode(event.target.value)}
       options={[{ value: "issues", label: "Issues" }, { value: "order", label: "Reading order", disabled: !hasOrder }, { value: "none", label: "Page only" }]} />
     <div className="viewer-group viewer-zoom">
@@ -188,7 +186,6 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       {toolbar}
       {!hasOrder && <p className="model-note viewer-note">Reading order isn’t available: this PDF has no tags, so screen readers and AI tools have no reading order to follow. Adding tags (the first fix) gives it one.</p>}
       {mode === "order" && <p className="model-note viewer-note">Blue numbers show the order screen readers follow. Compare it with the order you expect.</p>}
-      {filter === "issues" && !pages.length && <p className="model-note">No page has a located issue.</p>}
       {pages.slice(0, shown).map(({ page, pins, order }) => <PinnedPage key={page} page={page} pins={pins} order={order} service={service} selected={selected} zoom={zoom}
         focus={focus?.page === page ? focus : null} orderText={mode === "order" ? (report.pages[page - 1]?.logicalBlocks || []).map(block => block.text).filter(Boolean) : null}
         onSelect={number => onSelect(byNumber(number).item, mobile())} describe={number => byNumber(number)?.summary}
@@ -205,6 +202,8 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
 
 /** Which saved property an issue is about, so its pin can sit beside that row. */
 const PROPERTY_KINDS = { title: "Title", "title-language": "Title", keywords: "Keywords", "subject-link": "Description (Subject)", language: "Language" };
+/** Every saved property an issue is about: publishing details cover four fields. */
+export const propertyLabels = item => item.source?.path === "machineMetadata" ? ["Publisher", "Publication date", "Licence", "Identifier"] : [propertyFor(item)].filter(Boolean);
 const propertyFor = item => {
   const path = item.source?.path || "", check = item.source?.checkId;
   // Consistency findings about saved values: a title compared with the saved title, or a placeholder or language mismatch.
@@ -342,7 +341,7 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
 }
 
 /** What the pages themselves show, beside the saved values: the cover title and the language the text reads as. */
-const foundOnPages = report => {
+export const foundOnPages = report => {
   const cover = report.consistency?.names?.cover?.text, language = report.consistency?.language;
   return { Title: cover ? `On the cover: “${cover}”` : null,
     Language: report.consistency ? (language?.name ? `The text reads as ${language.name}` : "The text’s language couldn’t be worked out") : null };

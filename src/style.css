@@ -892,3 +892,6 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .place-text-list li[aria-current="true"] .place-text-item { border-inline-start-color: rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .08); }
 .place-text-page { flex: none; min-width: 4.5em; font-size: .875rem; color: var(--muted); }
 .place-text-quote { overflow-wrap: anywhere; }
+
+.fix-saved-properties h3 { font-size: 1rem; margin: 16px 0 4px; }
+.fix-saved-properties .document-properties table { margin-top: 0; }

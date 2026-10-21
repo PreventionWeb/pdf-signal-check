@@ -21,7 +21,8 @@ import { ScoreGauges } from "./ScoreGauges.jsx";
 import { pdfScores } from "./scores.js";
 import { fixerDetails } from "./fixer.js";
 import { ExportMenu } from "../export/ExportMenu.jsx";
-import { PagePins, PropertiesPanel } from "./PagePins.jsx";
+import { PagePins, PropertiesPanel, propertyLabels, foundOnPages } from "./PagePins.jsx";
+import { DocumentProperties } from "./DocumentProperties.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
 import { PlaceContext, PlacePager, PlaceTextList, ShowOnPage, findingPlaces, samePlace } from "./places.jsx";
 
@@ -147,8 +148,11 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   // Anything else (Overview, Document properties, an issue with no place) clears the last highlight, so it can't linger on the wrong issue.
   useEffect(() => {
     if (!narrow && !special && places[0]) inspect(places[0], { keepDrawer: true });
+    // An issue about the whole document or its saved properties starts the viewer at page 1, with nothing highlighted.
+    else if (!narrow && !special && finding) setFocus({ page: 1, quads: [], target: null, key: Date.now() });
     else setFocus(null);
   }, [finding?.id, special, narrow]);
+  const savedRows = finding && !places.length && kind !== "title" && kind !== "authors" ? propertyLabels(finding) : [];
   const drawerTargets = finding?.members ? finding.members.flatMap(member => member.targets || []) : targets;
   const showOrder = kind === "order" && !finding.comparison?.readingSequenceMissing;
   const detailArticle = finding && (
@@ -178,6 +182,11 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         : finding.comparison?.figure ? <FigureContext key={finding.id} finding={finding} file={file} report={report} targets={targets} onInspect={inspect} />
         : kind === "order" ? null
         : null}
+      {/* Issues about saved properties show what is saved now, so the reader needn't open Document properties. */}
+      {savedRows.length > 0 && <section className="fix-saved-properties">
+        <h3>What is saved now</h3>
+        <DocumentProperties metadata={report.metadata} title={null} only={savedRows} found={foundOnPages(report)} />
+      </section>}
       {card.change && <section className="fix-change">
         <h3>{bucket === "unknown" ? "To check it yourself" : "What to change"}</h3>
         <p>{card.change}</p>
@@ -185,7 +194,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       <Actions className="fix-actions">
         <PlacePager places={places} index={placeIndex} onGo={index => inspect(places[index])}
           inline={!!(finding.members || finding.comparison?.figure || finding.comparison?.consistency?.kind === "same-fact")} />
-        <button type="button" className="fix-detail-secondary" onClick={() => setDrawerOpen(true)}>Details for whoever fixes it</button>
+        <button type="button" className="fix-detail-secondary" onClick={() => setDrawerOpen(true)}>How to fix this</button>
       </Actions>
     </Card></PlaceContext.Provider>
   );

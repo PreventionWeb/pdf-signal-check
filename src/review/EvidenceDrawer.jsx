@@ -24,10 +24,10 @@ export function EvidenceDrawer({ title, onClose, children }) {
       onClick={event => { if (event.target === dialog.current) onClose(); }}>
       <div className="evidence-drawer-header">
         <div>
-          <p className="evidence-drawer-eyebrow">For the person fixing it</p>
+          <p className="evidence-drawer-eyebrow">How to fix this</p>
           <h2 id="evidence-drawer-title" ref={heading} tabIndex={-1}>{title}</h2>
         </div>
-        <Button aria-label="Close details for the person fixing it" onClick={onClose}>Close</Button>
+        <Button aria-label="Close how to fix this" onClick={onClose}>Close</Button>
       </div>
       <div className="evidence-drawer-body">{children}</div>
     </dialog>, document.body,
