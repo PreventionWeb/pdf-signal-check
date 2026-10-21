@@ -525,10 +525,15 @@ export function createAppController({
     async runImageScreening() {
       if (!available() || !state.imageAI || !state.report?.analysisComplete || !state.file || state.modelBusy || state.report.imageScreening) return;
       const items = imageCandidates(state.report), described = descriptionCandidates(state.report);
-      if (!items.length && !described.length) return;
+      if (!items.length && !described.length) {
+        // Say so instead of skipping silently: the person asked for image checks.
+        const photos = (state.report.figureAlternatives?.items || []).filter(figure => figure.tagged && figure.alt?.trim()).length;
+        emit({ report: { ...state.report, imageScreening: { inferencePerformed: false, skipped: { decorativeUnclear: (state.report.decorative?.items || []).filter(item => item.kind === 'unclear').length, describedImages: photos } } } });
+        return;
+      }
       const currentJob = job, currentRun = ++modelRun, abort = new AbortController();
       const active = () => currentJob === job && currentRun === modelRun;
-      emit({ modelBusy: true, stage: "processing-model", screeningAttempt: { status: "running" }, message: `Looking at ${items.length + described.length} image${items.length + described.length === 1 ? "" : "s"}…`, progress: null });
+      emit({ modelBusy: true, modelTask: "image", stage: "processing-model", screeningAttempt: { status: "running" }, message: `Looking at ${items.length + described.length} image${items.length + described.length === 1 ? "" : "s"}…`, progress: null });
       const fail = message => {
         if (!active()) return;
         abort.abort(); stopModel();
@@ -553,7 +558,7 @@ export function createAppController({
         else if (data.type === "error") fail(data.message);
         else if (data.type === "result") {
           worker.terminate(); modelWorker = null;
-          emit({ report: { ...state.report, imageScreening: data.imageScreening }, modelBusy: false, stage: "review", progress: null,
+          emit({ report: { ...state.report, imageScreening: data.imageScreening }, modelBusy: false, modelTask: null, stage: "review", progress: null,
             message: "Image check complete. The rule-based results are unchanged." });
         }
       };
@@ -599,6 +604,7 @@ export function createAppController({
         report,
         stage: "processing-model",
         modelBusy: true,
+        modelTask: "text",
         screeningAttempt: { status: "running" },
         message: "Preparing the selected checks…",
         progress: null,

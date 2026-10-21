@@ -1,5 +1,6 @@
 import React from 'react';
 import { imageVerdict } from '../engine/image-model.js';
+import { imageSkipNote } from '../review/provenance.js';
 import { hasUnchangedNoInputs, needsDocumentInformation } from '../runtime/screening-recovery.js';
 import { MetadataGuidance } from '../review/MetadataGuidance.jsx';
 import { DocumentProperties } from '../review/DocumentProperties.jsx';
@@ -31,8 +32,10 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
   };
   const attempt = state.screeningAttempt || (semantic?.notRun ? { status: 'not-run', message: semantic.notRun.reason, reasons: semantic.notRun.checks } : null);
   const stopped = attempt && ["error", "not-run", "canceled"].includes(attempt.status);
-  if (showStatus && state.modelBusy) return <Notice title="AI text checks are running" headingLevel="h2">
-    <p role="status">Please wait while the selected model compares this PDF’s text. Your results will appear when the checks finish.</p>
+  if (showStatus && state.modelBusy) return <Notice title={state.modelTask === "image" ? "AI image checks are running" : "AI text checks are running"} headingLevel="h2">
+    <p role="status">{state.modelTask === "image"
+      ? "Please wait while the image model looks at graphics marked as decoration and compares photo descriptions with their pictures. Your results will appear when it finishes."
+      : `Please wait while the selected model compares this PDF’s text.${state.imageAI ? " Image checks follow." : ""} Your results will appear when the checks finish.`}</p>
     <ProgressBar label="AI check progress" hideLabel max={state.progress?.total > 0 ? state.progress.total : undefined} value={state.progress?.total > 0 ? state.progress.completed : undefined} valueText={state.progress?.total > 0 && Number.isFinite(state.progress.completed) ? formatProgress(state.progress) : undefined} />
     <p>{state.progress?.stage === 'asset-download' ? Number.isFinite(state.progress.completed) ? `Downloading model files: ${formatProgress(state.progress)}` : 'Waiting for model files…'
       : state.progress?.stage === 'inference' && state.progress.total > 0 ? `Comparing text: ${state.progress.completed} of ${state.progress.total} groups completed`
@@ -74,6 +77,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       <ul>
         <li>Selected model: {model?.label || 'No AI model selected for new checks'}. Completed AI checks are recorded above.</li>
         {coverage.map(f => <li key={f.id}><strong>{f.title}:</strong> {f.summary}</li>)}
+        {state.report.imageScreening?.skipped && <li><strong>Image check:</strong> {imageSkipNote(state.report)}</li>}
         {state.report.imageScreening?.inferencePerformed && <li><strong>Image check:</strong> {(() => {
           const items = state.report.imageScreening.items || [], count = verdict => items.filter(item => imageVerdict(item, state.report.decorative?.items?.[item.index]) === verdict).length;
           const described = state.report.imageScreening.descriptions || [];

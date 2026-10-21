@@ -62,7 +62,19 @@ export function groupedFindingProvenance(findings, report) {
 }
 
 /** One plain receipt line: which kinds of check produced these results. */
+/** Why the image model had nothing to look at, in one plain clause. */
+export function imageSkipNote(report) {
+  const skipped = report.imageScreening?.skipped;
+  if (!skipped) return '';
+  return `The image model had nothing to look at in this PDF: ${skipped.decorativeUnclear ? 'the decorative graphics it could judge were too text-heavy or too small' : 'no decorative graphics the rules couldn’t place'}, and ${skipped.describedImages ? `${skipped.describedImages} described image${skipped.describedImages === 1 ? '' : 's'} (it needs at least 5 well-cropped photo descriptions to compare)` : 'no photo descriptions to compare'}.`;
+}
 export function checkedWith(report) {
+  const semantic = report.semantic;
+  const note = imageSkipNote(report);
+  if (note) return `${checkedWithModels(report)} ${note}`;
+  return checkedWithModels(report);
+}
+function checkedWithModels(report) {
   const semantic = report.semantic;
   if (!semantic) return report.imageScreening?.inferencePerformed ? 'Checked with standard checks and an on-device image model.' : 'Checked with standard checks.';
   const model = semantic.model?.label ? ` (${semantic.model.label.split(' · ')[0]})` : '';

@@ -91,6 +91,16 @@ describe('controller', () => {
     expect(app.getSnapshot().report.decorative.items[0].kind).toBe('unclear');
     expect(app.getSnapshot().modelBusy).toBe(false);
   });
+  it('says why when image checks are on but nothing qualifies, instead of skipping silently', async () => {
+    const workers = [], imageCropper = vi.fn();
+    const app = createAppController({ preferences: preferences(true), imageCropper, fetcher: vi.fn(), digest: vi.fn(),
+      workerFactory: kind => { const worker = { kind, postMessage: vi.fn(), terminate: vi.fn() }; workers.push(worker); return worker; } });
+    app.openCompletedReport({ ...report, decorative: { items: [] }, figureAlternatives: { items: [{ id: 'f', page: 2, tagged: true, alt: 'North station: 2.8 m', quads: [] }] } }, file, 'nothing-to-see');
+    await app.runImageScreening();
+    expect(imageCropper).not.toHaveBeenCalled();
+    const { checkedWith } = await import('../src/review/provenance.js');
+    expect(checkedWith(app.getSnapshot().report)).toMatch(/image model had nothing to look at.*1 described image \(it needs at least 5/);
+  });
   it('ignores a late result after the user cancels', async () => {
     const { app, workers } = make(true);
     await app.runImageScreening();
