@@ -12,13 +12,15 @@ const anchor = target => target?.quads?.[0] ?? target?.blockIds?.[0] ?? target?.
 /** Same place: same page and the same first box, block or text (copies made with spread keep the references). */
 export const samePlace = (a, b) => !!a && !!b && a.page === b.page && anchor(a) === anchor(b);
 
-const figureTarget = member => {
+/** An image's place, with a one-line note for the info box beside the highlight. */
+export const figureTarget = member => {
   const figure = member.comparison?.figure;
   if (!figure) return member.targets?.[0];
   const target = (member.targets || []).find(item => item.page === figure.page) || { page: figure.page, quads: figure.quads || [] };
-  return { ...target, focusRegion: true };
+  const note = figure.alt ? `Saved description: “${figure.alt.trim()}”` : figure.decorative ? "Marked as decoration, so screen readers skip it." : figure.tagged ? "No description is saved for this image." : "No image label, and not marked as decoration.";
+  return { ...target, focusRegion: true, note };
 };
-const HIDDEN = "Hidden text sits here";
+const HIDDEN = "Hidden text sits here. It can’t be seen on the page.";
 
 /** Ordered places for an issue: one per member of a group, each hidden passage, or the issue's own targets. */
 export function findingPlaces(finding, targets, kind) {

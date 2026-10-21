@@ -582,8 +582,6 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .place-shown::before { content: "●"; margin-inline-end: 6px; color: rgb(var(--mg-color-interactive)); }
 /* Words that differ between two values. */
 .diff-word { background: rgb(var(--mg-color-gold-100, 255 240 200)); color: inherit; padding: 0 2px; border-radius: 2px; box-shadow: inset 0 -2px 0 rgb(var(--mg-color-gold-800)); }
-.page-pins-focus-label { position: absolute; z-index: 4; transform: translateY(calc(-100% - 10px)); background: rgb(var(--mg-color-interactive)); color: #fff;
-  font-size: .8125rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; }
 .document-properties-found { display: block; margin-top: 4px; font-size: .875rem; color: var(--muted); }
 .hidden-instructions-note { font-size: .9375rem; color: var(--muted); }
 .heading-review-list .heading-review-pair { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
@@ -895,3 +893,8 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 
 .fix-saved-properties h3 { font-size: 1rem; margin: 16px 0 4px; }
 .fix-saved-properties .document-properties table { margin-top: 0; }
+
+/* The info box that stays beside a highlighted spot until another is chosen. */
+.page-pins-focus-info { pointer-events: none; margin-top: 12px; }
+@media (prefers-reduced-motion: no-preference) { .page-pins-focus-info { animation: focus-info-in .2s ease-out; } }
+@keyframes focus-info-in { from { opacity: 0; } to { opacity: 1; } }

@@ -105,7 +105,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     setFocus({
       page: t.page,
       quads: t.quads?.length ? t.quads : page ? candidateBlocks(page, t).flatMap((b) => (b.quad ? [b.quad] : [])) : [],
-      label: t.label || null,
+      // The info box beside the highlight: which issue this is and what this spot shows.
+      info: special || !card ? null : { eyebrow: `${BUCKETS[bucket].label} · Page ${t.page}`, title: card.title,
+        text: t.label || t.note || brief(t.text) },
       target: t,
       key: Date.now(),
     });
@@ -292,6 +294,7 @@ function HiddenInstructions({ matches, onInspect }) {
     {matches.length > 1 && match.kind === "page" && match.quads?.length > 0 && <ShowOnPage target={{ page: match.page, quads: match.quads, text: match.text, label: "Hidden text sits here" }} onInspect={onInspect} />}
   </li>)}</ul>;
 }
+const brief = text => { const value = String(text || "").replace(/\s+/g, " ").trim(); return value.length > 140 ? `“${value.slice(0, 139)}…”` : value ? `“${value}”` : null; };
 const excerpt = text => { const value = String(text || "").replace(/\s+/g, " ").trim(); return value.length > 220 ? `${value.slice(0, 219)}…` : value; };
 /** What the AI compared: the saved value and the first excerpts it read. */
 function SemanticExcerpts({ finding }) {

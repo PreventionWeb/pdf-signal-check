@@ -1,11 +1,10 @@
 import React from 'react';
-import { ShowOnPage } from './places.jsx';
+import { ShowOnPage, figureTarget } from './places.jsx';
 import { descriptionNote } from './workspace.js';
 
 /** One image: what it is, its saved description, and a link to it in the page viewer (no separate thumbnail). */
 export function FigureContext({ finding, targets, onInspect, compact = false }) {
   const figure = finding.comparison.figure;
-  const target = targets.find(item => item.page === figure.page) || { page: figure.page, quads: figure.quads || [] };
   const Heading = compact ? 'h4' : 'h3';
   const note = descriptionNote(finding);
   return <section className="figure-context" aria-label="Image and saved description">
@@ -13,6 +12,6 @@ export function FigureContext({ finding, targets, onInspect, compact = false }) 
     {figure.alt ? <blockquote>{figure.alt}</blockquote> : <p>{figure.decorative ? 'Marked as decoration, so software following the PDF’s tags may skip these graphics. Check that they convey no essential information.' : figure.tagged ? 'No text description is saved for this image.' : 'These graphics have no image label and are not marked as decoration. They may be background shapes, borders or meaningful content.'}</p>}
     {note && <p className="figure-description-note">{note}</p>}
     {figure.reasons?.length > 0 && <p className="figure-description-note">The tool sees {figure.reasons.join('; ')}, so it can’t tell whether this carries information.</p>}
-    <ShowOnPage target={{ ...target, focusRegion: true }} onInspect={onInspect} />
+    <ShowOnPage target={figureTarget({ ...finding, targets })} onInspect={onInspect} />
   </section>;
 }

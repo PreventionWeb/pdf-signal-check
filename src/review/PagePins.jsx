@@ -63,13 +63,13 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     scrollTo(page);
   };
   // "Show on page" from the detail or the drawer: scroll here and highlight the spot, instead of opening a modal.
-  // A page already on screen stays put, so selecting an issue whose place is visible doesn't jolt the view.
+  // Without a spot to highlight (a whole-document issue), go to the top of the page. With a spot, the page places it
+  // once its highlight is drawn; this only brings an unrendered page close enough to load.
   useEffect(() => {
     if (!focus) return;
     setSheetOpen(false);
-    const rect = pageRefs.current.get(focus.page)?.getBoundingClientRect();
-    // Without a spot to highlight (a whole-document issue), go to the top of the page.
-    if (!focus.quads?.length || !rect || rect.bottom < 160 || rect.top > window.innerHeight * 0.6) jump(focus.page);
+    const node = pageRefs.current.get(focus.page);
+    if (!focus.quads?.length || !node?.querySelector("img")) jump(focus.page);
   }, [focus?.key]);
   const [current, setCurrent] = useState(pages[0]?.page || 1);
   useEffect(() => onPageChange(current), [current]);
@@ -282,23 +282,36 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
     service.current.renderPage(page, [...pins.map(pin => pin.quads), ...order.map(region => [region.quad]), ...(focus?.quads?.length ? [focus.quads] : [])], Math.round(900 * zoom)).then(result => {
       if (!active) return;
       url = URL.createObjectURL(result.blob);
-      setImage({ ...result, url });
+      setImage({ ...result, url, focusKey: focus?.key ?? null });
     }).catch(() => { if (active) setImage({ failed: true }); });
     return () => { active = false; if (url) URL.revokeObjectURL(url); };
   }, [visible, page, pins, order, service, zoom, focus?.key]);
-  const focusBox = focus?.quads?.length && image?.boxes ? image.boxes[pins.length + order.length] : null;
-  // Once the highlight is drawn, bring it into view if it sits outside the visible part of the page.
+  // Only a render made for this highlight has its box; an older render would place it in the wrong spot.
+  const focusBox = focus?.quads?.length && image?.boxes && image.focusKey === focus.key ? image.boxes[pins.length + order.length] : null;
+  // Once the highlight is drawn, place it at about 40% of the visible height below the sticky toolbar.
+  // A box taller than the space starts just below the toolbar.
   const focusRef = useRef(null);
   useEffect(() => {
     const rect = focusRef.current?.getBoundingClientRect();
-    if (rect && (rect.top < 120 || rect.bottom > window.innerHeight - 40)) focusRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [focus?.key, !!focusBox]);
+    if (!rect) return;
+    const top = Math.max(0, document.querySelector(".viewer-toolbar")?.getBoundingClientRect().bottom ?? 0) + 16;
+    const room = window.innerHeight - top - 24;
+    const offset = rect.height >= room ? rect.top - top : rect.top + rect.height / 2 - (top + room * 0.4);
+    if (Math.abs(offset) > 24) window.scrollTo({ top: window.scrollY + offset, behavior: "smooth" });
+  }, [focus?.key, focusBox?.x, focusBox?.y]);
   return <section className="page-pins-page" ref={node => { element.current = node; pageRef(node); }} aria-label={`Page ${page}`}>
     <div className="page-pins-page-header"><h3>Page {page}</h3></div>
     <div className="page-pins-zoom">
     <div className="page-pins-sheet" style={{ ...(image?.width ? { aspectRatio: `${image.width} / ${image.height}` } : {}), width: `${zoom * 100}%` }}>
       {focusBox && <span key={focus.key} ref={focusRef} className="page-pins-focus" aria-hidden="true" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%`, width: `${focusBox.width * 100}%`, height: `${focusBox.height * 100}%` }} />}
-      {focusBox && focus.label && <span className="page-pins-focus-label" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%` }}>{focus.label}</span>}
+      {/* What the highlight shows: below the spot, or above it near the foot of the page. Read-only, so it never blocks the page. */}
+      {focusBox && focus.info && <span key={`info-${focus.key}`} className={`page-pins-tooltip page-pins-focus-info ${focusBox.y + focusBox.height > 0.72 ? "is-above" : ""}`} role="note"
+        style={{ ...(focusBox.x > 0.5 ? { left: "auto", right: `${Math.max(0, 1 - focusBox.x - focusBox.width) * 100}%` } : { left: `${focusBox.x * 100}%` }),
+          top: `${(focusBox.y + focusBox.height > 0.72 ? focusBox.y : focusBox.y + focusBox.height) * 100}%` }}>
+        <span className="page-pins-tooltip-eyebrow">{focus.info.eyebrow}</span>
+        <strong>{focus.info.title}</strong>
+        {focus.info.text && <span>{focus.info.text}</span>}
+      </span>}
       {image?.url && <img src={image.url} alt={`Page ${page} of the PDF`} />}
       {image?.failed && <p className="model-note">This page could not be shown.</p>}
       {!image && <p className="model-note">Loading page {page}…</p>}
