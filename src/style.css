@@ -882,3 +882,13 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 
 /* Download and step counts change many times a second: fixed-width digits keep the line still. */
 .progress-text { font-variant-numeric: tabular-nums; }
+
+/* Text written out for each place (untagged text): a compact scroll box, the one on screen marked. */
+.place-text h3 { font-size: 1rem; margin: 16px 0 8px; }
+.place-text-list { list-style: none; margin: 0; padding: 0; max-height: 16rem; overflow-y: auto; border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: 4px; }
+.place-text-list li + li { border-top: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); }
+.place-text-item { display: flex; gap: 12px; width: 100%; text-align: start; background: none; border: 0; padding: 8px 12px; font: inherit; cursor: pointer; border-inline-start: 4px solid transparent; }
+.place-text-item:hover { background: rgb(var(--mg-color-interactive) / .08); }
+.place-text-list li[aria-current="true"] .place-text-item { border-inline-start-color: rgb(var(--mg-color-interactive)); background: rgb(var(--mg-color-interactive) / .08); }
+.place-text-page { flex: none; min-width: 4.5em; font-size: .875rem; color: var(--muted); }
+.place-text-quote { overflow-wrap: anywhere; }

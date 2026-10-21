@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect, useRef } from "react";
 import { Button } from "../ui/react.jsx";
 
 /**
@@ -57,4 +57,31 @@ export function PlacePager({ places, index, onGo, inline = false }) {
     <span className="place-pager-label" aria-live="polite">{at == null ? `${places.length} places` : `Place ${at + 1} of ${places.length} · page ${places[at].page}`}</span>
     <button type="button" className="viewer-button" aria-label="Next place" onClick={() => go(1)}>›</button>
   </div>;
+}
+
+/**
+ * The text at each place, written out, for text the reader can't otherwise get at (untagged text a screen reader skips).
+ * A scroll box keeps a long list compact; the place on screen is marked and kept in view as the pager moves.
+ */
+export function PlaceTextList({ places, index, onGo, label }) {
+  const { narrow } = useContext(PlaceContext);
+  const list = useRef(null);
+  useEffect(() => {
+    const current = list.current?.querySelector('[aria-current="true"]');
+    if (current) current.scrollIntoView({ block: "nearest" });
+  }, [index]);
+  const shown = places.filter(place => String(place.text || "").trim());
+  if (!shown.length) return null;
+  return <section className="place-text" aria-label={label}>
+    <h3>{label} ({shown.length})</h3>
+    <ol className="place-text-list" ref={list}>{shown.map(place => {
+      const at = places.indexOf(place), current = !narrow && at === index;
+      return <li key={at} aria-current={current ? "true" : undefined}>
+        <button type="button" className="place-text-item" onClick={() => onGo(at)}>
+          <span className="place-text-page">Page {place.page}</span>
+          <span className="place-text-quote">{place.text.trim()}</span>
+        </button>
+      </li>;
+    })}</ol>
+  </section>;
 }

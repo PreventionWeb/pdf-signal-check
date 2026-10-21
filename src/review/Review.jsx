@@ -23,7 +23,7 @@ import { fixerDetails } from "./fixer.js";
 import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins, PropertiesPanel } from "./PagePins.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
-import { PlaceContext, PlacePager, ShowOnPage, findingPlaces, samePlace } from "./places.jsx";
+import { PlaceContext, PlacePager, PlaceTextList, ShowOnPage, findingPlaces, samePlace } from "./places.jsx";
 
 /** Whether a media query matches, kept in step with the window. */
 function useMedia(query) {
@@ -173,6 +173,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         : showOrder ? <OrderComparison report={report} file={file} onInspect={inspect} compact />
         : kind === "attachments" ? <AttachmentInventory inventory={report.attachments} compact />
         : finding.source?.path === "hiddenInstructions" ? <HiddenInstructions matches={finding.comparison?.matches || []} onInspect={inspect} />
+        : finding.source?.checkId === "coverage" && places.length ? <PlaceTextList places={places} index={placeIndex} onGo={index => inspect(places[index])} label="Text screen readers may skip" />
         : finding.source?.path?.startsWith("semantic.") ? <SemanticExcerpts finding={finding} />
         : finding.comparison?.figure ? <FigureContext key={finding.id} finding={finding} file={file} report={report} targets={targets} onInspect={inspect} />
         : kind === "order" ? null
