@@ -105,9 +105,9 @@ export function normalizeFindings(report) {
   };
   for(const c of report.checks || []) {
     let evidence=[...(c.evidence || [])];
-    if(c.id==='coverage' && c.status==='fail') evidence.push(...pages.flatMap(p=>p.blocks.filter(b=>!b.connected).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
-    if(c.id==='text' && c.status==='fail') evidence.push(...pages.flatMap(p=>p.blocks.filter(b=>b.suspicious).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
-    if(c.id==='supported-content' && c.status==='indeterminate') evidence.push(...pages.flatMap(p=>(p.graphics || []).map(g=>({...g,page:p.number,text:g.label}))));
+    if(c.id==='coverage' && c.status==='fail') evidence=evidence.concat(pages.flatMap(p=>p.blocks.filter(b=>!b.connected).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
+    if(c.id==='text' && c.status==='fail') evidence=evidence.concat(pages.flatMap(p=>p.blocks.filter(b=>b.suspicious).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
+    if(c.id==='supported-content' && c.status==='indeterminate') evidence=evidence.concat(pages.flatMap(p=>(p.graphics || []).map(g=>({...g,page:p.number,text:g.label}))));
     add({id:`required:${c.id}`,category:c.id==='supported-content' && c.status==='indeterminate'?'unassessed':c.status==='fail'?'required-defect':c.status==='pass'?'success':['not-applicable','not-assessed'].includes(c.status)?'unassessed':'required-indeterminate',
       title:c.id==='supported-content' && c.status==='indeterminate' ? 'Content this tool cannot fully assess' : c.label,outcome:c.status,method:'profile-rules',summary:c.summary,evidence,
       comparison:c.id==='title'?{metadata:{infoTitle:report.metadata?.infoTitle,xmpTitles:report.metadata?.xmpTitles}}:{},source:{path:`checks.${c.id}`,checkId:c.id},kind:c.id});

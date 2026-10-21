@@ -304,6 +304,16 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
     <div className="page-pins-zoom">
     <div className="page-pins-sheet" style={{ ...(image?.width ? { aspectRatio: `${image.width} / ${image.height}` } : {}), width: `${zoom * 100}%` }}>
       {focusBox && <span key={focus.key} ref={focusRef} className="page-pins-focus" aria-hidden="true" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%`, width: `${focusBox.width * 100}%`, height: `${focusBox.height * 100}%` }} />}
+      {/* A spot with no recorded position: outline the whole page and say so, rather than show nothing. */}
+      {focus && !focus.quads?.length && focus.info && image?.url && <>
+        <span key={`page-${focus.key}`} className="page-pins-focus-page" aria-hidden="true" />
+        <span key={`info-${focus.key}`} className="page-pins-tooltip page-pins-focus-info page-pins-focus-info--page" role="note">
+          <span className="page-pins-tooltip-eyebrow">{focus.info.eyebrow}</span>
+          <strong>{focus.info.title}</strong>
+          {focus.info.text && <span>{focus.info.text}</span>}
+          <span className="page-pins-tooltip-hint">The tool couldn’t record exactly where on this page; look across the whole page.</span>
+        </span>
+      </>}
       {/* What the highlight shows: below the spot, or above it near the foot of the page. Read-only, so it never blocks the page. */}
       {focusBox && focus.info && <span key={`info-${focus.key}`} className={`page-pins-tooltip page-pins-focus-info ${focusBox.y + focusBox.height > 0.72 ? "is-above" : ""}`} role="note"
         style={{ ...(focusBox.x > 0.5 ? { left: "auto", right: `${Math.max(0, 1 - focusBox.x - focusBox.width) * 100}%` } : { left: `${focusBox.x * 100}%` }),

@@ -38,3 +38,13 @@ describe('when to mark differences', () => {
     expect(wordDiff('Mountain Observatory Annual Report 2024', 'Harbor Observatory Annual Report 2025').comparable).toBe(true);
   });
 });
+
+describe('very large pages', () => {
+  it('builds findings for a page with hundreds of thousands of graphics without overflowing the stack', async () => {
+    const { normalizeFindings } = await import('../src/review/findings.js');
+    const graphics = Array.from({ length: 200000 }, (_, i) => ({ label: `graphic ${i}` }));
+    const report = { analysisComplete: true, metadata: {}, pages: [{ number: 1, blocks: [], graphics }],
+      checks: [{ id: 'supported-content', status: 'indeterminate', label: 'Supported content', summary: '' }] };
+    expect(() => normalizeFindings(report)).not.toThrow();
+  });
+});

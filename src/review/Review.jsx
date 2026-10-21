@@ -166,7 +166,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       {/* The one sentence that matters: plain lead text with a thin bucket-coloured rule, not a boxed notice. */}
       <p className={`fix-detail-lead fix-detail-lead--${bucket}`}>{card.summary}</p>
       {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
-      {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} file={file} report={report} onInspect={inspect} />
+      {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} places={places} index={placeIndex} onGo={index => inspect(places[index])} />
         : finding.source?.path?.startsWith("consistency.") || finding.consistencyGroup ? <ConsistencyDetail finding={finding} file={file} report={report} onInspect={inspect} />
         : finding.members ? <section aria-label="Headings" className="heading-review-list">
           {finding.members.map(member => <section key={member.id} className="heading-review-pair">

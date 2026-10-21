@@ -883,7 +883,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 
 /* Text written out for each place (untagged text): a compact scroll box, the one on screen marked. */
 .place-text h3 { font-size: 1rem; margin: 16px 0 8px; }
-.place-text-list { list-style: none; margin: 0; padding: 0; max-height: 16rem; overflow-y: auto; border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: 4px; }
+.place-text-list { display: block; list-style: none; margin: 0; padding: 0; max-height: 16rem; overflow-y: auto; border: 1px solid rgb(var(--mg-color-neutral-300)); border-radius: 4px; }
 .place-text-list li + li { border-top: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); }
 .place-text-item { display: flex; gap: 12px; width: 100%; text-align: start; background: none; border: 0; padding: 8px 12px; font: inherit; cursor: pointer; border-inline-start: 4px solid transparent; }
 .place-text-item:hover { background: rgb(var(--mg-color-interactive) / .08); }
@@ -898,3 +898,20 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .page-pins-focus-info { pointer-events: none; margin-top: 12px; }
 @media (prefers-reduced-motion: no-preference) { .page-pins-focus-info { animation: focus-info-in .2s ease-out; } }
 @keyframes focus-info-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Image groups: one shared explanation, then a compact list of pages. */
+.figure-group-intro { margin: 0 0 12px; }
+.figure-group-list { max-height: 22rem; }
+.figure-group-note { display: block; margin-top: 2px; font-size: .875rem; color: var(--muted); }
+.figure-group-list .place-text-page { min-width: 6.5em; }
+
+/* No recorded position: the whole page is outlined and the info box sits at its top. */
+.page-pins-focus-page { position: absolute; inset: 0; z-index: 3; pointer-events: none; box-shadow: inset 0 0 0 4px rgb(var(--mg-color-interactive)); }
+.page-pins-focus-info--page { top: 12px; left: 12px; margin-top: 0; }
+
+.figure-group-pages { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.figure-group-pages li { margin: 0; }
+.figure-group-page { min-height: 36px; padding: 4px 12px; border: 1px solid rgb(var(--mg-color-interactive)); border-radius: 4px; background: #fff;
+  color: rgb(var(--mg-color-interactive)); font: inherit; font-size: .9375rem; cursor: pointer; font-variant-numeric: tabular-nums; }
+.figure-group-page:hover { background: rgb(var(--mg-color-interactive) / .08); }
+.figure-group-page[aria-pressed="true"] { background: rgb(var(--mg-color-interactive)); color: #fff; }
