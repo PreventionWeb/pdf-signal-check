@@ -304,5 +304,7 @@ export function inspectConsistency(report, limits = CONSISTENCY_LIMITS) {
   const items = [...names.items, ...dateConsistency(report, names.running, limits), ...languageConsistency(report, limits), ...titleScript(report, limits),
     ...placeholderMetadata(report), ...decorativeContent(report, limits), ...inspectContents(report).items, ...sameFactRules(report)];
   return { status: items.some(item => item.severity === 'concern') ? 'requires-review' : items.length ? 'minor' : 'consistent',
-    method: 'consistency-rules-v1', names: { cover: names.cover, saved: names.saved, running: names.running }, items };
+    method: 'consistency-rules-v1', names: { cover: names.cover, saved: names.saved, running: names.running },
+    // What the body text reads as (rules, not AI), so the review can show it beside the declared language.
+    language: detectLanguage((report.pages || []).slice(0, 40).map(pageText).join(' '), limits), items };
 }

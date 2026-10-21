@@ -16,7 +16,7 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  * The fix list placed on the PDF pages. The grouped legend is the accessible equivalent of the page images; pins
  * are buttons. Numbers match the PDF download. The side panel shows the selected item's detail (passed in as `detail`).
  */
-export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect: select, detail, focus = null,
+export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect: select, detail, focus = null, onPageChange = () => {},
   lead = null, special = null, onSpecial = () => {}, technical = null, summaryLeads = false }) {
   // On narrow screens the list and detail live in a bottom sheet; choosing anything opens it.
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -64,8 +64,15 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     scrollTo(page);
   };
   // "Show on page" from the detail or the drawer: scroll here and highlight the spot, instead of opening a modal.
-  useEffect(() => { if (focus) { setSheetOpen(false); jump(focus.page); } }, [focus?.key]);
+  // A page already on screen stays put, so selecting an issue whose place is visible doesn't jolt the view.
+  useEffect(() => {
+    if (!focus) return;
+    setSheetOpen(false);
+    const rect = pageRefs.current.get(focus.page)?.getBoundingClientRect();
+    if (!rect || rect.bottom < 160 || rect.top > window.innerHeight * 0.6) jump(focus.page);
+  }, [focus?.key]);
   const [current, setCurrent] = useState(pages[0]?.page || 1);
+  useEffect(() => onPageChange(current), [current]);
   useEffect(() => {
     let frame = 0;
     const update = () => { frame = 0;
@@ -281,11 +288,18 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
     return () => { active = false; if (url) URL.revokeObjectURL(url); };
   }, [visible, page, pins, order, service, zoom, focus?.key]);
   const focusBox = focus?.quads?.length && image?.boxes ? image.boxes[pins.length + order.length] : null;
+  // Once the highlight is drawn, bring it into view if it sits outside the visible part of the page.
+  const focusRef = useRef(null);
+  useEffect(() => {
+    const rect = focusRef.current?.getBoundingClientRect();
+    if (rect && (rect.top < 120 || rect.bottom > window.innerHeight - 40)) focusRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [focus?.key, !!focusBox]);
   return <section className="page-pins-page" ref={node => { element.current = node; pageRef(node); }} aria-label={`Page ${page}`}>
     <div className="page-pins-page-header"><h3>Page {page}</h3></div>
     <div className="page-pins-zoom">
     <div className="page-pins-sheet" style={{ ...(image?.width ? { aspectRatio: `${image.width} / ${image.height}` } : {}), width: `${zoom * 100}%` }}>
-      {focusBox && <span key={focus.key} className="page-pins-focus" aria-hidden="true" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%`, width: `${focusBox.width * 100}%`, height: `${focusBox.height * 100}%` }} />}
+      {focusBox && <span key={focus.key} ref={focusRef} className="page-pins-focus" aria-hidden="true" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%`, width: `${focusBox.width * 100}%`, height: `${focusBox.height * 100}%` }} />}
+      {focusBox && focus.label && <span className="page-pins-focus-label" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%` }}>{focus.label}</span>}
       {image?.url && <img src={image.url} alt={`Page ${page} of the PDF`} />}
       {image?.failed && <p className="model-note">This page could not be shown.</p>}
       {!image && <p className="model-note">Loading page {page}…</p>}
@@ -327,13 +341,19 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
   </section>;
 }
 
+/** What the pages themselves show, beside the saved values: the cover title and the language the text reads as. */
+const foundOnPages = report => {
+  const cover = report.consistency?.names?.cover?.text, language = report.consistency?.language;
+  return { Title: cover ? `On the cover: “${cover}”` : null,
+    Language: report.consistency ? (language?.name ? `The text reads as ${language.name}` : "The text’s language couldn’t be worked out") : null };
+};
 /** Document properties in the detail pane: every saved value, with pins for the issues about each one. */
 export function PropertiesPanel({ report, entries, selectedNumber = null, onSelect }) {
   return <article className="properties-panel">
     <p className="fix-detail-eyebrow">Document properties</p>
     <h2 className="review-detail-title" tabIndex={-1}>What is saved in this PDF</h2>
     <p className="properties-intro">This information is saved inside the PDF, not printed on its pages. Search engines, screen readers and AI tools use it to identify the document. The designer can change it in the source document’s file properties.</p>
-    <DocumentProperties metadata={report.metadata} title={null} annotate={label => {
+    <DocumentProperties metadata={report.metadata} title={null} found={foundOnPages(report)} annotate={label => {
       const related = entries.filter(entry => propertyFor(entry.item) === label);
       return related.length > 0 && <span className="page-pins-property-pins">{related.map(entry =>
         <TippedPin key={entry.number} entry={entry} selected={entry.number === selectedNumber} onSelect={() => onSelect(entry.item)} />)}</span>;

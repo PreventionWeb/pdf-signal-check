@@ -573,8 +573,19 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fix-change h3 { font-size: 1rem; margin: 0 0 4px; }
 .fix-change p { margin: 0; }
 .fix-actions { margin-block: 12px; }
-.fix-why { margin-block: 8px 0; font-size: .9375rem; }
-.fix-why > summary { cursor: pointer; min-height: 44px; display: list-item; padding-block: 10px; color: rgb(var(--mg-color-interactive)); }
+/* Why it matters: a quiet caption under the headline, not a fold-out. */
+.fix-why-caption { margin: 4px 0 0; font-size: .9375rem; line-height: 1.45; color: var(--muted); max-width: 60ch; }
+/* Links to places on the pages: a pager when there are several, a quiet marker for the one on screen. */
+.place-pager { display: inline-flex; align-items: center; gap: 8px; }
+.place-pager-label { font-size: .9375rem; font-variant-numeric: tabular-nums; }
+.place-shown { font-size: .875rem; color: var(--muted); }
+.place-shown::before { content: "●"; margin-inline-end: 6px; color: rgb(var(--mg-color-interactive)); }
+/* Words that differ between two values. */
+.diff-word { background: rgb(var(--mg-color-gold-100, 255 240 200)); color: inherit; padding: 0 2px; border-radius: 2px; box-shadow: inset 0 -2px 0 rgb(var(--mg-color-gold-800)); }
+.page-pins-focus-label { position: absolute; z-index: 4; transform: translateY(calc(-100% - 10px)); background: rgb(var(--mg-color-interactive)); color: #fff;
+  font-size: .8125rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; }
+.document-properties-found { display: block; margin-top: 4px; font-size: .875rem; color: var(--muted); }
+.hidden-instructions-note { font-size: .9375rem; color: var(--muted); }
 .heading-review-list .heading-review-pair { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .heading-review-list .heading-review-pair h3 { font-size: 1rem; margin: 0; }
 .heading-review-list .heading-review-pair + .heading-review-pair { margin-top: 12px; padding-top: 12px; }
@@ -814,7 +825,8 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .score-audit--pass { color: #0b7a3e; } .score-audit--fail { color: #c5221f; } .score-audit--partial { color: #b35a00; } .score-audit--none { color: rgb(var(--mg-color-neutral-600, 90 90 90)); font-weight: 400; }
 
 /* Quiet detail pane: no card chrome, one lead sentence, plain evidence, one main action. */
-.page-pins-detail-pane .problem-frame { border: 0; box-shadow: none; background: transparent; }
+/* The detail is a frame, not a clickable card: no Mangrove hover outline. */
+.page-pins-detail-pane .problem-frame, .page-pins-detail-pane .problem-frame:hover { border: 0; box-shadow: none; background: transparent; transition: none; }
 .page-pins-detail-pane .problem-frame > .mg-card__content, .page-pins-detail-pane .problem-frame { padding-inline: 0; }
 .fix-detail-lead { font-size: 1.125rem; line-height: 1.5; margin: 12px 0 16px; padding-inline-start: 14px; border-inline-start: 4px solid rgb(var(--mg-color-neutral-300)); }
 .fix-detail-lead--fix { border-color: rgb(var(--mg-color-red-900)); }
@@ -867,3 +879,6 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .figure-context blockquote { margin: 0 0 8px; padding-inline-start: 12px; border-inline-start: 3px solid rgb(var(--mg-color-neutral-300)); }
 /* Pins outside the page images: a tooltip fixed to the window cannot resize or scroll the panel it belongs to. */
 .page-pins-tooltip--fixed { position: fixed; z-index: 50; width: 300px; margin: 0; text-align: start; font-weight: 400; white-space: normal; }
+
+/* Download and step counts change many times a second: fixed-width digits keep the line still. */
+.progress-text { font-variant-numeric: tabular-nums; }

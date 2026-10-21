@@ -1,6 +1,6 @@
 import { findingProvenance, screeningProvenance } from '../review/provenance.js';
 import { normalizeFindings } from '../review/findings.js';
-import { consistencyLine, consistencyMemberText, reviewGroups, reviewLimitText, reviewSummary, fixCard } from '../review/workspace.js';
+import { consistencyLine, consistencyMemberText, reviewGroups, reviewLimitText, STANDING_LIMITS, reviewSummary, fixCard } from '../review/workspace.js';
 export function captureSnapshot({report,file}) {
   if(!report)throw new Error('Complete an analysis before exporting.');
   const copy=structuredClone(report);
@@ -39,7 +39,7 @@ export function fixSheet(snapshot) {
     cropFindingId:item.figureGroup==='decorative' || item.source?.path==='readingOrder'?null:item.figureGroup?item.members[0].id:item.members?null:item.id,
     members:[...(item.members || []).map(memberLine),...(fixCard(item,report).also || []).map(text=>`Also fixes: ${text}`)]});
   return {headline:summary.headline,scope:summary.scope,fix:summary.buckets.fix.map(item=>entry(item,'fix')),check:summary.buckets.check.map(item=>entry(item,'check')),
-    unknown:summary.buckets.unknown.map(item=>fixCard(item,report).title), limits:summary.buckets.limits.map(reviewLimitText),
+    unknown:summary.buckets.unknown.map(item=>fixCard(item,report).title), limits:[...summary.buckets.limits.map(reviewLimitText),...STANDING_LIMITS],
     // Optional improvements: unnumbered, after Fix and Check, never counted in the headline.
     travel:(summary.buckets.travel || []).map(item=>{const card=fixCard(item,report);return {title:card.title,change:card.change || ''};})};
 }

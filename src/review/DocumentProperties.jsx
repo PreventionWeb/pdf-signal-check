@@ -9,7 +9,7 @@ export function descriptionRepeatsTitle(metadata = {}) {
     .some(title => title === description || ((title.includes(description) || description.includes(title)) && Math.min(title.length, description.length) / Math.max(title.length, description.length) > 0.75));
 }
 /** Shows extracted saved values only; filename and visible page text are never substitutes. */
-export function DocumentProperties({ metadata = {}, title = 'What is saved in this PDF', annotate }) {
+export function DocumentProperties({ metadata = {}, title = 'What is saved in this PDF', annotate, found = {} }) {
   const text = value => typeof value === 'string' ? value.trim() : '';
   // One row per property: values saved in either place (PDF properties or XMP) are listed together.
   const merged = (...values) => [...new Set(values.flat().map(text).filter(Boolean))].join('\n');
@@ -30,7 +30,8 @@ export function DocumentProperties({ metadata = {}, title = 'What is saved in th
       <tbody>{rows.map(([label, value, unreadable]) => <tr key={label}>
         <th scope="row">{label}</th>
         <td><strong>{value ? 'Set' : unreadable ? 'Could not read' : 'Missing'}</strong></td>
-        <td>{value || (unreadable ? 'Part of the saved information could not be read.' : '—')}{annotate?.(label)}</td>
+        <td>{value || (unreadable ? 'Part of the saved information could not be read.' : '—')}{annotate?.(label)}
+          {found[label] && <span className="document-properties-found">{found[label]}</span>}</td>
       </tr>)}</tbody>
     </table>
     {descriptionRepeatsTitle(metadata) && <div className="document-properties-note" role="note">

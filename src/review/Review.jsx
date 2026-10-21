@@ -2,7 +2,7 @@ import { buildDocumentEvidence } from "../engine/topic-retrieval.js";
 import { SemanticEvidenceLab } from "./SemanticEvidenceLab.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Checks } from "../app/Checks.jsx";
-import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, reviewLimitText, reviewGroups, fixCard, fixBucket } from "./workspace.js";
+import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, reviewLimitText, STANDING_LIMITS, reviewGroups, fixCard, fixBucket } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
 import { checkedWith, findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
 import { Button, Card, Actions, Tag, Notice } from "../ui/react.jsx";
@@ -23,6 +23,7 @@ import { fixerDetails } from "./fixer.js";
 import { ExportMenu } from "../export/ExportMenu.jsx";
 import { PagePins, PropertiesPanel } from "./PagePins.jsx";
 import { hidingLabel } from "../engine/hidden-instructions.js";
+import { PlaceContext, PlacePager, ShowOnPage, findingPlaces, samePlace } from "./places.jsx";
 
 /** Whether a media query matches, kept in step with the window. */
 function useMedia(query) {
@@ -52,6 +53,9 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     [special, setSpecial] = useState("overview"),
     // Below 1200 px there is no third pane, so the summary leads the main column instead of being an inbox entry (below 820 px the list is a bottom sheet).
     summaryLeads = useMedia("(max-width: 1199px)"),
+    narrow = useMedia("(max-width: 820px)"),
+    // The page the viewer is scrolled to, so links to what is already on screen can step aside.
+    [viewerPage, setViewerPage] = useState(1),
     focusFinding = useRef(false),
     titleRef = useRef(null),
     detailRef = useRef(null);
@@ -94,12 +98,14 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       );
     return finding.targets || [];
   }, [finding, report.metadataConsistency]);
-  const inspect = (t) => {
+  const inspect = (t, { keepDrawer = false } = {}) => {
     const page = report.pages.find((p) => p.number === t.page);
-    setDrawerOpen(false);
+    if (!keepDrawer) setDrawerOpen(false);
     setFocus({
       page: t.page,
       quads: t.quads?.length ? t.quads : page ? candidateBlocks(page, t).flatMap((b) => (b.quad ? [b.quad] : [])) : [],
+      label: t.label || null,
+      target: t,
       key: Date.now(),
     });
   };
@@ -134,14 +140,21 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
             ? "attachments"
             : null
     : null;
-  const firstTarget = kind === "order" || finding?.figureGroup || finding?.members ? null : targets.find(t => t.page);
+  const places = useMemo(() => findingPlaces(finding, targets, kind), [finding, targets, kind]);
+  const placeIndex = places.findIndex(place => samePlace(place, focus?.target));
+  const placeContext = { narrow, isShown: target => samePlace(focus?.target, target) && viewerPage === target.page };
+  // Wide screens: selecting an issue brings its first place into view, so the reader never has to ask for it.
+  useEffect(() => {
+    if (!narrow && !special && places[0]) inspect(places[0], { keepDrawer: true });
+  }, [finding?.id, special, narrow]);
   const drawerTargets = finding?.members ? finding.members.flatMap(member => member.targets || []) : targets;
   const showOrder = kind === "order" && !finding.comparison?.readingSequenceMissing;
   const detailArticle = finding && (
-        <Card as="article" className="problem-frame" data-finding-id={finding.id}>
+        <PlaceContext.Provider value={placeContext}><Card as="article" className="problem-frame" data-finding-id={finding.id}>
       <Button className="review-list-back" onClick={() => { const current = document.querySelector('.page-pins-entry[aria-current="true"]'); current?.scrollIntoView({ block: "center", behavior: "instant" }); current?.focus({ preventScroll: true }); }}>Back to the list</Button>
       <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? ` · ${card.where}` : ""}</p>
       <h2 className="review-detail-title" id="finding-title" tabIndex={-1} ref={titleRef}>{card.title}</h2>
+      {(task.why || finding.whyItMatters) && <p className="fix-why-caption">{[task.why || finding.whyItMatters].flat()[0]}</p>}
       {/* The one sentence that matters: plain lead text with a thin bucket-coloured rule, not a boxed notice. */}
       <p className={`fix-detail-lead fix-detail-lead--${bucket}`}>{card.summary}</p>
       {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
@@ -151,7 +164,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
           {finding.members.map(member => <section key={member.id} className="heading-review-pair">
             <h3>{member.comparison?.query || member.title.replace(/^Heading: /, "")}</h3>
             {member.comparison?.candidates?.[0]?.text && <p className="heading-review-excerpt"><span>Text below it:</span> {excerpt(member.comparison.candidates[0].text)}</p>}
-            {member.targets?.length > 0 && <Button onClick={() => inspect(member.targets[0])}>Show on page {member.targets[0].page}</Button>}
+            <ShowOnPage target={member.targets?.[0]} onInspect={inspect} />
           </section>)}
         </section>
         : kind === "title" || kind === "authors" ? <IdentityComparison kind={kind} report={report} file={file} targets={targets} onInspect={inspect} compact />
@@ -167,14 +180,11 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
         <p>{card.change}</p>
       </section>}
       <Actions className="fix-actions">
-        {firstTarget && <Button variant="primary" onClick={() => inspect(firstTarget)}>Show on page {firstTarget.page}</Button>}
+        <PlacePager places={places} index={placeIndex} onGo={index => inspect(places[index])}
+          inline={!!(finding.members || finding.comparison?.figure || finding.comparison?.consistency?.kind === "same-fact")} />
         <button type="button" className="fix-detail-secondary" onClick={() => setDrawerOpen(true)}>Details for whoever fixes it</button>
       </Actions>
-      {(task.why || finding.whyItMatters) && <details className="fix-why">
-        <summary>Why this matters</summary>
-        <Guidance text={task.why || finding.whyItMatters} />
-      </details>}
-    </Card>
+    </Card></PlaceContext.Provider>
   );
   const overlays = <>
     {drawerOpen && finding && <EvidenceDrawer title={card.title} onClose={() => setDrawerOpen(false)}>
@@ -204,8 +214,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
       <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
   </>;
-  const pagesView = () => <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={buckets.limits.map(reviewLimitText)} report={report} file={file}
-    selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} focus={focus}
+  const pagesView = () => <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={[...buckets.limits.map(reviewLimitText), ...STANDING_LIMITS]} report={report} file={file}
+    selectedId={finding?.id} onSelect={(item, moveFocus) => choose(item, moveFocus)} focus={focus} onPageChange={setViewerPage}
     lead={lead} special={summaryLeads && special === "overview" ? null : special} onSpecial={setSpecial} technical={technical} summaryLeads={summaryLeads}
     detail={<section id="selected-item-analysis" className="page-pins-detail-pane" ref={detailRef} aria-labelledby={finding ? "finding-title" : undefined} aria-label={finding ? undefined : "Selected item"} tabIndex={0}>
       {special === "overview" && !summaryLeads ? lead
@@ -266,7 +276,8 @@ function HiddenInstructions({ matches, onInspect }) {
     {/* A single match is already quoted in the lead sentence; quote it again only when there are several. */}
     {matches.length > 1 && <blockquote>{match.text}</blockquote>}
     <p className="hidden-instructions-why">{match.labels?.join("; ")}</p>
-    {matches.length > 1 && match.kind === "page" && match.quads?.length > 0 && <Button onClick={() => onInspect({ page: match.page, quads: match.quads, text: match.text })}>Show on page {match.page}</Button>}
+    {match.kind === "page" && <p className="hidden-instructions-note">{match.quads?.length ? "It can’t be seen on the page, so the outline marks where it sits." : "It can’t be seen on the page, and its exact position wasn’t recovered."}</p>}
+    {matches.length > 1 && match.kind === "page" && match.quads?.length > 0 && <ShowOnPage target={{ page: match.page, quads: match.quads, text: match.text, label: "Hidden text sits here" }} onInspect={onInspect} />}
   </li>)}</ul>;
 }
 const excerpt = text => { const value = String(text || "").replace(/\s+/g, " ").trim(); return value.length > 220 ? `${value.slice(0, 219)}…` : value; };

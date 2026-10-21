@@ -47,8 +47,8 @@ it('keeps setup usable when browser storage is blocked', () => {
   expect(preferences.load()).toBeNull();
 });
 it('formats asset byte counts consistently while retaining non-byte progress units', () => {
-  expect(formatBytes(22972370)).toBe('23 MB');
-  expect(formatProgress({completed:12345678,total:22972370,unit:'bytes'})).toBe('12.3 MB of 23 MB downloaded');
+  expect(formatBytes(22972370)).toBe('23.0 MB');
+  expect(formatProgress({completed:12345678,total:22972370,unit:'bytes'})).toBe('12.3 MB of 23.0 MB downloaded');
   expect(formatProgress({completed:711661,total:null,unit:'bytes'})).toBe('711.7 KB downloaded');
   expect(formatProgress({completed:2,total:3,unit:'batches'})).toBe('2 / 3 batches');
 });

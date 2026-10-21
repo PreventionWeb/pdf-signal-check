@@ -2,6 +2,9 @@ import React from "react";
 import { Card, Button } from "../ui/react.jsx";
 import { Help } from "../help/Help.jsx";
 import { identitySavedValues } from "./identity-values.js";
+import { wordDiff } from "./diff.js";
+
+import { DiffText as Marked } from "./DiffText.jsx";
 export function IdentityComparison({ kind, report, file, targets, onInspect, compact = false }) {
   const result =
       kind === "title" ? report.metadataConsistency : report.authorConsistency,
@@ -11,6 +14,9 @@ export function IdentityComparison({ kind, report, file, targets, onInspect, com
         : result?.evidence || [];
   const saved = identitySavedValues(kind, report);
   const property = kind === 'title' ? 'document title' : 'author names';
+  // One saved value against the first page candidate: mark the words that differ on both sides.
+  const diff = saved.values.length === 1 && evidence[0]?.text ? wordDiff(saved.values[0].value, evidence[0].text) : null;
+  const marked = diff?.changed && diff.comparable ? diff : null;
   return (
     <div className="identity-comparison">
       <Card className="identity-source identity-saved">
@@ -19,7 +25,7 @@ export function IdentityComparison({ kind, report, file, targets, onInspect, com
         {saved.values.length > 1 && <p>The PDF contains different saved versions. Compare each with the publication{kind === 'title' ? '; language versions may be intentional' : ''}.</p>}
         {saved.values.map((item, i) => <div className="comparison-evidence" key={i}>
           {saved.values.length > 1 && <h4>Saved version {i + 1}</h4>}
-          <p className="identity-saved-value">{item.value}</p>
+          <p className="identity-saved-value">{marked ? <Marked tokens={marked.left} /> : item.value}</p>
           {!compact && <>
           <h4>Recorded source{item.sources.length > 1 ? 's' : ''}</h4>
           <ul className="model-note">{item.sources.map((source, j) => <li key={j}>{source.source} <Help topic={source.topic} label={`About ${source.source}`} /></li>)}</ul>
@@ -62,7 +68,7 @@ export function IdentityComparison({ kind, report, file, targets, onInspect, com
                 })
               }
             >
-              {item.text}
+              {marked && i === 0 ? <Marked tokens={marked.right} /> : item.text}
             </Button>
           </div>
         ))}

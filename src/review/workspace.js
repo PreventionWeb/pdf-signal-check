@@ -556,8 +556,11 @@ export function reviewLimitEvidence(value) {
 }
 
 
+/** Always true of this tool, whatever the PDF: listed with the other limits. */
+export const STANDING_LIMITS = ["Writing: the tool compares titles, dates, figures and the contents list, but doesn’t judge whether the text is accurate, clear or well argued."];
+
 export function reviewLimitText(item) {
-  if (item.source?.checkId === "supported-content") return "Images and charts: this tool cannot judge what they mean.";
+  if (item.source?.checkId === "supported-content") return "Images and charts: the tool checks that they are labelled and described, and spots ones hidden as decoration, but it doesn’t judge whether a description is accurate or what a chart shows.";
   if (item.source?.path === "semantic") return item.outcome === "error" ? "AI text comparisons: the AI check did not finish." : "AI text comparisons: not run for this PDF.";
   const skipped = /^semantic:(keywords|sections):unassessed$/.exec(item.id);
   if (skipped) return `${String(item.summary || "").match(/\d+/)?.[0] || "Some"} ${skipped[1] === "keywords" ? "keywords" : "headings"} were not compared by the AI. It only compares a limited number in each PDF.`;

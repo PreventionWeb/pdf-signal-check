@@ -37,7 +37,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       ? "Please wait while the image model looks at graphics marked as decoration and compares photo descriptions with their pictures. Your results will appear when it finishes."
       : `Please wait while the selected model compares this PDF’s text.${state.imageAI ? " Image checks follow." : ""} Your results will appear when the checks finish.`}</p>
     <ProgressBar label="AI check progress" hideLabel max={state.progress?.total > 0 ? state.progress.total : undefined} value={state.progress?.total > 0 ? state.progress.completed : undefined} valueText={state.progress?.total > 0 && Number.isFinite(state.progress.completed) ? formatProgress(state.progress) : undefined} />
-    <p>{state.progress?.stage === 'asset-download' ? Number.isFinite(state.progress.completed) ? `Downloading model files: ${formatProgress(state.progress)}` : 'Waiting for model files…'
+    <p className="progress-text">{state.progress?.stage === 'asset-download' ? Number.isFinite(state.progress.completed) ? `Downloading model files: ${formatProgress(state.progress)}` : 'Waiting for model files…'
       : state.progress?.stage === 'inference' && state.progress.total > 0 ? `Comparing text: ${state.progress.completed} of ${state.progress.total} groups completed`
         : 'Preparing the model on this device…'}</p>
     <Button onClick={() => controller.cancelScreening()}>Cancel AI checks</Button>
