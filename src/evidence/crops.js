@@ -28,7 +28,8 @@ export class EvidenceCropService {
       const outputScale=Math.min(1,1000/Math.max(bounds.width,bounds.height),Math.sqrt(1_000_000/(bounds.width*bounds.height)));
       crop=document.createElement('canvas');crop.width=Math.max(1,Math.floor(bounds.width*outputScale));crop.height=Math.max(1,Math.floor(bounds.height*outputScale));const ctx=crop.getContext('2d');
       ctx.drawImage(canvas,bounds.x,bounds.y,bounds.width,bounds.height,0,0,crop.width,crop.height);
-      const outlines = target.wholePage ? quads.map(quad => quad.map(p => point(viewport.transform, p))) : !bounds.pageContext ? [bounds.points] : [];
+      // A clean crop (for the image model) has no outline drawn on it.
+      const outlines = target.clean ? [] : target.wholePage ? quads.map(quad => quad.map(p => point(viewport.transform, p))) : !bounds.pageContext ? [bounds.points] : [];
       if (target.wholePage) {
         // Decorative graphics are often thin rules in brand colours: draw a padded, dashed box so the outline does not merge with the graphic.
         ctx.strokeStyle='#c2410c';ctx.lineWidth=3;ctx.setLineDash([8,5]);

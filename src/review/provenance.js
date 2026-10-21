@@ -10,6 +10,7 @@ export function findingProvenance(finding,report) {
     return {kind:'unassessed',label:'AI check not assessed',help:'bounded',detail:actual?.reason || actual?.error || finding.summary || 'No completed model inference is recorded for this check.'};
   }
   if(path.startsWith('consistency.')) {
+    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true)return {kind:'ai',label:'Rules + local image model',help:'ai',detail:`The rules couldn’t tell whether this graphic carries information; ${report.imageScreening.model?.label || 'the image model'} sorted a crop of it into a broad type. It cannot read text in images and can be wrong.`};
     if(finding.method==='embedding-screening'&&completedModel(report.semantic)&&finding.comparison?.ai?.inferencePerformed===true){
       const kind=finding.comparison?.consistency?.kind,model=modelName(report.semantic?.model);
       const detail=kind==='same-fact'?`${model} found two sentences that say the same thing; rules found they give different numbers. The model compares meaning and can pair sentences about different things.`
@@ -63,9 +64,9 @@ export function groupedFindingProvenance(findings, report) {
 /** One plain receipt line: which kinds of check produced these results. */
 export function checkedWith(report) {
   const semantic = report.semantic;
-  if (!semantic) return 'Checked with standard checks.';
+  if (!semantic) return report.imageScreening?.inferencePerformed ? 'Checked with standard checks and an on-device image model.' : 'Checked with standard checks.';
   const model = semantic.model?.label ? ` (${semantic.model.label.split(' · ')[0]})` : '';
   if (semantic.status === 'error' || semantic.status === 'skipped') return 'Checked with standard checks. The AI checks did not run.';
   if (semantic.inferencePerformed !== true) return `Checked with standard checks. AI${model} was selected but had nothing to compare in this PDF.`;
-  return `Checked with standard checks and on-device AI${model}.`;
+  return `Checked with standard checks and on-device AI${model}${report.imageScreening?.inferencePerformed ? ' and an image model' : ''}.`;
 }

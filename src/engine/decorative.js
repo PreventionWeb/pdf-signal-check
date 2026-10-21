@@ -41,12 +41,14 @@ export function judgeDecorative(report) {
         : (prose >= 2 || letters >= 400) && !item.images && (item.paths <= 8 || !captioned || letters >= 400) ? verdict('decoration', 'a panel or box behind text')
         : captioned && share >= 0.08 && (item.images || item.paths >= 5) ? verdict('content', item.images ? 'a large picture beside a figure or map caption' : 'many shapes beside a figure or map caption, like a chart or map')
         : share >= 0.6 ? verdict('decoration', 'a background behind the page')
+        // A picture with plenty of text drawn on top of it is a background for that text.
+        : item.images && letters >= 400 ? verdict('decoration', 'a picture behind text, like a background')
         : !item.images && item.paths <= 4 ? verdict('decoration', 'a simple shape such as a box or panel')
         // Numbers among many shapes could be a chart or a table's shading: the rules can't tell which.
         : !item.images && item.paths >= 10 && numbers >= 2 && share >= 0.03 ? verdict('unclear', 'many shapes with numbers: could be a chart, or shading in a table')
         : item.images && share >= 0.08 ? verdict('unclear', 'a large picture with no caption')
         : verdict('unclear', 'a graphic the rules can’t place');
-      items.push({ page: page.number, ...judgement, box: item.box, share: Math.round(share * 1000) / 1000, paths: item.paths, images: item.images,
+      items.push({ page: page.number, ...judgement, box: item.box, share: Math.round(share * 1000) / 1000, paths: item.paths, images: item.images, letters,
         quad: [[bx0, by0], [bx1, by0], [bx1, by1], [bx0, by1]] });
     }
   }

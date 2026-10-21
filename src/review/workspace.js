@@ -129,7 +129,7 @@ export function reviewPriority(finding) {
   // A fix for catalogues and AI tools rather than an accessibility-standard failure: after the structural fixes.
   if (finding.source?.path === 'machineMetadata' && finding.category === 'advisory-concern') return { rank: 0.5, key: 'important', label: 'Important', noticeVariant: 'warning' };
   // Concerns the AI decided rank after rule-based warnings.
-  if (finding.category === 'advisory-concern' && finding.method === 'embedding-screening' && finding.source?.path?.startsWith('consistency.'))
+  if (finding.category === 'advisory-concern' && ['embedding-screening', 'image-screening'].includes(finding.method) && finding.source?.path?.startsWith('consistency.'))
     return { rank: 1.5, key: 'ai-warning', label: 'Warning (AI)', noticeVariant: 'warning' };
   if (finding.source?.path === 'readingOrder' && finding.comparison?.readingSequenceMissing) return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };
   if (finding.category === 'required-defect') return { rank: 0, key: 'critical', label: 'Critical', noticeVariant: 'negative' };

@@ -1,3 +1,4 @@
+import { imageVerdict } from '../engine/image-model.js';
 import { addConsistencyFindings } from './consistency-findings.js';
 const hash = value => { let n=2166136261; for(const c of String(value)) n=Math.imul(n^c.codePointAt(0),16777619); return (n>>>0).toString(16); };
 const normalize = text => String(text || '').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
@@ -129,7 +130,12 @@ export function normalizeFindings(report) {
       evidence:[...(figure.alt ? [`Alternate text: ${figure.alt}`] : []), {page:figure.page,keys:figure.keys,node:figure.node,quads:figure.quads,text:figure.tagged?'Figure content':'Graphic content'}],
       comparison:{figure, figureNumber: report.figureAlternatives.items.slice(0, index + 1).filter(item => item.page === figure.page).length, ...(description ? { description } : {})}, source:{path:`figureAlternatives.items[${index}]`}, kind:figure.tagged?'figure':'figureUnknown'});
   }
+  // Graphics the image model confidently called decoration (or content, handled as a concern) no longer need a person's decision.
+  const imageDecided = new Set(report.imageScreening?.inferencePerformed === true ? (report.imageScreening.items || [])
+    .filter(result => imageVerdict(result, report.decorative?.items?.[result.index]) !== 'unclear').map(result => result.index) : []);
+  const stillUnclear = page => (report.decorative?.items || []).some((item, index) => item.page === page && item.kind === 'unclear' && !imageDecided.has(index));
   for (const [index, figure] of (report.figureAlternatives?.decorativeItems || []).entries()) {
+    if (report.decorative?.items && !stillUnclear(figure.page)) continue;
     add({ id: `figure:${figure.id}`, category: 'uncertain', title: 'Graphics marked as decorative',
       outcome: 'uncertain', method: 'figure-alternative-inspection',
       summary: 'These graphics are marked as decoration and excluded from the reading sequence. Check that they do not convey essential information.',

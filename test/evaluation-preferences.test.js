@@ -21,7 +21,7 @@ it('restores only explicit settings and consent without starting any document or
   expect(restored.getSnapshot().stage).toBe('setup');
   expect(workerFactory).not.toHaveBeenCalled();
   expect(fetcher).not.toHaveBeenCalled();
-  expect(Object.keys(JSON.parse(local.getItem()))).toEqual(['version','confirmed','modelId','modelFingerprint','checks']);
+  expect(Object.keys(JSON.parse(local.getItem()))).toEqual(['version','confirmed','modelId','modelFingerprint','checks','imageAI']);
 });
 it('remembers no-AI fallback and replaces the previous model consent', () => {
   const preferences = createEvaluationPreferences({storage:storage()});

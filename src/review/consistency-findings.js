@@ -1,3 +1,4 @@
+import { imageVerdict } from '../engine/image-model.js';
 /**
  * Normalize consistency advisories into findings. Severity is carried through: 'minor' items stay in Check but rank last.
  * Name pairs the rules left open use a completed AI comparison when one is recorded, otherwise they stay undecided.
@@ -56,6 +57,22 @@ export function addConsistencyFindings(report, add) {
         : item.kind === 'draft' ? item.blockIds?.length ? [{ page: item.pages[0], blockIds: item.blockIds, text: item.text || item.label }] : [`“${item.label}” on page ${item.pages.slice(0, 5).join(', ')}`]
           : item.value ? [`Saved value: ${item.value}`] : [];
     add({ ...base, title: TITLES[item.kind] ? TITLES[item.kind](item) : item.kind, category: 'advisory-concern', severity: item.severity, summary: '', evidence });
+  }
+  // Graphics marked as decoration that the image model sees as a chart, map, photo, diagram or table, on pages the rules didn't flag.
+  const images = report.imageScreening;
+  if (images?.inferencePerformed === true) {
+    const flagged = new Set(consistency.items.filter(item => item.kind === 'decorative').map(item => item.page));
+    const byPage = new Map();
+    for (const result of images.items || []) if (imageVerdict(result, report.decorative?.items?.[result.index]) === 'content' && !flagged.has(result.page)) byPage.set(result.page, [...(byPage.get(result.page) || []), result]);
+    for (const [page, results] of byPage) {
+      const judged = results.map(result => report.decorative?.items?.[result.index]).filter(Boolean);
+      const item = { id: `decorative:ai:${page}`, kind: 'decorative', severity: 'concern', page, reason: `a graphic the image model sees as ${results[0].label}`,
+        captions: [], source: null, quads: judged.map(entry => entry.quad), ai: results };
+      add({ id: `consistency:${item.id}`, source: { path: `consistency.${item.id}` }, kind: 'consistency', outcome: 'suspected-mismatch', method: 'image-screening',
+        title: TITLES.decorative(item), category: 'advisory-concern', severity: 'concern', summary: '',
+        evidence: [{ page, quads: item.quads, text: 'Graphic marked as decoration' }, ...results.map(result => `Image model: ${result.label} (chart, map, photo, diagram or table ${Math.round(result.contentScore * 100)}%)`)],
+        comparison: { consistency: item, ai: { inferencePerformed: true, model: images.model } } });
+    }
   }
   // Sentences the AI found to say the same thing with different numbers.
   const semantic = report.semantic;

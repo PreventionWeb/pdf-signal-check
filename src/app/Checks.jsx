@@ -1,4 +1,5 @@
 import React from 'react';
+import { imageVerdict } from '../engine/image-model.js';
 import { hasUnchangedNoInputs, needsDocumentInformation } from '../runtime/screening-recovery.js';
 import { MetadataGuidance } from '../review/MetadataGuidance.jsx';
 import { DocumentProperties } from '../review/DocumentProperties.jsx';
@@ -73,6 +74,10 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       <ul>
         <li>Selected model: {model?.label || 'No AI model selected for new checks'}. Completed AI checks are recorded above.</li>
         {coverage.map(f => <li key={f.id}><strong>{f.title}:</strong> {f.summary}</li>)}
+        {state.report.imageScreening?.inferencePerformed && <li><strong>Image check:</strong> {(() => {
+          const items = state.report.imageScreening.items || [], count = verdict => items.filter(item => imageVerdict(item, state.report.decorative?.items?.[item.index]) === verdict).length;
+          return `${items.length} graphic${items.length === 1 ? '' : 's'} marked as decoration looked at by ${state.report.imageScreening.model?.label || 'the image model'}: ${count('content')} look like content, ${count('decoration')} like decoration, ${count('unclear')} unclear.`;
+        })()}</li>}
         {semantic?.inferencePerformed && <li><strong>Consistency comparisons:</strong> {[
           semantic.factCoverage && `${semantic.factCoverage.compared} of ${semantic.factCoverage.candidates} sentences stating a figure compared (${(semantic.factPairs || []).length} pair${(semantic.factPairs || []).length === 1 ? '' : 's'} with different numbers)`,
           `${(semantic.figureItems || []).length} image description${(semantic.figureItems || []).length === 1 ? '' : 's'} compared with ${(semantic.figureItems || []).length === 1 ? 'its caption' : 'their captions'}`,

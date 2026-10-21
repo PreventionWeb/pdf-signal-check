@@ -94,6 +94,10 @@ The verb carries the certainty: Add / Set / Export / Fix for confirmed defects (
 
 Grouping preserves member evidence, outcomes and provenance. Images group by corrective action. Headings split into suspected mismatches (Check) and pairs the AI could not judge (Couldn’t check).
 
+### Image model consent (October 2026)
+
+Setup shows a separate checkbox under the AI options: “Also look at graphics marked as decoration with an on-device image model (89.12 MB more)”, with what it does and its limits. Consent is saved with the other settings and resets with them. The image check runs after the text AI (or on its own when the text AI can’t run for the document’s language), with the same waiting surface, progress (“Looked at 25 of 40 graphics”) and Cancel. Its results only remove graphics from the “can’t tell” list or add AI-tagged “marked as decoration” concerns; the receipt line says “…and an image model”.
+
 ### AI-decided items
 
 Cards whose bucket was decided by the on-device AI carry a small “AI” tag in the list, and concerns the AI decided rank as “Warning (AI)” after rule-based warnings. Rule findings never carry the tag, even when AI ran. Image descriptions that are authoring-tool placeholders, generic words or file names count as missing descriptions (Fix); within “Review image descriptions”, shared descriptions and descriptions the AI found unrelated to their caption are listed first with a one-line reason.

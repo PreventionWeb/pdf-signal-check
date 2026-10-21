@@ -17,13 +17,13 @@ export function createEvaluationPreferences({ storage = defaultStorage() } = {})
         if (value?.version !== 1 || value.confirmed !== true ||
             !Array.isArray(value.checks) || !value.checks.every(check => CHECKS.includes(check)) ||
             value.modelFingerprint !== fingerprint(value.modelId)) return null;
-        return { modelId: value.modelId, checks: [...new Set(value.checks)] };
+        return { modelId: value.modelId, checks: [...new Set(value.checks)], imageAI: value.imageAI === true };
       } catch { return null; }
     },
-    save({ modelId, checks }) {
+    save({ modelId, checks, imageAI = false }) {
       try {
         storage?.setItem(KEY, JSON.stringify({ version: 1, confirmed: true, modelId,
-          modelFingerprint: fingerprint(modelId), checks: checks.filter(check => CHECKS.includes(check)) }));
+          modelFingerprint: fingerprint(modelId), checks: checks.filter(check => CHECKS.includes(check)), imageAI: imageAI === true }));
         return Boolean(storage);
       } catch { return false; }
     },
