@@ -1,9 +1,8 @@
 import { SiteNavigation } from "./SiteNavigation.jsx";
-import { ScanVisual } from "../ui/ScanVisual.jsx";
+import { ProcessingPanel } from "./ProcessingPanel.jsx";
 import { Capabilities } from './Capabilities.jsx';
 import { IntakeHero } from './IntakeHero.jsx';
 import { AboutPage } from './AboutPage.jsx';
-import { formatProgress } from '../ui/progress.js';
 import React, {
   useEffect,
   useRef,
@@ -27,8 +26,6 @@ import {
 import {
   Button,
   Actions,
-  Loader,
-  ProgressBar,
   Notice,
 } from "../ui/react.jsx";
 export function App() {
@@ -108,7 +105,7 @@ export function App() {
     batch: "Review several PDFs",
     checks: null,
     review: null,
-    "processing-analysis": "Checking text, tags and document details",
+    "processing-analysis": "Checking your PDF",
     "processing-model": null,
   }[state.stage];
   return (
@@ -174,7 +171,7 @@ export function App() {
                     {title}
                   </h1>
                 )}
-                {state.file && state.stage !== "batch" && state.stage !== "document" && !["checks", "review"].includes(state.stage) && (
+                {state.file && state.stage !== "batch" && state.stage !== "document" && !["checks", "review", "processing-model"].includes(state.stage) && (
                   <p className="flow-file">
                     {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
                   </p>
@@ -188,45 +185,7 @@ export function App() {
                     batchBusy={batch.busy}
                   />
                 )}
-              {state.stage === "processing-analysis" && (
-                <>
-                  <p role="status" id="flow-status">
-                    {state.message}
-                  </p>
-                  {state.progress?.total > 0 &&
-                  Number.isFinite(state.progress.completed) ? (
-                    <>
-                      {state.progress.unit === "pages" && <ScanVisual kind="pages" completed={state.progress.completed} total={state.progress.total} />}
-                      <ProgressBar
-                        label="Current processing step"
-                        hideLabel
-                        max={state.progress.total}
-                        value={state.progress.completed}
-                        valueText={formatProgress(state.progress)}
-                        helpText={`${formatProgress(state.progress)}${state.progress.asset ? ` · ${state.progress.asset}` : ""}`}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Loader label="Preparing local processing" />
-                      <p className="model-note">
-                        Preparing or processing locally. No estimated completion
-                        time is available.
-                      </p>
-                    </>
-                  )}
-                  <Button
-                    id="flow-cancel"
-                    onClick={() =>
-                      state.stage === "processing-analysis"
-                        ? controller.cancelAnalysis()
-                        : controller.cancelScreening()
-                    }
-                  >
-                    Cancel and go back
-                  </Button>
-                </>
-              )}
+              {state.stage === "processing-analysis" && <ProcessingPanel state={state} controller={controller} />}
               {["checks", "review", "processing-model"].includes(state.stage) && state.report && (
                 <ReviewLoader
                   key={state.sourceKey}

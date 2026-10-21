@@ -955,3 +955,33 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
   .scan-item { transition: none; }
 }
 .scan--images .scan-line { display: none; }
+
+/* One waiting screen for the whole check: centred, the steps listed, one picture and one bar for the running step. */
+.workspace[data-stage="processing-analysis"] .flow-title, .workspace[data-stage="processing-analysis"] .flow-file,
+.screening-wait .flow-title, .screening-wait .flow-file { text-align: center; }
+.screening-wait { max-width: none; }
+.processing { max-width: 600px; margin: 24px auto 48px; display: grid; gap: 20px; justify-items: center; }
+.processing .scan { inline-size: 100%; margin: 0; }
+.processing .mg-progress-bar, .processing [class*="progress"] { inline-size: 100%; }
+.processing-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; inline-size: min(100%, 440px); }
+.processing-step { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 4px 12px; color: var(--muted); }
+.processing-step-mark { inline-size: 22px; block-size: 22px; border-radius: 50%; display: grid; place-items: center; font-size: .8125rem; font-weight: 700;
+  border: 2px solid rgb(var(--mg-color-neutral-300, 200 200 200)); box-sizing: border-box; }
+.processing-step-detail { font-size: .875rem; font-variant-numeric: tabular-nums; text-align: end; }
+.processing-step.is-done { color: inherit; }
+.processing-step.is-done .processing-step-mark { background: rgb(var(--mg-color-interactive)); border-color: rgb(var(--mg-color-interactive)); color: #fff; }
+.processing-step.is-current { color: inherit; font-weight: 600; }
+.processing-step.is-current .processing-step-detail { font-weight: 400; }
+.processing-step.is-current .processing-step-mark { border-color: rgb(var(--mg-color-interactive)); border-top-color: transparent; animation: processing-spin 1s linear infinite; }
+.processing-step.is-skipped .processing-step-label { text-decoration: none; }
+.processing-step.is-skipped .processing-step-mark { border-style: dashed; }
+@keyframes processing-spin { to { transform: rotate(360deg); } }
+.processing-actions { display: grid; justify-items: center; gap: 4px; text-align: center; }
+/* The model package: fills as its file downloads. */
+.scan--model .scan-line { inset-inline-start: 50%; }
+.scan-package { position: absolute; inset-block-start: 50%; inset-inline-start: 50%; inline-size: 56px; block-size: 64px; transform: translate(-50%, -50%);
+  border: 2px solid rgb(var(--mg-color-interactive)); border-radius: 6px; overflow: hidden; background: #fff; z-index: 3; display: flex; align-items: flex-end; }
+.scan-package > span { display: block; inline-size: 100%; background: rgb(var(--mg-color-interactive) / .35); transition: block-size .3s ease-out; }
+.scan-package.is-waiting { animation: scan-breathe 1.6s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .processing-step.is-current .processing-step-mark { animation: none; border-top-color: rgb(var(--mg-color-interactive)); } .scan-package.is-waiting { animation: none; } }
+.scan.is-jump .scan-item { transition: none; animation: none; }

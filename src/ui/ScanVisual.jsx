@@ -28,17 +28,26 @@ function usePreviewUrls(blobs, from, to) {
 /** A fixed pseudo-random width for a text line, so each line keeps its shape as it moves. */
 const lineWidth = i => 45 + ((i * 37) % 50);
 
-export function ScanVisual({ kind, completed, total, previews = null }) {
+export function ScanVisual({ kind, completed, total, previews = null, fraction = null }) {
   const done = Number.isFinite(completed) ? Math.max(0, Math.min(completed, total || completed)) : 0;
   const [before, after] = WINDOW[kind] || WINDOW.pages;
   const from = done - before, to = done + after;
   const urls = usePreviewUrls(kind === "images" ? previews : null, from, to);
+  // One step at a time slides; when several items finished between frames, snap so outlines never pile up mid-flight.
+  const previous = useRef(done);
+  const jump = Math.abs(done - previous.current) > 1;
+  useEffect(() => { previous.current = done; }, [done]);
   const indexes = useMemo(() => {
     const list = [];
     for (let i = Math.max(0, from); i < (total > 0 ? Math.min(total, to) : to); i++) list.push(i);
     return list;
   }, [from, to, total]);
-  return <div className={`scan scan--${kind}`} aria-hidden="true">
+  // A model arriving on this device: one package that fills as its file downloads, or waits with the line's shimmer.
+  if (kind === "model") return <div className="scan scan--model" aria-hidden="true">
+    <span className="scan-line" />
+    <span className={`scan-package ${fraction == null ? "is-waiting" : ""}`}><span style={{ blockSize: `${Math.round((fraction ?? 0) * 100)}%` }} /></span>
+  </div>;
+  return <div className={`scan scan--${kind}${jump ? " is-jump" : ""}`} aria-hidden="true">
     <span className="scan-line" />
     {kind === "images" && <span className="scan-lens" />}
     {indexes.map(i => {

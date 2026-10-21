@@ -2,6 +2,7 @@ import { buildDocumentEvidence } from "../engine/topic-retrieval.js";
 import { SemanticEvidenceLab } from "./SemanticEvidenceLab.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Checks } from "../app/Checks.jsx";
+import { ProcessingPanel } from "../app/ProcessingPanel.jsx";
 import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, reviewLimitText, STANDING_LIMITS, reviewGroups, fixCard, fixBucket } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
 import { checkedWith, findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
@@ -271,7 +272,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     <>
       {state.modelBusy && <section className="screening-wait" aria-label="PDF analysis in progress">
         <h1 id="flow-title" className="flow-title" tabIndex={-1}>Checking your PDF</h1>
-        <Checks state={state} controller={controller} batchBusy={state.batchBusy} showSettings={false} />
+        {file && <p className="flow-file">{file.name} · {(file.size / 1e6).toFixed(2)} MB</p>}
+        <ProcessingPanel state={state} controller={controller} />
       </section>}
       <div hidden={state.modelBusy} inert={state.modelBusy || undefined}>
       {pagesView()}
