@@ -47,5 +47,7 @@ it('graphics sample retains the unlabelled chart but excludes the decorative log
   // The only retained regions are inside the chart; the logo is at y=643–681.
   expect(report.pages[0].graphics.length).toBeGreaterThan(0);
   expect(report.pages[0].graphics.every(graphic => graphic.quad.every(([, y]) => y >= 75 && y <= 248))).toBe(true);
-  expect(report.figureAlternatives.decorativeItems.map(item => item.page)).toEqual([1, 2]);
+  // The decorative rules and ornament are judged fine as decoration, so nothing is left to review page by page.
+  expect(report.decorative.items.every(item => item.kind === 'decoration')).toBe(true);
+  expect(report.figureAlternatives.decorativeItems).toEqual([]);
 });

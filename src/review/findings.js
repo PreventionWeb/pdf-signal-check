@@ -134,7 +134,7 @@ export function normalizeFindings(report) {
       outcome: 'uncertain', method: 'figure-alternative-inspection',
       summary: 'These graphics are marked as decoration and excluded from the reading sequence. Check that they do not convey essential information.',
       evidence: [{ page: figure.page, keys: [], quads: figure.quads, text: 'Declared decorative graphics' }],
-      comparison: { figure }, source: { path: `figureAlternatives.decorativeItems[${index}]` }, kind: 'figureDecorative' });
+      comparison: { figure, decorativeFine: report.decorative?.decoration || 0 }, source: { path: `figureAlternatives.decorativeItems[${index}]` }, kind: 'figureDecorative' });
   }
   const identity=(field,id,title,kind,comparison)=>{
     const r=report[field];if(!r)return;

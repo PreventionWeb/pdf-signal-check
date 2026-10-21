@@ -61,3 +61,15 @@ False positives found and fixed during this pass: footer page-number stripping c
 
 - The missing-information gate that hid all results for PDFs without a saved title, description or keywords was removed after this pass, so these findings now show for those reports too. The analysis page cap was raised from 200 to 500 pages: GAR 2025 (253 pages, 36 MB) took about 16 s in Node and produced a 21 MB report, within the existing 50 MB, operation and text-item limits.
 - The page-by-page “Check graphics marked as decorative” group stays in Check. Moving it would change the story's recorded headline counts and narration.
+
+## Judging each decorative graphic (October 2026)
+
+`page.js` records each artifact (decoration) sequence as one item: images and drawing operations, and its bounding box. `decorative.js` gives each a plain verdict from shape, size, repetition and surroundings, with no pixel analysis:
+
+| Verdict | Rules, in order |
+| --- | --- |
+| Fine as decoration | a thin line or rule; the same box on 30%+ of pages (logo, header or footer band); under 0.4% of the page; borders or shading around tagged table cells; a few shapes, or a text-heavy area, behind text (a panel or box) |
+| Probably carries information | a dense drawing (100+ shapes) or a large graphic (8%+ of the page) on a page with a figure or map caption |
+| Can’t tell | many shapes with short numbers (a chart, or a table’s shading); a large picture with no caption; anything else |
+
+Then: a full-page background without a caption is fine; a few shapes are a simple box. Pages with a "probably carries information" item become the “Maps or charts marked as decoration” concern; pages with “can’t tell” items stay in a Check group that says how many other graphics were judged fine; graphics judged fine leave the task list. On GAR 2025 this flags 24 pages (five more than the page-level rule, all checked visually as charts or maps) and clears hundreds of rules, panels and backgrounds across the corpus. An on-device image model is the planned next step for the “can’t tell” cases.

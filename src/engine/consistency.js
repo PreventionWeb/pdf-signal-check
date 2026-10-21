@@ -270,24 +270,22 @@ const CAPTION = /^\s*(figure|fig\.|map|chart|graph|diagram|infographic)\s*\d+(?:
 /** Large drawings marked as decoration on a page that also carries a figure, map or table caption or a "Source:" line. */
 function decorativeContent(report, limits) {
   const figures = report.figureAlternatives?.items || [];
+  const judged = report.decorative?.items || [];
   const items = [];
   for (const page of report.pages || []) {
-    const extent = page.decorativeExtent;
-    if (!extent) continue;
+    // Graphics marked as decoration that the shape-and-caption rules judge to carry information (see decorative.js).
+    const content = judged.filter(item => item.page === page.number && item.kind === 'content');
+    if (!content.length) continue;
+    const tagged = figures.filter(item => item.page === page.number && item.tagged).length;
+    // A labelled figure on the same page may own the caption; then only a very large decorative graphic is suspicious.
+    if (tagged && !content.some(item => item.share >= 0.25 || item.paths >= limits.decorativePaths * 4)) continue;
     const captions = (page.blocks || []).filter(block => CAPTION.test(block.text) && block.text.length <= 240);
     const source = (page.blocks || []).find(block => /^\s*sources?\s*:/i.test(block.text));
-    // A large decorative image beside a caption or source line, or many decorative drawing operations beside a figure caption.
-    // Table borders are legitimately decorative, so table captions never count.
-    const image = extent.largestImage >= limits.decorativeImageShare && (captions.length || source);
-    const drawing = extent.paths >= limits.decorativePaths && captions.length;
-    if (!image && !drawing) continue;
-    const tagged = figures.filter(item => item.page === page.number && item.tagged).length;
-    // A labelled figure on the same page may own the caption; then only a very large decorative drawing is suspicious.
-    if (tagged && !(extent.largestImage >= 0.25 || extent.paths >= limits.decorativePaths * 4)) continue;
-    items.push({ id: `decorative:${page.number}`, kind: 'decorative', severity: 'concern', page: page.number, extent, tagged,
+    items.push({ id: `decorative:${page.number}`, kind: 'decorative', severity: 'concern', page: page.number, tagged, reason: content[0].reason,
+      extent: page.decorativeExtent,
       captions: captions.slice(0, 3).map(block => ({ page: page.number, blockIds: [block.id], text: block.text.trim().slice(0, 160) })),
       source: source ? { page: page.number, blockIds: [source.id], text: source.text.trim().slice(0, 160) } : null,
-      quads: (page.decorativeGraphics || []).map(graphic => graphic.quad).filter(Boolean).slice(0, 16) });
+      quads: content.map(item => item.quad).slice(0, 16) });
     if (items.length >= limits.decorativePages) break;
   }
   return items;

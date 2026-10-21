@@ -64,6 +64,7 @@ export function groupFigureFindings(groups) {
     }).sort((a, b) => descriptionConcern(b) - descriptionConcern(a) || a.comparison.figure.page - b.comparison.figure.page);
     if (!members.length) continue;
     result[type === 'missing' ? 'problems' : 'uncertainty'].push({ ...members[0], id: `review:figures:${type}`,
+      ...(type === 'decorative' ? { decorativeFine: members[0].comparison?.decorativeFine || 0 } : {}),
       source: { path: 'review.figures' }, figureGroup: type, members, targets: [], evidence: [], comparison: null });
   }
   return result;
@@ -330,7 +331,7 @@ export function reviewTask(finding) {
       missing: ['Add descriptions for images', `${count} image${count === 1 ? '' : 's'} labelled as meaningful ${count === 1 ? 'has' : 'have'} no useful text description${placeholders ? ` (${placeholders} only ${placeholders === 1 ? 'has' : 'have'} a placeholder such as “${quote(finding.members.find(member => member.comparison.description?.unusable).comparison.figure.alt.split('\n')[0])}”)` : ''}. People and tools that cannot see them may miss important information.`, 'Add useful alt text or equivalent nearby text. Mark an image as decorative only if it conveys no essential information.'],
       described: ['Review image descriptions', `${count} image${count === 1 ? '' : 's'} ${count === 1 ? 'has a saved description' : 'have saved descriptions'}.${flagged ? ` Start with the first ${flagged}: ${flagged === 1 ? 'its description is' : 'their descriptions are'} shared with other images or ${flagged === 1 ? 'doesn’t' : 'don’t'} seem to match ${flagged === 1 ? 'its' : 'their'} caption.` : ''} Review whether each description explains the important information; presence alone does not establish accuracy.`, 'Compare each image with its saved description. For charts, include key values and relationships or a data table.'],
       unlabelled: ['Decide whether unlabelled graphics are content or decoration', `Graphics on ${count} page${count === 1 ? '' : 's'} could not be linked to an image label. Check their intended role.`, 'Label meaningful graphics and add useful descriptions. Mark backgrounds, borders and purely decorative shapes as artifacts.'],
-      decorative: ['Check graphics marked as decorative', `Graphics on ${count} page${count === 1 ? '' : 's'} are marked as decoration and excluded from machine-readable content. Check that they convey no essential information.`, 'Keep purely decorative graphics marked as artifacts. If a graphic conveys information, give it an image label and a useful description.'],
+      decorative: ['Decide whether these decorative graphics carry information', `On ${count} page${count === 1 ? '' : 's'}, graphics are marked as decoration and the tool can’t tell from their shape and surroundings whether they carry information.${finding.decorativeFine ? ` It judged ${finding.decorativeFine} other decorative graphic${finding.decorativeFine === 1 ? '' : 's'} to be lines, panels, logos or backgrounds, which are fine as decoration.` : ''}`, 'Look at each one. Keep purely decorative graphics marked as artifacts. If a graphic conveys information, give it an image label and a useful description.'],
     };
     const [title, summary, action] = descriptions[finding.figureGroup];
     return { title: `${title} (${count})`, summary, action, detailAction: `${action} Make changes in the source document or a PDF accessibility editor, export again and recheck.`, why: 'Meaningful images need equivalent information in text. Decoration should be excluded so it does not interrupt the reading sequence.' };
@@ -678,7 +679,7 @@ function consistencyTask(finding) {
       'Write a one- or two-sentence summary in the description (Subject) field of the document properties. Keep the link elsewhere, then export again.',
       'Search results, catalogues and AI tools often show the saved description as the summary of a report.');
     case 'decorative': return task(`A ${/map/i.test(item.captions[0]?.text || '') ? 'map' : 'chart or figure'} is marked as decoration`,
-      `On page ${item.page}, a large graphic next to “${quote(item.captions[0]?.text || item.source?.text)}” is marked as decoration. Screen readers and AI tools skip decoration, so its information is lost to them.`,
+      `On page ${item.page}, ${item.reason || 'a large graphic'}${item.captions[0] ? ` (“${quote(item.captions[0].text)}”)` : ''} is marked as decoration. Screen readers and AI tools skip decoration, so its information is lost to them.`,
       'Give the map or chart an image label (a Figure tag) with a short description of what it shows, or state its key finding in nearby text. Export again and recheck.',
       'Marking a graphic as decoration tells assistive technology and AI tools to ignore it.');
     default: return null;

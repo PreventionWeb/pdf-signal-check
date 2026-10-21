@@ -89,15 +89,15 @@ describe('language and saved values', () => {
 });
 
 describe('meaningful graphics marked as decoration', () => {
-  it('flags a large decorative image beside a map caption', () => {
-    const pages = [page(34, { blocks: ['Map 1. Sargassum seaweed spread', 'Source: University of Florida'], extent: { images: 1, largestImage: 0.63, paths: 5 } })];
-    expect(inspectConsistency(report({ pages })).items[0]).toMatchObject({ kind: 'decorative', page: 34, severity: 'concern' });
+  it('raises a concern for a page whose decorative graphic the rules judge to be content', () => {
+    const pages = [page(34, { blocks: ['Map 1. Sargassum seaweed spread'] })];
+    const decorative = { items: [{ page: 34, kind: 'content', reason: 'a large picture beside a figure or map caption', share: 0.63, paths: 0, quad: [[0, 0], [1, 0], [1, 1], [0, 1]] }] };
+    expect(inspectConsistency({ ...report({ pages }), decorative }).items[0]).toMatchObject({ kind: 'decorative', page: 34, severity: 'concern' });
   });
-  it('ignores table borders, small images and sentences that only mention a figure', () => {
-    const table = page(8, { blocks: ['Table 2: City responses'], extent: { images: 0, largestImage: 0, paths: 400 } });
-    const small = page(9, { blocks: ['Figure 3. Trend'], extent: { images: 1, largestImage: 0.05, paths: 0 } });
-    const mention = page(10, { blocks: ['Figure 20 identifies the main risks'], extent: { images: 0, largestImage: 0, paths: 900 } });
-    expect(inspectConsistency(report({ pages: [table, small, mention] })).items).toHaveLength(0);
+  it('raises nothing for graphics judged decoration or unclear', () => {
+    const pages = [page(8, { blocks: ['Figure 3. Trend'] })];
+    const decorative = { items: [{ page: 8, kind: 'decoration', reason: 'a thin line or rule' }, { page: 8, kind: 'unclear', reason: 'a graphic the rules can’t place' }] };
+    expect(inspectConsistency({ ...report({ pages }), decorative }).items).toHaveLength(0);
   });
 });
 

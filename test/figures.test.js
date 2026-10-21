@@ -35,7 +35,10 @@ it('excludes graphics explicitly marked Artifact from figure review, while retai
  const decorative=await analyzePdf(await makePdf({graphic:true,artifactGraphic:true}));
  expect(decorative.pages[0].graphics).toEqual([]);
  expect(decorative.figureAlternatives.items).toEqual([]);
- expect(decorative.figureAlternatives.decorativeItems).toEqual([expect.objectContaining({page:1,decorative:true})]);
+ // Every decorative graphic gets a verdict; only the ones the rules can't place stay in the page-by-page review list.
+ expect(decorative.decorative.items.length).toBeGreaterThan(0);
+ const unclearPages=decorative.decorative.items.filter(item=>item.kind==='unclear').map(item=>item.page);
+ expect(decorative.figureAlternatives.decorativeItems.map(item=>item.page)).toEqual([...new Set(unclearPages)]);
  const unlabelled=await analyzePdf(await makePdf({graphic:true,artifactGraphic:false}));
  expect(unlabelled.figureAlternatives.items.some(item=>!item.tagged)).toBe(true);
 });

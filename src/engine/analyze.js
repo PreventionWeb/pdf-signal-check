@@ -10,6 +10,7 @@ import { inspectHiddenInstructions } from './hidden-instructions.js';
 import { inspectAttachments } from './attachments.js';
 import { inspectConsistency } from './consistency.js';
 import { inspectFigureDescriptions } from './figure-descriptions.js';
+import { judgeDecorative } from './decorative.js';
 import { summarizeAnnotations, inspectLinks, inspectCrossReferences, inspectOutline, inspectMachineMetadata, inspectFigureData, inspectDetachedValues, inspectReferenceTargets } from './travel.js';
 
 export { pdfjs };
@@ -114,6 +115,13 @@ export async function analyzePdf(input, options = {}) {
     report.figureData = inspectFigureData(report.figureAlternatives, structure, report.attachments);
     report.detachedValues = inspectDetachedValues(report.pages);
     report.figureDescriptions = inspectFigureDescriptions(report);
+    // Judge each graphic marked as decoration; only the ones the rules can't place stay in the page-by-page review list.
+    report.decorative = judgeDecorative(report);
+    report.figureAlternatives.decorativeItems = [...new Set(report.decorative.items.filter(item => item.kind === 'unclear').map(item => item.page))].map(number => {
+      const unclear = report.decorative.items.filter(item => item.page === number && item.kind === 'unclear');
+      return { id: `${number}:decorative`, page: number, tagged: false, decorative: true, alt: null, status: 'uncertain', keys: [],
+        quads: unclear.map(item => item.quad).slice(0, 16), reasons: [...new Set(unclear.map(item => item.reason))] };
+    });
     report.consistency = inspectConsistency(report);
     report.hiddenInstructions = inspectHiddenInstructions({ pages: report.pages, metadata: report.metadata, figures: report.figureAlternatives?.items || [], attachments: report.attachments?.files || [] });
     // Hidden runs can be a whole OCR layer; keep only a summary in the report. Matches retain their own snippets.
