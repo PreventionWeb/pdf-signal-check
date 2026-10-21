@@ -38,7 +38,7 @@ export function groupHeadingFindings(groups) {
 /** Descriptions to review first: shared by several images, or unrelated to their caption according to the AI. */
 export const descriptionConcern = item => {
   const description = item.comparison?.description;
-  return description ? (description.flags.includes('duplicate') ? 2 : 0) + (description.ai?.status === 'suspected-mismatch' ? 1 : 0) : 0;
+  return description ? (description.flags.includes('duplicate') ? 2 : 0) + (description.image?.mismatch ? 2 : 0) + (description.ai?.status === 'suspected-mismatch' ? 1 : 0) : 0;
 };
 /** One plain note on why a description is listed, or null. */
 export function descriptionNote(item) {
@@ -48,6 +48,7 @@ export function descriptionNote(item) {
   if (description.flags.includes('file-name')) return 'This is a file name, not a description.';
   if (description.flags.includes('generic')) return 'This only names the kind of image; it does not say what it shows.';
   if (description.flags.includes('duplicate')) return `The same description is used for ${description.duplicates} images.`;
+  if (description.image?.mismatch) return `The on-device image model found this description matches its picture less well than ${description.image.rank - 1} other description${description.image.rank === 2 ? '' : 's'} in this report do. Check that it describes this image; the model can be wrong.`;
   if (description.ai?.status === 'suspected-mismatch') return `The AI found little in common between this description and the caption “${quote(description.caption)}”. It may describe a different image.`;
   return null;
 }
@@ -329,7 +330,7 @@ export function reviewTask(finding) {
     const flagged = finding.members.filter(member => descriptionConcern(member) > 0).length;
     const descriptions = {
       missing: ['Add descriptions for images', `${count} image${count === 1 ? '' : 's'} labelled as meaningful ${count === 1 ? 'has' : 'have'} no useful text description${placeholders ? ` (${placeholders} only ${placeholders === 1 ? 'has' : 'have'} a placeholder such as “${quote(finding.members.find(member => member.comparison.description?.unusable).comparison.figure.alt.split('\n')[0])}”)` : ''}. People and tools that cannot see them may miss important information.`, 'Add useful alt text or equivalent nearby text. Mark an image as decorative only if it conveys no essential information.'],
-      described: ['Review image descriptions', `${count} image${count === 1 ? '' : 's'} ${count === 1 ? 'has a saved description' : 'have saved descriptions'}.${flagged ? ` Start with the first ${flagged}: ${flagged === 1 ? 'its description is' : 'their descriptions are'} shared with other images or ${flagged === 1 ? 'doesn’t' : 'don’t'} seem to match ${flagged === 1 ? 'its' : 'their'} caption.` : ''} Review whether each description explains the important information; presence alone does not establish accuracy.`, 'Compare each image with its saved description. For charts, include key values and relationships or a data table.'],
+      described: ['Review image descriptions', `${count} image${count === 1 ? '' : 's'} ${count === 1 ? 'has a saved description' : 'have saved descriptions'}.${flagged ? ` Start with the first ${flagged}: ${flagged === 1 ? 'its description is' : 'their descriptions are'} shared with other images or ${flagged === 1 ? 'doesn’t' : 'don’t'} seem to match ${flagged === 1 ? 'its' : 'their'} picture or caption.` : ''} Review whether each description explains the important information; presence alone does not establish accuracy.`, 'Compare each image with its saved description. For charts, include key values and relationships or a data table.'],
       unlabelled: ['Decide whether unlabelled graphics are content or decoration', `Graphics on ${count} page${count === 1 ? '' : 's'} could not be linked to an image label. Check their intended role.`, 'Label meaningful graphics and add useful descriptions. Mark backgrounds, borders and purely decorative shapes as artifacts.'],
       decorative: ['Decide whether these decorative graphics carry information', `On ${count} page${count === 1 ? '' : 's'}, graphics are marked as decoration and the tool can’t tell from their shape and surroundings whether they carry information.${finding.decorativeFine ? ` It judged ${finding.decorativeFine} other decorative graphic${finding.decorativeFine === 1 ? '' : 's'} to be lines, panels, logos or backgrounds, which are fine as decoration.` : ''}`, 'Look at each one. Keep purely decorative graphics marked as artifacts. If a graphic conveys information, give it an image label and a useful description.'],
     };

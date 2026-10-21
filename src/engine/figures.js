@@ -36,7 +36,7 @@ export function inspectFigureAlternatives(structure, pages) {
     const unknown = [];
     for (const graphic of page.graphics || []) {
       const item = byKey.get(graphic.key);
-      if (item) { if (graphic.quad && item.quads.length < 16) item.quads.push(graphic.quad); }
+      if (item) { if (graphic.quad && item.quads.length < 64) item.quads.push(graphic.quad); }
       else unknown.push(graphic);
     }
     if (unknown.length) items.push({ id: `${page.number}:unclassified`, page: page.number, node: null,

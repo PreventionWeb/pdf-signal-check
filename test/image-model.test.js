@@ -81,7 +81,8 @@ describe('controller', () => {
   it('sends clean crops to the image worker and records the result without touching rule outcomes', async () => {
     const { app, workers, imageCropper } = make(true);
     await app.runImageScreening();
-    expect(imageCropper).toHaveBeenCalledTimes(1);
+    expect(imageCropper).toHaveBeenCalledTimes(2);
+    expect(imageCropper.mock.calls[1][2]).toEqual([]);
     const worker = workers.find(item => item.kind === 'image');
     const request = worker.postMessage.mock.calls[0][0];
     expect(request.items).toEqual([expect.objectContaining({ index: 0, page: 2 })]);
@@ -97,5 +98,34 @@ describe('controller', () => {
     app.cancelScreening();
     worker.onmessage({ data: { type: 'result', requestId: request.requestId, imageScreening: { inferencePerformed: true, items: [] } } });
     expect(app.getSnapshot().report.imageScreening).toBeUndefined();
+  });
+});
+
+describe('descriptions against pictures', () => {
+  it('only checks real descriptions of well-cropped images, and needs at least five', async () => {
+    const { descriptionCandidates } = await import('../src/engine/image-model.js');
+    const figure = (id, alt, quad = [[0, 0], [200, 0], [200, 150], [0, 150]]) => ({ id, page: 1, tagged: true, alt, quads: [quad] });
+    const photos = Array.from({ length: 5 }, (_, i) => figure(`p${i}`, `Photo of volunteers at a shelter ${i}`));
+    const report = extra => ({ pages: [{ view: [0, 0, 600, 800] }], figureDescriptions: { items: [{ id: 'auto', flags: ['auto-generated'] }] },
+      figureAlternatives: { items: [...photos, ...extra] } });
+    const ids = descriptionCandidates(report([figure('chart', 'A bar chart of losses by region'), figure('auto', 'Description automatically generated'),
+      figure('sliver', 'Photo of a field', [[0, 0], [20, 0], [20, 400], [0, 400]])])).map(item => item.id);
+    expect(ids).toEqual(['p0', 'p1', 'p2', 'p3', 'p4']);
+    expect(descriptionCandidates({ ...report([]), figureAlternatives: { items: photos.slice(0, 4) } })).toEqual([]);
+  });
+  it('flags a description its own picture ranks below third, and leaves out blank crops', async () => {
+    const { rankDescriptions } = await import('../src/engine/image-model.js');
+    // Six descriptions on separate axes; image 0 looks like descriptions 1–4 and not like its own (axis 0).
+    const axis = i => Array.from({ length: 6 }, (_, j) => (i === j ? 1 : 0));
+    const images = [0, 1, 2, 3, 4, 5].map(i => ({ id: `f${i}`, page: 1, vector: i === 0 ? [0, 0.5, 0.5, 0.5, 0.5, 0] : axis(i), blank: false }));
+    const texts = [0, 1, 2, 3, 4, 5].map(axis);
+    const ranked = rankDescriptions(images, texts);
+    expect(ranked.filter(item => item.mismatch).map(item => item.id)).toEqual(['f0']);
+    expect(ranked.find(item => item.id === 'f0').rank).toBe(5);
+    expect(rankDescriptions(images.map((image, i) => ({ ...image, blank: i > 0 })), texts)).toEqual([]);
+  });
+  it('puts a mismatched description first in the image review with a plain note', async () => {
+    const { descriptionNote } = await import('../src/review/workspace.js');
+    expect(descriptionNote({ comparison: { description: { flags: [], image: { mismatch: true, rank: 6, of: 8 } } } })).toMatch(/matches its picture less well than 5 other descriptions/);
   });
 });

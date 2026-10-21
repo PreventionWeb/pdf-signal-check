@@ -76,7 +76,11 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
         {coverage.map(f => <li key={f.id}><strong>{f.title}:</strong> {f.summary}</li>)}
         {state.report.imageScreening?.inferencePerformed && <li><strong>Image check:</strong> {(() => {
           const items = state.report.imageScreening.items || [], count = verdict => items.filter(item => imageVerdict(item, state.report.decorative?.items?.[item.index]) === verdict).length;
-          return `${items.length} graphic${items.length === 1 ? '' : 's'} marked as decoration looked at by ${state.report.imageScreening.model?.label || 'the image model'}: ${count('content')} look like content, ${count('decoration')} like decoration, ${count('unclear')} unclear.`;
+          const described = state.report.imageScreening.descriptions || [];
+          return [`${state.report.imageScreening.model?.label || 'The image model'} looked at`,
+            items.length ? `${items.length} graphic${items.length === 1 ? '' : 's'} marked as decoration (${count('content')} look like content, ${count('decoration')} like decoration, ${count('unclear')} unclear)` : null,
+            described.length ? `${items.length ? 'and ' : ''}${described.length} photo description${described.length === 1 ? '' : 's'} against ${described.length === 1 ? 'its picture' : 'their pictures'} (${described.filter(item => item.mismatch).length} may not match)` : null,
+          ].filter(Boolean).join(' ') + '.';
         })()}</li>}
         {semantic?.inferencePerformed && <li><strong>Consistency comparisons:</strong> {[
           semantic.factCoverage && `${semantic.factCoverage.compared} of ${semantic.factCoverage.candidates} sentences stating a figure compared (${(semantic.factPairs || []).length} pair${(semantic.factPairs || []).length === 1 ? '' : 's'} with different numbers)`,

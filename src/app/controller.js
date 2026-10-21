@@ -3,7 +3,7 @@ import { createEvaluationPreferences } from './preferences.js';
 import { hasUnchangedNoInputs } from "../runtime/screening-recovery.js";
 import { buildScreeningRequest } from "../runtime/screening-request.js";
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from "../engine/models.js";
-import { imageCandidates } from "../engine/image-model.js";
+import { imageCandidates, descriptionCandidates } from "../engine/image-model.js";
 /** Clean crops of graphics for the image model; needs a canvas, so it is loaded only in the browser and only when used. */
 async function defaultImageCropper(file, report, items, signal) {
   const { EvidenceCropService } = await import("../evidence/crops.js");
@@ -524,20 +524,25 @@ export function createAppController({
     /** Optional: show the image model graphics marked as decoration that the rules couldn't place. Never overrides the rules. */
     async runImageScreening() {
       if (!available() || !state.imageAI || !state.report?.analysisComplete || !state.file || state.modelBusy || state.report.imageScreening) return;
-      const items = imageCandidates(state.report);
-      if (!items.length) return;
+      const items = imageCandidates(state.report), described = descriptionCandidates(state.report);
+      if (!items.length && !described.length) return;
       const currentJob = job, currentRun = ++modelRun, abort = new AbortController();
       const active = () => currentJob === job && currentRun === modelRun;
-      emit({ modelBusy: true, stage: "processing-model", screeningAttempt: { status: "running" }, message: `Looking at ${items.length} graphic${items.length === 1 ? "" : "s"} marked as decoration…`, progress: null });
+      emit({ modelBusy: true, stage: "processing-model", screeningAttempt: { status: "running" }, message: `Looking at ${items.length + described.length} image${items.length + described.length === 1 ? "" : "s"}…`, progress: null });
       const fail = message => {
         if (!active()) return;
         abort.abort(); stopModel();
         emit({ stage: "review", message: `The image check didn’t finish: ${message}. All other results are unchanged.`, progress: null });
       };
-      let crops;
-      try { crops = await imageCropper(state.file, state.report, items, abort.signal); } catch (e) { fail(e.message); return; }
+      let crops, descriptionCrops;
+      try {
+        crops = await imageCropper(state.file, state.report, items, abort.signal);
+        // Described images reuse the cropper; their crops carry the description to compare.
+        const pictures = await imageCropper(state.file, state.report, described.map((item, index) => ({ ...item, index })), abort.signal);
+        descriptionCrops = pictures.map(crop => ({ ...described[crop.index], blob: crop.blob }));
+      } catch (e) { fail(e.message); return; }
       if (!active()) return;
-      if (!crops.length) { emit({ modelBusy: false, stage: "review", progress: null }); return; }
+      if (!crops.length && !descriptionCrops.length) { emit({ modelBusy: false, stage: "review", progress: null }); return; }
       let worker;
       try { worker = workerFactory("image"); } catch (e) { fail(e.message); return; }
       modelWorker = worker;
@@ -552,7 +557,7 @@ export function createAppController({
             message: "Image check complete. The rule-based results are unchanged." });
         }
       };
-      try { worker.postMessage({ requestId: currentRun, items: crops }); } catch (e) { fail(e.message); }
+      try { worker.postMessage({ requestId: currentRun, items: crops, descriptions: descriptionCrops.map(({ id, page, alt, blob }) => ({ id, page, alt, blob })) }); } catch (e) { fail(e.message); }
     },
     runScreening() {
       if (

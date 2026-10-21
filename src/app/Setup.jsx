@@ -68,8 +68,8 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       </fieldset>
       {modelId && <div className="setup-image-option">
         <Checkbox id="setup-image-ai" name="setup-image-ai" checked={imageAI} disabled={batchBusy} onChange={event => setImageAI(event.target.checked)}
-          label={`Also look at graphics marked as decoration with an on-device image model (${IMAGE_MODEL.download} more)`} />
-        <p className="model-note">It sorts graphics the rules can’t place into types such as chart, map, photo or plain panel, so likely charts and maps marked as decoration can be flagged. It can’t read text in images and can be wrong. Your PDF stays on this device.</p>
+          label={`Also look at images with an on-device image model (${IMAGE_MODEL.download}, plus ${IMAGE_MODEL.descriptionDownload} when a PDF has photo descriptions to check)`} />
+        <p className="model-note">It sorts graphics marked as decoration that the rules can’t place into types such as chart, map, photo or plain panel, and checks whether photo descriptions match their pictures. It can’t read text in images and can be wrong. Your PDF stays on this device.</p>
       </div>}
       <p className="model-note">Both AI options also need approximately 26.86 MB of uncompressed runtime files, plus JavaScript. Actual transfer varies; your browser may reuse cached files. Choose multilingual AI for broader language coverage or English AI for a smaller download. AI comparisons can be wrong.</p>
       <details className="mg-details setup-technical">

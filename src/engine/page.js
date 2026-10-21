@@ -96,7 +96,7 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
       }
       const tag = typeof args[0] === 'string' ? args[0] : args[0]?.name;
       const opening = tag === 'Artifact' && !opStack.some(entry => entry.tag === 'Artifact');
-      opStack.push({ tag, mcid: fn === OPS.beginMarkedContentProps ? args[1] : null, ...(opening ? { group: { images: 0, paths: 0, box: null } } : {}) });
+      opStack.push({ tag, mcid: fn === OPS.beginMarkedContentProps ? args[1] : null, depth: formDepth, ...(opening ? { group: { images: 0, paths: 0, box: null } } : {}) });
     } else if (fn === OPS.endMarkedContent) {
       if (!opStack.length && !formDepth) contentErrors.push(`Page ${pageNumber}: unmatched marked-content closing boundary.`);
       const closed = opStack.pop();
@@ -112,9 +112,13 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
       if (graphics.has(fn) || (fn === OPS.constructPath && graphics.has(args[0]))) {
         if (!artifact) nonArtifactGraphics++;
         let box = null;
-        if (!formDepth && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
-        if (!formDepth && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
-        const region = { key: !formDepth && owner ? `${pageNumber}:${owner.mcid}` : null, quad: box ? rectPoints(box,matrix) : null, label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
+        // Images drawn inside a form still belong to the page-level tag around the form; the matrix includes the form's own.
+        const pageOwner = owner && owner.depth === 0 ? owner : null;
+        if ((!formDepth || pageOwner) && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
+        if ((!formDepth || pageOwner) && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
+        const quad = box ? rectPoints(box, matrix) : null;
+        const region = { key: pageOwner ? `${pageNumber}:${pageOwner.mcid}` : null, quad: quad && quad.every(([x, y]) => Number.isFinite(x) && Number.isFinite(y)) ? quad : null,
+          label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
         if (artifact) {
           if (decorativeGraphics.length < 16) decorativeGraphics.push(region);
           const group = opStack.find(entry => entry.group)?.group;
