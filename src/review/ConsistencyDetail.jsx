@@ -10,11 +10,14 @@ export function DiffValues({ left, right, leftLabel, rightLabel }) {
   const diff = wordDiff(left, right);
   const words = side => diff.comparable ? <DiffText tokens={side} /> : side.map(token => `${token.space ? " " : ""}${token.text}`).join("");
   const summary = diff.changed && diff.comparable && [changedWords(diff.left), changedWords(diff.right)].filter(Boolean).join(" versus ");
-  return <dl className="consistency-values">
-    <dt>{leftLabel}</dt><dd>“{words(diff.left)}”</dd>
-    <dt>{rightLabel}</dt><dd>“{words(diff.right)}”</dd>
+  // A <dl> may only hold dt/dd, so the spoken summary of the differences sits after it.
+  return <>
+    <dl className="consistency-values">
+      <dt>{leftLabel}</dt><dd>“{words(diff.left)}”</dd>
+      <dt>{rightLabel}</dt><dd>“{words(diff.right)}”</dd>
+    </dl>
     {summary && <p className="mg-u-sr-only">Words that differ: {summary}.</p>}
-  </dl>;
+  </>;
 }
 const where = name => name.role === "running" ? `${ROLES.running}, ${name.pages.length} pages` : ROLES[name.role];
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Button } from "../ui/react.jsx";
 import { Help } from "../help/Help.jsx";
 import { identitySavedValues } from "./identity-values.js";
-import { wordDiff } from "./diff.js";
+import { wordDiff, changedWords } from "./diff.js";
 
 import { DiffText as Marked } from "./DiffText.jsx";
 export function IdentityComparison({ kind, report, file, targets, onInspect, compact = false }) {
@@ -26,6 +26,7 @@ export function IdentityComparison({ kind, report, file, targets, onInspect, com
         {saved.values.map((item, i) => <div className="comparison-evidence" key={i}>
           {saved.values.length > 1 && <h4>Saved version {i + 1}</h4>}
           <p className="identity-saved-value">{marked ? <Marked tokens={marked.left} /> : item.value}</p>
+          {marked && <p className="mg-u-sr-only">Words that differ from the page: {[changedWords(marked.left), changedWords(marked.right)].filter(Boolean).join(" versus ")}.</p>}
           {!compact && <>
           <h4>Recorded source{item.sources.length > 1 ? 's' : ''}</h4>
           <ul className="model-note">{item.sources.map((source, j) => <li key={j}>{source.source} <Help topic={source.topic} label={`About ${source.source}`} /></li>)}</ul>

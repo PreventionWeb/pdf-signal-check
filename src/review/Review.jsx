@@ -144,8 +144,10 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   const placeIndex = places.findIndex(place => samePlace(place, focus?.target));
   const placeContext = { narrow, isShown: target => samePlace(focus?.target, target) && viewerPage === target.page };
   // Wide screens: selecting an issue brings its first place into view, so the reader never has to ask for it.
+  // Anything else (Overview, Document properties, an issue with no place) clears the last highlight, so it can't linger on the wrong issue.
   useEffect(() => {
     if (!narrow && !special && places[0]) inspect(places[0], { keepDrawer: true });
+    else setFocus(null);
   }, [finding?.id, special, narrow]);
   const drawerTargets = finding?.members ? finding.members.flatMap(member => member.targets || []) : targets;
   const showOrder = kind === "order" && !finding.comparison?.readingSequenceMissing;
