@@ -96,7 +96,7 @@ Grouping preserves member evidence, outcomes and provenance. Images group by cor
 
 ### Image model consent (October 2026)
 
-Setup shows a separate checkbox under the AI options: “Also look at images with an on-device image model (89.12 MB, plus 64.50 MB when a PDF has photo descriptions to check)”, with what it does and its limits. Consent is saved with the other settings and resets with them. The image check runs after the text AI (or on its own when the text AI can’t run for the document’s language), with the same waiting surface, progress (“Looked at 25 of 40 graphics”) and Cancel. Its results only remove graphics from the “can’t tell” list, add AI-tagged “marked as decoration” concerns, or move photo descriptions that may not match their picture to the front of “Review image descriptions” with a plain note; the receipt line says “…and an image model”.
+Setup shows a separate checkbox under the AI options, ticked by default for first-time setup (saved choices are kept): “Also look at images with an on-device image model (89.12 MB, plus 64.50 MB when a PDF has photo descriptions to check)”, with what it does and its limits. Consent is saved with the other settings and resets with them. The image check runs after the text AI (or on its own when the text AI can’t run for the document’s language), with the same waiting surface, progress (“Looked at 25 of 40 graphics”) and Cancel. Its results only remove graphics from the “can’t tell” list, add AI-tagged “marked as decoration” concerns, or move photo descriptions that may not match their picture to the front of “Review image descriptions” with a plain note; the receipt line says “…and an image model”.
 
 ### AI-decided items
 

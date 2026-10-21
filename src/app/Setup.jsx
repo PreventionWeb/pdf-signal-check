@@ -11,7 +11,8 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
   const [step, setStep] = useState(1);
   const [modelId, setModelId] = useState(() => controller.getSnapshot().setupComplete ? controller.getSnapshot().evaluationModel : 'granite-r2');
   const [receipt, setReceipt] = useState(null);
-  const [imageAI, setImageAI] = useState(() => controller.getSnapshot().imageAI);
+  // Image checks are on by default when choosing AI; the box and its download size stay visible before continuing.
+  const [imageAI, setImageAI] = useState(() => controller.getSnapshot().setupComplete ? controller.getSnapshot().imageAI : true);
   const [busy, setBusy] = useState(false);
   const [resetStatus, setResetStatus] = useState('');
   const [preferences] = useState(() => createDevicePreferences());
