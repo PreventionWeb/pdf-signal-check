@@ -42,7 +42,8 @@ export class EvidenceCropService {
     } finally {if(canvas)canvas.width=canvas.height=0;if(crop)crop.width=crop.height=0;page?.cleanup();}
   }
   /** Whole page image plus fractional boxes (0–1) for each group of quads; serialized with crops. */
-  renderPage(pageNumber,groups,maxWidth=900) {const task=this.queue.catch(()=>{}).then(()=>this.renderWholePage(pageNumber,groups,maxWidth));this.queue=task;return task;}
+  // Renders run one at a time; one no longer wanted when its turn comes (isWanted() false) is skipped and resolves to null.
+  renderPage(pageNumber,groups,maxWidth=900,isWanted=()=>true) {const task=this.queue.catch(()=>{}).then(()=>isWanted()?this.renderWholePage(pageNumber,groups,maxWidth):null);this.queue=task;return task;}
   async renderWholePage(pageNumber,groups,maxWidth) {
     let canvas,page;
     try {

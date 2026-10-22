@@ -267,25 +267,32 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
     return () => document.removeEventListener("keydown", hide);
   }, [tip]);
   const [image, setImage] = useState(null);
-  const [visible, setVisible] = useState(false);
+  // Rendered once it first comes near the screen; after that it re-renders (for a new mode, zoom or highlight) only
+  // while near the screen, so switching to Reading order doesn't queue every page already scrolled past ahead of this one.
+  const [visible, setVisible] = useState(false), [near, setNear] = useState(false);
   useEffect(() => {
     const node = element.current;
     if (!node) return;
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } }, { rootMargin: "600px" });
+    const observer = new IntersectionObserver(([entry]) => { setNear(entry.isIntersecting); if (entry.isIntersecting) setVisible(true); }, { rootMargin: "600px" });
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
+  const rendered = useRef(null);
   useEffect(() => {
-    if (!visible || !service.current) return;
+    if (!visible || !near || !service.current) return;
+    const wanted = { pins, order, zoom, focusKey: focus?.key };
+    const last = rendered.current;
+    if (last && last.pins === pins && last.order === order && last.zoom === zoom && last.focusKey === wanted.focusKey) return;
     let url, active = true;
     // Re-render at the zoomed width so text stays sharp; the "Show on page" spot is the last group.
-    service.current.renderPage(page, [...pins.map(pin => pin.quads), ...order.map(region => [region.quad]), ...(focus?.quads?.length ? [focus.quads] : [])], Math.round(900 * zoom)).then(result => {
-      if (!active) return;
+    service.current.renderPage(page, [...pins.map(pin => pin.quads), ...order.map(region => [region.quad]), ...(focus?.quads?.length ? [focus.quads] : [])], Math.round(900 * zoom), () => active).then(result => {
+      if (!active || !result) return;
+      rendered.current = wanted;
       url = URL.createObjectURL(result.blob);
       setImage({ ...result, url, focusKey: focus?.key ?? null });
     }).catch(() => { if (active) setImage({ failed: true }); });
     return () => { active = false; if (url) URL.revokeObjectURL(url); };
-  }, [visible, page, pins, order, service, zoom, focus?.key]);
+  }, [visible, near, page, pins, order, service, zoom, focus?.key]);
   // Only a render made for this highlight has its box; an older render would place it in the wrong spot.
   const focusBox = focus?.quads?.length && image?.boxes && image.focusKey === focus.key ? image.boxes[pins.length + order.length] : null;
   // Once the highlight is drawn, place it at about 40% of the visible height below the sticky toolbar.
