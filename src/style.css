@@ -849,7 +849,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .page-pin--properties { background: rgb(var(--mg-color-interactive)); color: rgb(var(--mg-color-neutral-0)); }
 .properties-panel .properties-intro { color: var(--muted); font-size: .9375rem; margin: 8px 0 16px; }
 /* In-place page viewer: a sticky toolbar over the pages column. */
-.viewer-toolbar { position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 0;
+.viewer-toolbar { position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 8px 0;
   background: rgb(var(--mg-color-neutral-0)); border-bottom: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); }
 .viewer-toolbar .mg-segmented-control { margin: 0; }
 .viewer-group { display: inline-flex; align-items: center; gap: 4px; }
@@ -857,9 +857,9 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
   background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-interactive)); font: inherit; font-weight: 600; cursor: pointer; }
 .viewer-button:disabled { opacity: .4; cursor: not-allowed; }
 .viewer-button:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
-.viewer-zoom-value { min-width: 56px; }
+.viewer-zoom-value { min-width: 44px; padding: 0 6px; }
 .viewer-page-input { display: inline-flex; align-items: center; gap: 6px; font-size: .9375rem; white-space: nowrap; }
-.viewer-page-input input { width: 4.5em; min-height: 36px; padding: 0 6px; font: inherit; text-align: center; border: 1px solid rgb(var(--mg-color-neutral-400, 160 160 160)); border-radius: 4px; }
+.viewer-page-input input { width: 3.25em; -moz-appearance: textfield; min-height: 36px; padding: 0 6px; font: inherit; text-align: center; border: 1px solid rgb(var(--mg-color-neutral-400, 160 160 160)); border-radius: 4px; }
 .viewer-note { margin: 0; }
 .viewer-more { padding: 16px 0; }
 .page-pins-zoom { overflow-x: auto; }
@@ -985,3 +985,9 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .scan-package.is-waiting { animation: scan-breathe 1.6s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) { .processing-step.is-current .processing-step-mark { animation: none; border-top-color: rgb(var(--mg-color-interactive)); } .scan-package.is-waiting { animation: none; } }
 .scan.is-jump .scan-item { transition: none; animation: none; }
+/* Inside a tall highlight: pinned just within its top edge. */
+.page-pins-focus-info.is-inside { margin: 8px; }
+
+/* Keep the viewer toolbar on one line at 1440 px: no number spinners, and "Page" shown only where there is room. */
+.viewer-page-input input::-webkit-outer-spin-button, .viewer-page-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+@media (max-width: 1599px) and (min-width: 1200px) { .viewer-page-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }

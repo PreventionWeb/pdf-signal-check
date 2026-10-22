@@ -98,7 +98,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
   const toolbar = <div className="viewer-toolbar" role="toolbar" aria-label="Page viewer">
     <div className="viewer-group viewer-pages">
       <button type="button" className="viewer-button" aria-label="Previous page" disabled={position <= 0} onClick={() => jump(pages[position - 1]?.page)}>‹</button>
-      <label className="viewer-page-input">Page <input type="number" min="1" max={total} inputMode="numeric" value={pageInput || current}
+      <label className="viewer-page-input"><span className="viewer-page-word">Page</span> <input type="number" min="1" max={total} inputMode="numeric" value={pageInput || current}
         onChange={event => setPageInput(event.target.value)} onBlur={() => setPageInput("")}
         onKeyDown={event => { if (event.key === "Enter") { const page = Math.min(total, Math.max(1, Number(pageInput) || current)); setPageInput(""); jump(page); } }} /> of {total}</label>
       <button type="button" className="viewer-button" aria-label="Next page" disabled={position < 0 || position >= pages.length - 1} onClick={() => jump(pages[position + 1]?.page)}>›</button>
@@ -314,14 +314,19 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
           <span className="page-pins-tooltip-hint">The tool couldn’t record exactly where on this page; look across the whole page.</span>
         </span>
       </>}
-      {/* What the highlight shows: below the spot, or above it near the foot of the page. Read-only, so it never blocks the page. */}
-      {focusBox && focus.info && <span key={`info-${focus.key}`} className={`page-pins-tooltip page-pins-focus-info ${focusBox.y + focusBox.height > 0.72 ? "is-above" : ""}`} role="note"
-        style={{ ...(focusBox.x > 0.5 ? { left: "auto", right: `${Math.max(0, 1 - focusBox.x - focusBox.width) * 100}%` } : { left: `${focusBox.x * 100}%` }),
-          top: `${(focusBox.y + focusBox.height > 0.72 ? focusBox.y : focusBox.y + focusBox.height) * 100}%` }}>
+      {/* What the highlight shows: below the spot, or above it near the foot of the page. A spot taller than about half the
+          screen keeps it inside its top edge, which is the part scrolled into view. Read-only, so it never blocks the page. */}
+      {focusBox && focus.info && (() => {
+        const sheet = element.current?.querySelector(".page-pins-sheet")?.clientHeight || 0;
+        const place = sheet * focusBox.height > window.innerHeight * 0.45 ? "inside" : focusBox.y + focusBox.height > 0.72 ? "above" : "below";
+        const top = place === "below" ? focusBox.y + focusBox.height : focusBox.y;
+        const side = focusBox.x > 0.5 ? { left: "auto", right: `${Math.max(0, 1 - focusBox.x - focusBox.width) * 100}%` } : { left: `${focusBox.x * 100}%` };
+        return <span key={`info-${focus.key}`} className={`page-pins-tooltip page-pins-focus-info is-${place}`} role="note" style={{ ...side, top: `${top * 100}%` }}>
         <span className="page-pins-tooltip-eyebrow">{focus.info.eyebrow}</span>
         <strong>{focus.info.title}</strong>
         {focus.info.text && <span>{focus.info.text}</span>}
-      </span>}
+      </span>;
+      })()}
       {image?.url && <img src={image.url} alt={`Page ${page} of the PDF`} />}
       {image?.failed && <p className="model-note">This page could not be shown.</p>}
       {!image && <p className="model-note">Loading page {page}…</p>}
