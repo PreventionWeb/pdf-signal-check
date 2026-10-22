@@ -1,6 +1,6 @@
 # Experiment: show supporting passages, not opaque similarity judgments
 
-Status: opt-in development prototype included in the implementation branch. Normal application behavior is unchanged unless `?experiment=semantic-evidence` is present. The flag applies to single-document subject and keyword comparisons; title, heading, batch, and deterministic profile checks keep their existing behavior. Model downloads still require the existing explicit consent. Broader accuracy evaluation remains outstanding.
+Historical prototype record. As of 2026-10-22, `buildScreeningRequest` supplies document-wide candidate evidence for both single-document and batch screening regardless of `semanticExperiment`; the opening-only/opt-in behavior described below is the original experiment, not current default behavior. See [current semantic screening](../SEMANTIC.md) and the [AI usefulness audit](VLM-SPIKE.md). Model downloads still require explicit consent. Broader accuracy evaluation remains outstanding.
 
 ## What we are trying to learn
 

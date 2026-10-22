@@ -1,0 +1,125 @@
+{
+  "state": "error",
+  "rows": [
+    {
+      "id": "chart-original",
+      "image": "chart",
+      "task": "read",
+      "prompt": "Read the labels and printed values in this image. Reply only with a JSON object mapping each label to its number, without units. If there are no printed values, reply {}. Do not estimate or invent values.",
+      "expected": {
+        "North": 2.8,
+        "Central": 3.1,
+        "South": 3.4
+      },
+      "output": " {\n    \"north\": {\n        \"value\": \"2.8 m\"\n    },\n    \"central\": {\n        \"value\": \"3.1 m\"\n    },\n    \"south\": {\n        \"value\": \"3.4 m\"\n    }\n}",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "valuesCorrect": 0,
+        "valuesExpected": 3,
+        "extraLabels": null
+      },
+      "elapsedMs": 151574.29999999702,
+      "inputTokens": 649,
+      "outputTokens": 55,
+      "hitTokenLimit": false,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        9,
+        3,
+        512,
+        512
+      ]
+    }
+  ],
+  "events": [
+    {
+      "status": "initiate",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "config.json"
+    },
+    {
+      "status": "done",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "config.json"
+    },
+    {
+      "status": "initiate",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/embed_tokens_quantized.onnx"
+    },
+    {
+      "status": "initiate",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/decoder_model_merged_q4.onnx"
+    },
+    {
+      "status": "initiate",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/vision_encoder_quantized.onnx"
+    },
+    {
+      "status": "initiate",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "generation_config.json"
+    },
+    {
+      "status": "done",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "generation_config.json"
+    },
+    {
+      "status": "done",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/embed_tokens_quantized.onnx"
+    },
+    {
+      "status": "done",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/decoder_model_merged_q4.onnx"
+    },
+    {
+      "status": "done",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/vision_encoder_quantized.onnx"
+    }
+  ],
+  "loadMs": 27083.19999998808,
+  "model": {
+    "id": "HuggingFaceTB/SmolVLM-256M-Instruct",
+    "revision": "7e3e67edbbed1bf9888184d9df282b700a323964",
+    "dtype": {
+      "embed_tokens": "q8",
+      "vision_encoder": "q8",
+      "decoder_model_merged": "q4"
+    },
+    "graphBytes": 209196694,
+    "tokenizerBytes": 3548256
+  },
+  "device": "wasm",
+  "error": "Diagnostic tiled run stopped after first completed case; superseded by bounded single-image run.",
+  "observation": {
+    "observedAt": "2026-10-22T17:53:03.462Z",
+    "browser": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 10,
+      "webgpu": true
+    },
+    "device": "wasm",
+    "transformers": "4.3.0",
+    "cacheSource": "unknown",
+    "transferBytes": null,
+    "peakMemoryBytes": null,
+    "note": "Synthetic smoke run; no real-corpus accuracy or production suitability established.",
+    "hostConditions": "Other host workloads were active; diagnostic timing only. Backend probes overlapped; these are not comparative speed benchmarks."
+  },
+  "generation": {
+    "doSample": false,
+    "maxNewTokens": 96
+  },
+  "imagePolicy": "pinned processor defaults: 2048 longest edge, split into 512 tiles"
+}

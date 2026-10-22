@@ -4,7 +4,7 @@ import {spawnSync} from 'node:child_process';
 const args=process.argv.slice(2),arg=(key,fallback)=>args.includes(key)?args[args.indexOf(key)+1]:fallback;
 const model=arg('--model','minilm'),base=arg('--url','http://127.0.0.1:4178/'),output=arg('--output',`evaluation/${model}-observed.json`);
 if(!['minilm','granite-r2'].includes(model))throw new Error('Unknown model.');
-const cases=JSON.parse(await readFile(new URL('../evaluation/cases.json',import.meta.url),'utf8'));
+const cases=JSON.parse(await readFile(arg('--cases', new URL('../evaluation/cases.json',import.meta.url)),'utf8'));
 const assets=await readdir(new URL('../dist/assets/',import.meta.url)),worker=assets.find(f=>/^benchmark\.worker-.*\.js$/.test(f));
 if(!worker)throw new Error('Build the mounted calibration view before evaluating.');
 const session=`pdf-evaluation-${model}-${process.pid}`;
