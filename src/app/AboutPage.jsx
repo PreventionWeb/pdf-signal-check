@@ -130,9 +130,9 @@ cities where an additional 1.2`}</pre>
 
     <section className="about-section mg-content" aria-labelledby="about-fit">
       <h2 id="about-fit">Where PDF Signal Check fits</h2>
-      <p>PDF Signal Check looks for problems you may not notice on the page: missing or broken tags, missing image descriptions, clues to mixed-up reading order and document details that disagree with the publication. It also lists attachments and screens for hidden instruction-like text. You get a fix list with evidence and page pins where the issue can be located.</p>
+      <p>PDF Signal Check looks for problems you may not notice on the page: missing or broken tags, missing image descriptions, clues to mixed-up reading order, document details that disagree with the publication and places where the report disagrees with itself, such as a title written two ways or figures older than the date on the cover. It also lists attachments and screens for hidden instruction-like text. You get a fix list with evidence and page pins where the issue can be located.</p>
       <p>Start with Fix, then review Check. “Couldn’t check” describes limits of the tool, not tasks in your PDF. Make changes in the source document or a PDF editor; this tool does not repair the file for you.</p>
-      <p>A clear result does not guarantee accessibility, search visibility or accurate AI answers. The tool does not interpret chart pixels, verify facts or certify PDF/UA or PDF/A conformance. Use it alongside a full accessibility check and a human review of the report’s meaning.</p>
+      <p>A clear result does not guarantee accessibility, search visibility or accurate AI answers. The tool does not read charts, verify facts or certify PDF/UA or PDF/A conformance. Use it alongside a full accessibility check and a human review of the report’s meaning.</p>
     </section>
 
     <section className="about-section mg-content" aria-labelledby="about-origins">
