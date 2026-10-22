@@ -743,8 +743,8 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 
 .about-video { scroll-margin-top: 24px; }
 .about-video-loading { min-height: clamp(240px, 45vw, 600px); padding-block: 24px; }
-.consistency-values { display: grid; grid-template-columns: minmax(8rem, max-content) 1fr; gap: 4px 16px; margin: 12px 0 0; flex-basis: 100%; }
-.consistency-values dt { font-weight: 600; color: var(--muted); }
+.consistency-values { display: grid; grid-template-columns: minmax(8rem, max-content) 1fr; align-items: start; gap: 8px 16px; margin: 12px 0 0; flex-basis: 100%; }
+.consistency-values dt { font-weight: 600; color: var(--muted); margin: 0; }
 .consistency-values dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 40rem) { .consistency-values { grid-template-columns: 1fr; } .consistency-values dd + dt { margin-top: 8px; } }
 .fix-tip { font-size: .9375rem; margin: 12px 0; padding: 8px 12px; border-left: 3px solid rgb(var(--mg-color-neutral-300)); }
@@ -997,3 +997,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .page-pins-detail-pane .identity-source > .mg-card__content { padding: 0; }
 .page-pins-detail-pane .identity-source h3 { margin: 0 0 4px; }
 .page-pins-detail-pane .identity-source .comparison-evidence { border: 0; padding: 0; margin: 0; }
+/* How on-device AI took part in an issue: a quiet note under the lead. */
+.fix-ai-note { margin: 0 0 16px; padding: 8px 12px; border-radius: 4px; font-size: .9375rem; line-height: 1.5; background: rgb(var(--mg-color-neutral-100, 245 245 245)); }
+.fix-ai-note .fix-ai-tag { margin: 0 4px 0 0; }
+.fix-ai-note.is-decided { background: rgb(var(--mg-color-interactive) / .08); }
