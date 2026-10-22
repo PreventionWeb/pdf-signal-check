@@ -15,13 +15,16 @@ function aiOutcome(report, item) {
   return result?.inferencePerformed === true ? result : null;
 }
 const sentenceEvidence = sentence => ({ page: sentence.page, blockIds: sentence.blockIds || [], text: sentence.text });
+// Keep sentence locations first. Context is exact source text, without inferred geometry or a page target.
+const sentencePairEvidence = (a, b) => [sentenceEvidence(a), sentenceEvidence(b),
+  ...[a, b].filter(sentence => sentence.context).map(sentence => `Context in the PDF (statement on page ${sentence.page}): ${sentence.context}`)];
 
 const nameEvidence = name => name.role === 'cover' ? name.blockIds?.length || name.keys?.length ? [{ page: 1, blockIds: name.blockIds || [], keys: name.keys || [], text: name.text }] : [`Cover: ${name.text}`]
   : name.role === 'running' ? [`Page header or footer on ${name.pages.length} pages (${name.pages.slice(0, 8).join(', ')}${name.pages.length > 8 ? ', …' : ''}): ${name.text}`]
     : [`Saved title: ${name.text}`];
 
 const TITLES = { 'contents-page': item => `Contents: ${item.entry.text}`, 'contents-conflict': item => `Contents: ${item.entry.text}`,
-  'contents-wording': item => `Contents: ${item.entry.text}`, 'same-fact': () => 'Same figure given differently', decorative: item => `Page ${item.page}: graphic marked as decoration`, draft: () => 'Draft label', leftovers: () => 'Leftover placeholder text',
+  'contents-wording': item => `Contents: ${item.entry.text}`, 'same-fact': () => 'Potentially related statements give different numbers', decorative: item => `Page ${item.page}: graphic marked as decoration`, draft: () => 'Draft label', leftovers: () => 'Leftover placeholder text',
   stale: () => 'Figures older than the first-page date', language: () => 'Declared language', 'title-language': () => 'Saved title language',
   title: () => 'Placeholder saved title', 'heading-split': () => 'Headings split across two tags', 'heading-label': () => 'Chart labels tagged as headings', keywords: () => 'Keywords with internal codes', 'subject-link': () => 'Description is only a link' };
 export function addConsistencyFindings(report, add) {
@@ -51,7 +54,7 @@ export function addConsistencyFindings(report, add) {
     }
     const evidence = item.kind === 'contents-page' || item.kind === 'contents-conflict' ? [{ page: item.entry.contentsPage, blockIds: item.entry.blockIds, text: item.entry.text },
         ...(item.other ? [{ page: item.other.contentsPage, blockIds: item.other.blockIds, text: item.other.text }] : [])]
-      : item.kind === 'same-fact' ? [sentenceEvidence(item.a), sentenceEvidence(item.b)]
+      : item.kind === 'same-fact' ? sentencePairEvidence(item.a, item.b)
       : item.kind === 'heading-split' ? item.pairs.map(pair => ({ page: pair.page, blockIds: pair.blockIds, text: `${pair.a} / ${pair.b}` }))
       : item.kind === 'heading-label' ? item.pages.map(page => ({ page: page.page, blockIds: page.blockIds, text: page.texts.join(' · ') }))
       : item.kind === 'decorative' ? [{ page: item.page, quads: item.quads, text: 'Graphic marked as decoration' }, ...item.captions, ...(item.source ? [item.source] : [])]
@@ -76,25 +79,25 @@ export function addConsistencyFindings(report, add) {
         comparison: { consistency: item, ai: { inferencePerformed: true, model: images.model } } });
     }
   }
-  // The same picture saved twice with different descriptions (the image model's fingerprints of the two are nearly identical).
+  // Similar-image candidates with different descriptions; embeddings do not establish identity.
   if (images?.inferencePerformed === true) {
     const figures = new Map((report.figureAlternatives?.items || []).map(figure => [figure.id, figure]));
     for (const pair of images.duplicates || []) {
       const place = side => ({ page: side.page, quads: figures.get(side.id)?.quads || [], text: side.alt });
       const item = { id: `same-image:${pair.a.id}:${pair.b.id}`, kind: 'same-image', severity: 'minor', ...pair };
       add({ id: `consistency:${item.id}`, source: { path: `consistency.${item.id}` }, kind: 'consistency', outcome: 'suspected-mismatch', method: 'image-screening',
-        title: 'The same picture has different descriptions', category: 'advisory-concern', severity: 'minor', summary: '',
-        evidence: [place(pair.a), place(pair.b), `Image model: the two pictures are ${Math.round(pair.similarity * 100)}% alike`],
+        title: 'Similar-image candidates have different descriptions', category: 'advisory-concern', severity: 'minor', summary: '',
+        evidence: [place(pair.a), place(pair.b), `Image embedding cosine similarity: ${pair.similarity} (not an identity check or probability)`],
         comparison: { consistency: item, ai: { inferencePerformed: true, model: images.model } } });
     }
   }
-  // Sentences the AI found to say the same thing with different numbers.
+  // Potentially related statements with different numbers; similarity does not establish the same claim.
   const semantic = report.semantic;
   if (semantic?.inferencePerformed === true) for (const pair of semantic.factPairs || []) {
     if (!pair.inferencePerformed) continue;
     const item = { id: `fact:ai:${pair.a.page}:${pair.b.page}:${pair.values[0].a}:${pair.values[0].b}`, kind: 'same-fact', severity: 'concern', ...pair };
     add({ id: `consistency:${item.id}`, source: { path: `consistency.${item.id}` }, kind: 'consistency', outcome: 'suspected-mismatch', method: 'embedding-screening',
-      title: TITLES['same-fact'](item), category: 'advisory-concern', severity: 'concern', summary: '', evidence: [sentenceEvidence(pair.a), sentenceEvidence(pair.b),
+      title: TITLES['same-fact'](item), category: 'advisory-concern', severity: 'concern', summary: '', evidence: [...sentencePairEvidence(pair.a, pair.b),
         `AI similarity: ${pair.similarity.toFixed(2)}`], comparison: { consistency: item, ai: { inferencePerformed: true, similarity: pair.similarity } } });
   }
 }

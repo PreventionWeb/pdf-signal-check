@@ -628,10 +628,10 @@ function consistencyTask(finding) {
     contentsLine(item, finding), 'Update the table of contents in the source document so it matches the headings, then export again.', contentsWhy);
   if (item.kind === 'same-fact') {
     const [value] = item.values, unit = value.unit === '%' ? '%' : ` ${value.unit}`;
-    return task(`The same figure is given differently: ${value.a}${unit} and ${value.b}${unit}`,
-      `Page ${item.a.page} says “${quote(item.a.text)}” and page ${item.b.page} says “${quote(item.b.text)}”. ${item.method === 'identical-wording' ? 'The sentences are worded the same apart from the number' : 'The AI found these sentences describe the same thing'}, but they give different numbers.`,
-      'Check which figure is right in the source data. Make both places use it, or say clearly why they differ (for example, a different year or scope). Then export again.',
-      `Readers and AI tools may quote either number. ${item.method === 'identical-wording' ? '' : 'The AI compares meaning and can be wrong: the sentences may describe different things, so check before changing anything.'}`.trim());
+    return task(`Compare these two numbers: ${value.a}${unit} and ${value.b}${unit}`,
+      `Page ${item.a.page} says “${quote(item.a.text)}” and page ${item.b.page} says “${quote(item.b.text)}”. ${item.method === 'identical-wording' ? 'The sentences are worded the same apart from the number' : 'The AI found potentially related statements'}, but they give different numbers.`,
+      'Compare the population, measure, time period and scope of both statements first. If they make the same claim, check the source data and correct any error or explain the difference. Then export again.',
+      `Readers and AI tools may quote either number. ${item.method === 'identical-wording' ? '' : 'Text similarity does not prove the same claim: these statements may describe different things.'}`.trim());
   }
   if (item.left) {
     const left = `the ${ROLES[item.left.role]} “${quote(item.left.text)}”`, right = `the ${ROLES[item.right.role]} “${quote(item.right.text)}”`;
@@ -660,10 +660,10 @@ function consistencyTask(finding) {
         'In the source document, put each heading in a single heading paragraph (use a line break, not a new paragraph, to wrap it). Then export again.',
         'A small tidy-up. Screen reader users who jump between headings, generated outlines and bookmarks, and AI tools that split a document at its headings all see two half-titles instead of one.');
     }
-    case 'same-image': return task('The same picture has different descriptions',
-      `The picture on page ${item.a.page} and the one on page ${item.b.page} look the same, but one is described as “${quote(item.a.alt)}” and the other as “${quote(item.b.alt)}”.`,
-      'If it is the same picture, give it the same description in both places (or describe what differs). Then export again.',
-      'People who can’t see the picture rely on its description. Two descriptions for one picture suggest at least one is out of date or wrong.');
+    case 'same-image': return task('Similar-image candidates have different descriptions',
+      `The picture on page ${item.a.page} and the one on page ${item.b.page} were flagged as potentially similar by the image model; one is described as “${quote(item.a.alt)}” and the other as “${quote(item.b.alt)}”.`,
+      'Compare both pictures and how each is used first. If a description is inaccurate for that use, correct it in the source document, then export again.',
+      'People who can’t see a picture rely on its description. Image similarity does not prove these are the same picture; different pictures or uses may need different descriptions.');
     case 'heading-label': return task(`Chart or diagram labels tagged as headings (${item.total})`,
       `On ${item.pages.length === 1 ? 'page' : 'pages'} ${pageList(item.pages.map(page => page.page))}, small labels such as ${listed(item.pages[0].texts.slice(0, 3).map(text => `“${quote(text)}”`))} are tagged as headings.`,
       'Tag these labels as part of their chart or diagram (or as normal text), not as headings. Then export again.',

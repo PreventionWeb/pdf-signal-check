@@ -62,7 +62,6 @@ function consistency(report) {
   if (!report.consistency?.items) return [];
   const language = report.metadata?.language;
   const contents = items(report, item => /^contents-/.test(item.kind));
-  const ai = report.semantic?.inferencePerformed === true;
   return [
     { id: 'names', label: 'The title reads the same everywhere', weight: 6, score: consistencyScore(report, ['punctuation', 'order', 'spelling', 'shortened', 'reworded', 'different', 'year', 'substitution']) },
     { id: 'dates', label: 'No out-of-date figures, draft labels or placeholders', weight: 6, score: consistencyScore(report, ['stale', 'draft', 'leftovers']) },
@@ -70,8 +69,8 @@ function consistency(report) {
     { id: 'placeholders', label: 'Saved details are not placeholders', weight: 4, score: consistencyScore(report, ['title', 'keywords', 'subject-link']) },
     { id: 'decoration', label: 'No maps or charts hidden as decoration', weight: 6, score: consistencyScore(report, ['decorative']) },
     { id: 'contents', label: 'Contents match the pages', weight: 4, score: contents.length ? consistencyScore(report, ['contents-page', 'contents-conflict', 'contents-wording']) : null },
-    { id: 'facts', label: 'Figures are given the same way throughout', weight: 3,
-      score: ai ? ((report.semantic.factPairs || []).length || items(report, item => item.kind === 'same-fact').length ? 0 : 1) : (items(report, item => item.kind === 'same-fact').length ? 0 : null) },
+    { id: 'facts', label: 'Potential numerical disagreements', weight: 3,
+      score: (report.semantic?.inferencePerformed === true && (report.semantic.factPairs || []).some(pair => pair.inferencePerformed === true)) || items(report, item => item.kind === 'same-fact').length ? 0 : null },
   ];
 }
 

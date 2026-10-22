@@ -36,10 +36,11 @@ export function ConsistencyDetail({ finding, file, report, onInspect }) {
   </section>;
   const item = finding.comparison?.consistency;
   if (item?.left) return <DiffValues left={item.left.text} right={item.right.text} leftLabel={where(item.left)} rightLabel={where(item.right)} />;
-  // Two sentences that disagree: show both, each with its own page link.
+  // Retained statements and source context; context has no inferred page geometry.
   if (item?.kind === "same-fact") return <section aria-label="The two sentences" className="heading-review-list">
     {[item.a, item.b].map((sentence, index) => <section key={index} className="heading-review-pair">
       <p className="heading-review-excerpt"><span>Page {sentence.page}:</span> “{sentence.text}”</p>
+      {sentence.context && <p className="heading-review-excerpt"><span>Context in the PDF:</span> {sentence.context}</p>}
       <ShowOnPage target={finding.targets?.[index]} onInspect={onInspect} />
     </section>)}
   </section>;
