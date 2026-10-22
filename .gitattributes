@@ -1,0 +1,11 @@
+# Keep authored challenge labels and policy changes visible; collapse generated receipts and frozen copies.
+evaluation/numerical-consistency/**/*minilm*.json linguist-generated=true
+evaluation/numerical-consistency/**/*granite-r2*.json linguist-generated=true
+evaluation/numerical-consistency/aggregate.json linguist-generated=true
+evaluation/numerical-consistency/real-development-flag-replay.json linguist-generated=true
+evaluation/numerical-consistency/harnesses/** linguist-generated=true
+evaluation/numerical-consistency/final-policy/** linguist-generated=true
+evaluation/numerical-consistency/reviewed-policy/** linguist-generated=true
+evaluation/numerical-consistency/production-facts.mjs linguist-generated=true
+evaluation/numerical-consistency/modified-facts.mjs linguist-generated=true
+evaluation/numerical-consistency/facts-scope.js linguist-generated=true

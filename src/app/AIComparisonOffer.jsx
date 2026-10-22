@@ -15,6 +15,7 @@ export function AIComparisonOffer({ state, controller }) {
     <summary>{any ? 'Optional: add AI comparisons for this PDF' : 'Why AI comparisons are unavailable for this PDF'}</summary>
     <p>{any ? 'Your standard results are ready. Optional AI can compare the evidence below on this device. It may miss errors or raise false alarms.' : 'Your standard results are ready. This PDF does not provide the paired evidence these AI checks need.'}</p>
     {available.text.length > 0 && <ul>{available.text.map(item => <li key={item.label}>{item.count} {item.label}</li>)}</ul>}
+    {available.experimentalNumericalSentences > 0 && <p>Number comparisons are experimental. Any candidate evidence appears only in Technical details and the full report; it does not add things to fix or check, change the headline or affect scores.</p>}
     {any && !available.textAvailable && <p>No usable text pairs were recovered for the selected checks and model.</p>}
     {available.textAvailable && available.missingLanguage && <p>This PDF has no saved language. Before text comparisons, you’ll need to confirm whether it is in English.</p>}
     {available.textAvailable && !available.missingLanguage && !available.languageSupported && <p>The selected text model does not support this PDF’s declared language. {available.alternativeModel ? `Choose ${available.alternativeModel} in Settings.` : 'Choose a supported model in Settings.'}</p>}

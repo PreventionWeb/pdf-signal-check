@@ -70,7 +70,7 @@ function consistency(report) {
     { id: 'decoration', label: 'No maps or charts hidden as decoration', weight: 6, score: consistencyScore(report, ['decorative']) },
     { id: 'contents', label: 'Contents match the pages', weight: 4, score: contents.length ? consistencyScore(report, ['contents-page', 'contents-conflict', 'contents-wording']) : null },
     { id: 'facts', label: 'Potential numerical disagreements', weight: 3,
-      score: (report.semantic?.inferencePerformed === true && (report.semantic.factPairs || []).some(pair => pair.inferencePerformed === true)) || items(report, item => item.kind === 'same-fact').length ? 0 : null },
+      score: items(report, item => item.kind === 'same-fact').length ? 0 : null },
   ];
 }
 

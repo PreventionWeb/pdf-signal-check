@@ -91,13 +91,6 @@ export function addConsistencyFindings(report, add) {
         comparison: { consistency: item, ai: { inferencePerformed: true, model: images.model } } });
     }
   }
-  // Potentially related statements with different numbers; similarity does not establish the same claim.
-  const semantic = report.semantic;
-  if (semantic?.inferencePerformed === true) for (const pair of semantic.factPairs || []) {
-    if (!pair.inferencePerformed) continue;
-    const item = { id: `fact:ai:${pair.a.page}:${pair.b.page}:${pair.values[0].a}:${pair.values[0].b}`, kind: 'same-fact', severity: 'concern', ...pair };
-    add({ id: `consistency:${item.id}`, source: { path: `consistency.${item.id}` }, kind: 'consistency', outcome: 'suspected-mismatch', method: 'embedding-screening',
-      title: TITLES['same-fact'](item), category: 'advisory-concern', severity: 'concern', summary: '', evidence: [...sentencePairEvidence(pair.a, pair.b),
-        `AI similarity: ${pair.similarity.toFixed(2)}`], comparison: { consistency: item, ai: { inferencePerformed: true, similarity: pair.similarity } } });
-  }
+  // semantic.factPairs remain original experimental receipts in Technical details and the full report.
+  // They are intentionally excluded from normalized findings, review tasks and headline counts.
 }

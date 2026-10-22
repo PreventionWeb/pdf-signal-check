@@ -91,7 +91,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
     </Notice>}
     {showSettings && <section aria-label="AI coverage">
       <h3>AI coverage</h3>
-      <p>Caption, contents and repeated-number comparisons accompany any selected AI text check when evidence is available. Clearing all text checks also turns off these comparisons.</p>
+      <p>Caption, contents and experimental numerical comparisons accompany any selected AI text check when evidence is available. Clearing all text checks also turns off these comparisons.</p>
       <ul>
         <li>Selected model: {model?.label || 'No AI model selected for new checks'}. Completed AI checks are recorded above.</li>
         {coverage.map(f => <li key={f.id}><strong>{f.title}:</strong> {f.summary}</li>)}
@@ -107,7 +107,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
         })()}</li>}
         {state.report.imageScreening?.descriptionInputs?.some(input => input.truncated) && <li><strong>Photo description scope:</strong> {state.report.imageScreening.descriptionInputs.filter(input => input.truncated).length} descriptions were shortened to the image model’s token limit. The detailed JSON records the text actually compared.</li>}
         {semantic?.inferencePerformed && <li><strong>Consistency comparisons:</strong> {[
-          semantic.factCoverage && `${semantic.factCoverage.compared} of ${semantic.factCoverage.candidates} sentences stating a figure compared (${(semantic.factPairs || []).length} pair${(semantic.factPairs || []).length === 1 ? '' : 's'} with different numbers)`,
+          semantic.factCoverage && `${semantic.factCoverage.compared} of ${semantic.factCoverage.candidates} statements encoded (${(semantic.factPairs || []).length} experimental candidate pair${(semantic.factPairs || []).length === 1 ? '' : 's'}; excluded from tasks and scores)`,
           // Only comparisons that actually ran: most PDFs have no captioned descriptions or unmatched contents entries.
           semantic.sectionCoverage?.evaluatedPairs > 0 && `${semantic.sectionCoverage.evaluatedPairs} of ${semantic.sectionCoverage.suppliedPairs} headings compared with the text under them`,
           semantic.figureCoverage ? semantic.figureCoverage.candidates > 0 && `${semantic.figureCoverage.evaluated} of ${semantic.figureCoverage.candidates} eligible image descriptions compared with captions` : (semantic.figureItems || []).length > 0 && `${semantic.figureItems.length} image descriptions compared with captions`,
@@ -118,6 +118,18 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
         <li>Text the AI did not check is a limit of this evaluation, not evidence of a PDF problem.</li>
         <li>AI compares how closely texts relate. It does not verify facts or the meaning of images.</li>
       </ul>
+      {(semantic?.factPairs || []).length > 0 && <details>
+        <summary>Experimental numerical evidence ({semantic.factPairs.length} candidate pair{semantic.factPairs.length === 1 ? '' : 's'})</summary>
+        <p>These are experimental related-statement candidates, not established disagreements. They do not count as things to fix or check and do not affect scores. Measurement identity may be unresolved; similarity is not a confidence probability. No candidates does not prove numerical consistency.</p>
+        {semantic.factPairs.map((pair, index) => <section key={index} aria-label={`Experimental numerical candidate ${index + 1}`}>
+          <h4>Candidate {index + 1}</h4>
+          <p>Recorded similarity: {String(pair.similarity ?? 'Not recorded')} (relatedness, not confidence). Pair inference recorded: {pair.inferencePerformed === true ? 'yes' : 'no'}.</p>
+          {[pair.a, pair.b].map((statement, side) => <div key={side} style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+            <p><strong>Original statement on page {statement.page}:</strong> {statement.text}</p>
+            {statement.context && <p><strong>Original context (statement on page {statement.page}; context location not established):</strong> {statement.context}</p>}
+          </div>)}
+        </section>)}
+      </details>}
     </section>}
   </section>;
 }

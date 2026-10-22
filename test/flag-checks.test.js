@@ -54,8 +54,8 @@ describe('same fact, different numbers', () => {
     expect(quantities('124 countries tested 30 projects, 12 of which were completed.')).toEqual([{ value: 124, unit: 'countries' }, { value: 30, unit: 'projects' }, { value: 12, unit: 'projects' }]);
   });
   it('flags the same measure with different values', () => {
-    expect(conflictingValues(fact(143, 'For someone born in 2025, that probability would rise to nearly nine in ten (86%).'),
-      fact(154, 'That probability rises to nearly nine in ten (89%) for someone born in 2025.'))).toEqual([{ unit: '%', a: 86, b: 89 }]);
+    expect(conflictingValues(fact(143, 'For someone born in 2025, that probability would rise to 86%.'),
+      fact(154, 'That probability rises to 89% for someone born in 2025.'))).toEqual([{ unit: '%', a: 86, b: 89 }]);
   });
   it('does not flag restated subsets, different years, values inside a range, or different measures', () => {
     expect(conflictingValues(fact(5, '124 countries report early warning systems, 77 of which were supported.'), fact(34, '77 countries received support for early warning.'))).toBeNull();
@@ -64,7 +64,7 @@ describe('same fact, different numbers', () => {
     expect(conflictingValues(fact(17, 'The WUI area increased by 33% while the WUI population increased by 34%.'), fact(66, 'The WUI area increased by 33%, while the number of houses in the WUI grew by 40%.'))).toBeNull();
   });
   it('only pairs sentences the model finds very similar, on different pages', () => {
-    const a = fact(1, 'For someone born in 2025, that probability would rise to nearly nine in ten (86%).'), b = fact(9, 'That probability rises to nearly nine in ten (89%) for someone born in 2025.');
+    const a = fact(1, 'For someone born in 2025, that probability would rise to 86%.'), b = fact(9, 'That probability rises to 89% for someone born in 2025.');
     expect(similarPairs([a, b], [[1, 0], [0.99, 0.141]], 0.88)).toHaveLength(1);
     expect(similarPairs([a, b], [[1, 0], [0.5, 0.866]], 0.88)).toHaveLength(0);
     expect(similarPairs([a, { ...b, page: 1 }], [[1, 0], [1, 0]], 0.88)).toHaveLength(0);
@@ -104,7 +104,7 @@ describe('image description triage', () => {
 describe('AI-decided results', () => {
   it('compares figure captions, contents headings and quantity sentences in one request', async () => {
     const embed = async texts => texts.map(text => /probability/.test(text) ? [1, 0] : [0, 1]);
-    const facts = [{ page: 143, text: 'For someone born in 2025, that probability would rise to nearly nine in ten (86%).' }, { page: 154, text: 'That probability rises to nearly nine in ten (89%) for someone born in 2025.' }]
+    const facts = [{ page: 143, text: 'For someone born in 2025, that probability would rise to 86%.' }, { page: 154, text: 'That probability rises to 89% for someone born in 2025.' }]
       .map(fact => ({ ...fact, blockIds: [], quantities: quantities(fact.text) }));
     const result = await assessSemantic({ metadata: { language: 'en' }, checks: ['title'], facts,
       figures: [{ id: '1:1', alt: 'Photo of a school', caption: 'Map 1. Sargassum spread' }], contents: [{ id: 'c', entry: 'Paying for resilience', headings: ['Financing for risk reduction'] }] }, embed);
@@ -112,14 +112,14 @@ describe('AI-decided results', () => {
     expect(result.figureItems[0]).toMatchObject({ figureId: '1:1', inferencePerformed: true });
     expect(result.contentItems[0]).toMatchObject({ contentsId: 'c', inferencePerformed: true });
   });
-  it('ranks an AI-found conflict after rule-based warnings and marks its method', () => {
+  it('keeps experimental numerical AI receipts out of the ordinary Check path', () => {
     const data = { analysisComplete: true, checks: [], pages: [], metadata: {},
       consistency: { items: [{ id: 'date:draft', kind: 'draft', severity: 'concern', label: 'Draft', pages: [1], blockIds: [] }] },
       semantic: { inferencePerformed: true, model: { id: 'm', label: 'MiniLM · compact English' }, factPairs: [{ a: { page: 3, text: 'Nine in ten (86%).', blockIds: [1] },
         b: { page: 9, text: 'Nine in ten (89%).', blockIds: [2] }, values: [{ unit: '%', a: 86, b: 89 }], similarity: 0.91, inferencePerformed: true }] } };
     const { buckets } = reviewSummary(data, reviewGroups(normalizeFindings(data).findings));
-    expect(buckets.check.map(item => reviewPriority(item).key)).toEqual(['warning', 'ai-warning']);
-    expect(fixCard(buckets.check[1], data).title).toBe('Compare these two numbers: 86% and 89%');
+    expect(buckets.check.map(item => reviewPriority(item).key)).toEqual(['warning']);
+    expect(data.semantic.factPairs).toHaveLength(1);
   });
   it('does not repeat keywords that the rules already identified as internal codes', () => {
     const data = { analysisComplete: true, checks: [], pages: [], metadata: { keywords: 'DAF0DLt96kY' },

@@ -2,6 +2,10 @@
 
 This change corrects review claims and scoring. It does not establish model accuracy or expand the deterministic text profile.
 
+## Current release policy: experimental numerical gate
+
+The fresh synthetic confirmation prompted a presentation-only gate that supersedes the PR10 per-pair numerical AI Check/score policy described in the historical delivery and validation record below. Original `semantic.factPairs` are now experimental technical receipts only: exact statements, context, pages and similarity remain in Technical details → AI coverage, full-report appendix and captured JSON, but never normalized fix/check tasks, headline counts, scores or the concise PDF fix list. Deterministic identical-wording warnings remain normal Check tasks and zero-credit review signals; empty screens still receive no positive credit. Image candidate behavior and generic compatibility helpers remain unchanged. No source policy, model, threshold, snapshot or inference changed; see [numerical consistency](AI-NUMERICAL-CONSISTENCY.md).
+
 ## Delivered
 
 - The numerical-disagreement screen is flag-only. Empty results receive `null` numerical credit, regardless of whether other AI work ran or whether numerical coverage was absent, partial or complete. Recorded rule warnings and completed per-pair AI warnings retain `0` as review signals. The audit label is “Potential numerical disagreements”. Empty screening can no longer raise the Consistency or Overall score.
