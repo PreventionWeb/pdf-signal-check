@@ -1,4 +1,4 @@
-import { headingEvidenceBlocks } from './heading-evidence.js';
+import { headingEvidenceBlocks, evidenceBoundsByKey } from './heading-evidence.js';
 import { inspectHeadings } from './headings.js';
 import { normalizeTitle, publicationCandidates } from './titles.js';
 import { inspectContents } from './contents.js';
@@ -296,18 +296,32 @@ function decorativeContent(report, limits) {
 /** Candidate sentences stating a quantity, shared by the rules here and the optional AI comparison. */
 export function factSentences(report) {
   return factCandidates((report.pages || []).map(page => {
-    const blocks = headingEvidenceBlocks(page), contextByKey = new Map();
+    const blocks = headingEvidenceBlocks(page), contextByKey = new Map(), bounds = evidenceBoundsByKey(page);
     let headings = [];
     for (const block of blocks) {
       if (/^H[1-6]?$/.test(block.role || '') && !block.headingFragment) {
         const level = Number(block.role.slice(1)) || 1;
         headings = headings.filter(h => h.level < level);
-        headings.push({ level, text: block.text });
-      } else if (block.key) contextByKey.set(block.key, headings.map(h => h.text).join(' / ').slice(-320));
+        headings.push({ level, text: block.text, keys: block.keys || [block.key] });
+      } else if (block.key) {
+        const body = bounds.get(block.key);
+        const owned = headings.filter(h => {
+          const owners = h.keys.map(key => bounds.get(key)).filter(Boolean);
+          return !body || !owners.length || owners.some(owner => Math.min(owner.right, body.right) > Math.max(owner.x, body.x));
+        });
+        contextByKey.set(block.key, owned.map(h => h.text).join(' / ').slice(-320));
+      }
     }
+    const headingKeys = new Set(blocks.filter(block => /^H[1-6]?$/.test(block.role || '')).flatMap(block => block.keys || [block.key]));
     const physical = new Map((page.blocks || []).map(block => [block.id, block]));
     const recovered = sentences(page);
     return { page: page.number, sentences: recovered.map((sentence, index) => {
+      const keys = [...new Set(sentence.blockIds.map(id => physical.get(id)?.key).filter(Boolean))];
+      // Drawing order can concatenate a heading with text in another column before sentence splitting.
+      if (keys.some(key => headingKeys.has(key) && bounds.get(key) && keys.some(other => {
+        const a = bounds.get(key), b = bounds.get(other);
+        return b && Math.min(a.right, b.right) <= Math.max(a.x, b.x);
+      }))) return null;
       const contexts = [...new Set(sentence.blockIds.map(id => contextByKey.get(physical.get(id)?.key)).filter(Boolean))];
       // Never attach one column's heading to a sentence spanning conflicting owners.
       if (contexts.length > 1) return null;

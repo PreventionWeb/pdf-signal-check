@@ -12,7 +12,7 @@ export function evidenceBoundsByKey(page) {
 }
 
 /** Recover a wrapped heading's preceding line only with close, aligned, same-size physical evidence.
- * Original tags and profile outcomes are never changed. Unrecovered connector fragments remain unavailable to AI.
+ * Original tags and profile outcomes are never changed. An initial preposition alone never proves fragmentation.
  */
 export function headingEvidenceBlocks(page) {
   const physical = new Map(), result = [];
@@ -28,7 +28,7 @@ export function headingEvidenceBlocks(page) {
       result.pop();
       result.push({ ...block, text: `${previous.text} ${block.text}`.replace(/\s+/g, ' ').trim(),
         keys: [...(previous.keys || [previous.key]), block.key].filter(Boolean), recoveredHeadingContext: true });
-    } else result.push({ ...block, ...(continuation ? { headingFragment: true } : {}) });
+    } else result.push({ ...block });
   }
   return result;
 }

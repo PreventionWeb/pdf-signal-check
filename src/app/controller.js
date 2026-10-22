@@ -74,6 +74,7 @@ export function createAppController({
     modelRun = 0,
     analysisWorker = null,
     modelWorker = null,
+    imageAbort = null,
     mountEpoch = 0,
     manifestAbort = null,
     services = {};
@@ -84,6 +85,8 @@ export function createAppController({
   };
   const stopModel = () => {
     ++modelRun;
+    imageAbort?.abort();
+    imageAbort = null;
     modelWorker?.terminate();
     modelWorker = null;
     emit({ modelBusy: false });
@@ -291,15 +294,17 @@ export function createAppController({
       });
     },
     cancelScreening() {
+      const task = state.modelTask;
       stopModel();
       emit({
         stage: "checks",
         awaitingLanguageDecision: false,
-        screeningAttempt: { status: "canceled", message: "AI checks skipped. The standard results and any earlier AI results are shown." },
+        screeningAttempt: { status: "canceled", stage: task, message: "AI checks skipped. The standard results and any earlier AI results are shown." },
         message:
           "AI checks skipped. The standard results and any earlier AI results are shown.",
         progress: null,
         imagePreviews: null,
+        modelTask: null,
       });
     },
     takeOwnership() {
@@ -509,24 +514,28 @@ export function createAppController({
         return;
       }
       const currentJob = job, currentRun = ++modelRun, abort = new AbortController();
+      const sourceFile = state.file, sourceReport = state.report;
+      imageAbort = abort;
       const active = () => currentJob === job && currentRun === modelRun;
       emit({ modelBusy: true, modelTask: "image", stage: "processing-model", screeningAttempt: { status: "running" }, message: `Looking at ${items.length + described.length} image${items.length + described.length === 1 ? "" : "s"}…`, progress: null });
       const fail = message => {
         if (!active()) return;
         abort.abort(); stopModel();
-        emit({ stage: "review", screeningAttempt: { status: "error", stage: "image", message }, message: `The image check didn’t finish: ${message}. All other results are unchanged.`, progress: null, imagePreviews: null });
+        emit({ stage: "review", modelTask: null, screeningAttempt: { status: "error", stage: "image", message }, message: `The image check didn’t finish: ${message}. All other results are unchanged.`, progress: null, imagePreviews: null });
       };
       let crops, descriptionCrops;
       try {
-        crops = await imageCropper(state.file, state.report, items, abort.signal);
+        crops = await imageCropper(sourceFile, sourceReport, items, abort.signal);
+        if (!active()) return;
         // Described images reuse the cropper; their crops carry the description to compare.
-        const pictures = await imageCropper(state.file, state.report, described.map((item, index) => ({ ...item, index })), abort.signal);
+        const pictures = await imageCropper(sourceFile, sourceReport, described.map((item, index) => ({ ...item, index })), abort.signal);
         descriptionCrops = pictures.map(crop => ({ ...described[crop.index], blob: crop.blob }));
       } catch (e) { fail(e.message); return; }
       if (!active()) return;
       if (!crops.length && descriptionCrops.length < 5) {
-        const message = `Only ${descriptionCrops.length} safe photo crops were available; at least five are needed. No image model was started.`;
-        emit({ report: { ...state.report, imageScreening: { inferencePerformed: false, skipped: { availableDescriptionCrops: descriptionCrops.length, descriptionCandidates: described.length } } },
+        imageAbort = null;
+        const message = described.length ? `Only ${descriptionCrops.length} safe photo crops were available; at least five are needed. No image model was started.` : "No safe graphic crops were available. No image model was started.";
+        emit({ report: { ...state.report, imageScreening: { inferencePerformed: false, skipped: { availableDescriptionCrops: descriptionCrops.length, descriptionCandidates: described.length, graphicCandidates: items.length } } },
           screeningAttempt: { status: "not-run", message }, modelBusy: false, modelTask: null, stage: "review", progress: null, message });
         return;
       }
@@ -541,8 +550,10 @@ export function createAppController({
         if (data.type === "progress") emit({ message: data.message, progress: data.progress || null });
         else if (data.type === "error") fail(data.message);
         else if (data.type === "result") {
-          worker.terminate(); modelWorker = null;
-          emit({ report: { ...state.report, imageScreening: data.imageScreening }, screeningAttempt: data.imageScreening.inferencePerformed ? { status: "completed" } : { status: "not-run", message: "The available image crops were uniform; no model inference was needed." }, modelBusy: false, modelTask: null, stage: "review", progress: null, imagePreviews: null,
+          worker.terminate(); modelWorker = null; imageAbort = null;
+          const usable = data.imageScreening.execution?.usableDescriptions;
+          const noInference = Number.isInteger(usable) ? `Only ${usable} usable photo crops remained; at least five are needed. No image model inference was performed.` : "No image model inference was performed; see image coverage for the available evidence.";
+          emit({ report: { ...state.report, imageScreening: data.imageScreening }, screeningAttempt: data.imageScreening.inferencePerformed ? { status: "completed" } : { status: "not-run", stage: "image", message: noInference }, modelBusy: false, modelTask: null, stage: "review", progress: null, imagePreviews: null,
             message: "Image check complete. The rule-based results are unchanged." });
         }
       };
