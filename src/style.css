@@ -1003,3 +1003,8 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fix-ai-note.is-decided { background: rgb(var(--mg-color-interactive) / .08); }
 /* A pin's hover tooltip and the highlight's info box never stack: while the reader hovers a pin, its tooltip wins. */
 .page-pins-sheet:has(.page-pins-tooltip:not(.page-pins-focus-info)) .page-pins-focus-info { display: none; }
+/* Phones: the two download buttons stack at full width rather than squeezing their labels onto two lines. */
+@media (max-width: 480px) { .review-export-menu .flow-actions > .mg-button { flex: 1 1 100%; } }
+/* Rows that take you to a place on the page say so with a chevron. */
+.place-text-item .place-text-quote { flex: 1 1 auto; }
+.place-text-item::after { content: "›"; flex: none; align-self: center; font-size: 1.25rem; line-height: 1; color: rgb(var(--mg-color-interactive)); }
