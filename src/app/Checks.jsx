@@ -1,5 +1,6 @@
-import React from 'react';
-import { imageVerdict } from '../engine/image-model.js';
+import React, { useMemo } from 'react';
+import { screeningAvailability } from '../runtime/screening-availability.js';
+import { imageVerdict, IMAGE_MODEL } from '../engine/image-model.js';
 import { imageSkipNote } from '../review/provenance.js';
 import { hasUnchangedNoInputs, needsDocumentInformation } from '../runtime/screening-recovery.js';
 import { MetadataGuidance } from '../review/MetadataGuidance.jsx';
@@ -16,7 +17,8 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
   const missing = declared == null || !String(declared).trim();
   const language = state.languageAssumption || declared;
   const model = state.selectedModel ? getSemanticModel(state.selectedModel) : null;
-  const eligible = model && supportsLanguage(model, language);
+  const available = useMemo(() => screeningAvailability(state.report, { modelId: state.selectedModel || 'minilm', checks: state.checks, languageAssumption: state.languageAssumption }), [state.report, state.selectedModel, state.checks, state.languageAssumption]);
+  const eligible = model && supportsLanguage(model, language) && available.textAvailable;
   const busy = state.modelBusy || state.calibrationBusy || batchBusy;
   const semantic = state.report.semantic;
   const completed = semantic?.inferencePerformed;
@@ -33,6 +35,8 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
   };
   const attempt = state.screeningAttempt || (semantic?.notRun ? { status: 'not-run', message: semantic.notRun.reason, reasons: semantic.notRun.checks } : null);
   const stopped = attempt && ["error", "not-run", "canceled"].includes(attempt.status);
+  const imageRecovery = state.aiEnabled && state.imageAI && available.imagesAvailable && !state.report.imageScreening
+    && ["error", "canceled"].includes(attempt?.status) && (attempt.stage === "image" || !available.textAvailable);
   if (showStatus && state.modelBusy) return <Notice title={state.modelTask === "image" ? "AI image checks are running" : "AI text checks are running"} headingLevel="h2">
     <p role="status">{state.modelTask === "image"
       ? "Please wait while the image model looks at graphics marked as decoration and compares photo descriptions with their pictures. Your results will appear when it finishes."
@@ -52,19 +56,26 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
     {state.message && state.progress?.stage !== 'inference' && <p className="model-note">{state.message}</p>}
   </Notice>;
   return <section className="check-coverage" aria-label="Check coverage">
-    {showStatus && needsDocumentInformation(state.report) && <Notice headingLevel="h2" variant="info" title="Some saved document details are missing">
+    {showStatus && !imageRecovery && needsDocumentInformation(state.report) && <Notice headingLevel="h2" variant="info" title="Some saved document details are missing">
       <p>This PDF has no saved title, description or keywords for AI to compare with its text. Other eligible AI comparisons can still run; their coverage is recorded below.</p>
       <DocumentProperties metadata={state.report.metadata} />
       <MetadataGuidance headingLevel="h3" />
     </Notice>}
-    {showStatus && noInputs && <Notice headingLevel="h3" variant="warning" title={metadataHelp ? 'Add document information before running AI checks' : 'AI needs usable text to compare'}>
+    {showStatus && imageRecovery && <Notice headingLevel="h3" variant={attempt.status === 'error' ? 'negative' : 'info'} title={attempt.status === 'error' ? 'Image comparisons did not finish' : 'Image comparisons were skipped'}>
+      <p>Your standard results and any earlier AI results are still available.</p>
+      <p role="status">{attempt.message}</p>
+      <p className="model-note">Running permits the previously selected image-model downloads: {IMAGE_MODEL.download}, plus {IMAGE_MODEL.descriptionDownload} for photo descriptions, plus about 26.86 MB of uncompressed runtime files and JavaScript if needed. Cached files may be reused. Your PDF stays on this device.</p>
+      <Button variant="primary" disabled={busy} onClick={() => controller.runImageScreening()}>{attempt.status === 'error' ? 'Try image comparisons again' : 'Run image comparisons'}</Button>
+      <Button disabled={busy} onClick={() => controller.openSetup('checks')}>Change check settings</Button>
+    </Notice>}
+    {showStatus && !imageRecovery && noInputs && <Notice headingLevel="h3" variant="warning" title={metadataHelp ? 'Add document information before running AI checks' : 'AI needs usable text to compare'}>
       <p>This PDF does not provide the information needed for the selected AI comparisons. Running those checks again on the same file will not help.</p>
       <ul>{reasons.map(item => <li key={item.check}><strong>{choices.find(([key]) => key === item.check)?.[1] || item.check}:</strong> {plainReason(item)}</li>)}</ul>
       {metadataHelp ? <MetadataGuidance headingLevel="h4" /> : <p>Check that the PDF contains selectable text and usable heading labels. Correct or export the source document again, then choose the updated PDF.</p>}
 
       <Button onClick={() => controller.go('document')} disabled={busy}>Choose an updated PDF</Button>
     </Notice>}
-    {showStatus && !noInputs && (!completed || stopped) && <Notice headingLevel="h3" variant={attempt?.status === 'error' ? 'negative' : state.aiEnabled ? 'warning' : 'info'} title={stopped ? attempt.status === 'error' ? attempt.code === 'MODEL_ASSET_TIMEOUT' ? 'The AI download stopped responding' : /network|fetch|download|MODEL_ASSET/i.test(`${attempt.message} ${attempt.code}`) ? 'The AI model could not be downloaded' : 'AI checks failed' : attempt.status === 'canceled' ? 'AI checks were skipped' : 'AI could not run these comparisons' : !state.aiEnabled ? 'AI comparisons were not selected' : missing && !state.languageAssumption ? 'AI is waiting for the document language' : !eligible ? 'The selected model does not support this language' : semantic?.status === 'error' ? 'AI checks did not complete' : 'AI checks have not completed'}>
+    {showStatus && !imageRecovery && !noInputs && (!completed || stopped) && <Notice headingLevel="h3" variant={attempt?.status === 'error' ? 'negative' : state.aiEnabled ? 'warning' : 'info'} title={stopped ? attempt.status === 'error' ? attempt.code === 'MODEL_ASSET_TIMEOUT' ? 'The AI download stopped responding' : /network|fetch|download|MODEL_ASSET/i.test(`${attempt.message} ${attempt.code}`) ? 'The AI model could not be downloaded' : 'AI checks failed' : attempt.status === 'canceled' ? 'AI checks were skipped' : 'AI could not run these comparisons' : !state.aiEnabled ? 'AI comparisons were not selected' : missing && !state.languageAssumption ? 'AI is waiting for the document language' : !eligible ? 'The selected model does not support this language' : semantic?.status === 'error' ? 'AI checks did not complete' : 'AI checks have not completed'}>
       <p>{!state.aiEnabled ? 'Text, tags and metadata rules ran. Enable a local model in settings to add AI text comparisons.' : 'Your completed text checks are still available. You can review them while deciding how to continue with AI checks.'}</p>
       {stopped && <div role="status"><p><strong>{attempt.status === 'error' && /network|fetch|download|MODEL_ASSET/i.test(`${attempt.message} ${attempt.code}`) ? 'The AI model files could not be downloaded. Check your connection, then try again. Your PDF has stayed on this device.' : attempt.message}</strong></p>{attempt.reasons?.length > 0 && <ul>{attempt.reasons.map(reason => <li key={reason.check}><strong>{choices.find(([key]) => key === reason.check)?.[1] || reason.check}:</strong> {reason.reason}</li>)}</ul>}
         <p>{attempt.status === 'not-run' ? 'Repeating the same checks will produce the same result. Add the missing document details or tags in your source document, then export and check again. You can also select checks that have usable text to compare.' : attempt.status === 'error' ? 'Retry the checks, or choose the compact model in settings. Any previous completed AI results remain in this report.' : 'Run the checks again when ready.'}</p>
@@ -72,7 +83,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       </div>}
       {semantic?.error && <p>{semantic.error}</p>}
       {state.aiEnabled && missing && <><Checkbox id="assume-english" label="Assume English for this PDF’s AI checks" checked={state.languageAssumption === 'en'} disabled={busy} onChange={e => controller.setLanguageAssumption(e.target.checked ? 'en' : null)} /><p className="model-note">Missing language can confuse machines. Choose this only for English text; it does not fix the PDF’s language declaration or change the required check.</p></>}
-      {state.aiEnabled && !missing && !eligible && <p>Declared language: {declared}. Choose a supported model or correct the declaration in your source document.</p>}
+      {state.aiEnabled && !missing && model && !supportsLanguage(model, language) && <p>Declared language: {declared}. Choose a supported model or correct the declaration in your source document.</p>}
       {state.aiEnabled && model && <p className="model-note">{model.label}: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer if needed, plus runtime assets (approximately 26.86 MB uncompressed WASM and JavaScript). Running permits these downloads.</p>}
       {state.aiEnabled && eligible && <Button variant="primary" disabled={busy || !state.checks.length} onClick={() => controller.runScreening()}>{attempt?.status === 'error' ? 'Try AI checks again' : 'Run local AI checks'}</Button>}
       {state.aiEnabled && missing && !state.languageAssumption && <Button disabled={busy} onClick={() => controller.promptLanguageDecision()}>Decide document language…</Button>}

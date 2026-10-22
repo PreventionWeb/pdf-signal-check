@@ -1,5 +1,6 @@
 import { selectTopicEvidence } from './topic-retrieval.js';
-import { similarPairs } from './facts.js';
+import { similarPairs, factEmbeddingText } from './facts.js';
+import { headingEvidenceBlocks, evidenceBoundsByKey } from './heading-evidence.js';
 import { compareTitles, normalizeTitle, publicationCandidates } from './titles.js';
 
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from './models.js';
@@ -68,18 +69,21 @@ export function sectionEvidence(pages = []) {
   let current = null;
   const close = () => { if (current?.body.text.length >= 80) sections.push(current); current = null; };
   for (const page of pages) {
-    for (const block of (page.logicalBlocks || []).slice(0, 400)) {
+    const bounds = evidenceBoundsByKey(page);
+    for (const block of headingEvidenceBlocks(page)) {
       if (/^H[1-6]?$/.test(block.role || '')) {
-        // Same tag, or the same level with no text between (a heading split across two tags): one heading.
-        if (current && !current.body.text && ((current.heading.node && current.heading.node === block.node) || current.heading.role === block.role)) {
+        // Same owning tag is one heading; separate tags join only through safe geometry in headingEvidenceBlocks.
+        if (current && !current.body.text && (current.heading.node && current.heading.node === block.node)) {
           current.heading = { ...current.heading, text: `${current.heading.text} ${block.text}`.replace(/\s+/g, ' ').trim(),
             keys: [...current.heading.keys, ...(block.key ? [block.key] : [])] };
           continue;
         }
         close();
-        current = { heading: { ...block, page: page.number, keys: block.key ? [block.key] : [] },
+        current = { heading: { ...block, page: page.number, keys: block.keys || (block.key ? [block.key] : []) },
           body: { page: page.number, text: '', keys: [], source: 'following tagged section text' } };
       } else if (current && block.text?.trim() && current.body.text.length < 800 && page.number === current.heading.page) {
+        const owners = current.heading.keys.map(key => bounds.get(key)).filter(Boolean), body = bounds.get(block.key);
+        if (owners.length && body && !owners.some(h => Math.min(h.right, body.right) > Math.max(h.x, body.x))) { close(); continue; }
         current.body.text += `${current.body.text ? ' ' : ''}${block.text}`;
         if (block.key) current.body.keys.push(block.key);
         current.body.text = current.body.text.slice(0, 800);
@@ -90,8 +94,8 @@ export function sectionEvidence(pages = []) {
   return sections;
 }
 
-/** embed(texts, model) returns vectors or {vectors, provenance}. Policy is separate from inference. */
-export async function assessSemantic(input, embed) {
+/** Shared preparation for the pre-download offer and actual inference. No worker or model assets. */
+export function prepareSemanticWork(input) {
   const model = getSemanticModel(input.modelId);
   const limits = { ...SEMANTIC_LIMITS, ...model.thresholds };
   const { metadata, candidates, excerpts, deterministicTitle } = prepareSemanticInput(input);
@@ -115,7 +119,7 @@ export async function assessSemantic(input, embed) {
   for (const field of allowed) if (!requested(field)) { result[field] = { ...uncertain('This check was not requested.'), method: 'not-requested', inferencePerformed: false }; result.skippedChecks.push(field); }
   if (!checks.length) {
     result.notRun = { code: 'no-checks-requested', reason: 'No AI checks were selected; accompanying consistency comparisons did not run.', checks: [] };
-    return { ...result, assessment: result.title };
+    return { result };
   }
   const titleSettled = requested('title') && (warnings.length || rules.status === 'match');
   if (titleSettled) result.title = { status: warnings.length ? 'suspected-mismatch' : 'match',
@@ -125,7 +129,7 @@ export async function assessSemantic(input, embed) {
     for (const field of allowed) if (requested(field) && !(field === 'title' && titleSettled)) result[field] = {
       ...uncertain(`The declared language is missing or outside ${model.label}'s explicit language coverage. No language detection or multilingual accuracy guarantee is provided.`), method: 'unsupported-language', inferencePerformed: false };
     result.notRun = { code: "unsupported-language", reason: "The document language is missing or unsupported by the selected model.", checks: [] };
-    return { ...result, assessment: result.title };
+    return { result };
   }
   const texts = [], indices = new Map();
   const add = text => { if (!indices.has(text)) { indices.set(text,texts.length); texts.push(text); } return indices.get(text); };
@@ -153,7 +157,7 @@ export async function assessSemantic(input, embed) {
   // Spread the sentence budget across the document so a summary and a later chapter can both be compared.
   const allFacts = input.facts || [];
   const facts = allFacts.length <= budget.facts ? allFacts : Array.from({ length: budget.facts }, (_, i) => allFacts[Math.floor(i * allFacts.length / budget.facts)]);
-  const factIndices = facts.length >= 2 ? facts.map(fact => add(fact.text)) : [];
+  const factIndices = facts.length >= 2 && new Set(facts.map(fact => fact.page)).size >= 2 ? facts.map(fact => add(factEmbeddingText(fact))) : [];
   result.factCoverage = { candidates: allFacts.length, compared: factIndices.length };
   if (requested('subject')) topicTask('subject',metadata.subject);
   const rawKeywords = typeof metadata.keywords === 'string' ? metadata.keywords.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean) : [];
@@ -170,7 +174,7 @@ export async function assessSemantic(input, embed) {
   result.sectionCoverage = { suppliedPairs: availableSections.length, evaluatedPairs: 0, skippedPairs: availableSections.length };
   if (requested('sections')) for (const section of sections) {
     const h = section.heading, body = section.body;
-    if (!h || !body || typeof h.text !== 'string' || typeof body.text !== 'string' || !/^H[1-6]?$/.test(h.role || '') || h.page !== body.page || !body.keys?.length || body.text?.length < 80 || words(h.text || '').length < 2) continue;
+    if (!h || h.headingFragment || !body || typeof h.text !== 'string' || typeof body.text !== 'string' || !/^H[1-6]?$/.test(h.role || '') || h.page !== body.page || !body.keys?.length || body.text?.length < 80 || words(h.text || '').length < 2) continue;
     if (/^(executive overview|introduction|conclusion|summary|references|results|discussion|methods)$/i.test(h.text.trim())) continue;
     addTask('section',h.text,[{...body,text:body.text.slice(0,800)}],{heading:h});
   }
@@ -185,6 +189,16 @@ export async function assessSemantic(input, embed) {
         : 'No eligible tagged heading and following text were recovered. Generic or very short headings cannot be screened.'
     })) };
   }
+  return { result, model, limits, tasks, texts, facts, factIndices, availableSections, keywordTerms, allowed };
+}
+
+/** embed(texts, model) returns vectors or {vectors, provenance}. Policy is separate from inference. */
+export async function assessSemantic(input, embed) {
+  const work = prepareSemanticWork(input);
+  const { result } = work;
+  if (!work.texts) return { ...result, assessment: result.title };
+  const { model, limits, tasks, texts, facts, factIndices, availableSections, keywordTerms, allowed } = work;
+  const requested = field => result.requestedChecks.includes(field);
   if (tasks.length || factIndices.length) {
     const embedded = await embed(texts,model);
     const vectors = Array.isArray(embedded) ? embedded : embedded.vectors;
@@ -192,7 +206,7 @@ export async function assessSemantic(input, embed) {
     result.inferencePerformed = true; result.embeddedTextCount = texts.length;
     result.inferenceProvenance = Array.isArray(embedded.provenance) ? embedded.provenance : [];
     if (factIndices.length) {
-      const sentence = ({ page, text, blockIds }) => ({ page, text, blockIds });
+      const sentence = ({ page, text, blockIds, context }) => ({ page, text, blockIds, ...(context ? { context } : {}) });
       result.factPairs = similarPairs(facts, factIndices.map(i => vectors[i]), limits.factHigh)
         .map(pair => ({ a: sentence(pair.a), b: sentence(pair.b), values: pair.values, similarity: pair.similarity, method: 'embedding-screening', inferencePerformed: true }));
     }

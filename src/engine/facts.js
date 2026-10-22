@@ -34,9 +34,21 @@ export function factCandidates(sentencesByPage, limits = FACT_LIMITS) {
     const text = sentence.text;
     if (text.length < limits.minCharacters || text.length > limits.maxCharacters || CITATION.test(text) || CAPTION.test(text) || LEADERS.test(text)) continue;
     const stated = quantities(text);
-    if (stated.length) candidates.push({ page, text, blockIds: sentence.blockIds, quantities: stated });
+    if (stated.length) candidates.push({ page, text, blockIds: sentence.blockIds, quantities: stated, ...(sentence.context ? { context: sentence.context } : {}) });
   }
   return candidates;
+}
+
+
+/** Context is source evidence, not a model-generated interpretation; keep the measured sentence verbatim. */
+export function factEmbeddingText(fact) {
+  return fact.context ? `${fact.text}\nContext: ${fact.context.slice(0, 480)}` : fact.text;
+}
+const hazards = text => new Set((String(text).toLowerCase().match(/\b(?:floods?|droughts?|landslides?|earthquakes?|cyclones?|wildfires?|tsunamis?)\b/g) || []).map(word => word.replace(/s$/, '')));
+function distinctHazards(a, b) {
+  const left = hazards(`${a.context || ''} ${a.text}`), right = hazards(`${b.context || ''} ${b.text}`);
+  // A list of several hazards is ambiguous, not evidence for rejecting a comparison.
+  return left.size === 1 && right.size === 1 && [...left][0] !== [...right][0];
 }
 
 const STOP = new Set('a an the and or of to in on for by with from at as is are was were be been this that these those its their our its which who while than into over under about more less nearly around some per cent percent'.split(' '));
@@ -55,9 +67,13 @@ const yearsOf = text => new Set(String(text).match(/\b(?:19|20)\d{2}\b/g) || [])
  * sentences about different years, a value inside the other's range, or numbers that describe different things.
  */
 export function conflictingValues(a, b) {
+  if (distinctHazards(a, b)) return null;
   // Sentences about entirely different years can rightly give different figures.
   const ya = yearsOf(a.text), yb = yearsOf(b.text);
   if (ya.size && yb.size && ![...ya].some(year => yb.has(year))) return null;
+  const times = text => new Set(String(text).match(/\b(?:[01]?\d|2[0-3]):[0-5]\d\b/g) || []);
+  const ta = times(`${a.context || ''} ${a.text}`), tb = times(`${b.context || ''} ${b.text}`);
+  if (ta.size && tb.size && ![...ta].some(time => tb.has(time))) return null;
   const differ = [];
   for (const unit of new Set(a.quantities.map(x => x.unit))) {
     const va = a.quantities.filter(x => x.unit === unit).map(x => x.value), vb = b.quantities.filter(x => x.unit === unit).map(x => x.value);

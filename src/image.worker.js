@@ -1,3 +1,4 @@
+import { inspectCropPixels } from './runtime/image-pixels.js';
 import { IMAGE_MODEL } from './engine/image-model.js';
 import { createAssetFetch } from './runtime/asset-fetch.js';
 import { screenImages, prepareImageDescriptions } from './runtime/image-screening.js';
@@ -35,6 +36,7 @@ self.onmessage = async ({ data }) => {
   const post = message => self.postMessage({ ...message, requestId: data.requestId });
   try {
     const imageScreening = await screenImages(data, {
+      inspectPixels: inspectCropPixels,
       encodeImage: async blob => { await ensure(post); return embedImage(blob); },
       encodeDescriptions: async descriptions => {
         await ensureText(post);

@@ -19,14 +19,14 @@
         "descriptionBudget": 30,
         "tradeoff": "Sorts graphics into broad types (chart, map, photo, panel, line…). It cannot read text in images, and text on top of a graphic confuses it."
       },
-      "inferencePerformed": true,
+      "inferencePerformed": false,
       "judgmentsPerformed": false,
       "items": [],
       "descriptions": [],
       "duplicates": [],
       "execution": {
         "attemptedCrops": 5,
-        "encodedCrops": 5,
+        "encodedCrops": 0,
         "descriptionCandidates": 5,
         "usableDescriptions": 0,
         "comparedDescriptions": 0,
@@ -38,45 +38,50 @@
           "kind": "description",
           "id": "panel-0",
           "page": 1,
-          "encoded": true,
+          "encoded": false,
           "usable": false,
-          "reason": "blank-panel-classification"
+          "pixelCheck": "uniform-pixels",
+          "reason": "uniform-pixels"
         },
         {
           "kind": "description",
           "id": "panel-1",
           "page": 2,
-          "encoded": true,
+          "encoded": false,
           "usable": false,
-          "reason": "blank-panel-classification"
+          "pixelCheck": "uniform-pixels",
+          "reason": "uniform-pixels"
         },
         {
           "kind": "description",
           "id": "panel-2",
           "page": 3,
-          "encoded": true,
+          "encoded": false,
           "usable": false,
-          "reason": "blank-panel-classification"
+          "pixelCheck": "uniform-pixels",
+          "reason": "uniform-pixels"
         },
         {
           "kind": "description",
           "id": "panel-3",
           "page": 4,
-          "encoded": true,
+          "encoded": false,
           "usable": false,
-          "reason": "blank-panel-classification"
+          "pixelCheck": "uniform-pixels",
+          "reason": "uniform-pixels"
         },
         {
           "kind": "description",
           "id": "panel-4",
           "page": 5,
-          "encoded": true,
+          "encoded": false,
           "usable": false,
-          "reason": "blank-panel-classification"
+          "pixelCheck": "uniform-pixels",
+          "reason": "uniform-pixels"
         }
       ],
       "descriptionInputs": [],
-      "assessedAt": "2026-10-22T18:16:32.303Z"
+      "assessedAt": "2026-10-22T20:46:05.744Z"
     },
     {
       "schemaVersion": 2,
@@ -158,6 +163,7 @@
           "page": 1,
           "encoded": true,
           "usable": true,
+          "pixelCheck": "uniform-pixels",
           "reason": null
         },
         {
@@ -166,6 +172,7 @@
           "page": 2,
           "encoded": true,
           "usable": true,
+          "pixelCheck": "uniform-pixels",
           "reason": null
         },
         {
@@ -174,6 +181,7 @@
           "page": 3,
           "encoded": true,
           "usable": true,
+          "pixelCheck": "uniform-pixels",
           "reason": null
         },
         {
@@ -182,6 +190,7 @@
           "page": 4,
           "encoded": true,
           "usable": true,
+          "pixelCheck": "uniform-pixels",
           "reason": null
         },
         {
@@ -190,6 +199,7 @@
           "page": 5,
           "encoded": true,
           "usable": true,
+          "pixelCheck": "uniform-pixels",
           "reason": null
         }
       ],
@@ -235,11 +245,11 @@
           "consumedText": "a person reading a report. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully."
         }
       ],
-      "assessedAt": "2026-10-22T18:16:39.110Z"
+      "assessedAt": "2026-10-22T20:46:20.492Z"
     }
   ],
   "observation": {
-    "observedAt": "2026-10-22T18:16:40.737Z",
+    "observedAt": "2026-10-22T20:46:22.127Z",
     "backend": "browser WASM",
     "note": "Public synthetic assets; execution and token-scope smoke test only, not photo-description accuracy."
   }

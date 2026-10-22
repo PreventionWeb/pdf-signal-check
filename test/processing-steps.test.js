@@ -4,9 +4,9 @@ import { processingSteps } from '../src/app/ProcessingPanel.jsx';
 const status = state => Object.fromEntries(processingSteps(state).map(step => [step.id, step.status]));
 
 describe('processing steps', () => {
-  it('names steps that are turned off as skipped before they would run', () => {
+  it('shows only the requested standard-analysis step even when AI preferences are saved', () => {
     expect(status({ stage: 'processing-analysis', progress: { unit: 'pages', completed: 3, total: 10 }, aiEnabled: true, selectedModel: 'minilm', imageAI: false }))
-      .toEqual({ read: 'current', 'text-model': 'waiting', text: 'waiting', 'image-model': 'skipped', image: 'skipped' });
+      .toEqual({ read: 'current' });
   });
   it('moves from getting the model ready to comparing text, then to images', () => {
     const base = { stage: 'processing-model', aiEnabled: true, selectedModel: 'minilm', imageAI: true, report: { pages: [{}, {}] } };

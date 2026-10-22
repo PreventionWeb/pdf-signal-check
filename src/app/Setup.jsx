@@ -4,6 +4,7 @@ import { Help } from '../help/Help.jsx';
 import { CalibrationPanel } from '../calibration/CalibrationPanel.jsx';
 import { createDevicePreferences, rateDevice } from '../calibration/preferences.js';
 import { Card, Button, Radio, Actions, Checkbox } from '../ui/react.jsx';
+import { screeningAvailability } from '../runtime/screening-availability.js';
 import { IMAGE_MODEL } from '../engine/image-model.js';
 import './setup.css';
 
@@ -26,8 +27,10 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
     { ...SEMANTIC_MODELS[0], purpose: 'Standard checks + English AI', note: 'Smaller download · English only', description: 'Adds English text comparisons with a compact model.', download: '23.68 MB' },
     { key: null, purpose: 'Standard checks', note: 'No model download', description: 'Checks text, tags and saved details. Skips AI text comparisons; you can add them later.' },
   ];
+  const snapshot = controller.getSnapshot();
+  const available = snapshot.report ? screeningAvailability(snapshot.report, { modelId: modelId || 'minilm', checks: snapshot.checks, languageAssumption: snapshot.languageAssumption }) : null;
   const selected = options.find(option => option.key === modelId);
-  const downloadNote = modelId ? `${selected.label}: ${selected.download} for model and tokenizer files${imageAI ? `, ${IMAGE_MODEL.label}: ${IMAGE_MODEL.download} for the image model` : ''}, plus approximately 26.86 MB of uncompressed runtime files and JavaScript. Actual transfer varies; your browser may reuse cached files.` : '';
+  const downloadNote = modelId ? `${selected.label}: ${selected.download} for model and tokenizer files${imageAI ? `, ${IMAGE_MODEL.label}: ${IMAGE_MODEL.download} for the image model plus ${IMAGE_MODEL.descriptionDownload} when photo descriptions can be compared` : ''}, plus approximately 26.86 MB of uncompressed runtime files and JavaScript. Actual transfer varies; your browser may reuse cached files.` : '';
   const speed = model => {
     const measured = model.key === modelId && receipt ? receipt : preferences.load(model.key)?.receipt;
     if (!measured) return <span><strong>{model.key === 'minilm' ? 'Good' : 'OK'}</strong><br /><small>Expected · not benchmarked</small></span>;
@@ -46,9 +49,9 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       <p>This optional test uses a synthetic PDF and fixed text. It measures this model’s speed, not accuracy or memory capacity. You can continue without testing.</p>
       <Card><CalibrationPanel ref={calibrationRef} modelId={modelId} showStartAction={!receipt} disabled={batchBusy} canRun={canCalibrate} onResult={setReceipt} onBusy={value => { setBusy(value); controller.calibrationBusy(value); }} /></Card>
       <p className="model-note">{downloadNote}</p>
-      <p>Continuing saves your choice and allows these downloads for future PDF checks. Your PDF stays on this device. AI comparisons can be wrong.</p>
+      <p>Continuing saves download permission. For this PDF, only eligible comparisons will run. Future PDFs show standard results first and wait for you to request AI. Your PDF stays on this device. AI comparisons can be wrong.</p>
       <Actions>
-        <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(modelId, { imageAI })}>{receipt ? 'Use this model and continue' : 'Continue without speed test'}</Button>
+        <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(modelId, { imageAI })}>{snapshot.report ? 'Run available AI comparisons' : receipt ? 'Use this model and continue' : 'Continue without speed test'}</Button>
         {receipt && <Button disabled={busy || batchBusy} onClick={() => calibrationRef.current?.start()}>Check again</Button>}
         <Button disabled={busy} onClick={() => setStep(1)}>Back to check options</Button>
       </Actions>
@@ -56,6 +59,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       <h2 id="setup-model-title" tabIndex={-1}>Choose your checks</h2>
       <p>Every option checks text, tags and saved document details. Optional AI also compares short passages with titles, descriptions, keywords and tagged headings. Your PDFs stay on this device.</p>
       <p>When evidence is available, AI also compares image descriptions with their captions, contents entries with headings, and statements that give numbers in different parts of the PDF. It cannot check whether those numbers are true.</p>
+      {available && <p>For this PDF: {available.text.map(item => `${item.count} ${item.label}`).join('; ') || 'no usable text pairs for this model'}; {available.graphics} graphics and {available.photos} photo descriptions before cropping. {available.missingLanguage ? 'Text comparisons need an explicit English-language decision.' : !available.languageSupported ? 'This text model does not support the declared language.' : ''}</p>}
       <fieldset className="setup-options">
         <legend className="mg-u-sr-only">Check options</legend>
         <div className="setup-option-grid">
@@ -89,12 +93,12 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       <p>{modelId ? 'Next, you can try an optional speed test or continue. At that step, you will confirm permission for the displayed downloads. You can change your choice later in Settings.' : 'Standard checks run without model downloads. Continuing saves this choice in your browser. You can add AI comparisons later in Settings.'}</p>
       <Actions>
         <Button variant="primary" disabled={batchBusy} onClick={() => modelId ? setStep(2) : controller.completeSetup(null)}>{modelId ? 'Next: optional speed test' : 'Continue with standard checks'}</Button>
-        <Button disabled={batchBusy} onClick={() => controller.cancelSetup()}>Back to PDF selection</Button>
+        <Button disabled={batchBusy} onClick={() => controller.cancelSetup()}>{snapshot.report ? 'Back to results' : 'Back to PDF selection'}</Button>
       </Actions>
     </>}
     <div className="setup-reset">
       <Button disabled={busy || batchBusy} onClick={() => { if (controller.resetSetup()) { setModelId('granite-r2'); setReceipt(null); setStep(1); setResetStatus(controller.getSnapshot().message); } }}>Reset saved setup</Button>
-      <p className="model-note">Forget model selection, download permission and saved speed tests. Your next PDF will ask you to set up again. Downloaded model files remain in the browser cache.</p>
+      <p className="model-note">Forget model selection, download permission and saved speed tests. Your next AI request will ask you to set up again. Downloaded model files remain in the browser cache.</p>
     </div>
   </div>;
 }
