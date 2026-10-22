@@ -1,0 +1,470 @@
+[
+  {
+    "id": "figure-good-exact",
+    "split": "development",
+    "field": "figure",
+    "expected": "support",
+    "baseline": "no-flag",
+    "targetId": "figure-good-exact",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "figures": [
+        {
+          "id": "figure-good-exact",
+          "alt": "Flood losses by region in 2025.",
+          "caption": "Figure 1. Flood losses by region in 2025."
+        }
+      ]
+    }
+  },
+  {
+    "id": "figure-wrong-topic",
+    "split": "development",
+    "field": "figure",
+    "expected": "mismatch",
+    "baseline": "no-flag",
+    "targetId": "figure-wrong-topic",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "figures": [
+        {
+          "id": "figure-wrong-topic",
+          "alt": "Children reading in a school classroom.",
+          "caption": "Figure 2. Coastal flood losses by region."
+        }
+      ]
+    }
+  },
+  {
+    "id": "figure-good-paraphrase",
+    "split": "development",
+    "field": "figure",
+    "expected": "support",
+    "baseline": "no-flag",
+    "targetId": "figure-good-paraphrase",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "figures": [
+        {
+          "id": "figure-good-paraphrase",
+          "alt": "Residents stack sandbags along a flooded river.",
+          "caption": "Photo 3. Community flood protection beside the river."
+        }
+      ]
+    }
+  },
+  {
+    "id": "figure-wrong-values",
+    "split": "held-out",
+    "field": "figure",
+    "expected": "mismatch",
+    "baseline": "no-flag",
+    "targetId": "figure-wrong-values",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "figures": [
+        {
+          "id": "figure-wrong-values",
+          "alt": "Coastal losses rose from 20% to 40%.",
+          "caption": "Figure 4. Coastal losses fell from 40% to 20%."
+        }
+      ]
+    }
+  },
+  {
+    "id": "figure-good-concise",
+    "split": "held-out",
+    "field": "figure",
+    "expected": "support",
+    "baseline": "no-flag",
+    "targetId": "figure-good-concise",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "figures": [
+        {
+          "id": "figure-good-concise",
+          "alt": "Volunteers shelter displaced families.",
+          "caption": "Photo 5. Emergency housing for people displaced by flooding."
+        }
+      ]
+    }
+  },
+  {
+    "id": "figure-french-good",
+    "split": "held-out",
+    "field": "figure",
+    "expected": "support",
+    "baseline": "no-flag",
+    "targetId": "figure-french-good",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "fr"
+      },
+      "figures": [
+        {
+          "id": "figure-french-good",
+          "alt": "Carte des risques d’inondation en France.",
+          "caption": "Figure 6. Zones exposées aux inondations en France."
+        }
+      ]
+    }
+  },
+  {
+    "id": "contents-good-exact",
+    "split": "development",
+    "field": "contents",
+    "expected": "support",
+    "baseline": "no-flag",
+    "targetId": "contents-good-exact",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "contents": [
+        {
+          "id": "contents-good-exact",
+          "entry": "Financing for disaster risk reduction",
+          "headings": [
+            "Financing for disaster risk reduction"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "contents-wrong-topic",
+    "split": "development",
+    "field": "contents",
+    "expected": "mismatch",
+    "baseline": "no-flag",
+    "targetId": "contents-wrong-topic",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "contents": [
+        {
+          "id": "contents-wrong-topic",
+          "entry": "Reducing coastal flood risk",
+          "headings": [
+            "Satellite navigation for aircraft"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "contents-good-paraphrase",
+    "split": "development",
+    "field": "contents",
+    "expected": "support",
+    "baseline": "no-flag",
+    "targetId": "contents-good-paraphrase",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "contents": [
+        {
+          "id": "contents-good-paraphrase",
+          "entry": "Paying for resilience",
+          "headings": [
+            "Financing disaster risk reduction"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "contents-wrong-year",
+    "split": "held-out",
+    "field": "contents",
+    "expected": "mismatch",
+    "baseline": "no-flag",
+    "targetId": "contents-wrong-year",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "contents": [
+        {
+          "id": "contents-wrong-year",
+          "entry": "Annual flood losses in 2024",
+          "headings": [
+            "Annual flood losses in 2025"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "contents-good-held",
+    "split": "held-out",
+    "field": "contents",
+    "expected": "support",
+    "baseline": "no-flag",
+    "targetId": "contents-good-held",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "contents": [
+        {
+          "id": "contents-good-held",
+          "entry": "Supporting communities after flooding",
+          "headings": [
+            "Helping people recover after floods"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "contents-french-wrong",
+    "split": "held-out",
+    "field": "contents",
+    "expected": "mismatch",
+    "baseline": "no-flag",
+    "targetId": "contents-french-wrong",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "fr"
+      },
+      "contents": [
+        {
+          "id": "contents-french-wrong",
+          "entry": "Gestion des risques d’inondation",
+          "headings": [
+            "Investissement dans les systèmes de santé"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "fact-rule-exact",
+    "split": "development",
+    "field": "fact",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "facts": [
+        {
+          "page": 1,
+          "text": "Coastal flooding affected 40 countries during the reporting period.",
+          "blockIds": [
+            0
+          ]
+        },
+        {
+          "page": 2,
+          "text": "Coastal flooding affected 50 countries during the reporting period.",
+          "blockIds": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "fact-paraphrase",
+    "split": "development",
+    "field": "fact",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "facts": [
+        {
+          "page": 1,
+          "text": "For someone born in 2025, that probability would rise to nearly nine in ten (86%).",
+          "blockIds": [
+            0
+          ]
+        },
+        {
+          "page": 2,
+          "text": "That probability rises to nearly nine in ten (89%) for someone born in 2025.",
+          "blockIds": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "fact-different-years",
+    "split": "development",
+    "field": "fact",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "facts": [
+        {
+          "page": 1,
+          "text": "In 2019, coastal flooding affected 40 countries during the reporting period.",
+          "blockIds": [
+            0
+          ]
+        },
+        {
+          "page": 2,
+          "text": "In 2023, coastal flooding affected 50 countries during the reporting period.",
+          "blockIds": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "fact-held-paraphrase",
+    "split": "held-out",
+    "field": "fact",
+    "expected": "mismatch",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "facts": [
+        {
+          "page": 1,
+          "text": "During the reporting period, coastal flooding displaced 1200 people from their homes.",
+          "blockIds": [
+            0
+          ]
+        },
+        {
+          "page": 2,
+          "text": "Coastal flooding forced 1400 people from their homes during the reporting period.",
+          "blockIds": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "fact-subset",
+    "split": "held-out",
+    "field": "fact",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "facts": [
+        {
+          "page": 1,
+          "text": "124 countries report early warning systems, 77 of which were supported.",
+          "blockIds": [
+            0
+          ]
+        },
+        {
+          "page": 2,
+          "text": "77 countries received support for early warning systems during the programme.",
+          "blockIds": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "fact-different-measures",
+    "split": "held-out",
+    "field": "fact",
+    "expected": "support",
+    "input": {
+      "checks": [
+        "title"
+      ],
+      "metadata": {
+        "language": "en"
+      },
+      "facts": [
+        {
+          "page": 1,
+          "text": "The WUI area increased by 33% while the WUI population increased by 34%.",
+          "blockIds": [
+            0
+          ]
+        },
+        {
+          "page": 2,
+          "text": "The WUI area increased by 33%, while the number of houses in the WUI grew by 40%.",
+          "blockIds": [
+            0
+          ]
+        }
+      ]
+    }
+  }
+]

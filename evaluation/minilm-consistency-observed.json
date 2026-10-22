@@ -1,0 +1,594 @@
+{
+  "schemaVersion": 2,
+  "model": {
+    "dtype": "q8",
+    "device": "wasm",
+    "normalize": true,
+    "prefix": "",
+    "dimensions": 384,
+    "calibrated": false,
+    "key": "minilm",
+    "label": "MiniLM · compact English",
+    "id": "Xenova/all-MiniLM-L6-v2",
+    "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "pooling": "mean",
+    "maxTokens": 256,
+    "language": "English",
+    "languages": [
+      "en"
+    ],
+    "graphBytes": 22972370,
+    "tokenizerBytes": 711661,
+    "tradeoff": "Smallest shipped download; English-only screening with short context.",
+    "thresholds": {
+      "titleLow": 0.35,
+      "titleHigh": 0.75,
+      "topicLow": 0.2,
+      "topicHigh": 0.45,
+      "factHigh": 0.88
+    },
+    "budget": {
+      "facts": 300,
+      "figures": 80,
+      "contents": 24,
+      "sections": 40
+    }
+  },
+  "rows": [
+    {
+      "id": "figure-good-exact",
+      "split": "development",
+      "task": "figure",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.9531792953466056,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "figure-wrong-topic",
+      "split": "development",
+      "task": "figure",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.05613133878903523,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "figure-good-paraphrase",
+      "split": "development",
+      "task": "figure",
+      "expected": "support",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.531925674745852,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "figure-wrong-values",
+      "split": "held-out",
+      "task": "figure",
+      "expected": "mismatch",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.8974392336406758,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "figure-good-concise",
+      "split": "held-out",
+      "task": "figure",
+      "expected": "support",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.4954965775276338,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "figure-french-good",
+      "split": "held-out",
+      "task": "figure",
+      "expected": "support",
+      "outcome": "unassessed",
+      "method": "unassessed",
+      "inferencePerformed": false,
+      "score": null,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 0,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "contents-good-exact",
+      "split": "development",
+      "task": "contents",
+      "expected": "support",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 1,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 1,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "contents-wrong-topic",
+      "split": "development",
+      "task": "contents",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.026902456491209578,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "contents-good-paraphrase",
+      "split": "development",
+      "task": "contents",
+      "expected": "support",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.5393086832677462,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "contents-wrong-year",
+      "split": "held-out",
+      "task": "contents",
+      "expected": "mismatch",
+      "outcome": "semantically-related",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.9525621531348426,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "contents-good-held",
+      "split": "held-out",
+      "task": "contents",
+      "expected": "support",
+      "outcome": "uncertain",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.7484081044959177,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "contents-french-wrong",
+      "split": "held-out",
+      "task": "contents",
+      "expected": "mismatch",
+      "outcome": "unassessed",
+      "method": "unassessed",
+      "inferencePerformed": false,
+      "score": null,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 0,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "fact-rule-exact",
+      "split": "development",
+      "task": "fact",
+      "expected": "mismatch",
+      "outcome": "no-flag",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": null,
+      "rulesOutcome": "suspected-mismatch",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "fact-paraphrase",
+      "split": "development",
+      "task": "fact",
+      "expected": "mismatch",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.9620630998245465,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "fact-different-years",
+      "split": "development",
+      "task": "fact",
+      "expected": "support",
+      "outcome": "no-flag",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": null,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "fact-held-paraphrase",
+      "split": "held-out",
+      "task": "fact",
+      "expected": "mismatch",
+      "outcome": "no-flag",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": null,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "fact-subset",
+      "split": "held-out",
+      "task": "fact",
+      "expected": "support",
+      "outcome": "suspected-mismatch",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": 0.9006581076633475,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    },
+    {
+      "id": "fact-different-measures",
+      "split": "held-out",
+      "task": "fact",
+      "expected": "support",
+      "outcome": "no-flag",
+      "method": "embedding-screening",
+      "inferencePerformed": true,
+      "score": null,
+      "rulesOutcome": "no-flag",
+      "embeddedTextCount": 2,
+      "truncatedInputs": 0
+    }
+  ],
+  "thresholdSensitivity": [
+    {
+      "split": "development",
+      "rows": [
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.2,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.35,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.45,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.5,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.65,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.75,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.8,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.9,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        }
+      ]
+    },
+    {
+      "split": "held-out",
+      "rows": [
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.2,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.35,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.45,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.5,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.65,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.75,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.8,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        },
+        {
+          "topicMismatchCutoff": 0.2,
+          "topicSupportCutoff": 0.9,
+          "scoredTopicCases": 0,
+          "abstentions": 0,
+          "missedMismatch": 0,
+          "falseTopicalSupport": 0,
+          "correctSupportBelowCutoff": 0
+        }
+      ]
+    }
+  ],
+  "usefulness": [
+    {
+      "split": "development",
+      "tasks": [
+        {
+          "task": "figure",
+          "cases": 3,
+          "assessed": 3,
+          "abstained": 1,
+          "concerns": 1,
+          "concernsOnUncertainInputs": 0,
+          "trueConcerns": 1,
+          "falseFlags": 0,
+          "goodInputs": 2,
+          "badInputs": 1,
+          "falseReassurance": 0,
+          "missedConcerns": 0,
+          "precision": 1,
+          "baselineCases": 3,
+          "ruleConcerns": 0,
+          "combinedTrueConcerns": 1,
+          "combinedFalseFlags": 0,
+          "additionalTrueConcerns": 1,
+          "additionalFalseFlags": 0
+        },
+        {
+          "task": "contents",
+          "cases": 3,
+          "assessed": 3,
+          "abstained": 1,
+          "concerns": 1,
+          "concernsOnUncertainInputs": 0,
+          "trueConcerns": 1,
+          "falseFlags": 0,
+          "goodInputs": 2,
+          "badInputs": 1,
+          "falseReassurance": 0,
+          "missedConcerns": 0,
+          "precision": 1,
+          "baselineCases": 3,
+          "ruleConcerns": 0,
+          "combinedTrueConcerns": 1,
+          "combinedFalseFlags": 0,
+          "additionalTrueConcerns": 1,
+          "additionalFalseFlags": 0
+        },
+        {
+          "task": "fact",
+          "cases": 3,
+          "assessed": 3,
+          "abstained": 0,
+          "concerns": 1,
+          "concernsOnUncertainInputs": 0,
+          "trueConcerns": 1,
+          "falseFlags": 0,
+          "goodInputs": 1,
+          "badInputs": 2,
+          "falseReassurance": 0,
+          "missedConcerns": 1,
+          "precision": 1,
+          "baselineCases": 3,
+          "ruleConcerns": 1,
+          "combinedTrueConcerns": 2,
+          "combinedFalseFlags": 0,
+          "additionalTrueConcerns": 1,
+          "additionalFalseFlags": 0
+        }
+      ]
+    },
+    {
+      "split": "held-out",
+      "tasks": [
+        {
+          "task": "figure",
+          "cases": 3,
+          "assessed": 2,
+          "abstained": 2,
+          "concerns": 0,
+          "concernsOnUncertainInputs": 0,
+          "trueConcerns": 0,
+          "falseFlags": 0,
+          "goodInputs": 2,
+          "badInputs": 1,
+          "falseReassurance": 1,
+          "missedConcerns": 1,
+          "precision": null,
+          "baselineCases": 3,
+          "ruleConcerns": 0,
+          "combinedTrueConcerns": 0,
+          "combinedFalseFlags": 0,
+          "additionalTrueConcerns": 0,
+          "additionalFalseFlags": 0
+        },
+        {
+          "task": "contents",
+          "cases": 3,
+          "assessed": 2,
+          "abstained": 2,
+          "concerns": 0,
+          "concernsOnUncertainInputs": 0,
+          "trueConcerns": 0,
+          "falseFlags": 0,
+          "goodInputs": 1,
+          "badInputs": 2,
+          "falseReassurance": 1,
+          "missedConcerns": 2,
+          "precision": null,
+          "baselineCases": 3,
+          "ruleConcerns": 0,
+          "combinedTrueConcerns": 0,
+          "combinedFalseFlags": 0,
+          "additionalTrueConcerns": 0,
+          "additionalFalseFlags": 0
+        },
+        {
+          "task": "fact",
+          "cases": 3,
+          "assessed": 3,
+          "abstained": 0,
+          "concerns": 1,
+          "concernsOnUncertainInputs": 0,
+          "trueConcerns": 0,
+          "falseFlags": 1,
+          "goodInputs": 2,
+          "badInputs": 1,
+          "falseReassurance": 0,
+          "missedConcerns": 1,
+          "precision": 0,
+          "baselineCases": 3,
+          "ruleConcerns": 0,
+          "combinedTrueConcerns": 0,
+          "combinedFalseFlags": 1,
+          "additionalTrueConcerns": 0,
+          "additionalFalseFlags": 1
+        }
+      ]
+    }
+  ],
+  "development": {
+    "cases": 9,
+    "knownMismatches": 4,
+    "falseIdentityMatches": 0,
+    "wrongMetadataRelated": 0,
+    "missedMismatch": 1,
+    "correctSupportRejected": 0,
+    "uncertain": 2
+  },
+  "heldOut": {
+    "cases": 9,
+    "knownMismatches": 4,
+    "falseIdentityMatches": 0,
+    "wrongMetadataRelated": 2,
+    "missedMismatch": 4,
+    "correctSupportRejected": 1,
+    "uncertain": 4
+  },
+  "note": "Small manually labeled corpus; functional comparison only, insufficient for thresholds or real-world accuracy. Synthetic cases do not establish real-report usefulness. No automatic threshold changes.",
+  "observation": {
+    "observedAt": "2026-10-22T18:13:44.949Z",
+    "backend": "browser WASM",
+    "browserHarness": "agent-browser",
+    "agentBrowserVersion": "agent-browser 0.37.1",
+    "cacheSource": "unknown",
+    "policy": "Before the explicit-subset quantity guard added after this run; these case-specific observations must not be presented as post-fix accuracy."
+  }
+}

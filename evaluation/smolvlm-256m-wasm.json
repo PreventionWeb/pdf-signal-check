@@ -1,0 +1,394 @@
+{
+  "state": "done",
+  "rows": [
+    {
+      "id": "chart-original",
+      "image": "chart",
+      "task": "read",
+      "prompt": "Read the labels and printed values in this image. Reply only with a JSON object mapping each label to its number, without units. If there are no printed values, reply {}. Do not estimate or invent values.",
+      "expected": {
+        "North": 2.8,
+        "Central": 3.1,
+        "South": 3.4
+      },
+      "output": " {\n    \"label\": \"North\",\n    \"x\": [2.8, 3.1, 3.4]\n}",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "valuesCorrect": 0,
+        "valuesExpected": 3,
+        "extraLabels": null
+      },
+      "elapsedMs": 24302.89999999106,
+      "inputTokens": 119,
+      "outputTokens": 30,
+      "hitTokenLimit": false,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "chart-permuted",
+      "image": "permuted",
+      "task": "read",
+      "prompt": "Read the labels and printed values in this image. Reply only with a JSON object mapping each label to its number, without units. If there are no printed values, reply {}. Do not estimate or invent values.",
+      "expected": {
+        "North": 3.4,
+        "Central": 2.8,
+        "South": 3.1
+      },
+      "output": " {'north': [3.4, 'm'], 'central': [2.8, 'm'], 'south': [3.1, 'm']]}",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "valuesCorrect": 0,
+        "valuesExpected": 3,
+        "extraLabels": null
+      },
+      "elapsedMs": 27200.70000000298,
+      "inputTokens": 119,
+      "outputTokens": 35,
+      "hitTokenLimit": false,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "table",
+      "image": "table",
+      "task": "read",
+      "prompt": "Read the labels and printed values in this image. Reply only with a JSON object mapping each label to its number, without units. If there are no printed values, reply {}. Do not estimate or invent values.",
+      "expected": {
+        "North": 2.8,
+        "Central": 3.1,
+        "South": 3.4
+      },
+      "output": " {\n    \"north\": {\n        \"unit\": \"2.8 m\",\n        \"unit_size\": \"3.1 m\",\n        \"unit_size_unit\": \"m\"\n    },\n    \"central\": {\n        \"unit\": \"3.1 m\",\n        \"unit_size\": \"m\"\n    },\n    \"south\": {\n        \"unit\": \"3.4 m\",\n        \"unit_size\": \"m\"\n    }\n}",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "valuesCorrect": 0,
+        "valuesExpected": 3,
+        "extraLabels": null
+      },
+      "elapsedMs": 54785.69999998808,
+      "inputTokens": 119,
+      "outputTokens": 96,
+      "hitTokenLimit": true,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "no-data",
+      "image": "panel",
+      "task": "read",
+      "prompt": "Read the labels and printed values in this image. Reply only with a JSON object mapping each label to its number, without units. If there are no printed values, reply {}. Do not estimate or invent values.",
+      "expected": {},
+      "output": " {'header_1': ['', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "valuesCorrect": 0,
+        "valuesExpected": 0,
+        "extraLabels": null
+      },
+      "elapsedMs": 55976,
+      "inputTokens": 119,
+      "outputTokens": 96,
+      "hitTokenLimit": true,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "good-description",
+      "image": "chart",
+      "task": "judge",
+      "prompt": "Does this description give the correct labels, values and main comparison in the image? Description: \"North 2.8 m, Central 3.1 m, South 3.4 m. South has the highest value.\". Reply with exactly one word: MATCH, MISMATCH, or UNCERTAIN. A description with no values is UNCERTAIN. Do not write a replacement description.",
+      "expected": "MATCH",
+      "output": " The image contains a teal-colored grid of squares, each square is a different color. The squares are arranged in a grid, with each square having a different color. The squares are evenly spaced, with no gaps between them. The squares are all the same size, and each square has a different color. The squares are all the same size, and each square has a different color. The squares are all evenly spaced, with no gaps between them.",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "falseFlag": false,
+        "falseReassurance": false
+      },
+      "elapsedMs": 56592.10000000894,
+      "inputTokens": 159,
+      "outputTokens": 93,
+      "hitTokenLimit": false,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "wrong-values",
+      "image": "chart",
+      "task": "judge",
+      "prompt": "Does this description give the correct labels, values and main comparison in the image? Description: \"North 3.4 m, Central 3.1 m, South 2.8 m. North has the highest value.\". Reply with exactly one word: MATCH, MISMATCH, or UNCERTAIN. A description with no values is UNCERTAIN. Do not write a replacement description.",
+      "expected": "MISMATCH",
+      "output": " The image contains a teal-colored grid of squares, each square is a different color. The squares are arranged in a grid, with each square having a different color. The squares are evenly spaced, with no gaps between them. The squares are all the same size, and each square has a different color. The squares are all the same size, and each square has a different color. The squares are all evenly spaced, with no gaps between them.",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "falseFlag": false,
+        "falseReassurance": false
+      },
+      "elapsedMs": 54744.29999999702,
+      "inputTokens": 159,
+      "outputTokens": 93,
+      "hitTokenLimit": false,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "vague-description",
+      "image": "chart",
+      "task": "judge",
+      "prompt": "Does this description give the correct labels, values and main comparison in the image? Description: \"A chart comparing three stations.\". Reply with exactly one word: MATCH, MISMATCH, or UNCERTAIN. A description with no values is UNCERTAIN. Do not write a replacement description.",
+      "expected": "UNCERTAIN",
+      "output": " MATCH.",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "falseFlag": false,
+        "falseReassurance": false
+      },
+      "elapsedMs": 14585.300000011921,
+      "inputTokens": 138,
+      "outputTokens": 4,
+      "hitTokenLimit": false,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "good-permuted",
+      "image": "permuted",
+      "task": "judge",
+      "prompt": "Does this description give the correct labels, values and main comparison in the image? Description: \"North 3.4 m, Central 2.8 m, South 3.1 m. North has the highest value.\". Reply with exactly one word: MATCH, MISMATCH, or UNCERTAIN. A description with no values is UNCERTAIN. Do not write a replacement description.",
+      "expected": "MATCH",
+      "output": " The image contains a spectrum of colors, each represented by a different shade of green. The colors are arranged in a grid, with each color occupying a specific position in the grid. The colors are arranged in a grid, with each color occupying a specific position in the grid. The colors are arranged in a grid, with each color occupying a specific position in the grid. The colors are arranged in a grid, with each color occupying a specific position in the grid.",
+      "score": {
+        "valid": false,
+        "correct": false,
+        "falseFlag": false,
+        "falseReassurance": false
+      },
+      "elapsedMs": 58176.29999999702,
+      "inputTokens": 159,
+      "outputTokens": 94,
+      "hitTokenLimit": false,
+      "imageSize": [
+        998,
+        400
+      ],
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    }
+  ],
+  "events": [
+    {
+      "status": "done",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/decoder_model_merged_q4.onnx"
+    },
+    {
+      "status": "done",
+      "name": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "file": "onnx/vision_encoder_quantized.onnx"
+    },
+    {
+      "case": "chart-original",
+      "stage": "generate",
+      "preprocessingMs": 59.599999994039536,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "case": "chart-permuted",
+      "stage": "generate",
+      "preprocessingMs": 25.700000002980232,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "case": "table",
+      "stage": "generate",
+      "preprocessingMs": 33.5,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "case": "no-data",
+      "stage": "generate",
+      "preprocessingMs": 21.700000002980232,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "case": "good-description",
+      "stage": "generate",
+      "preprocessingMs": 25.900000005960464,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "case": "wrong-values",
+      "stage": "generate",
+      "preprocessingMs": 50.6000000089407,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "case": "vague-description",
+      "stage": "generate",
+      "preprocessingMs": 21.200000002980232,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    },
+    {
+      "case": "good-permuted",
+      "stage": "generate",
+      "preprocessingMs": 21.400000005960464,
+      "pixelShape": [
+        1,
+        1,
+        3,
+        512,
+        512
+      ]
+    }
+  ],
+  "loadMs": 9886.699999988079,
+  "model": {
+    "id": "HuggingFaceTB/SmolVLM-256M-Instruct",
+    "revision": "7e3e67edbbed1bf9888184d9df282b700a323964",
+    "dtype": {
+      "embed_tokens": "q8",
+      "vision_encoder": "q8",
+      "decoder_model_merged": "q4"
+    },
+    "graphBytes": 209196694,
+    "tokenizerBytes": 3548256
+  },
+  "device": "wasm",
+  "imagePolicy": "512 longest edge, no splitting; processor resizes to one 512-square image",
+  "observation": {
+    "observedAt": "2026-10-22T17:59:09.056Z",
+    "browser": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 10,
+      "webgpu": true
+    },
+    "device": "wasm",
+    "transformers": "4.3.0",
+    "cacheSource": "unknown",
+    "transferBytes": null,
+    "peakMemoryBytes": null,
+    "note": "Synthetic smoke run; no real-corpus accuracy or production suitability established.",
+    "hostConditions": "Other host workloads were active; diagnostic timing only. Backend probes overlapped; these are not comparative speed benchmarks."
+  },
+  "generation": {
+    "doSample": false,
+    "maxNewTokens": 96
+  }
+}
