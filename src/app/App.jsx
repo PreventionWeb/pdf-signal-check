@@ -1,4 +1,5 @@
 import { SiteNavigation } from "./SiteNavigation.jsx";
+import { formatBytes } from "../ui/progress.js";
 import { ProcessingPanel } from "./ProcessingPanel.jsx";
 import { Capabilities } from './Capabilities.jsx';
 import { IntakeHero } from './IntakeHero.jsx';
@@ -173,7 +174,7 @@ export function App() {
                 )}
                 {state.file && state.stage !== "batch" && state.stage !== "document" && !["checks", "review", "processing-model"].includes(state.stage) && (
                   <p className="flow-file">
-                    {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
+                    {state.file.name} · {formatBytes(state.file.size)}
                   </p>
                 )}
                 {["document", "setup"].includes(state.stage) && (

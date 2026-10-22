@@ -1,4 +1,5 @@
 import { buildDocumentEvidence } from "../engine/topic-retrieval.js";
+import { formatBytes } from "../ui/progress.js";
 import { SemanticEvidenceLab } from "./SemanticEvidenceLab.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Checks } from "../app/Checks.jsx";
@@ -272,7 +273,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     <>
       {state.modelBusy && <section className="screening-wait" aria-label="PDF analysis in progress">
         <h1 id="flow-title" className="flow-title" tabIndex={-1}>Checking your PDF</h1>
-        {file && <p className="flow-file">{file.name} · {(file.size / 1e6).toFixed(2)} MB</p>}
+        {file && <p className="flow-file">{file.name} · {formatBytes(file.size)}</p>}
         <ProcessingPanel state={state} controller={controller} />
       </section>}
       <div hidden={state.modelBusy} inert={state.modelBusy || undefined}>

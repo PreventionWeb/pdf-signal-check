@@ -1,4 +1,4 @@
-import { formatProgress } from '../ui/progress.js';
+import { formatProgress, formatBytes } from '../ui/progress.js';
 import React, { useSyncExternalStore } from "react";
 import {
   Button,
@@ -61,7 +61,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
           : item.status === "failed"
             ? "Incomplete or failed"
             : item.status === "canceled" ? "cancelled" : item.status}{" "}
-        · {(item.bytes / 1e6).toFixed(2)} MB
+        · {formatBytes(item.bytes)}
       </p>
       {item.progress && item.id === queue.activeId && (
         <div>
