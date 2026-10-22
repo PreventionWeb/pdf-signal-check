@@ -229,7 +229,7 @@ export function App() {
               <p className="mg-footer-bar__text">
                 {PRODUCT_NAME}
               </p>
-              <p className="mg-footer-bar__text">Processed on your device · Early version / 0.8</p>
+              <p className="mg-footer-bar__text">Processed on your device · Early version / 0.9</p>
               <div className="mg-footer-bar__links">
                 <a href="#ai-info-dialog" id="about-ai" ref={openerRef} onClick={e => { e.preventDefault(); privacyRef.current?.open(e.currentTarget); }}>About AI &amp; privacy</a>
                 <a

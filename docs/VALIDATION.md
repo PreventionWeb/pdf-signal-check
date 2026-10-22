@@ -485,3 +485,35 @@ The existing GitHub Actions workflow validates PRs and publishes only successful
 ## Public repository and Pages activation — 8 October 2026
 
 The owner explicitly authorized public visibility, Pages setup and squash merge of PR #1. Repository visibility is now public and the Pages API accepted Actions publishing at https://preventionweb.github.io/pdf-signal-check/. The preview PIN remains 5498; no PreventionWeb redirect or custom domain was configured. This entry records configuration, not a completed live-site validation; deployment verification follows the main build.
+
+## Consistency checks, on-device AI that flags, and the inbox review — 22 October 2026 (version 0.9)
+
+PR #5. The on-device AI now flags inconsistencies (never drafts text), rules decide first, and the results screen is an inbox with an in-place PDF viewer. Tuned against 20 real public reports kept locally and never committed (`dev-corpus/`, see `docs/CONSISTENCY.md`).
+
+- **Consistency checks:** titles written differently, years, Draft labels and placeholders, figures older than the first-page date, declared vs detected language, placeholder metadata, contents vs headings, the same figure given differently, and heading tagging faults (split headings, chart labels tagged as headings).
+- **Graphics:**
+  - every graphic marked as decoration gets a rule verdict;
+  - link underlines, hairline rules and text backgrounds no longer count as unlabelled graphics (24 → 1 flagged pages on a real guidance note);
+  - optional CLIP image model, with separate consent, for graphics the rules can't place;
+  - photo descriptions checked against their pictures (English only);
+  - the same picture with different descriptions.
+- **Text AI:**
+  - headings compared across the whole document, flagging only misplaced headings;
+  - more sentences for the multilingual model;
+  - every AI-decided or AI-assisted issue says so and how;
+  - Technical details lists only comparisons that ran.
+- **Experience:**
+  - Overview, Document properties and Technical details are inbox entries;
+  - the viewer highlights each place at about 40% of the screen with an info box;
+  - hidden and untagged text is written out;
+  - word-level diffs for mismatched values;
+  - "How to fix this" drawer;
+  - scores;
+  - one centred waiting screen listing every step (done, running, waiting or skipped, with why) with progress pictures driven only by real progress, and "Skip AI checks".
+- **Fixes along the way:**
+  - a stack overflow on graphics-heavy PDFs;
+  - reading-order boxes not returning after mode switches;
+  - stale highlights;
+  - image-step labelling.
+
+Verification: `npm test` 393 tests across 55 files pass; `npm run build` passes with the existing large-chunk warning. `node scripts/corpus-review.mjs` matches all hand-labelled expectations, with and without `--ai minilm`; GAR 2025 keeps its 24 decorative-map pages and the AI's 86% vs 89% finding. Browser checks at 1400–1600 px, about 1000 px and 390 px on the samples, GAR 2025 and the harmful-information guidance note: processing steps, image and text model runs end to end, the AI notes, split-heading list and pager, tall-image info boxes, and the fix-list PDF downloaded and rendered. Not measured: the image and text models' browser timing on a mid-range laptop (Node timings only), and screen-reader testing of the new viewer. A small chart-reading model is tracked, not built, in issue #6.
