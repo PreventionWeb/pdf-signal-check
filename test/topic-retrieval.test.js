@@ -48,3 +48,83 @@ describe('uncommitted document evidence experiment', () => {
     expect(source.accepted).toBe(false);
   });
 });
+
+const largeReport = () => ({ ...report(), pages: Array.from({ length: 600 }, (_, i) => page(i + 1, `${opening} Passage ${i + 1}.`)) });
+
+describe('lexical retrieval before pool sampling', () => {
+  it('recovers later literal support omitted by the old 240-passage spread with unchanged inference budgets', async () => {
+    const source = largeReport();
+    const oldPool = buildDocumentEvidence(source.pages);
+    const omitted = source.pages.find(p => p.number > 400 && !oldPool.coverage.retainedPages.includes(p.number));
+    omitted.blocks[0].text = flood;
+    expect(selectTopicEvidence('Flood preparedness', buildDocumentEvidence(source.pages)).receipt.baseline).toBeNull();
+    const before = structuredClone(source);
+    const request = buildScreeningRequest(source, { modelId: 'minilm', checks: ['subject', 'keywords'] });
+    const selected = selectTopicEvidence(source.metadata.subject, request.documentEvidence);
+    expect(selected.receipt.baseline).toMatchObject({ page: omitted.number, blockIds: [1], keys: [`${omitted.number}:1`] });
+    expect(selected.receipt).toMatchObject({ scannedPassages: 600, retainedPassages: 240, omittedPassages: 360,
+      lexicalScanScope: 'original document passages', scannedLexicalMatches: 1, selectedLimit: 8 });
+    expect(request.documentEvidence.passages).toHaveLength(240);
+    expect(request.documentEvidence.coverage.retainedPages.at(-1)).toBe(600);
+    expect(buildScreeningRequest(source, { modelId: 'minilm', checks: ['subject', 'keywords'] })).toEqual(request);
+    const embed = vi.fn(async texts => texts.map(text => /flood|evacuations/i.test(text) ? [1, 0] : [0, 1]));
+    const result = await assessSemantic(request, embed);
+    expect(request.modelId).toBe('minilm');
+    expect(result.subject.evidence.some(e => e.page === omitted.number)).toBe(true);
+    expect(result.keywordItems[0].retrieval.baseline.page).toBe(omitted.number);
+    expect(result.subject.retrieval.selectedPassages).toBeLessThanOrEqual(8);
+    expect(result.keywordItems[0].retrieval.selectedPassages).toBeLessThanOrEqual(8);
+    expect(embed.mock.calls[0][0].length).toBeLessThanOrEqual(2 * (1 + 8));
+    expect(source).toEqual(before);
+  });
+
+  it('preserves the exact no-query spread and skips unselected, oversized and excess keyword queries', () => {
+    const source = largeReport();
+    source.metadata.keywords = Array.from({ length: 14 }, (_, i) => `term${i}`).join(';');
+    source.metadata.subject = 'x'.repeat(351);
+    const none = buildScreeningRequest(source, { modelId: 'minilm', checks: ['title'] });
+    expect(none.documentEvidence.passages).toEqual(buildDocumentEvidence(source.pages).passages);
+    expect(none.documentEvidence.lexicalQueries).toEqual([]);
+    const request = buildScreeningRequest(source, { modelId: 'minilm', checks: ['subject', 'keywords'] });
+    expect(request.documentEvidence.lexicalQueries.map(search => search.query)).toEqual(Array.from({ length: 12 }, (_, i) => `term${i}`));
+  });
+
+  it('caps per-query retention, deduplicates sources and preserves opening and diverse fallback evidence', () => {
+    const pages = Array.from({ length: 500 }, (_, i) => page(i + 1, `Flood preparedness advice ${i}. ${opening}`));
+    const built = buildDocumentEvidence(pages, { queries: ['Flood preparedness', 'preparedness', 'Flood preparedness'], maxPassages: 900, characters: 900 });
+    expect(built.passages).toHaveLength(240);
+    expect(built.lexicalQueries).toHaveLength(2);
+    expect(built.lexicalQueries.every(query => query.retainedPassageIndices.length === 4 && query.matchedPassages === 500)).toBe(true);
+    expect(new Set(built.passages.map(p => p.passageIndex)).size).toBe(240);
+    const selected = selectTopicEvidence('unmentioned', built, [{ page: 1, text: 'Opening context', blockIds: [42] }]);
+    expect(selected.evidence[0]).toMatchObject({ page: 1, text: 'Opening context', blockIds: [42] });
+    expect(selected.evidence.some(p => p.page === 500)).toBe(true);
+    expect(selected.receipt.baseline).toBeNull();
+    expect(selected.receipt.lexicalScanScope).toBe('retained pool only');
+    expect(selectTopicEvidence('Flood preparedness', built, [], { limit: 100 }).evidence.length).toBeLessThanOrEqual(8);
+    expect(selectTopicEvidence('Flood preparedness', built, [], { limit: 0 }).receipt.baseline).toBeNull();
+  });
+
+  it('enforces smaller pools, character and query bounds, ties and whitespace-only chunk accounting', () => {
+    const pages = [page(1, `${' '.repeat(1600)}Flood preparedness`.repeat(3)), page(2, flood), page(3, opening)];
+    const built = buildDocumentEvidence(pages, { maxPassages: 1, characters: 40, queries: ['Flood preparedness'] });
+    expect(built.passages).toHaveLength(1);
+    expect(built.passages[0].text.length).toBeLessThanOrEqual(40);
+    expect(built.passages[0].page).toBe(1);
+    expect(built.passages[0].blockIds).toEqual([1]);
+    expect(built.coverage.scannedPassages - built.coverage.retainedPassages).toBe(built.coverage.omittedPassages);
+    expect(buildDocumentEvidence(pages, { maxPassages: 0, characters: 0 }).passages).toEqual([]);
+    const capped = buildDocumentEvidence([page(1, flood)], { queries: [...Array.from({ length: 20 }, (_, i) => `query${i}`), 'x'.repeat(351)] });
+    expect(capped.lexicalQueries).toHaveLength(13);
+    expect(capped.coverage.omittedQueries).toBe(8);
+  });
+
+  it('keeps existing caption source references in a compatible request field without mutating them', () => {
+    const source = report();
+    source.figureDescriptions = { items: [{ id: 'figure1', alt: 'River gauge', flags: [], context: { text: 'Figure 1: River gauge', page: 12, blockIds: [7, 8], method: 'bounded-spatial-caption-v2' } }] };
+    const request = buildScreeningRequest(source, { modelId: 'minilm', checks: ['subject'] });
+    expect(request.figures[0]).toMatchObject({ caption: 'Figure 1: River gauge', captionContext: { page: 12, blockIds: [7, 8], method: 'bounded-spatial-caption-v2' } });
+    request.figures[0].captionContext.blockIds.push(9);
+    expect(source.figureDescriptions.items[0].context.blockIds).toEqual([7, 8]);
+  });
+});

@@ -1,0 +1,29 @@
+# Bounded topic evidence retrieval
+
+Implemented: request preparation now searches original extracted passages for selected saved subject/keyword queries **before** reducing the document to its retained pool. Previously, an evenly spread 240-passage sample could discard the only literal support before query retrieval ran. This is a retrieval correction only: selected models, encoder settings, thresholds, acceptance rules and inference task budgets are unchanged.
+
+## Selection and bounds
+
+- Request queries follow the semantic task limits: selected subject plus the first twelve unique, explicitly delimited keyword terms/phrases, with at most 350 characters per query. Oversized queries are skipped, not shortened into different queries. Unselected checks do not reserve lexical evidence. Semantic keyword coverage continues to account for metadata terms outside its task budget.
+- Two streaming passes over the report's existing page blocks count eligible passages/query-term frequencies, then retain lexical candidates and spread candidates. Each original passage is at most 800 characters, stays on one page, and carries original block IDs and keys plus a deterministic zero-based passage index. No second full-document text collection or semantic index is stored. Temporary retained candidates are bounded by 240 spread passages plus four for each of at most thirteen queries; the returned pool is at most 240 passages (192,000 passage characters).
+- Lexical ranking sums inverse-document-frequency weights for distinct normalized query words found in each passage. Matching uses NFKC, lowercase and Unicode letter/number tokens of at least two characters. Ties resolve by original passage order. Up to four candidates per query enter the pool first, round robin across queries; remaining places use evenly spread candidates excluding retained source passages. The final pool returns in source order. With no queries, retained passage selection matches the previous document spread.
+- Per-query comparison still selects at most eight excerpts: up to four lexical candidates, up to two opening excerpts, then diverse pool fallbacks. Exact same-page/text duplicates are removed. Original-scan lexical priorities survive pool reranking. Opening excerpts remain separate fallbacks and are bounded to 800 characters. These are character budgets; the existing selected encoder's token cap may truncate text further.
+- Explicitly smaller passage/character/selection limits are supported; callers cannot raise the production caps. Small pools can omit lexical candidates for some queries. No model download or inference is initiated by preparation.
+
+## Receipts and limits
+
+The compatible `document-evidence-v1` mode is retained; `selectionPolicy: lexical-before-spread-v2` distinguishes the new preparation. Coverage separates original nonblank `scannedPassages`, `retainedPassages`, `omittedPassages`, retained pages, character limits and query budgets. `lexicalQueries` holds only bounded supplied queries, full-scan match counts and retained source passage indices. Its omitted-query count concerns queries supplied to this builder, not all PDF metadata terms; semantic keyword coverage owns terms excluded before preparation.
+
+Each selected-query receipt distinguishes original-document lexical scanning from retained-pool-only lookup, and records scanned/retained match counts, selected lexical/passages/pages and the selection limit. Legacy evidence pools without lexical query records remain usable and explicitly describe their lexical search as retained-pool-only. A `baseline` is a selected lexical retrieval clue with source IDs and matched words; it is not a factual or AI judgment. Scanning extracted text does not mean all passages were retained, embedded or judged. Selected opening context can be outside the retained pool, so selected counts are not a partition of retained counts.
+
+No lexical match never proves mismatch. Synonyms, translations, inflections, short words, tokenization without whitespace, words split at excerpt boundaries, extraction failures and omitted candidates can hide relevant support. A common word can retrieve irrelevant material, including contradictory or quoted statements. This change does not retrieve exhaustive semantic evidence or validate metadata accuracy. Character-bounded excerpts may be further shortened by encoder token limits. Existing inference receipts remain responsible for actual consumed text and truncation.
+
+## Caption source preparation
+
+Implemented compatibly: figure request records keep their existing string `caption` and additionally copy existing caption `page`, `blockIds` and `method` into `captionContext`. This preserves source preparation identity without changing comparison text or inference workload. **Planned/unimplemented:** consuming those fields in semantic figure evidence and exposing resulting located captions; `semantic.js` was intentionally left to its owner. Request retention alone does not establish located inference output.
+
+## Verification and delivery status
+
+`test/topic-retrieval.test.js` includes a 600-passage reproducer: the old spread omits a later literal-support passage, while query-aware preparation recovers its original page/key/block IDs and subject/keyword comparison receives it. Additional tests cover deterministic/no-query selection, hard pool/query/character/selection bounds, duplicate sources, opening/diverse fallbacks, omitted scopes, source immutability and compatible caption references. Injected embeddings verify workload/policy contracts, not real model accuracy.
+
+Focused verification: `npm test -- --run test/topic-retrieval.test.js test/screening-recovery.test.js` passed (14 tests). Independent red-team review and repository-wide final checks remain with the coordinator before PR; no UI or export layout change was made in this task.
