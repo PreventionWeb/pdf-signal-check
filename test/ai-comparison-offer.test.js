@@ -13,3 +13,10 @@ it('offers recovered work without invoking a controller, and states why an empty
   expect(controller.requestAIComparisons).not.toHaveBeenCalled();
   expect(controller.openSetup).not.toHaveBeenCalled();
 });
+it('requests configuration rather than claiming runnable work when only images are eligible and image consent is off', () => {
+  const source = { ...report(), metadata: { language: 'en' }, decorative: { items: [{ kind: 'unclear', page: 1, share: 0.3, letters: 0, quad: [[0,0],[20,0],[20,20],[0,20]] }] } };
+  const html = renderToStaticMarkup(React.createElement(AIComparisonOffer, { state: { report: source, aiEnabled: true, imageAI: false, selectedModel: 'minilm', checks: ['subject'] }, controller: {} }));
+  expect(html).toContain('separate image-model consent');
+  expect(html).toContain('Choose AI comparisons');
+  expect(html).not.toContain('Run local AI comparisons');
+});

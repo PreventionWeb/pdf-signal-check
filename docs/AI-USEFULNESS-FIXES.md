@@ -11,7 +11,7 @@ Delivered:
 
 Verification:
 
-- 416 unit/contract tests and the production build passed. Tests cover genuine same-context conflicts alongside different hazards/times, wrapped and cross-column geometry, tiny nonblank pixel marks, no-input worker prevention, saved settings, language decisions, source replacement, cancellation and stale callbacks.
+- 417 unit/contract tests and the production build passed. Tests cover genuine same-context conflicts alongside different hazards/times, wrapped and cross-column geometry, tiny nonblank pixel marks, no-input worker prevention, saved settings, language decisions, source replacement, cancellation and stale callbacks.
 - Actual browser-WASM CLIP smoke: five uniform controls caused zero encoded crops and no inference; five nonuniform public illustrations completed five description comparisons with consumed-token/truncation receipts. The public synthetic execution receipt is in `evaluation/clip-execution-smoke.json`.
 - Native browser pixel inspection retained all seventeen available real photo crops from the earlier pilot, including the four formerly rejected by semantic blank classification. The earlier source-specific heading and hazard cases now prepare source-correct evidence or abstain. These are development regressions, **not fresh held-out quality evidence**. Source material and detailed outputs remain ignored/local.
 - Browser checks at `/pdf-signal-check/` exercised first-use standard results, optional setup without a download before confirmation, a completed MiniLM request, saved settings followed by a new PDF without a model worker, no-input explanation and desktop/mobile layouts. Existing source/worker contract tests cover error/cancel recovery. No export layout changed.
