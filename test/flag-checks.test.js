@@ -119,7 +119,7 @@ describe('AI-decided results', () => {
         b: { page: 9, text: 'Nine in ten (89%).', blockIds: [2] }, values: [{ unit: '%', a: 86, b: 89 }], similarity: 0.91, inferencePerformed: true }] } };
     const { buckets } = reviewSummary(data, reviewGroups(normalizeFindings(data).findings));
     expect(buckets.check.map(item => reviewPriority(item).key)).toEqual(['warning', 'ai-warning']);
-    expect(fixCard(buckets.check[1], data).title).toBe('The same figure is given differently: 86% and 89%');
+    expect(fixCard(buckets.check[1], data).title).toBe('Compare these two numbers: 86% and 89%');
   });
   it('does not repeat keywords that the rules already identified as internal codes', () => {
     const data = { analysisComplete: true, checks: [], pages: [], metadata: { keywords: 'DAF0DLt96kY' },

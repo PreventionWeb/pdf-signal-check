@@ -28,6 +28,8 @@ const guidance = {
   visibility:['Invisible extracted text can differ from content people see.','Compare extracted text with the rendered page; invisible OCR/accessibility text can be legitimate. Color, clipping and occlusion remain unverified.'],
   travel:['Links, bookmarks, saved publication details and data help people and tools find, understand and reuse a PDF. These are opportunities, separate from the required text checks.','Read the recorded evidence and the limits of each advisory. Make changes in the source document or publishing system, export again and recheck.'],
   consistency:['When a PDF names or dates itself in different ways, people and AI tools cannot tell which version is right, and may cite the wrong one.','Compare the values shown. Decide which is correct, update the others in the source document, export again and recheck.'],
+  'same-fact':['Potentially related statements can give different numbers because their population, measure, time period or scope differs. Similarity does not establish the same claim or a factual error.','Compare the population, measure, time period and scope of both statements first. If they make the same claim, check the source data and correct any error or explain the difference. Then export again.'],
+  'same-image':['Similar-image candidates may be different pictures, and identical pictures can legitimately need different descriptions in different uses. Image similarity does not establish picture identity or an inaccurate description.','Compare both pictures and how each is used first. If a description is inaccurate for that use, correct it in the source document, then export again.'],
   semantic:['Topical relatedness is evidence to inspect, not proof of identity or truth.','Compare the bounded excerpts and metadata/heading. Check token truncation, later sections, alternate wording and the provisional model policy before changing source content.'],
 };
 const target = e => {
@@ -100,7 +102,9 @@ export function normalizeFindings(report) {
   const add = ({id,category,title,outcome,method,summary,evidence=[],comparison={},source,kind='semantic',severity}) => {
     if(seen.has(id))return;seen.add(id);
     const orderGuidance = kind === 'order' ? !pages.some(page => page.logicalBlocks?.some(block => block.text?.trim())) ? guidance.orderMissing : !report.readingOrder?.findings?.length ? guidance.orderUnconfirmed : guidance.order : null;
-    const [whyItMatters,whatToInspect]=orderGuidance || guidance[kind] || (source?.checkId ? guidance.required : guidance.semantic);
+    const consistencyKind = comparison.consistency?.kind;
+    const consistencyGuidance = kind === 'consistency' && ['same-fact', 'same-image'].includes(consistencyKind) ? guidance[consistencyKind] : null;
+    const [whyItMatters,whatToInspect]=orderGuidance || consistencyGuidance || guidance[kind] || (source?.checkId ? guidance.required : guidance.semantic);
     findings.push({id,category,title,outcome,method,summary,whyItMatters,whatToInspect,comparison,evidence,targets:targets(evidence),source,...(severity?{severity}:{})});
   };
   for(const c of report.checks || []) {
