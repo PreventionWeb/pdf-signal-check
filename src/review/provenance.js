@@ -75,6 +75,7 @@ export function descriptionLanguageNote(report) {
 export function imageSkipNote(report) {
   const skipped = report.imageScreening?.skipped;
   if (!skipped) return descriptionLanguageNote(report);
+  if (Number.isInteger(skipped.availableDescriptionCrops)) return `Only ${skipped.availableDescriptionCrops} safe photo crops were available from ${skipped.descriptionCandidates} candidates. At least five are needed; the image model did not run.`;
   return `The image model had nothing to look at in this PDF: ${skipped.decorativeUnclear ? 'the decorative graphics it could judge were too text-heavy or too small' : 'no decorative graphics the rules couldn’t place'}, and ${skipped.describedImages ? `${skipped.describedImages} described image${skipped.describedImages === 1 ? '' : 's'} (it needs at least 5 well-cropped photo descriptions to compare)` : 'no photo descriptions to compare'}.${descriptionLanguageNote(report) ? ` ${descriptionLanguageNote(report)}` : ''}`;
 }
 export function checkedWith(report) {

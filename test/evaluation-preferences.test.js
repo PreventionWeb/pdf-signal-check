@@ -52,28 +52,23 @@ it('formats asset byte counts consistently while retaining non-byte progress uni
   expect(formatProgress({completed:711661,total:null,unit:'bytes'})).toBe('711.7 KB downloaded');
   expect(formatProgress({completed:2,total:3,unit:'batches'})).toBe('2 / 3 batches');
 });
-it('holds first-use PDF selection in memory until setup finishes and consumes it once', async () => {
+it('starts standard single-PDF analysis on first use without setup or model consent', async () => {
   const workerFactory=vi.fn(()=>({postMessage:vi.fn(),terminate:vi.fn()}));
   const app=createAppController({preferences:createEvaluationPreferences({storage:storage()}),workerFactory,digest:async()=>new Uint8Array([1]).buffer});
   const pdf={name:'selected.pdf',size:4,arrayBuffer:vi.fn(async()=>new Uint8Array([1,2,3,4]).buffer)};
   app.selectFiles([pdf]);
-  expect(app.getSnapshot()).toMatchObject({stage:'setup',pendingSetupLabel:'selected.pdf',file:null,analysisBusy:false});
-  expect(pdf.arrayBuffer).not.toHaveBeenCalled();
-  expect(workerFactory).not.toHaveBeenCalled();
-  app.completeSetup(null);
   await Promise.resolve(); await Promise.resolve();
-  expect(app.getSnapshot()).toMatchObject({stage:'processing-analysis',file:pdf,pendingSetupLabel:null});
+  expect(app.getSnapshot()).toMatchObject({stage:'processing-analysis',file:pdf,pendingSetupLabel:null,aiEnabled:false});
   expect(pdf.arrayBuffer).toHaveBeenCalledTimes(1);
-  app.completeSetup(null);
-  expect(pdf.arrayBuffer).toHaveBeenCalledTimes(1);
+  expect(workerFactory.mock.calls.map(args=>args[0])).toEqual(['analysis']);
   app.dispose();
 });
-it('closing first-use setup releases the pending PDF and cancels benchmarking without processing',()=>{
+it('closing first-use batch setup releases the pending PDFs and cancels benchmarking without processing',()=>{
   const workerFactory=vi.fn(),cancel=vi.fn();
   const app=createAppController({preferences:createEvaluationPreferences({storage:storage()}),workerFactory});
   app.bindServices({calibration:{cancel}});
   const pdf={name:'cancelled.pdf',arrayBuffer:vi.fn()};
-  app.selectFiles([pdf]);
+  app.selectFiles([pdf, {name:'second.pdf'}]);
   app.cancelSetup();
   app.openSetup('document');
   app.completeSetup(null);
@@ -82,11 +77,9 @@ it('closing first-use setup releases the pending PDF and cancels benchmarking wi
   expect(workerFactory).not.toHaveBeenCalled();
   expect(pdf.arrayBuffer).not.toHaveBeenCalled();
 });
-it('defers sample fetch and multi-file queue admission until the selected configuration is applied',()=>{
+it('starts samples directly while deferring multi-file queue admission until setup',()=>{
   const fetcher=vi.fn(()=>new Promise(()=>{})),app=createAppController({preferences:createEvaluationPreferences({storage:storage()}),fetcher});
   app.selectSample('./samples/well-prepared.pdf');
-  expect(fetcher).not.toHaveBeenCalled();
-  app.completeSetup(null);
   expect(fetcher).toHaveBeenCalledTimes(1);
   app.dispose();
   const batch={add:vi.fn(),setSettings:vi.fn(),setConsent:vi.fn(),releaseIdleWorkers:vi.fn()};
@@ -101,7 +94,7 @@ it('defers sample fetch and multi-file queue admission until the selected config
   expect(second.getSnapshot().stage).toBe('batch');
 });
 
-it('reset revokes saved consent and benchmarks and releases a deferred first-use PDF', () => {
+it('reset revokes saved consent and benchmarks and releases deferred first-use batch PDFs', () => {
   const preferences = createEvaluationPreferences({ storage: storage() });
   const devicePreferences = { clear: vi.fn(() => true) }, workerFactory = vi.fn();
   const app = createAppController({ preferences, devicePreferences, workerFactory });
@@ -114,8 +107,8 @@ it('reset revokes saved consent and benchmarks and releases a deferred first-use
   expect(app.getSnapshot()).toMatchObject({ setupComplete: false, aiEnabled: false, settingsSaved: false, evaluationModel: "granite-r2", languageAssumption: null, checks: ['title', 'subject', 'keywords', 'sections'] });
   expect(createAppController({ preferences }).getSnapshot().setupComplete).toBe(false);
   const pdf = { name: 'deferred.pdf', size: 4, arrayBuffer: vi.fn() };
-  app.selectFiles([pdf]);
-  expect(app.getSnapshot().pendingSetupLabel).toBe('deferred.pdf');
+  app.selectFiles([pdf, {name:'second.pdf'}]);
+  expect(app.getSnapshot().pendingSetupLabel).toBe('2 PDFs');
   app.resetSetup();
   app.completeSetup(null);
   expect(pdf.arrayBuffer).not.toHaveBeenCalled();

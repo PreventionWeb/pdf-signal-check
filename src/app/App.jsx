@@ -315,7 +315,7 @@ function Entry({ state, controller, batchBusy, onAbout, onWatch }) {
       </section>
       <Samples disabled={disabled} onChoose={path => controller.selectSample(path)} />
       <div className="intake-settings">
-        <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose your check settings when you select your first PDF."}</p>
+        <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Standard checks run first. Add optional AI comparisons from the results."}</p>
       </div>
       <Capabilities />
     </div>

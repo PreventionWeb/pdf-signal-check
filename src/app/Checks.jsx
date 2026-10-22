@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { screeningAvailability } from '../runtime/screening-availability.js';
 import { imageVerdict } from '../engine/image-model.js';
 import { imageSkipNote } from '../review/provenance.js';
 import { hasUnchangedNoInputs, needsDocumentInformation } from '../runtime/screening-recovery.js';
@@ -16,7 +17,8 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
   const missing = declared == null || !String(declared).trim();
   const language = state.languageAssumption || declared;
   const model = state.selectedModel ? getSemanticModel(state.selectedModel) : null;
-  const eligible = model && supportsLanguage(model, language);
+  const available = useMemo(() => screeningAvailability(state.report, { modelId: state.selectedModel || 'minilm', checks: state.checks, languageAssumption: state.languageAssumption }), [state.report, state.selectedModel, state.checks, state.languageAssumption]);
+  const eligible = model && supportsLanguage(model, language) && available.textAvailable;
   const busy = state.modelBusy || state.calibrationBusy || batchBusy;
   const semantic = state.report.semantic;
   const completed = semantic?.inferencePerformed;

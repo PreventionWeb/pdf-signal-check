@@ -42,7 +42,8 @@ export function processingSteps(state) {
     image: step === "image" && part === "run" ? (processingPhase(state).descriptions ? "Matching descriptions…" : count(progress.completed, progress.total, "images")) : null,
   };
   const labels = { read: "Read the PDF", "text-model": "Get the AI text model ready", text: "Compare text with AI", "image-model": "Get the image model ready", image: "Look at images with AI" };
-  return order.map((id, index) => {
+  // Standard analysis has not requested AI yet; do not promise a queued model download.
+  return (step === "read" ? ["read"] : order).map((id, index) => {
     const off = (id.startsWith("text") && !textOn) || (id.startsWith("image") && !imageOn);
     // The text comparison can end without running (language not covered, nothing to compare): say so, not "done".
     const didntRun = id.startsWith("text") && step === "image" && textOn && state.report?.semantic?.inferencePerformed !== true;

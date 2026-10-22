@@ -12,10 +12,10 @@ const report = () => ({
   accepted: true,
   analysisComplete: true,
   file: { name: "source.pdf" },
-  metadata: { language: "en" },
+  metadata: { language: "en", subject: "Flood preparedness guidance" },
   metadataConsistency: { candidates: [] },
   checks: [],
-  pages: [],
+  pages: [{ number: 1, logicalBlocks: [], blocks: [{ id: 0, text: "Flood preparedness includes monitoring water levels, preparing equipment, and training local responders to protect communities." }] }],
 });
 const file = (name = "source.pdf") => ({
   name,
@@ -65,7 +65,7 @@ it("constructs and changes preferences without fetches, workers or model downloa
 
 it("records a source-scoped English assumption, preserves the language defect, and requires a separate run", async () => {
   const { app, workers, workerFactory, fetcher } = setup();
-  const missing = { ...report(), accepted: false, metadata: { language: null }, checks: [{ id: "language", status: "fail" }] };
+  const missing = { ...report(), accepted: false, metadata: { ...report().metadata, language: null }, checks: [{ id: "language", status: "fail" }] };
   app.openCompletedReport(missing, file(), "missing-language");
   app.setLanguageAssumption("en");
   expect(workerFactory).not.toHaveBeenCalled();
@@ -283,7 +283,7 @@ it("allows retained report inspection but blocks separate analysis and screening
   app.dispose();
 });
 
-it("setup consent enables automatic model screening without silently changing the chosen model", async () => {
+it("saved setup preserves the chosen model but waits for an explicit request after standard results", async () => {
   const { app, workers, workerFactory } = setup();
   app.beginEvaluation();
   expect(app.getSnapshot().stage).toBe('setup');
@@ -291,19 +291,24 @@ it("setup consent enables automatic model screening without silently changing th
   app.completeSetup('granite-r2');
   await app.analyze(file());
   workers[0].worker.onmessage({ data: { type: 'result', report: report() } });
+  expect(workers).toHaveLength(1);
+  expect(app.getSnapshot().stage).toBe('review');
+  app.requestAIComparisons();
   expect(workers[1].kind).toBe('model');
   expect(workers[1].worker.postMessage.mock.calls[0][0]).toMatchObject({ modelId: 'granite-r2', requireInference: true });
   expect(app.getSnapshot().stage).toBe('processing-model');
   app.dispose();
 });
 
-it("automatic screening pauses for missing language and keeps the PDF defect", async () => {
+it("requested screening pauses for missing language and keeps the PDF defect", async () => {
   const { app, workers } = setup();
   app.completeSetup('minilm');
   await app.analyze(file());
-  workers[0].worker.onmessage({ data: { type: 'result', report: { ...report(), accepted: false, metadata: { language: null } } } });
+  workers[0].worker.onmessage({ data: { type: 'result', report: { ...report(), accepted: false, metadata: { ...report().metadata, language: null } } } });
   expect(workers).toHaveLength(1);
-  expect(app.getSnapshot()).toMatchObject({ stage: 'checks', selectedModel: 'minilm', languageAssumption: null, awaitingLanguageDecision: true });
+  expect(app.getSnapshot()).toMatchObject({ stage: 'review', selectedModel: 'minilm', languageAssumption: null, awaitingLanguageDecision: false });
+  app.requestAIComparisons();
+  expect(app.getSnapshot().awaitingLanguageDecision).toBe(true);
   app.dismissLanguageDecision();
   expect(app.getSnapshot().awaitingLanguageDecision).toBe(false);
   app.promptLanguageDecision();
@@ -339,7 +344,8 @@ it('clears a pending language decision while a replacement sample loads and afte
   const { app, workers } = setup({ fetcher: () => pending.promise });
   app.completeSetup('minilm');
   await app.analyze(file());
-  workers[0].worker.onmessage({ data: { type: 'result', report: { ...report(), metadata: { language: null } } } });
+  workers[0].worker.onmessage({ data: { type: 'result', report: { ...report(), metadata: { ...report().metadata, language: null } } } });
+  app.requestAIComparisons();
   expect(app.getSnapshot().awaitingLanguageDecision).toBe(true);
   const loading = app.loadSample('./samples/well-prepared.pdf');
   expect(app.getSnapshot()).toMatchObject({ report: null, awaitingLanguageDecision: false, stage: 'processing-analysis' });
@@ -349,9 +355,22 @@ it('clears a pending language decision while a replacement sample loads and afte
   expect(workers).toHaveLength(1);
   expect(app.getSnapshot()).toMatchObject({ report: null, awaitingLanguageDecision: false, stage: 'document' });
   // Cancellation also closes a decision attached to an already completed source.
-  app.openCompletedReport({ ...report(), metadata: { language: null } }, file(), 'missing');
+  app.openCompletedReport({ ...report(), metadata: { ...report().metadata, language: null } }, file(), 'missing');
   app.promptLanguageDecision();
   app.cancelAnalysis();
   expect(app.getSnapshot().awaitingLanguageDecision).toBe(false);
+  app.dispose();
+});
+
+it('does not create a worker when selected numeric evidence exists only on one page', () => {
+  const { app, workerFactory } = setup();
+  const source = report();
+  source.metadata = { language: 'en' };
+  source.pages[0].blocks = [{ id: 0, text: 'Flood monitoring supported 42 countries through the regional programme. Drought monitoring supported 56 countries through the regional programme.' }];
+  app.openCompletedReport(source, file(), 'single-page-values');
+  app.setModel('minilm'); app.runScreening();
+  expect(workerFactory).not.toHaveBeenCalled();
+  expect(app.getSnapshot().screeningAttempt.status).toBe('not-run');
+  expect(app.getSnapshot().report.accepted).toBe(true);
   app.dispose();
 });

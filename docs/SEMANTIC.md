@@ -2,26 +2,13 @@
 
 ## Default evaluation workflow
 
-The UI offers two-step setup before selecting single or multiple PDFs.
-First, an optional MiniLM baseline benchmark runs the fixed synthetic workload
-and saves its per-model receipt in browser
-local storage, and summarizes observed speed as Great (≤1.5 s), OK (≤5 s), or
-Not recommended (>5 s). These are product responsiveness bands for four fixed
-inputs, not validated hardware requirements, document timing predictions or
-accuracy grades. Hidden/interrupted runs are unrated. Saved results expire after
-30 days or browser/model configuration changes; blocked storage leaves the
-current result usable. Only synthetic timing receipts and notice preferences
-persist, never PDF content or model-download consent.
+Single PDFs and samples run deterministic checks first, without an initial model setup gate. Results contain a collapsed optional offer derived from the same bounded task preparation as the worker. It lists recovered comparisons; PDFs with none have an explanation and no download action. Saved AI preferences do not start single-PDF inference. Each PDF needs an explicit request after its standard results.
 
-The second step compares options in a feature matrix and defaults to MiniLM for English PDFs. No AI is the last option, reserved as
-a fallback when local AI cannot run.
-Continuing without AI runs deterministic checks without model downloads.
-Explicit “Use selected model and continue” consent enables the chosen model for every
-PDF in this session, including the batch default. Single-document analysis
-chains into model screening; missing/unsupported language pauses instead of
-silently substituting models. A missing declaration still permits an explicit
-English assumption. Failed, canceled or evidence-free AI runs expose partial
-text results, without claiming a completed AI evaluation.
+The offer opens model setup when download consent has not been confirmed. Model choices, supported languages, both CLIP halves and runtime costs remain visible. The optional per-model speed test uses fixed synthetic input and measures responsiveness, not accuracy, document ETA or RAM capacity. Settings and pinned-model download consent persist in browser storage; source bytes, text, language assumptions and reports do not. Speed receipts expire after 30 days or a browser/model configuration change.
+
+Confirming setup from results requests that PDF's available comparisons. A missing declared language requires a separate explicit English assumption; an unsupported language never causes a silent model substitution. Preflight rejects no-input text requests before creating a worker. Image pools that fall below five after cropping do not initialize a worker; pixel filtering also avoids description encoders when fewer than five usable crops remain. Failures and cancellation retain earlier completed results and source/attempt guards.
+
+Batch checks retain their explicit setup, queue consent and sequential processing flow. This is distinct from the single-PDF results-first offer.
 
 In this workflow, `requireInference` requests title relatedness even when title
 identity rules already settled the title. That separate `titleAI` advisory
@@ -45,7 +32,7 @@ App 0.4 offers explicit model and check selection before inference. Changing a s
 
 Sizes are decimal bytes from pinned Hugging Face model-tree artifacts, excluding runtime/configuration assets, and are not RAM estimates. Transformers.js and the approximately 26.86 MB uncompressed WASM runtime add cost. Browser caching is implementation-dependent. Performance must be measured on the user's hardware; model size alone is not a latency benchmark.
 
-The registry is [models.js](../src/engine/models.js). MiniLM has explicit English coverage. Granite enables the 52 enhanced-support languages named by IBM, including German; Norwegian `nb`/`nn` variants map to its `no` coverage. IBM's wider 200+ language pretraining is not treated as a tested blanket capability. Missing, invalid, or out-of-coverage language declarations prevent model inference while deterministic title rules still operate. For a missing declaration only, single-document review offers an explicit English assumption for optional screening. Choosing it makes no downloads; a separate run action authorizes assets. It cannot override an existing declaration, changes neither PDF metadata nor profile acceptance, and resets on source changes. The result records `languageContext` with the original declaration, screening language and `user-assumption` source; review and PDF/PNG/JSON receipts retain that distinction. Batch defaults continue to require a supported declaration. This is a declaration/assumption guard, not language detection or proof the content uses that language.
+The registry is [models.js](../src/engine/models.js). MiniLM has explicit English coverage. Granite enables the 52 enhanced-support languages named by IBM, including German; Norwegian `nb`/`nn` variants map to its `no` coverage. IBM's wider 200+ language pretraining is not treated as a tested blanket capability. Missing, invalid, or out-of-coverage language declarations prevent model inference while deterministic title rules still operate. For a missing declaration only, single-document review offers an explicit English assumption for optional screening. The language dialog follows an explicit AI request and repeats download costs; confirming English can start the requested comparisons. Changing only the stored in-session assumption does not start work. It cannot override an existing declaration, changes neither PDF metadata nor profile acceptance, and resets on source changes. The result records `languageContext` with the original declaration, screening language and `user-assumption` source; review and PDF/PNG/JSON receipts retain that distinction. Batch defaults continue to require a supported declaration. This is a declaration/assumption guard, not language detection or proof the content uses that language.
 
 Primary references: [MiniLM browser export](https://huggingface.co/Xenova/all-MiniLM-L6-v2), [original MiniLM](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), [IBM Granite card and unprefixed examples](https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2), [Granite pooling configuration](https://huggingface.co/ibm-granite/granite-embedding-97m-multilingual-r2/blob/main/1_Pooling/config.json), [Granite browser export](https://huggingface.co/onnx-community/granite-embedding-97m-multilingual-r2-ONNX), [Transformers.js feature-extraction implementation](https://github.com/huggingface/transformers.js/blob/main/packages/transformers/src/pipelines/feature-extraction.js).
 
@@ -64,7 +51,7 @@ Author/byline identity, numbered-step order and text visibility remain determini
 
 ## Bounds, provenance and uncertainty
 
-Metadata queries are at most 350 characters; credible titles at most 200 characters/25 words. Opening evidence uses pages 1–2, at most 100 blocks, six excerpts of at most 800 characters, requiring 80 characters. Heading bodies are independently capped at 800 characters; automatic grouping examines only the first three pages and 200 logical blocks per page. Transformer batches contain at most four texts, limiting padding and attention cost.
+Metadata queries are at most 350 characters; credible titles at most 200 characters/25 words. Opening evidence uses pages 1–2, at most 100 blocks, six excerpts of at most 800 characters, requiring 80 characters. Heading bodies are independently capped at 800 characters; automatic grouping examines the document with at most 400 logical blocks per page, then uses the selected model’s spread section budget (MiniLM 40, Granite 20). Transformer batches contain at most four texts, limiting padding and attention cost.
 
 The worker explicitly tokenizes with truncation and the selected 256/512-token cap. Every embedded input exports input token count, consumed token count, truncation flag and decoded consumed text. Query and evidence results reference this provenance. Decoded consumed text normalizes tokenizer spacing and excludes special tokens; it is not a byte-exact substring or character-offset guarantee. Original evidence and token-consumption limits remain inspectable separately.
 
@@ -95,3 +82,9 @@ The worker caches one loaded encoder. Same-model runs reuse it; switching models
 ## Resource and policy measurements
 
 App 0.6 shares the pinned embedding runner between semantic screening, an explicit fixed-synthetic browser benchmark and the developer evaluation harness. The benchmark never consumes uploaded PDF content, measures combined load/initialization separately from warm computation, leaves RAM unknown and makes no document ETA/device certification claim. The runner validates each batch before publishing completion. See [semantic evaluation](EVALUATION.md) for separate development/held-out policy outcomes; benchmark timing cannot calibrate semantic thresholds.
+
+## Evidence-context safeguards — 22 October 2026
+
+Numeric statements retain bounded tagged-heading context and, when it shares the same physical paragraph block, the preceding sentence. Sentences spanning conflicting tagged heading owners are excluded. The measured sentence is embedded first, followed by up to 480 characters of source context; token receipts still expose truncation. Recorded numeric concerns retain context alongside the exact original sentence. Distinct single-hazard contexts and disjoint explicit observation times abstain from a conflict; these English heuristics do not establish measurement identity. Genuine same-context conflicting values remain eligible.
+
+A short paragraph line immediately preceding a connector-led heading fragment can supply context only when safe physical boxes prove close, aligned, same-size lines. Unrecovered connector fragments are not standalone AI headings. Safely located text in a disjoint column is not attached as that heading's body. Original tags, structure rules and acceptance are unchanged. Other title-candidate ownership and role ambiguities remain possible; topical similarity cannot validate roles or facts.

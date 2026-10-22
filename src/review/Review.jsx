@@ -2,6 +2,7 @@ import { buildDocumentEvidence } from "../engine/topic-retrieval.js";
 import { formatBytes } from "../ui/progress.js";
 import { SemanticEvidenceLab } from "./SemanticEvidenceLab.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AIComparisonOffer } from "../app/AIComparisonOffer.jsx";
 import { Checks } from "../app/Checks.jsx";
 import { ProcessingPanel } from "../app/ProcessingPanel.jsx";
 import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, reviewLimitText, STANDING_LIMITS, reviewGroups, fixCard, fixBucket } from "./workspace.js";
@@ -232,7 +233,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       exports={<ExportMenu ref={exportRef} getState={() => ({ report: controller.getSnapshot().report, file: controller.getSnapshot().file })} sourceKey={state.sourceKey} disabled={state.modelBusy} secondary compact />}
       titleId={state.modelBusy ? undefined : "flow-title"} />
     <ScoreGauges scores={scores} />
-    {!state.modelBusy && ((state.aiEnabled && !report.semantic?.inferencePerformed) || ["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
+    <AIComparisonOffer state={state} controller={controller} />
+    {!state.modelBusy && (["error", "not-run", "canceled"].includes(state.screeningAttempt?.status)) &&
       <Checks state={state} controller={controller} batchBusy={state.batchBusy} coverage={groups.coverage} showSettings={false} />}
   </>;
   const pagesView = () => <PagePins entries={pinEntries} unknown={buckets.unknown} travel={buckets.travel} tips={buckets.tip} travelIntro={BUCKETS.travel.intro} limits={[...buckets.limits.map(reviewLimitText), ...STANDING_LIMITS]} report={report} file={file}
