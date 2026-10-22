@@ -55,6 +55,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
     </> : <>
       <h2 id="setup-model-title" tabIndex={-1}>Choose your checks</h2>
       <p>Every option checks text, tags and saved document details. Optional AI also compares short passages with titles, descriptions, keywords and tagged headings. Your PDFs stay on this device.</p>
+      <p>When evidence is available, AI also compares image descriptions with their captions, contents entries with headings, and statements that give numbers in different parts of the PDF. It cannot check whether those numbers are true.</p>
       <fieldset className="setup-options">
         <legend className="mg-u-sr-only">Check options</legend>
         <div className="setup-option-grid">

@@ -51,13 +51,12 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
     <p className="model-note">Skipping shows the standard results now, with any earlier AI results.</p>
     {state.message && state.progress?.stage !== 'inference' && <p className="model-note">{state.message}</p>}
   </Notice>;
-  // Missing document information no longer hides results: the title Fix item leads, and AI comparisons explain why they could not run.
-  if (showStatus && needsDocumentInformation(state.report)) return <Notice headingLevel="h2" variant="info" title="AI comparisons need a saved title, description or keywords">
-    <p>No title, description or keywords are saved in this PDF’s document properties, so there was nothing for the AI to compare with the text. All the other checks ran, and their results are below.</p>
-    <DocumentProperties metadata={state.report.metadata} />
-    <MetadataGuidance headingLevel="h3" />
-  </Notice>;
   return <section className="check-coverage" aria-label="Check coverage">
+    {showStatus && needsDocumentInformation(state.report) && <Notice headingLevel="h2" variant="info" title="Some saved document details are missing">
+      <p>This PDF has no saved title, description or keywords for AI to compare with its text. Other eligible AI comparisons can still run; their coverage is recorded below.</p>
+      <DocumentProperties metadata={state.report.metadata} />
+      <MetadataGuidance headingLevel="h3" />
+    </Notice>}
     {showStatus && noInputs && <Notice headingLevel="h3" variant="warning" title={metadataHelp ? 'Add document information before running AI checks' : 'AI needs usable text to compare'}>
       <p>This PDF does not provide the information needed for the selected AI comparisons. Running those checks again on the same file will not help.</p>
       <ul>{reasons.map(item => <li key={item.check}><strong>{choices.find(([key]) => key === item.check)?.[1] || item.check}:</strong> {plainReason(item)}</li>)}</ul>
@@ -81,6 +80,7 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
     </Notice>}
     {showSettings && <section aria-label="AI coverage">
       <h3>AI coverage</h3>
+      <p>Caption, contents and repeated-number comparisons accompany any selected AI text check when evidence is available. Clearing all text checks also turns off these comparisons.</p>
       <ul>
         <li>Selected model: {model?.label || 'No AI model selected for new checks'}. Completed AI checks are recorded above.</li>
         {coverage.map(f => <li key={f.id}><strong>{f.title}:</strong> {f.summary}</li>)}
@@ -89,18 +89,21 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
           const items = state.report.imageScreening.items || [], count = verdict => items.filter(item => imageVerdict(item, state.report.decorative?.items?.[item.index]) === verdict).length;
           const described = state.report.imageScreening.descriptions || [];
           return [`${state.report.imageScreening.model?.label || 'The image model'} looked at`,
+            state.report.imageScreening.execution ? `${state.report.imageScreening.execution.encodedCrops} crops; ${state.report.imageScreening.execution.usableDescriptions} usable photo crops, ${state.report.imageScreening.execution.comparedDescriptions} descriptions compared${state.report.imageScreening.execution.descriptionSkipReason ? ' (at least 5 usable photo crops are needed for comparison)' : ''};` : null,
             items.length ? `${items.length} graphic${items.length === 1 ? '' : 's'} marked as decoration (${count('content')} look like content, ${count('decoration')} like decoration, ${count('unclear')} unclear)` : null,
             described.length ? `${items.length ? 'and ' : ''}${described.length} photo description${described.length === 1 ? '' : 's'} against ${described.length === 1 ? 'its picture' : 'their pictures'} (${described.filter(item => item.mismatch).length} may not match)` : null,
           ].filter(Boolean).join(' ') + '.';
         })()}</li>}
+        {state.report.imageScreening?.descriptionInputs?.some(input => input.truncated) && <li><strong>Photo description scope:</strong> {state.report.imageScreening.descriptionInputs.filter(input => input.truncated).length} descriptions were shortened to the image model’s token limit. The detailed JSON records the text actually compared.</li>}
         {semantic?.inferencePerformed && <li><strong>Consistency comparisons:</strong> {[
           semantic.factCoverage && `${semantic.factCoverage.compared} of ${semantic.factCoverage.candidates} sentences stating a figure compared (${(semantic.factPairs || []).length} pair${(semantic.factPairs || []).length === 1 ? '' : 's'} with different numbers)`,
           // Only comparisons that actually ran: most PDFs have no captioned descriptions or unmatched contents entries.
           semantic.sectionCoverage?.evaluatedPairs > 0 && `${semantic.sectionCoverage.evaluatedPairs} of ${semantic.sectionCoverage.suppliedPairs} headings compared with the text under them`,
-          (semantic.figureItems || []).length > 0 && `${semantic.figureItems.length} image description${semantic.figureItems.length === 1 ? '' : 's'} compared with ${semantic.figureItems.length === 1 ? 'its caption' : 'their captions'}`,
-          (semantic.contentItems || []).length > 0 && `${semantic.contentItems.length} contents entr${semantic.contentItems.length === 1 ? 'y' : 'ies'} compared with headings`,
+          semantic.figureCoverage ? semantic.figureCoverage.candidates > 0 && `${semantic.figureCoverage.evaluated} of ${semantic.figureCoverage.candidates} eligible image descriptions compared with captions` : (semantic.figureItems || []).length > 0 && `${semantic.figureItems.length} image descriptions compared with captions`,
+          semantic.contentCoverage ? semantic.contentCoverage.candidates > 0 && `${semantic.contentCoverage.evaluated} of ${semantic.contentCoverage.candidates} eligible contents entries compared with headings` : (semantic.contentItems || []).length > 0 && `${semantic.contentItems.length} contents entries compared with headings`,
           (semantic.nameItems || []).length > 0 && `${semantic.nameItems.length} differently worded title${semantic.nameItems.length === 1 ? '' : 's'} compared`,
         ].filter(Boolean).join('; ')}.</li>}
+        {(state.report.figureDescriptions?.items || []).some(item => item.contextStatus && item.contextStatus !== 'paired') && <li><strong>Caption scope:</strong> {(state.report.figureDescriptions.items || []).filter(item => item.contextStatus && item.contextStatus !== 'paired').length} image descriptions had no safely associated caption and were excluded from caption comparison.</li>}
         <li>Text the AI did not check is a limit of this evaluation, not evidence of a PDF problem.</li>
         <li>AI compares how closely texts relate. It does not verify facts or the meaning of images.</li>
       </ul>

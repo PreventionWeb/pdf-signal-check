@@ -1,0 +1,246 @@
+{
+  "state": "done",
+  "results": [
+    {
+      "schemaVersion": 2,
+      "model": {
+        "key": "clip",
+        "label": "CLIP · image types",
+        "id": "Xenova/clip-vit-base-patch32",
+        "revision": "d15189d7028b43f1d3e65039190477f6af591c2a",
+        "dtype": "q8",
+        "device": "wasm",
+        "dimensions": 512,
+        "graphBytes": 89117001,
+        "textBytes": 64504507,
+        "download": "89.12 MB",
+        "descriptionDownload": "64.50 MB",
+        "budget": 40,
+        "descriptionBudget": 30,
+        "tradeoff": "Sorts graphics into broad types (chart, map, photo, panel, line…). It cannot read text in images, and text on top of a graphic confuses it."
+      },
+      "inferencePerformed": true,
+      "judgmentsPerformed": false,
+      "items": [],
+      "descriptions": [],
+      "duplicates": [],
+      "execution": {
+        "attemptedCrops": 5,
+        "encodedCrops": 5,
+        "descriptionCandidates": 5,
+        "usableDescriptions": 0,
+        "comparedDescriptions": 0,
+        "textInputs": 0,
+        "descriptionSkipReason": "not-enough-usable-descriptions"
+      },
+      "crops": [
+        {
+          "kind": "description",
+          "id": "panel-0",
+          "page": 1,
+          "encoded": true,
+          "usable": false,
+          "reason": "blank-panel-classification"
+        },
+        {
+          "kind": "description",
+          "id": "panel-1",
+          "page": 2,
+          "encoded": true,
+          "usable": false,
+          "reason": "blank-panel-classification"
+        },
+        {
+          "kind": "description",
+          "id": "panel-2",
+          "page": 3,
+          "encoded": true,
+          "usable": false,
+          "reason": "blank-panel-classification"
+        },
+        {
+          "kind": "description",
+          "id": "panel-3",
+          "page": 4,
+          "encoded": true,
+          "usable": false,
+          "reason": "blank-panel-classification"
+        },
+        {
+          "kind": "description",
+          "id": "panel-4",
+          "page": 5,
+          "encoded": true,
+          "usable": false,
+          "reason": "blank-panel-classification"
+        }
+      ],
+      "descriptionInputs": [],
+      "assessedAt": "2026-10-22T18:16:32.303Z"
+    },
+    {
+      "schemaVersion": 2,
+      "model": {
+        "key": "clip",
+        "label": "CLIP · image types",
+        "id": "Xenova/clip-vit-base-patch32",
+        "revision": "d15189d7028b43f1d3e65039190477f6af591c2a",
+        "dtype": "q8",
+        "device": "wasm",
+        "dimensions": 512,
+        "graphBytes": 89117001,
+        "textBytes": 64504507,
+        "download": "89.12 MB",
+        "descriptionDownload": "64.50 MB",
+        "budget": 40,
+        "descriptionBudget": 30,
+        "tradeoff": "Sorts graphics into broad types (chart, map, photo, panel, line…). It cannot read text in images, and text on top of a graphic confuses it."
+      },
+      "inferencePerformed": true,
+      "judgmentsPerformed": true,
+      "items": [],
+      "descriptions": [
+        {
+          "id": "reader-0",
+          "page": 1,
+          "rank": 1,
+          "of": 5,
+          "similarity": 0.224,
+          "mismatch": false
+        },
+        {
+          "id": "reader-1",
+          "page": 2,
+          "rank": 1,
+          "of": 5,
+          "similarity": 0.224,
+          "mismatch": false
+        },
+        {
+          "id": "reader-2",
+          "page": 3,
+          "rank": 1,
+          "of": 5,
+          "similarity": 0.224,
+          "mismatch": false
+        },
+        {
+          "id": "reader-3",
+          "page": 4,
+          "rank": 1,
+          "of": 5,
+          "similarity": 0.224,
+          "mismatch": false
+        },
+        {
+          "id": "reader-4",
+          "page": 5,
+          "rank": 1,
+          "of": 5,
+          "similarity": 0.224,
+          "mismatch": false
+        }
+      ],
+      "duplicates": [],
+      "execution": {
+        "attemptedCrops": 5,
+        "encodedCrops": 5,
+        "descriptionCandidates": 5,
+        "usableDescriptions": 5,
+        "comparedDescriptions": 5,
+        "textInputs": 5,
+        "descriptionSkipReason": null
+      },
+      "crops": [
+        {
+          "kind": "description",
+          "id": "reader-0",
+          "page": 1,
+          "encoded": true,
+          "usable": true,
+          "reason": null
+        },
+        {
+          "kind": "description",
+          "id": "reader-1",
+          "page": 2,
+          "encoded": true,
+          "usable": true,
+          "reason": null
+        },
+        {
+          "kind": "description",
+          "id": "reader-2",
+          "page": 3,
+          "encoded": true,
+          "usable": true,
+          "reason": null
+        },
+        {
+          "kind": "description",
+          "id": "reader-3",
+          "page": 4,
+          "encoded": true,
+          "usable": true,
+          "reason": null
+        },
+        {
+          "kind": "description",
+          "id": "reader-4",
+          "page": 5,
+          "encoded": true,
+          "usable": true,
+          "reason": null
+        }
+      ],
+      "descriptionInputs": [
+        {
+          "id": "reader-0",
+          "page": 1,
+          "inputTokens": 288,
+          "consumedTokens": 77,
+          "truncated": true,
+          "consumedText": "a person reading a report. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully."
+        },
+        {
+          "id": "reader-1",
+          "page": 2,
+          "inputTokens": 288,
+          "consumedTokens": 77,
+          "truncated": true,
+          "consumedText": "a person reading a report. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully."
+        },
+        {
+          "id": "reader-2",
+          "page": 3,
+          "inputTokens": 288,
+          "consumedTokens": 77,
+          "truncated": true,
+          "consumedText": "a person reading a report. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully."
+        },
+        {
+          "id": "reader-3",
+          "page": 4,
+          "inputTokens": 288,
+          "consumedTokens": 77,
+          "truncated": true,
+          "consumedText": "a person reading a report. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully."
+        },
+        {
+          "id": "reader-4",
+          "page": 5,
+          "inputTokens": 288,
+          "consumedTokens": 77,
+          "truncated": true,
+          "consumedText": "a person reading a report. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully. the reader studies the publication carefully."
+        }
+      ],
+      "assessedAt": "2026-10-22T18:16:39.110Z"
+    }
+  ],
+  "observation": {
+    "observedAt": "2026-10-22T18:16:40.737Z",
+    "backend": "browser WASM",
+    "note": "Public synthetic assets; execution and token-scope smoke test only, not photo-description accuracy."
+  }
+}
