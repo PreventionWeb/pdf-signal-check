@@ -172,6 +172,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       {ai && <p className={`fix-ai-note ${ai.decided ? "is-decided" : ""}`}><span className="fix-ai-tag">AI</span>{ai.decided ? " Flagged with on-device AI. " : " "}{ai.text}</p>}
       {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
       {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} places={places} index={placeIndex} onGo={index => inspect(places[index])} />
+        : /^(heading-|same-image)/.test(finding.comparison?.consistency?.kind || "") && places.length ? <PlaceTextList places={places} index={placeIndex} onGo={index => inspect(places[index])}
+            label={{ "heading-split": "Headings split in two", "heading-label": "Labels tagged as headings", "same-image": "The two descriptions" }[finding.comparison.consistency.kind]} />
         : finding.source?.path?.startsWith("consistency.") || finding.consistencyGroup ? <ConsistencyDetail finding={finding} file={file} report={report} onInspect={inspect} />
         : finding.members ? <section aria-label="Headings" className="heading-review-list">
           {finding.members.map(member => <section key={member.id} className="heading-review-pair">

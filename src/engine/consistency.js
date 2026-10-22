@@ -1,3 +1,4 @@
+import { inspectHeadings } from './headings.js';
 import { normalizeTitle, publicationCandidates } from './titles.js';
 import { inspectContents } from './contents.js';
 import { factCandidates, identicalWordingPairs } from './facts.js';
@@ -302,7 +303,7 @@ function sameFactRules(report) {
 export function inspectConsistency(report, limits = CONSISTENCY_LIMITS) {
   const names = nameConsistency(report, limits);
   const items = [...names.items, ...dateConsistency(report, names.running, limits), ...languageConsistency(report, limits), ...titleScript(report, limits),
-    ...placeholderMetadata(report), ...decorativeContent(report, limits), ...inspectContents(report).items, ...sameFactRules(report)];
+    ...placeholderMetadata(report), ...decorativeContent(report, limits), ...inspectContents(report).items, ...sameFactRules(report), ...inspectHeadings(report)];
   return { status: items.some(item => item.severity === 'concern') ? 'requires-review' : items.length ? 'minor' : 'consistent',
     method: 'consistency-rules-v1', names: { cover: names.cover, saved: names.saved, running: names.running },
     // What the body text reads as (rules, not AI), so the review can show it beside the declared language.

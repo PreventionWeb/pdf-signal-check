@@ -653,6 +653,21 @@ function consistencyTask(finding) {
   }
   const value = item.value ? `“${quote(item.value)}”` : '';
   switch (item.kind) {
+    case 'heading-split': {
+      const first = item.pairs[0];
+      return task(`Headings split across two tags (${item.total})`,
+        `${item.total === 1 ? 'A heading is' : `${item.total} headings are`} tagged as two separate headings, for example “${quote(first.a)}” and “${quote(first.b)}” on page ${first.page}. Screen readers announce them as two headings, and AI tools may read them as two topics.`,
+        'In the source document, put each heading in a single heading paragraph (use a line break, not a new paragraph, to wrap it). Then export again.',
+        'People who use screen readers often move through a document by its headings. A heading split in two reads as two half-headings.');
+    }
+    case 'same-image': return task('The same picture has different descriptions',
+      `The picture on page ${item.a.page} and the one on page ${item.b.page} look the same, but one is described as “${quote(item.a.alt)}” and the other as “${quote(item.b.alt)}”.`,
+      'If it is the same picture, give it the same description in both places (or describe what differs). Then export again.',
+      'People who can’t see the picture rely on its description. Two descriptions for one picture suggest at least one is out of date or wrong.');
+    case 'heading-label': return task(`Chart or diagram labels tagged as headings (${item.total})`,
+      `On ${item.pages.length === 1 ? 'page' : 'pages'} ${pageList(item.pages.map(page => page.page))}, small labels such as ${listed(item.pages[0].texts.slice(0, 3).map(text => `“${quote(text)}”`))} are tagged as headings.`,
+      'Tag these labels as part of their chart or diagram (or as normal text), not as headings. Then export again.',
+      'The heading list is how many people find their way around a document. Labels from charts crowd it with entries that lead nowhere.');
     case 'draft': return task(`Still marked “${item.label}”`,
       `${item.pages[0] === 1 ? 'The first page says' : `Page headers on ${pageList(item.pages)} say`} “${quote(item.text || item.label)}”. If this is the published version, the label is out of date.`,
       'Remove the draft label from the cover, headers and footers in the source document, then export again.',

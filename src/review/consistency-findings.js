@@ -23,7 +23,7 @@ const nameEvidence = name => name.role === 'cover' ? name.blockIds?.length || na
 const TITLES = { 'contents-page': item => `Contents: ${item.entry.text}`, 'contents-conflict': item => `Contents: ${item.entry.text}`,
   'contents-wording': item => `Contents: ${item.entry.text}`, 'same-fact': () => 'Same figure given differently', decorative: item => `Page ${item.page}: graphic marked as decoration`, draft: () => 'Draft label', leftovers: () => 'Leftover placeholder text',
   stale: () => 'Figures older than the first-page date', language: () => 'Declared language', 'title-language': () => 'Saved title language',
-  title: () => 'Placeholder saved title', keywords: () => 'Keywords with internal codes', 'subject-link': () => 'Description is only a link' };
+  title: () => 'Placeholder saved title', 'heading-split': () => 'Headings split across two tags', 'heading-label': () => 'Chart labels tagged as headings', keywords: () => 'Keywords with internal codes', 'subject-link': () => 'Description is only a link' };
 export function addConsistencyFindings(report, add) {
   const consistency = report.consistency;
   if (!consistency?.items) return;
@@ -52,6 +52,8 @@ export function addConsistencyFindings(report, add) {
     const evidence = item.kind === 'contents-page' || item.kind === 'contents-conflict' ? [{ page: item.entry.contentsPage, blockIds: item.entry.blockIds, text: item.entry.text },
         ...(item.other ? [{ page: item.other.contentsPage, blockIds: item.other.blockIds, text: item.other.text }] : [])]
       : item.kind === 'same-fact' ? [sentenceEvidence(item.a), sentenceEvidence(item.b)]
+      : item.kind === 'heading-split' ? item.pairs.map(pair => ({ page: pair.page, blockIds: pair.blockIds, text: `${pair.a} / ${pair.b}` }))
+      : item.kind === 'heading-label' ? item.pages.map(page => ({ page: page.page, blockIds: page.blockIds, text: page.texts.join(' · ') }))
       : item.kind === 'decorative' ? [{ page: item.page, quads: item.quads, text: 'Graphic marked as decoration' }, ...item.captions, ...(item.source ? [item.source] : [])]
       : item.evidence ? item.evidence.map(entry => ({ ...entry }))
         : item.kind === 'draft' ? item.blockIds?.length ? [{ page: item.pages[0], blockIds: item.blockIds, text: item.text || item.label }] : [`“${item.label}” on page ${item.pages.slice(0, 5).join(', ')}`]
@@ -71,6 +73,18 @@ export function addConsistencyFindings(report, add) {
       add({ id: `consistency:${item.id}`, source: { path: `consistency.${item.id}` }, kind: 'consistency', outcome: 'suspected-mismatch', method: 'image-screening',
         title: TITLES.decorative(item), category: 'advisory-concern', severity: 'concern', summary: '',
         evidence: [{ page, quads: item.quads, text: 'Graphic marked as decoration' }, ...results.map(result => `Image model: ${result.label} (chart, map, photo, diagram or table ${Math.round(result.contentScore * 100)}%)`)],
+        comparison: { consistency: item, ai: { inferencePerformed: true, model: images.model } } });
+    }
+  }
+  // The same picture saved twice with different descriptions (the image model's fingerprints of the two are nearly identical).
+  if (images?.inferencePerformed === true) {
+    const figures = new Map((report.figureAlternatives?.items || []).map(figure => [figure.id, figure]));
+    for (const pair of images.duplicates || []) {
+      const place = side => ({ page: side.page, quads: figures.get(side.id)?.quads || [], text: side.alt });
+      const item = { id: `same-image:${pair.a.id}:${pair.b.id}`, kind: 'same-image', severity: 'minor', ...pair };
+      add({ id: `consistency:${item.id}`, source: { path: `consistency.${item.id}` }, kind: 'consistency', outcome: 'suspected-mismatch', method: 'image-screening',
+        title: 'The same picture has different descriptions', category: 'advisory-concern', severity: 'minor', summary: '',
+        evidence: [place(pair.a), place(pair.b), `Image model: the two pictures are ${Math.round(pair.similarity * 100)}% alike`],
         comparison: { consistency: item, ai: { inferencePerformed: true, model: images.model } } });
     }
   }

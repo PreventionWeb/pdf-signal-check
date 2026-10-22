@@ -30,6 +30,8 @@ function people(report) {
     { id: 'text', label: 'Text can be read correctly', weight: 8, score: required(report, 'text') },
     { id: 'language', label: 'Document language is set', weight: 6, score: required(report, 'language') },
     { id: 'images', label: 'Images have useful descriptions', weight: 8, score: figures.length ? described / figures.length : null },
+    { id: 'headings', label: 'Each heading is tagged once, and only real headings', weight: 4,
+      score: report.consistency?.items && (report.pages || []).some(page => page.logicalBlocks?.some(block => /^H[1-6]?$/.test(block.role || ''))) ? consistencyScore(report, ['heading-split', 'heading-label']) : null },
     { id: 'order', label: 'A reading order exists, with no detected problems', weight: 6,
       score: !report.analysisComplete ? null : !sequence ? 0 : report.readingOrder?.status === 'requires-review' ? 0.5 : 1 },
   ];
