@@ -990,7 +990,13 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 
 /* Keep the viewer toolbar on one line at 1440 px: no number spinners, and "Page" shown only where there is room. */
 .viewer-page-input input::-webkit-outer-spin-button, .viewer-page-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-@media (max-width: 1599px) and (min-width: 1200px) { .viewer-page-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+/* Between 1200 and 1599 px the viewer column is narrow: show "1 / 27" (the words stay for screen readers). */
+.viewer-page-slash { display: none; }
+@media (max-width: 1599px) and (min-width: 1200px) {
+  .viewer-page-word, .viewer-page-of { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .viewer-page-slash { display: inline; }
+  .viewer-page-input input { width: 2.75em; }
+}
 /* In the detail pane, the saved-versus-page comparison is plain text like every other issue, not nested cards. */
 .page-pins-detail-pane .identity-comparison { gap: 16px; margin-block: 8px 4px; }
 .page-pins-detail-pane .identity-source, .page-pins-detail-pane .identity-source:hover { box-shadow: none; border: 0; background: transparent; transition: none; }
@@ -1008,3 +1014,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 /* Rows that take you to a place on the page say so with a chevron. */
 .place-text-item .place-text-quote { flex: 1 1 auto; }
 .place-text-item::after { content: "›"; flex: none; align-self: center; font-size: 1.25rem; line-height: 1; color: rgb(var(--mg-color-interactive)); }
+
+/* Headings that receive focus when a screen changes don't need a visible ring: they aren't controls. */
+.flow-title[tabindex="-1"]:focus, .review-detail-title[tabindex="-1"]:focus { outline: none; }
+@media (max-width: 1599px) and (min-width: 1200px) { .viewer-toolbar .mg-segmented-control__label { padding-inline: 8px; } }

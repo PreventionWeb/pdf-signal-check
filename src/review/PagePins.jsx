@@ -100,7 +100,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       <button type="button" className="viewer-button" aria-label="Previous page" disabled={position <= 0} onClick={() => jump(pages[position - 1]?.page)}>‹</button>
       <label className="viewer-page-input"><span className="viewer-page-word">Page</span> <input type="number" min="1" max={total} inputMode="numeric" value={pageInput || current}
         onChange={event => setPageInput(event.target.value)} onBlur={() => setPageInput("")}
-        onKeyDown={event => { if (event.key === "Enter") { const page = Math.min(total, Math.max(1, Number(pageInput) || current)); setPageInput(""); jump(page); } }} /> of {total}</label>
+        onKeyDown={event => { if (event.key === "Enter") { const page = Math.min(total, Math.max(1, Number(pageInput) || current)); setPageInput(""); jump(page); } }} /> <span className="viewer-page-of">of</span><span className="viewer-page-slash" aria-hidden="true">/</span> {total}</label>
       <button type="button" className="viewer-button" aria-label="Next page" disabled={position < 0 || position >= pages.length - 1} onClick={() => jump(pages[position + 1]?.page)}>›</button>
     </div>
     <SegmentedControl legend="Show on the pages" hideLegend name="viewer-mode" size="small" value={mode} onChange={event => setMode(event.target.value)}
