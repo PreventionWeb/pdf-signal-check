@@ -114,10 +114,13 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
         let box = null;
         // Images drawn inside a form still belong to the page-level tag around the form; the matrix includes the form's own.
         const pageOwner = owner && owner.depth === 0 ? owner : null;
-        if ((!formDepth || pageOwner) && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
-        if ((!formDepth || pageOwner) && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
+        // Inside a form, a tagged drawing belongs to its page-level tag; an untagged one still gets its place on the page
+        // (the matrix includes the form's), so link underlines and rules drawn in forms can be told apart from content.
+        const placeable = !formDepth || pageOwner || !owner;
+        if (placeable && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
+        if (placeable && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
         const quad = box ? rectPoints(box, matrix) : null;
-        const region = { key: pageOwner ? `${pageNumber}:${pageOwner.mcid}` : null, quad: quad && quad.every(([x, y]) => Number.isFinite(x) && Number.isFinite(y)) ? quad : null,
+        const region = { kind: fn === OPS.constructPath ? 'path' : 'image', key: pageOwner ? `${pageNumber}:${pageOwner.mcid}` : null, quad: quad && quad.every(([x, y]) => Number.isFinite(x) && Number.isFinite(y)) ? quad : null,
           label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
         if (artifact) {
           if (decorativeGraphics.length < 16) decorativeGraphics.push(region);
