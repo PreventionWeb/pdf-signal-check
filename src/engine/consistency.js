@@ -1,3 +1,4 @@
+import { headingEvidenceBlocks } from './heading-evidence.js';
 import { inspectHeadings } from './headings.js';
 import { normalizeTitle, publicationCandidates } from './titles.js';
 import { inspectContents } from './contents.js';
@@ -293,7 +294,30 @@ function decorativeContent(report, limits) {
 }
 
 /** Candidate sentences stating a quantity, shared by the rules here and the optional AI comparison. */
-export const factSentences = report => factCandidates((report.pages || []).map(page => ({ page: page.number, sentences: sentences(page) })));
+export function factSentences(report) {
+  return factCandidates((report.pages || []).map(page => {
+    const blocks = headingEvidenceBlocks(page), contextByKey = new Map();
+    let headings = [];
+    for (const block of blocks) {
+      if (/^H[1-6]?$/.test(block.role || '') && !block.headingFragment) {
+        const level = Number(block.role.slice(1)) || 1;
+        headings = headings.filter(h => h.level < level);
+        headings.push({ level, text: block.text });
+      } else if (block.key) contextByKey.set(block.key, headings.map(h => h.text).join(' / ').slice(-320));
+    }
+    const physical = new Map((page.blocks || []).map(block => [block.id, block]));
+    const recovered = sentences(page);
+    return { page: page.number, sentences: recovered.map((sentence, index) => {
+      const contexts = [...new Set(sentence.blockIds.map(id => contextByKey.get(physical.get(id)?.key)).filter(Boolean))];
+      // Never attach one column's heading to a sentence spanning conflicting owners.
+      if (contexts.length > 1) return null;
+      const previous = recovered[index - 1];
+      const sameBlock = previous?.blockIds.some(id => sentence.blockIds.includes(id));
+      const context = [contexts[0], sameBlock && previous.text.length <= 320 ? previous.text : null].filter(Boolean).join(' · ').slice(0, 480);
+      return { ...sentence, ...(context ? { context } : {}) };
+    }).filter(Boolean) };
+  }));
+}
 /** Sentences worded identically apart from a number: found without AI. */
 function sameFactRules(report) {
   return identicalWordingPairs(factSentences(report)).map(pair => ({ id: `fact:${pair.a.page}:${pair.b.page}:${pair.values[0].a}:${pair.values[0].b}`,

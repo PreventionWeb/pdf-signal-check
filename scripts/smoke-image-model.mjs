@@ -38,7 +38,7 @@ try {
   }
   if (!receipt) throw new Error('Image smoke deadline exceeded.');
   const [blank, photo] = receipt.results;
-  if (!blank.inferencePerformed || blank.judgmentsPerformed || blank.execution.textInputs !== 0 || blank.execution.encodedCrops !== 5) throw new Error('Blank-crop execution receipt is incorrect.');
+  if (blank.inferencePerformed || blank.judgmentsPerformed || blank.execution.textInputs !== 0 || blank.execution.encodedCrops !== 0) throw new Error('Blank-crop execution receipt is incorrect.');
   if (photo.execution.comparedDescriptions !== 5 || !photo.descriptionInputs.every(input => input.truncated && input.consumedTokens <= 77)) throw new Error('Description truncation receipt is incorrect.');
   receipt.observation = { observedAt: new Date().toISOString(), backend: 'browser WASM', note: 'Public synthetic assets; execution and token-scope smoke test only, not photo-description accuracy.' };
   await writeFile(new URL('../evaluation/clip-execution-smoke.json', import.meta.url), JSON.stringify(receipt, null, 2) + '\n');

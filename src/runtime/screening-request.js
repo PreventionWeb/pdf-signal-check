@@ -10,7 +10,8 @@ const flagInputs = report => ({
 /** Same bounded evidence for single-file and queued screening. */
 export function buildScreeningRequest(report,{modelId,checks,requestId,languageAssumption=null,requireInference=true,semanticExperiment=false}={}) {
   // Every tagged heading in the document with the text under it; the model's budget spreads its checks across them.
-  const sections=sectionEvidence(report.pages);
+  const pages = report.pages || [];
+  const sections=sectionEvidence(pages);
   // Saved descriptions and keywords are compared with passages from across the PDF, not only its opening pages.
-  return {...flagInputs(report),documentEvidence: buildDocumentEvidence(report.pages), requestId,modelId,requireInference,checks:[...checks],languageAssumption,metadata:report.metadata,names:(report.consistency?.items || []).filter(item=>item.severity==='unresolved'&&item.left).slice(0,8).map(item=>({id:item.id,left:item.left.text,right:item.right.text})),candidates:report.metadataConsistency.candidates,deterministicTitle:report.metadataConsistency,sections,openingEvidence:report.pages.slice(0,2).flatMap(p=>p.logicalBlocks.length?p.logicalBlocks.map(b=>({...b,page:p.number,source:'tagged opening text'})):p.blocks.map(b=>({...b,page:p.number,source:'opening text'})))};
+  return {...flagInputs(report),documentEvidence: buildDocumentEvidence(pages), requestId,modelId,requireInference,checks:[...checks],languageAssumption,metadata:report.metadata,names:(report.consistency?.items || []).filter(item=>item.severity==='unresolved'&&item.left).slice(0,8).map(item=>({id:item.id,left:item.left.text,right:item.right.text})),candidates:report.metadataConsistency?.candidates || [],deterministicTitle:report.metadataConsistency,sections,openingEvidence:pages.slice(0,2).flatMap(p=>p.logicalBlocks?.length?p.logicalBlocks.map(b=>({...b,page:p.number,source:'tagged opening text'})):p.blocks.map(b=>({...b,page:p.number,source:'opening text'})))};
 }

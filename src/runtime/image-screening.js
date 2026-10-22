@@ -14,7 +14,7 @@ export function prepareImageDescriptions(descriptions, tokenizer) {
 }
 
 /** Worker-owned inference, with injected encoders so execution/retention contracts can be tested without downloads. */
-export async function screenImages(data, { encodeImage, encodeDescriptions, progress = () => {} }) {
+export async function screenImages(data, { encodeImage, encodeDescriptions, inspectPixels = async () => ({ blank: false, method: 'pixel-check-unavailable' }), progress = () => {} }) {
   const items = data.items || [], descriptions = data.descriptions || [], results = [], images = [], crops = [];
   const total = items.length + descriptions.length;
   for (const item of items) {
@@ -23,10 +23,14 @@ export async function screenImages(data, { encodeImage, encodeDescriptions, prog
     crops.push({ kind: 'graphic', index: item.index, page: item.page, encoded: true });
     progress(crops.length, total);
   }
-  for (const item of descriptions) {
-    const vector = await encodeImage(item.blob), blank = judgeImage(vector).label === 'a plain coloured background or panel';
+  const inspected = [];
+  for (const item of descriptions) inspected.push({ item, pixels: await inspectPixels(item.blob) });
+  const canCompare = inspected.filter(({ pixels }) => pixels.blank !== true).length >= DESCRIPTION_POLICY.minDescribed;
+  for (const { item, pixels } of inspected) {
+    const blank = pixels.blank === true, encoded = !blank && canCompare;
+    const vector = encoded ? await encodeImage(item.blob) : null;
     images.push({ id: item.id, page: item.page, alt: item.alt, vector, blank });
-    crops.push({ kind: 'description', id: item.id, page: item.page, encoded: true, usable: !blank, reason: blank ? 'blank-panel-classification' : null });
+    crops.push({ kind: 'description', id: item.id, page: item.page, encoded, usable: !blank, pixelCheck: pixels.method, reason: blank ? 'uniform-pixels' : !canCompare ? 'not-enough-usable-descriptions' : null });
     progress(crops.length, total);
   }
   let ranked = [], descriptionInputs = [];
@@ -38,9 +42,9 @@ export async function screenImages(data, { encodeImage, encodeDescriptions, prog
     ranked = rankDescriptions(images, encoded.vectors);
   }
   const duplicates = duplicateImages(images);
-  return { schemaVersion: 2, model: IMAGE_MODEL, inferencePerformed: crops.length > 0,
+  return { schemaVersion: 2, model: IMAGE_MODEL, inferencePerformed: crops.some(crop => crop.encoded),
     judgmentsPerformed: results.length + ranked.length + duplicates.length > 0, items: results, descriptions: ranked, duplicates,
-    execution: { attemptedCrops: total, encodedCrops: crops.length, descriptionCandidates: descriptions.length,
+    execution: { attemptedCrops: total, encodedCrops: crops.filter(crop => crop.encoded).length, descriptionCandidates: descriptions.length,
       usableDescriptions: usable, comparedDescriptions: ranked.length, textInputs: descriptionInputs.length,
       descriptionSkipReason: descriptions.length && usable < DESCRIPTION_POLICY.minDescribed ? 'not-enough-usable-descriptions' : null },
     crops, descriptionInputs, assessedAt: new Date().toISOString() };

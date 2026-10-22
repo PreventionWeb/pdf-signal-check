@@ -97,7 +97,7 @@ export function duplicateImages(images, policy = { minSimilarity: 0.97, maxOverl
 }
 /**
  * For each image, where its own description ranks among all the checked descriptions (1 = best match).
- * Images the model sees as a blank panel (a crop that missed the picture) are left out.
+ * Crops proved uniform by a pixel check are left out; a model label cannot establish blankness.
  */
 export function rankDescriptions(images, texts, policy = DESCRIPTION_POLICY) {
   const usable = images.map((image, index) => ({ ...image, index })).filter(image => !image.blank);
