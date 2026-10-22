@@ -829,7 +829,7 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fix-detail-lead { font-size: 1.125rem; line-height: 1.5; margin: 12px 0 16px; padding-inline-start: 14px; border-inline-start: 4px solid rgb(var(--mg-color-neutral-300)); }
 .fix-detail-lead--fix { border-color: rgb(var(--mg-color-red-900)); }
 .fix-detail-lead--check { border-color: rgb(var(--mg-color-gold-800)); }
-.fix-detail-secondary { background: none; border: 0; padding: 0 4px; font: inherit; color: rgb(var(--mg-color-interactive)); text-decoration: underline; cursor: pointer; }
+.fix-detail-secondary { background: none; border: 0; padding: 0; font: inherit; color: rgb(var(--mg-color-interactive)); text-decoration: underline; cursor: pointer; }
 .fix-detail-secondary:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 2px; }
 /* "For the person fixing it" drawer. */
 .fixer-section { margin-bottom: 20px; }
@@ -839,8 +839,8 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fixer-properties th, .fixer-properties td { text-align: start; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid rgb(var(--mg-color-neutral-200, 230 230 230)); overflow-wrap: anywhere; }
 .fixer-properties th { width: 40%; font-weight: 600; }
 .fixer-missing { color: rgb(var(--mg-color-red-900)); font-weight: 600; }
-.fixer-steps { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; font-size: .9375rem; }
-.fixer-steps dt { font-weight: 600; }
+.fixer-steps { display: grid; grid-template-columns: max-content 1fr; align-items: start; gap: 6px 12px; margin: 0; font-size: .9375rem; }
+.fixer-steps dt { font-weight: 600; margin: 0; align-self: start; }
 .fixer-steps dd { margin: 0; }
 .fixer-fields { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8125rem; color: var(--muted); }
 .fixer-list { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; }
@@ -991,3 +991,9 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 /* Keep the viewer toolbar on one line at 1440 px: no number spinners, and "Page" shown only where there is room. */
 .viewer-page-input input::-webkit-outer-spin-button, .viewer-page-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 @media (max-width: 1599px) and (min-width: 1200px) { .viewer-page-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+/* In the detail pane, the saved-versus-page comparison is plain text like every other issue, not nested cards. */
+.page-pins-detail-pane .identity-comparison { gap: 16px; margin-block: 8px 4px; }
+.page-pins-detail-pane .identity-source, .page-pins-detail-pane .identity-source:hover { box-shadow: none; border: 0; background: transparent; transition: none; }
+.page-pins-detail-pane .identity-source > .mg-card__content { padding: 0; }
+.page-pins-detail-pane .identity-source h3 { margin: 0 0 4px; }
+.page-pins-detail-pane .identity-source .comparison-evidence { border: 0; padding: 0; margin: 0; }
