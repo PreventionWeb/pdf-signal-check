@@ -49,6 +49,9 @@ describe('same fact, different numbers', () => {
   const fact = (page, text) => ({ page, text, quantities: quantities(text) });
   it('reads quantities with their units and ignores bare years', () => {
     expect(quantities('In 2025, 176 countries reported, up 12% since 2015.')).toEqual([{ value: 176, unit: 'countries' }, { value: 12, unit: '%' }]);
+    expect(quantities('124 countries report early warning systems, 77 of which were supported.')).toEqual([{ value: 124, unit: 'countries' }, { value: 77, unit: 'countries' }]);
+    expect(conflictingValues(fact(1, '124 countries report early warning systems, 77 of which were supported.'), fact(2, '77 countries received support for early warning systems during the programme.'))).toBeNull();
+    expect(quantities('124 countries tested 30 projects, 12 of which were completed.')).toEqual([{ value: 124, unit: 'countries' }, { value: 30, unit: 'projects' }, { value: 12, unit: 'projects' }]);
   });
   it('flags the same measure with different values', () => {
     expect(conflictingValues(fact(143, 'For someone born in 2025, that probability would rise to nearly nine in ten (86%).'),
@@ -80,8 +83,11 @@ describe('image description triage', () => {
       'Flood map', 'Flood map', 'Flood map', 'UNDRR logo', 'UNDRR logo', 'UNDRR logo'])).items.map(item => item.flags);
     expect(items).toEqual([['auto-generated'], ['auto-generated'], ['generic'], ['file-name'], ['duplicate'], ['duplicate'], ['duplicate'], [], [], []]);
   });
-  it('pairs a description with its caption only, never with unrelated body text', () => {
-    const [item] = inspectFigureDescriptions(report(['Map of seaweed across the Caribbean'])).items;
+  it('pairs a safely located description with its caption only, never with unrelated body text', () => {
+    const data = report(['Map of seaweed across the Caribbean']);
+    data.figureAlternatives.items[0].quads = [[[40, 650], [400, 650], [400, 750], [40, 750]]];
+    data.pages[0].blocks[0].quad = [[40, 780], [400, 780], [400, 800], [40, 800]];
+    const [item] = inspectFigureDescriptions(data).items;
     expect(item.context.text).toBe('Map 1. Sargassum spread in 2023');
     const noCaption = { ...report(['Photo of children planting trees']), pages: [page(1, ['Our work with communities continues.'])] };
     expect(inspectFigureDescriptions(noCaption).items[0].context).toBeNull();

@@ -52,3 +52,21 @@ A normal browser alternative is to serve the built app, open developer tools, cr
 Observed browser-WASM run (2026-10-06, installed agent-browser version recorded in each JSON): both models produced zero literal false identity Matches and one false topical-support result among six held-out known mismatches. MiniLM left two of those mismatches unflagged; Granite left five unflagged, including inconclusive outcomes. MiniLM had four inconclusive/unassessed held-out outcomes, Granite six. These counts are case-specific and do not rank general model accuracy. Inspect per-row reasons/methods and the recorded cutoff sensitivity before considering new labels or thresholds. Current policy is unchanged.
 
 The separate Granite resource pilot records a roughly 175 ms two-page parse, 14.28 s combined encoder load/initialization (network/cache unknown), and 3.27 s median of three warm four-input runs (range 3.20–3.29 s) on this development browser. The direct worker pilot did not collect page-visibility conditions, so it is functional evidence rather than a user-device timing guarantee. The app benchmark captures those conditions in its own receipt.
+
+## AI execution and input safety (22 October 2026)
+
+Caption/description comparisons now require a nearby, horizontally aligned caption with safe geometry and a unique association. Ambiguous/shared captions, rotation and unavailable geometry abstain; bounded same-key caption lines can join. Each description records its pairing or skip reason. These guards reduce false comparisons; they do not prove caption identity or description accuracy.
+
+Image execution receipts distinguish attempted/encoded crops, usable photo crops, compared descriptions and usable judgments. They retain crop identity plus consumed token counts, text and truncation. Blank crops can record real inference with no usable judgment. Fewer than five usable photo crops skip the optional CLIP text-model download. Clearing all text checks prevents accompanying consistency comparisons from invoking a model. Missing saved metadata no longer hides other AI controls or completed coverage.
+
+An observed synthetic false flag led to a narrow numeric subset guard: “124 countries, 77 of which…” retains the subset's unit, preventing a total from being compared with its own subset as though the values conflicted. Regression tests cover this case and nearest-unit inheritance. Model thresholds and deterministic profile acceptance are unchanged.
+
+Run the developer-only image execution smoke after a production build and local preview:
+
+```sh
+node scripts/smoke-image-model.mjs http://127.0.0.1:4178/
+```
+
+Invocation explicitly requests the pinned CLIP model assets (about 154 MB for both halves, plus runtime; caches may reduce transfer). Public synthetic assets are processed locally. The [recorded actual browser-WASM smoke](../evaluation/clip-execution-smoke.json) encoded five blank panels with zero usable descriptions and zero text-model inputs, then compared five public illustrations with long descriptions and recorded the 77-token limit. This verifies execution and token scope, not photograph/description accuracy. No real PDF data is part of that receipt.
+
+Verification: 406 tests, production build, actual CLIP worker smoke, and desktop/mobile browser checks at `/pdf-signal-check/`. Independently labelled real-document quality evaluation remains outstanding; these checks do not establish calibrated AI accuracy.

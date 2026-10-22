@@ -15,7 +15,11 @@ const YEAR = /^(?:19|20)\d{2}$/;
 export function quantities(text) {
   const found = [];
   for (const match of String(text).matchAll(/(?<![\w.])(\d{1,3}(?:[,\s]\d{3})+|\d+(?:\.\d+)?)\s?(%|[\p{L}$]+)?/gu)) {
-    const raw = match[1].replace(/[,\s]/g, ''), unit = (match[2] || '').toLowerCase();
+    const raw = match[1].replace(/[,\s]/g, '');
+    let unit = (match[2] || '').toLowerCase();
+    // Explicit subset wording inherits the nearest stated unit: "124 countries, 77 of which ...".
+    // Recovering that shared value prevents pairing the total with its own subset on another page.
+    if (unit === 'of' && /^\s+(which|these|those|them)\b/i.test(String(text).slice(match.index + match[0].length)) && found.length) unit = found.at(-1).unit;
     if (YEAR.test(raw) && !UNITS.test(unit)) continue;
     if (!unit || !UNITS.test(unit)) continue;
     found.push({ value: Number(raw), unit: unit === 'percent' || unit === 'per' ? '%' : unit.replace(/^country$/, 'countries') });
