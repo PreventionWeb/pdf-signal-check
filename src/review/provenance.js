@@ -78,10 +78,10 @@ export function imageSkipNote(report) {
   return `The image model had nothing to look at in this PDF: ${skipped.decorativeUnclear ? 'the decorative graphics it could judge were too text-heavy or too small' : 'no decorative graphics the rules couldn’t place'}, and ${skipped.describedImages ? `${skipped.describedImages} described image${skipped.describedImages === 1 ? '' : 's'} (it needs at least 5 well-cropped photo descriptions to compare)` : 'no photo descriptions to compare'}.${descriptionLanguageNote(report) ? ` ${descriptionLanguageNote(report)}` : ''}`;
 }
 export function checkedWith(report) {
-  const semantic = report.semantic;
   const note = imageSkipNote(report);
-  if (note) return `${checkedWithModels(report)} ${note}`;
-  return checkedWithModels(report);
+  const noJudgment = report.imageScreening?.inferencePerformed && report.imageScreening.judgmentsPerformed === false
+    ? 'The image model ran, but produced no usable image judgments.' : '';
+  return [checkedWithModels(report), note, noJudgment].filter(Boolean).join(' ');
 }
 function checkedWithModels(report) {
   const semantic = report.semantic;

@@ -105,12 +105,18 @@ export async function assessSemantic(input, embed) {
   const result = { schemaVersion: 2, model, languageContext, requireInference: input.requireInference === true, thresholds: model.thresholds, limits, requestedChecks: checks,
     assessedAt: new Date().toISOString(), inferencePerformed: false, embeddedTextCount: 0,
     inferenceProvenance: [], skippedChecks: [], keywordItems: [], sectionItems: [], nameItems: [], figureItems: [], contentItems: [], factPairs: [],
+    figureCoverage: { candidates: (input.figures || []).length, evaluated: 0, skipped: (input.figures || []).length },
+    contentCoverage: { candidates: (input.contents || []).length, evaluated: 0, skipped: (input.contents || []).length },
     title: uncertain('No credible cover or first-page title evidence.'),
     subject: uncertain('No subject metadata or sufficient opening text.'),
     keywords: uncertain('No delimited keywords or sufficient opening text.'),
     sections: uncertain('No sufficiently specific tagged headings with bounded following text.'), ranked: [],
     note: 'Experimental local hybrid screening. Deterministic identity rules remain independent. Model-specific thresholds are provisional; cosine scores are not probabilities or comparable confidence across models. Related text does not establish identity or change compliance.' };
   for (const field of allowed) if (!requested(field)) { result[field] = { ...uncertain('This check was not requested.'), method: 'not-requested', inferencePerformed: false }; result.skippedChecks.push(field); }
+  if (!checks.length) {
+    result.notRun = { code: 'no-checks-requested', reason: 'No AI checks were selected; accompanying consistency comparisons did not run.', checks: [] };
+    return { ...result, assessment: result.title };
+  }
   const titleSettled = requested('title') && (warnings.length || rules.status === 'match');
   if (titleSettled) result.title = { status: warnings.length ? 'suspected-mismatch' : 'match',
     reason: warnings.length ? warnings.join(' ') : rules.reason, evidence: warnings.length ? candidates : candidates.filter(c => normalizeTitle(c.text) === normalizeTitle(rules.title)),
@@ -235,6 +241,10 @@ export async function assessSemantic(input, embed) {
     result.sectionCoverage.evaluatedPairs = result.sectionItems.length; result.sectionCoverage.skippedPairs = availableSections.length - result.sectionItems.length;
     result.sections=aggregate(result.sectionItems,`${result.sectionItems.length} of ${availableSections.length} supplied tagged heading/body pairs screened for topical relatedness. This does not validate assigned roles, reading order or factual claims.`,result.sectionCoverage.skippedPairs>0);
   }
+  result.figureCoverage.evaluated = result.figureItems.length;
+  result.figureCoverage.skipped = result.figureCoverage.candidates - result.figureItems.length;
+  result.contentCoverage.evaluated = result.contentItems.length;
+  result.contentCoverage.skipped = result.contentCoverage.candidates - result.contentItems.length;
   for (const field of allowed) {
     if (!Object.hasOwn(result[field],'inferencePerformed')) result[field].inferencePerformed=false;
     if (!result[field].method) result[field].method='insufficient-evidence';
