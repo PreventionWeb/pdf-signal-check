@@ -16,7 +16,9 @@ export function processingPhase(state) {
   if (state.stage === "processing-analysis") return { step: "read", part: progress?.unit === "pages" ? "pages" : "open" };
   // The image step loads a second, smaller model to compare descriptions after looking at images: that is still "looking".
   if (state.modelTask === "image" && progress?.substage === "descriptions") return { step: "image", part: "run", descriptions: true };
-  const part = progress?.stage === "asset-download" ? "download" : progress?.stage === "inference" ? "run" : "prepare";
+  // A file that has finished downloading is waiting for the model to start: say that, not "89.1 MB of 89.1 MB".
+  const downloaded = progress?.stage === "asset-download" && progress.total > 0 && progress.completed >= progress.total;
+  const part = progress?.stage === "asset-download" && !downloaded ? "download" : progress?.stage === "inference" ? "run" : "prepare";
   return { step: state.modelTask === "image" ? "image" : "text", part };
 }
 
