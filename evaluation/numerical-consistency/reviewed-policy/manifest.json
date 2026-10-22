@@ -1,0 +1,12 @@
+{
+  "reportedFrozenAt": "2026-10-22T22:17:06Z",
+  "capturedAt": "2026-10-22T22:17:54.479260+00:00",
+  "files": {
+    "consistency.js": "0c2d2bee7c22d1e4d39ac4d4e432255044a07c58c578950605069f8f82c8f7a4",
+    "screening-request.js": "46648592507637a05b87c36f940107c744c580ebee4fd1811180596b764a56f0",
+    "semantic.js": "9d4ca3cba47ec577d3f4b042919f19ed6de4c4803d0ef8f08b7f48926c34af52",
+    "facts-scope.js": "119f7e09d4155be349d8480aae2d8c746bed3921ee5980a7ebaf75bc525e7271",
+    "final-facts.mjs": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831"
+  },
+  "scope": "Reviewed final policy; direct fact comparison evaluated, integration modules pinned only."
+}

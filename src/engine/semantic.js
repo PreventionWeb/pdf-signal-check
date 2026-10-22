@@ -1,5 +1,5 @@
 import { selectTopicEvidence } from './topic-retrieval.js';
-import { similarPairs, factEmbeddingText } from './facts.js';
+import { similarPairSelection, factEmbeddingText } from './facts.js';
 import { headingEvidenceBlocks, evidenceBoundsByKey } from './heading-evidence.js';
 import { compareTitles, normalizeTitle, publicationCandidates } from './titles.js';
 
@@ -158,7 +158,9 @@ export function prepareSemanticWork(input) {
   const allFacts = input.facts || [];
   const facts = allFacts.length <= budget.facts ? allFacts : Array.from({ length: budget.facts }, (_, i) => allFacts[Math.floor(i * allFacts.length / budget.facts)]);
   const factIndices = facts.length >= 2 && new Set(facts.map(fact => fact.page)).size >= 2 ? facts.map(fact => add(factEmbeddingText(fact))) : [];
-  result.factCoverage = { candidates: allFacts.length, compared: factIndices.length };
+  result.factCoverage = { candidates: allFacts.length, compared: factIndices.length, selectedCandidates: facts.length,
+    skippedCandidates: allFacts.length - factIndices.length, factBudget: budget.facts,
+    selectionReason: !factIndices.length && allFacts.length ? 'insufficient-cross-page-candidates' : allFacts.length > facts.length ? 'model-fact-budget' : null };
   if (requested('subject')) topicTask('subject',metadata.subject);
   const rawKeywords = typeof metadata.keywords === 'string' ? metadata.keywords.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean) : [];
   const keywordTerms = [...new Set(rawKeywords)];
@@ -207,8 +209,9 @@ export async function assessSemantic(input, embed) {
     result.inferenceProvenance = Array.isArray(embedded.provenance) ? embedded.provenance : [];
     if (factIndices.length) {
       const sentence = ({ page, text, blockIds, context }) => ({ page, text, blockIds, ...(context ? { context } : {}) });
-      result.factPairs = similarPairs(facts, factIndices.map(i => vectors[i]), limits.factHigh)
-        .map(pair => ({ a: sentence(pair.a), b: sentence(pair.b), values: pair.values, similarity: pair.similarity, method: 'embedding-screening', inferencePerformed: true }));
+      const selected = similarPairSelection(facts, factIndices.map(i => vectors[i]), limits.factHigh);
+      result.factCoverage = { ...result.factCoverage, ...selected.coverage, candidates: result.factCoverage.candidates, selectedCandidates: facts.length };
+      result.factPairs = selected.pairs.map(pair => ({ a: sentence(pair.a), b: sentence(pair.b), values: pair.values, similarity: pair.similarity, method: 'embedding-screening', inferencePerformed: true }));
     }
     for (const task of tasks) {
       const evidence = task.evidence.map(e => ({...e, similarity:cosine(vectors[task.queryIndex],vectors[e.embeddingIndex]),

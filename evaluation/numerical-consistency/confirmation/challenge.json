@@ -1,0 +1,447 @@
+{
+  "schemaVersion": 1,
+  "authoredBy": "assistant evaluator",
+  "humanReviewed": false,
+  "frozenAt": "2026-10-22T22:08:34.350779+00:00",
+  "purpose": "Second synthetic confirmation set authored after phase1 outputs but before red-team-driven final fixes; not independent human or real-world validation.",
+  "splitPolicy": "All confirmation held-out; Harbor water, Mesa energy, Orchid finance families are distinct from phase1 groups; shared language patterns remain.",
+  "labelPolicy": "Same as phase1: contradiction means useful incompatible same claim; clean means compatible or different scope; ambiguous should abstain.",
+  "cases": [
+    {
+      "id": "c01",
+      "sourceGroup": "harbor-water",
+      "documentId": "c01",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Harbor final water audit recorded 48 hospitals with a safe drinking water supply."
+      },
+      "b": {
+        "page": 5,
+        "text": "Safe drinking water was available at 84 hospitals according to the final Harbor water audit."
+      },
+      "rationale": "Same final-audit hospital count."
+    },
+    {
+      "id": "c02",
+      "sourceGroup": "harbor-water",
+      "documentId": "c02",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The completed Harbor water project connected 160 households to the new drinking water network."
+      },
+      "b": {
+        "page": 5,
+        "text": "Connection to the new drinking water network reached 610 households in the completed Harbor water project."
+      },
+      "rationale": "Same completed network connection count."
+    },
+    {
+      "id": "c03",
+      "sourceGroup": "harbor-water",
+      "documentId": "c03",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "identical",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The final Harbor inspection confirmed 24 schools with functioning water treatment equipment."
+      },
+      "b": {
+        "page": 5,
+        "text": "The final Harbor inspection confirmed 42 schools with functioning water treatment equipment."
+      },
+      "rationale": "Same final inspection and equipment count."
+    },
+    {
+      "id": "c04",
+      "sourceGroup": "harbor-water",
+      "documentId": "c04",
+      "split": "held-out",
+      "label": "clean",
+      "category": "places",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Harbor water project connected 160 households in Greenbank village during the project year."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Harbor water project connected 610 households in Stonebank village during the project year."
+      },
+      "rationale": "Different village populations."
+    },
+    {
+      "id": "c05",
+      "sourceGroup": "harbor-water",
+      "documentId": "c05",
+      "split": "held-out",
+      "label": "clean",
+      "category": "dates",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Harbor project connected 160 households during the 2020 water network expansion."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Harbor project connected 610 households during the 2024 water network expansion."
+      },
+      "rationale": "Different years."
+    },
+    {
+      "id": "c06",
+      "sourceGroup": "harbor-water",
+      "documentId": "c06",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Harbor survey found 30 percent of hospitals had a backup water supply."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Harbor survey found 70 percent of schools had a backup water supply."
+      },
+      "rationale": "Different institutional denominators."
+    },
+    {
+      "id": "c07",
+      "sourceGroup": "harbor-water",
+      "documentId": "c07",
+      "split": "held-out",
+      "label": "clean",
+      "category": "subset",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Harbor project connected 160 households, including 60 households in the eastern district."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Harbor project connected 60 households in the eastern district during the completed project."
+      },
+      "rationale": "Subset matches explicitly stated subset."
+    },
+    {
+      "id": "c08",
+      "sourceGroup": "harbor-water",
+      "documentId": "c08",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "revision",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The initial Harbor water inspection identified 24 schools without a safe water supply."
+      },
+      "b": {
+        "page": 5,
+        "text": "The updated Harbor water inspection identified 42 schools without a safe water supply."
+      },
+      "rationale": "Later inspection could update earlier inventory."
+    },
+    {
+      "id": "c09",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c09",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Mesa final energy audit counted 15 hospitals with operational solar installations."
+      },
+      "b": {
+        "page": 5,
+        "text": "Operational solar installations served 51 hospitals in the final Mesa energy audit."
+      },
+      "rationale": "Same final energy audit coverage count."
+    },
+    {
+      "id": "c10",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c10",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "multiple",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The completed Mesa project installed solar systems at 15 hospitals and 28 schools."
+      },
+      "b": {
+        "page": 5,
+        "text": "The completed Mesa project installed solar systems at 15 hospitals and 82 schools."
+      },
+      "rationale": "School counts differ while hospital counts agree."
+    },
+    {
+      "id": "c11",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c11",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "heading",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The completed energy audit counted 15 hospitals with operational solar installations.",
+        "context": "Mesa / Central district / final 2025 energy audit"
+      },
+      "b": {
+        "page": 5,
+        "text": "The completed energy audit counted 51 hospitals with operational solar installations.",
+        "context": "Mesa / Central district / final 2025 energy audit"
+      },
+      "rationale": "Identical final inspection scope."
+    },
+    {
+      "id": "c12",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c12",
+      "split": "held-out",
+      "label": "clean",
+      "category": "heading",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The completed energy audit counted 15 hospitals with operational solar installations.",
+        "context": "Mesa / Central district / final 2025 energy audit"
+      },
+      "b": {
+        "page": 5,
+        "text": "The completed energy audit counted 51 hospitals with operational solar installations.",
+        "context": "Mesa / Western district / final 2025 energy audit"
+      },
+      "rationale": "Districts differ in source heading."
+    },
+    {
+      "id": "c13",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c13",
+      "split": "held-out",
+      "label": "clean",
+      "category": "range",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Mesa recovery plan expects to restore power to between 400 and 600 households this winter."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Mesa recovery plan expects to restore power to 500 households this winter."
+      },
+      "rationale": "Estimate within stated range."
+    },
+    {
+      "id": "c14",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c14",
+      "split": "held-out",
+      "label": "clean",
+      "category": "scale",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Mesa solar programme has installed 4 thousand systems across public schools."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Mesa solar programme has installed 4000 systems across public schools."
+      },
+      "rationale": "Equivalent counts; unsupported unit is also legitimate abstention."
+    },
+    {
+      "id": "c15",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c15",
+      "split": "held-out",
+      "label": "clean",
+      "category": "hazards",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Mesa earthquake recovery project restored electricity to 400 households in the province."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Mesa wildfire recovery project restored electricity to 600 households in the province."
+      },
+      "rationale": "Different hazard recovery projects."
+    },
+    {
+      "id": "c16",
+      "sourceGroup": "mesa-energy",
+      "documentId": "c16",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "missing-scope",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Mesa energy project supplied power to 400 households during the reporting period."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Mesa energy project supplied power to 600 households according to a separate project report."
+      },
+      "rationale": "Separate report period and project boundary unresolved."
+    },
+    {
+      "id": "c17",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c17",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The final Orchid recovery budget allocated 7 million dollars to rebuilding public hospitals."
+      },
+      "b": {
+        "page": 5,
+        "text": "Rebuilding public hospitals received an allocation of 9 million dollars in the final Orchid recovery budget."
+      },
+      "rationale": "Same final budget and allocation category."
+    },
+    {
+      "id": "c18",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c18",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "identical",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The final Orchid audit recorded 32 municipalities receiving a reconstruction grant."
+      },
+      "b": {
+        "page": 5,
+        "text": "The final Orchid audit recorded 23 municipalities receiving a reconstruction grant."
+      },
+      "rationale": "Same final-audit grant recipient count."
+    },
+    {
+      "id": "c19",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c19",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Orchid audit found 20 percent of approved projects had received their first grant payment."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Orchid audit found 80 percent of completed projects had received their first grant payment."
+      },
+      "rationale": "Approved versus completed project denominators differ."
+    },
+    {
+      "id": "c20",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c20",
+      "split": "held-out",
+      "label": "clean",
+      "category": "rounding",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "Approximately 5 million dollars were allocated in the final Orchid hospital reconstruction budget."
+      },
+      "b": {
+        "page": 5,
+        "text": "Exactly 4980000 dollars were allocated in the final Orchid hospital reconstruction budget."
+      },
+      "rationale": "Rounded million amount compatible with exact allocation."
+    },
+    {
+      "id": "c21",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c21",
+      "split": "held-out",
+      "label": "clean",
+      "category": "multiple",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The final Orchid audit recorded 32 municipalities and 23 schools receiving a reconstruction grant."
+      },
+      "b": {
+        "page": 5,
+        "text": "The final Orchid audit recorded 23 schools receiving a reconstruction grant this year."
+      },
+      "rationale": "Second statement repeats one category."
+    },
+    {
+      "id": "c22",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c22",
+      "split": "held-out",
+      "label": "clean",
+      "category": "scale",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Orchid recovery fund allocated 6 million dollars for rebuilding public schools."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Orchid recovery fund allocated 6000000 dollars for rebuilding public schools."
+      },
+      "rationale": "Equivalent monetary scales."
+    },
+    {
+      "id": "c23",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c23",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "budget-status",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The proposed Orchid recovery budget allocates 7 million dollars to rebuilding public hospitals."
+      },
+      "b": {
+        "page": 5,
+        "text": "The approved Orchid recovery budget allocates 9 million dollars to rebuilding public hospitals."
+      },
+      "rationale": "Proposal can change on approval; not incompatible simultaneous claims."
+    },
+    {
+      "id": "c24",
+      "sourceGroup": "orchid-finance",
+      "documentId": "c24",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "missing-denominator",
+      "provenance": "second assistant-authored synthetic confirmation set; no human review",
+      "a": {
+        "page": 2,
+        "text": "The Orchid survey found 20 percent of municipalities had received their first reconstruction grant."
+      },
+      "b": {
+        "page": 5,
+        "text": "The Orchid survey found 80 percent had received their first reconstruction grant this year."
+      },
+      "rationale": "Second denominator not explicitly stated."
+    }
+  ]
+}

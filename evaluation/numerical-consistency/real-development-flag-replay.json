@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-22T22:06:26.181Z",
+  "kind": "previously-exposed development regression; retained-flag filtering only",
+  "humanReviewed": false,
+  "sourceTextPublished": false,
+  "models": [
+    {
+      "model": "minilm",
+      "documents": 5,
+      "documentsWithFactCoverage": 4,
+      "candidates": 384,
+      "compared": 377,
+      "previouslyRetainedFlags": 1,
+      "productionGuardRetains": 1,
+      "modifiedGuardRetains": 0
+    },
+    {
+      "model": "granite-r2",
+      "documents": 5,
+      "documentsWithFactCoverage": 4,
+      "candidates": 384,
+      "compared": 237,
+      "previouslyRetainedFlags": 0,
+      "productionGuardRetains": 0,
+      "modifiedGuardRetains": 0
+    }
+  ],
+  "limitations": [
+    "No original candidate vectors saved; cannot measure new retrieval or full old/new policy recall.",
+    "Existing report set has already informed development and is not independent or newly labelled.",
+    "Retained count is not a correctness label; no precision/recall claims."
+  ],
+  "productionFactsSha256": "00207848c3e07ef43a355b518ed45dfdad11cc94bef2f0e62a858499ac7248dc",
+  "modifiedFactsSha256": "2660a195e3acda629773937c511a853610c088389afe01f47e2ddc74f5fb5ab9",
+  "modifiedScopeSha256": "a21299961450e9101315027f3a991882f5a9e7ef497198775c94262ec3e09942"
+}

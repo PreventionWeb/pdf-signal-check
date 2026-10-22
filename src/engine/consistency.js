@@ -2,7 +2,7 @@ import { headingEvidenceBlocks, evidenceBoundsByKey } from './heading-evidence.j
 import { inspectHeadings } from './headings.js';
 import { normalizeTitle, publicationCandidates } from './titles.js';
 import { inspectContents } from './contents.js';
-import { factCandidates, identicalWordingPairs } from './facts.js';
+import { factCandidates, identicalWordingSelection } from './facts.js';
 
 /**
  * Consistency advisories: places where a PDF disagrees with itself.
@@ -334,16 +334,17 @@ export function factSentences(report) {
 }
 /** Sentences worded identically apart from a number: found without AI. */
 function sameFactRules(report) {
-  return identicalWordingPairs(factSentences(report)).map(pair => ({ id: `fact:${pair.a.page}:${pair.b.page}:${pair.values[0].a}:${pair.values[0].b}`,
-    kind: 'same-fact', severity: 'concern', ...pair }));
+  const { pairs, coverage } = identicalWordingSelection(factSentences(report));
+  return { coverage, items: pairs.map(pair => ({ id: `fact:${pair.a.page}:${pair.b.page}:${pair.values[0].a}:${pair.values[0].b}`,
+    kind: 'same-fact', severity: 'concern', ...pair })) };
 }
 
 export function inspectConsistency(report, limits = CONSISTENCY_LIMITS) {
-  const names = nameConsistency(report, limits);
+  const names = nameConsistency(report, limits), facts = sameFactRules(report);
   const items = [...names.items, ...dateConsistency(report, names.running, limits), ...languageConsistency(report, limits), ...titleScript(report, limits),
-    ...placeholderMetadata(report), ...decorativeContent(report, limits), ...inspectContents(report).items, ...sameFactRules(report), ...inspectHeadings(report)];
+    ...placeholderMetadata(report), ...decorativeContent(report, limits), ...inspectContents(report).items, ...facts.items, ...inspectHeadings(report)];
   return { status: items.some(item => item.severity === 'concern') ? 'requires-review' : items.length ? 'minor' : 'consistent',
-    method: 'consistency-rules-v1', names: { cover: names.cover, saved: names.saved, running: names.running },
+    method: 'consistency-rules-v1', factCoverage: facts.coverage, names: { cover: names.cover, saved: names.saved, running: names.running },
     // What the body text reads as (rules, not AI), so the review can show it beside the declared language.
     language: detectLanguage((report.pages || []).slice(0, 40).map(pageText).join(' '), limits), items };
 }

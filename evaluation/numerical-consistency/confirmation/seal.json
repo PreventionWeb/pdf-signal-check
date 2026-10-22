@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-10-22T22:08:34.350779+00:00",
+  "files": {
+    "challenge.json": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca"
+  },
+  "caseCount": 24,
+  "beforeFinalPolicy": true,
+  "labelsMustNotChange": "No output-driven relabelling."
+}
