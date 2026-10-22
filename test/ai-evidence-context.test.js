@@ -16,8 +16,8 @@ it('recovers aligned wrapped heading context without changing original tags and 
   expect(sectionEvidence([page])[0].heading.recoveredHeadingContext).toBeUndefined();
 });
 it('preserves heading and preceding-sentence context and refuses a false different-hazard conflict despite identical vectors', async () => {
-  const makePage = (number, hazard, value) => ({ number, logicalBlocks: [{ key: `${number}:h`, role: 'H2', text: `Future ${hazard} risk` }, { key: `${number}:p`, role: 'P', text: `The lifetime ${hazard} probability is estimated. That probability rises to nearly nine in ten (${value}%) for someone born in 2025.` }],
-    blocks: [{ id: 0, key: `${number}:h`, text: `Future ${hazard} risk` }, { id: 1, key: `${number}:p`, text: `The lifetime ${hazard} probability is estimated. That probability rises to nearly nine in ten (${value}%) for someone born in 2025.` }] });
+  const makePage = (number, hazard, value) => ({ number, logicalBlocks: [{ key: `${number}:h`, role: 'H2', text: `Future ${hazard} risk` }, { key: `${number}:p`, role: 'P', text: `The lifetime ${hazard} probability is recorded. That probability rises to ${value}% for someone born in 2025.` }],
+    blocks: [{ id: 0, key: `${number}:h`, text: `Future ${hazard} risk` }, { id: 1, key: `${number}:p`, text: `The lifetime ${hazard} probability is recorded. That probability rises to ${value}% for someone born in 2025.` }] });
   const facts = factSentences({ pages: [makePage(1, 'flood', 82), makePage(2, 'drought', 88)] });
   expect(facts).toHaveLength(2);
   expect(facts[0].context).toContain('Future flood risk');

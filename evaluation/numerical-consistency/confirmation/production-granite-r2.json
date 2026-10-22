@@ -1,0 +1,1137 @@
+{
+  "integrationSnapshot": null,
+  "sourceDirectory": "evaluation/numerical-consistency/",
+  "dependencySha256": {},
+  "reuseObservation": null,
+  "embeddingReceipt": {
+    "path": "evaluation/numerical-consistency/confirmation/production-granite-r2-embeddings.json",
+    "sha256": "a5cc2314b082aa9b0b56b37137e1b4b749eeadd2af4f44012cb1a0c2b59b6a14"
+  },
+  "embeddingReuse": null,
+  "schemaVersion": 1,
+  "observedAt": "2026-10-22T22:16:38.823Z",
+  "snapshot": "production",
+  "productionCommit": "4170bf3eb8345696fc3786760ee50e4b5e53fa2b",
+  "datasetSha256": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca",
+  "factsSha256": "00207848c3e07ef43a355b518ed45dfdad11cc94bef2f0e62a858499ac7248dc",
+  "runnerSha256": "2018b35f8a1566f8296be88f2682176bb9aea9298278c068ac287b1a9912978d",
+  "modelConfigSha256": "e8d849b3d063a14f56e5540d9e012cdcd92827be13d7de169eae4ca0aef7e65b",
+  "harnessSha256": "8e3cc4674713f023d5f8faa24107fdc70da78df12fe1c167f25ecccaf299bf12",
+  "workerSha256": "6a38ed1836fe8781b20cedb31e3216b52dabe6e608e2b30ae2874aaf546e66df",
+  "backend": "actual browser WASM",
+  "browserHarness": "agent-browser 0.37.1",
+  "cacheSource": "unknown",
+  "model": {
+    "dtype": "q8",
+    "device": "wasm",
+    "normalize": true,
+    "prefix": "",
+    "dimensions": 384,
+    "calibrated": false,
+    "key": "granite-r2",
+    "label": "Granite R2 · multilingual",
+    "id": "onnx-community/granite-embedding-97m-multilingual-r2-ONNX",
+    "revision": "536a9f241cb3f02a9c5995a1e708c784bd274859",
+    "pooling": "cls",
+    "maxTokens": 512,
+    "language": "52 explicitly supported languages",
+    "languages": [
+      "sq",
+      "ar",
+      "az",
+      "bn",
+      "bg",
+      "ca",
+      "zh",
+      "hr",
+      "cs",
+      "da",
+      "nl",
+      "en",
+      "et",
+      "fi",
+      "fr",
+      "ka",
+      "de",
+      "el",
+      "he",
+      "hi",
+      "hu",
+      "is",
+      "id",
+      "it",
+      "ja",
+      "kk",
+      "km",
+      "ko",
+      "lv",
+      "lt",
+      "ms",
+      "mr",
+      "no",
+      "fa",
+      "pl",
+      "pt",
+      "ro",
+      "ru",
+      "sr",
+      "sk",
+      "sl",
+      "es",
+      "sw",
+      "sv",
+      "tl",
+      "te",
+      "th",
+      "tr",
+      "uk",
+      "ur",
+      "uz",
+      "vi"
+    ],
+    "graphBytes": 97858099,
+    "tokenizerBytes": 25301671,
+    "tradeoff": "About 123 MB model/tokenizer; multilingual comparison, more memory and first-load time. Application uses 512 tokens, not the full 32K context.",
+    "thresholds": {
+      "titleLow": 0.5,
+      "titleHigh": 0.9,
+      "topicLow": 0.45,
+      "topicHigh": 0.8,
+      "factHigh": 0.95
+    },
+    "budget": {
+      "facts": 160,
+      "figures": 24,
+      "contents": 12,
+      "sections": 20
+    }
+  },
+  "aggregates": {
+    "all": {
+      "baselineFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 12,
+        "ambiguous": 4,
+        "tp": 4,
+        "fp": 1,
+        "fn": 4,
+        "ambiguousFlags": 0,
+        "precision": 0.8,
+        "conservativePrecision": 0.8,
+        "recall": 0.5,
+        "candidateCoverage": 0.9583333333333334,
+        "embeddingCoverage": 1,
+        "pairEmbeddingCoverage": 0.9583333333333334,
+        "embeddedSentenceCoverage": 0.9791666666666666,
+        "flagRate": 0.20833333333333334,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      },
+      "retrievalFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 12,
+        "ambiguous": 4,
+        "tp": 2,
+        "fp": 3,
+        "fn": 6,
+        "ambiguousFlags": 2,
+        "precision": 0.4,
+        "conservativePrecision": 0.2857142857142857,
+        "recall": 0.25,
+        "candidateCoverage": 0.9583333333333334,
+        "embeddingCoverage": 1,
+        "pairEmbeddingCoverage": 0.9583333333333334,
+        "embeddedSentenceCoverage": 0.9791666666666666,
+        "flagRate": 0.2916666666666667,
+        "additionalUsefulIds": [
+          "c02",
+          "c09"
+        ],
+        "additionalFalseIds": [
+          "c04",
+          "c13",
+          "c19"
+        ]
+      },
+      "combinedFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 12,
+        "ambiguous": 4,
+        "tp": 6,
+        "fp": 4,
+        "fn": 2,
+        "ambiguousFlags": 2,
+        "precision": 0.6,
+        "conservativePrecision": 0.5,
+        "recall": 0.75,
+        "candidateCoverage": 0.9583333333333334,
+        "embeddingCoverage": 1,
+        "pairEmbeddingCoverage": 0.9583333333333334,
+        "embeddedSentenceCoverage": 0.9791666666666666,
+        "flagRate": 0.5,
+        "additionalUsefulIds": [
+          "c02",
+          "c09"
+        ],
+        "additionalFalseIds": [
+          "c04",
+          "c13",
+          "c19"
+        ]
+      }
+    },
+    "development": {
+      "baselineFlag": {
+        "cases": 0,
+        "positives": 0,
+        "clean": 0,
+        "ambiguous": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "ambiguousFlags": 0,
+        "precision": null,
+        "conservativePrecision": null,
+        "recall": null,
+        "candidateCoverage": null,
+        "embeddingCoverage": null,
+        "pairEmbeddingCoverage": null,
+        "embeddedSentenceCoverage": null,
+        "flagRate": null,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      },
+      "retrievalFlag": {
+        "cases": 0,
+        "positives": 0,
+        "clean": 0,
+        "ambiguous": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "ambiguousFlags": 0,
+        "precision": null,
+        "conservativePrecision": null,
+        "recall": null,
+        "candidateCoverage": null,
+        "embeddingCoverage": null,
+        "pairEmbeddingCoverage": null,
+        "embeddedSentenceCoverage": null,
+        "flagRate": null,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      },
+      "combinedFlag": {
+        "cases": 0,
+        "positives": 0,
+        "clean": 0,
+        "ambiguous": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "ambiguousFlags": 0,
+        "precision": null,
+        "conservativePrecision": null,
+        "recall": null,
+        "candidateCoverage": null,
+        "embeddingCoverage": null,
+        "pairEmbeddingCoverage": null,
+        "embeddedSentenceCoverage": null,
+        "flagRate": null,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      }
+    },
+    "held-out": {
+      "baselineFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 12,
+        "ambiguous": 4,
+        "tp": 4,
+        "fp": 1,
+        "fn": 4,
+        "ambiguousFlags": 0,
+        "precision": 0.8,
+        "conservativePrecision": 0.8,
+        "recall": 0.5,
+        "candidateCoverage": 0.9583333333333334,
+        "embeddingCoverage": 1,
+        "pairEmbeddingCoverage": 0.9583333333333334,
+        "embeddedSentenceCoverage": 0.9791666666666666,
+        "flagRate": 0.20833333333333334,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      },
+      "retrievalFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 12,
+        "ambiguous": 4,
+        "tp": 2,
+        "fp": 3,
+        "fn": 6,
+        "ambiguousFlags": 2,
+        "precision": 0.4,
+        "conservativePrecision": 0.2857142857142857,
+        "recall": 0.25,
+        "candidateCoverage": 0.9583333333333334,
+        "embeddingCoverage": 1,
+        "pairEmbeddingCoverage": 0.9583333333333334,
+        "embeddedSentenceCoverage": 0.9791666666666666,
+        "flagRate": 0.2916666666666667,
+        "additionalUsefulIds": [
+          "c02",
+          "c09"
+        ],
+        "additionalFalseIds": [
+          "c04",
+          "c13",
+          "c19"
+        ]
+      },
+      "combinedFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 12,
+        "ambiguous": 4,
+        "tp": 6,
+        "fp": 4,
+        "fn": 2,
+        "ambiguousFlags": 2,
+        "precision": 0.6,
+        "conservativePrecision": 0.5,
+        "recall": 0.75,
+        "candidateCoverage": 0.9583333333333334,
+        "embeddingCoverage": 1,
+        "pairEmbeddingCoverage": 0.9583333333333334,
+        "embeddedSentenceCoverage": 0.9791666666666666,
+        "flagRate": 0.5,
+        "additionalUsefulIds": [
+          "c02",
+          "c09"
+        ],
+        "additionalFalseIds": [
+          "c04",
+          "c13",
+          "c19"
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "c01",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 0,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The Harbor final water audit recorded 48 hospitals with a safe drinking water supply."
+        },
+        {
+          "index": 1,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "Safe drinking water was available at 84 hospitals according to the final Harbor water audit."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9735538340293964,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c02",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 2,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The completed Harbor water project connected 160 households to the new drinking water network."
+        },
+        {
+          "index": 3,
+          "inputTokens": 20,
+          "consumedTokens": 20,
+          "truncated": false,
+          "consumedText": "Connection to the new drinking water network reached 610 households in the completed Harbor water project."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9684095062531295,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "households",
+            "a": 160,
+            "b": 610
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c03",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "identical",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 4,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "The final Harbor inspection confirmed 24 schools with functioning water treatment equipment."
+        },
+        {
+          "index": 5,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "The final Harbor inspection confirmed 42 schools with functioning water treatment equipment."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9870227920697926,
+      "baselineValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 24,
+            "b": 42
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "c04",
+      "split": "held-out",
+      "label": "clean",
+      "category": "places",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 6,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "The Harbor water project connected 160 households in Greenbank village during the project year."
+        },
+        {
+          "index": 7,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "The Harbor water project connected 610 households in Stonebank village during the project year."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9544183722269189,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "households",
+            "a": 160,
+            "b": 610
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c05",
+      "split": "held-out",
+      "label": "clean",
+      "category": "dates",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 8,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The Harbor project connected 160 households during the 2020 water network expansion."
+        },
+        {
+          "index": 9,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The Harbor project connected 610 households during the 2024 water network expansion."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9791604654746087,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c06",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 10,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The Harbor survey found 30 percent of hospitals had a backup water supply."
+        },
+        {
+          "index": 11,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The Harbor survey found 70 percent of schools had a backup water supply."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9296463783403254,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c07",
+      "split": "held-out",
+      "label": "clean",
+      "category": "subset",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 12,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "The Harbor project connected 160 households, including 60 households in the eastern district."
+        },
+        {
+          "index": 13,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The Harbor project connected 60 households in the eastern district during the completed project."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9686998695654379,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c08",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "revision",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 14,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The initial Harbor water inspection identified 24 schools without a safe water supply."
+        },
+        {
+          "index": 15,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The updated Harbor water inspection identified 42 schools without a safe water supply."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9615614169002888,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 24,
+            "b": 42
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c09",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 16,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "The Mesa final energy audit counted 15 hospitals with operational solar installations."
+        },
+        {
+          "index": 17,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "Operational solar installations served 51 hospitals in the final Mesa energy audit."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9683400863355752,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "hospitals",
+            "a": 15,
+            "b": 51
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c10",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "multiple",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 18,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The completed Mesa project installed solar systems at 15 hospitals and 28 schools."
+        },
+        {
+          "index": 19,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The completed Mesa project installed solar systems at 15 hospitals and 82 schools."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9873067393544491,
+      "baselineValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 28,
+            "b": 82
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "c11",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 20,
+          "inputTokens": 28,
+          "consumedTokens": 28,
+          "truncated": false,
+          "consumedText": "The completed energy audit counted 15 hospitals with operational solar installations.\nContext: Mesa / Central district / final 2025 energy audit"
+        },
+        {
+          "index": 21,
+          "inputTokens": 28,
+          "consumedTokens": 28,
+          "truncated": false,
+          "consumedText": "The completed energy audit counted 51 hospitals with operational solar installations.\nContext: Mesa / Central district / final 2025 energy audit"
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9876659523913192,
+      "baselineValues": [
+        [
+          {
+            "unit": "hospitals",
+            "a": 15,
+            "b": 51
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "c12",
+      "split": "held-out",
+      "label": "clean",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 22,
+          "inputTokens": 28,
+          "consumedTokens": 28,
+          "truncated": false,
+          "consumedText": "The completed energy audit counted 15 hospitals with operational solar installations.\nContext: Mesa / Central district / final 2025 energy audit"
+        },
+        {
+          "index": 23,
+          "inputTokens": 28,
+          "consumedTokens": 28,
+          "truncated": false,
+          "consumedText": "The completed energy audit counted 51 hospitals with operational solar installations.\nContext: Mesa / Western district / final 2025 energy audit"
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9844160033663509,
+      "baselineValues": [
+        [
+          {
+            "unit": "hospitals",
+            "a": 15,
+            "b": 51
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "c13",
+      "split": "held-out",
+      "label": "clean",
+      "category": "range",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 24,
+          "inputTokens": 21,
+          "consumedTokens": 21,
+          "truncated": false,
+          "consumedText": "The Mesa recovery plan expects to restore power to between 400 and 600 households this winter."
+        },
+        {
+          "index": 25,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The Mesa recovery plan expects to restore power to 500 households this winter."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9867616877123149,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "households",
+            "a": 600,
+            "b": 500
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c14",
+      "split": "held-out",
+      "label": "clean",
+      "category": "scale",
+      "candidates": 1,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 26,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "The Mesa solar programme has installed 4 thousand systems across public schools."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": null,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c15",
+      "split": "held-out",
+      "label": "clean",
+      "category": "hazards",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 27,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The Mesa earthquake recovery project restored electricity to 400 households in the province."
+        },
+        {
+          "index": 28,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The Mesa wildfire recovery project restored electricity to 600 households in the province."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9640837973774717,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c16",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "missing-scope",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 29,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The Mesa energy project supplied power to 400 households during the reporting period."
+        },
+        {
+          "index": 30,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "The Mesa energy project supplied power to 600 households according to a separate project report."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9626542325657937,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c17",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 31,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The final Orchid recovery budget allocated 7 million dollars to rebuilding public hospitals."
+        },
+        {
+          "index": 32,
+          "inputTokens": 21,
+          "consumedTokens": 21,
+          "truncated": false,
+          "consumedText": "Rebuilding public hospitals received an allocation of 9 million dollars in the final Orchid recovery budget."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.96313488065243,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c18",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "identical",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 33,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "The final Orchid audit recorded 32 municipalities receiving a reconstruction grant."
+        },
+        {
+          "index": 34,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "The final Orchid audit recorded 23 municipalities receiving a reconstruction grant."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9887877566168759,
+      "baselineValues": [
+        [
+          {
+            "unit": "municipalities",
+            "a": 32,
+            "b": 23
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "c19",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 35,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "The Orchid audit found 20 percent of approved projects had received their first grant payment."
+        },
+        {
+          "index": 36,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "The Orchid audit found 80 percent of completed projects had received their first grant payment."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9848816768170252,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "%",
+            "a": 20,
+            "b": 80
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c20",
+      "split": "held-out",
+      "label": "clean",
+      "category": "rounding",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 37,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "Approximately 5 million dollars were allocated in the final Orchid hospital reconstruction budget."
+        },
+        {
+          "index": 38,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "Exactly 4980000 dollars were allocated in the final Orchid hospital reconstruction budget."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9743861878681911,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c21",
+      "split": "held-out",
+      "label": "clean",
+      "category": "multiple",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 39,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "The final Orchid audit recorded 32 municipalities and 23 schools receiving a reconstruction grant."
+        },
+        {
+          "index": 40,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The final Orchid audit recorded 23 schools receiving a reconstruction grant this year."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9643933175609039,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c22",
+      "split": "held-out",
+      "label": "clean",
+      "category": "scale",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 41,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "The Orchid recovery fund allocated 6 million dollars for rebuilding public schools."
+        },
+        {
+          "index": 42,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "The Orchid recovery fund allocated 6000000 dollars for rebuilding public schools."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9853181860476649,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "c23",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "budget-status",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 43,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The proposed Orchid recovery budget allocates 7 million dollars to rebuilding public hospitals."
+        },
+        {
+          "index": 44,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The approved Orchid recovery budget allocates 9 million dollars to rebuilding public hospitals."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9842748258824516,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "million",
+            "a": 7,
+            "b": 9
+          }
+        ]
+      ]
+    },
+    {
+      "id": "c24",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "missing-denominator",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 45,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The Orchid survey found 20 percent of municipalities had received their first reconstruction grant."
+        },
+        {
+          "index": 46,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "The Orchid survey found 80 percent had received their first reconstruction grant this year."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9478192069625511,
+      "baselineValues": [],
+      "retrievedValues": []
+    }
+  ],
+  "note": "Assistant-labelled synthetic pairwise extraction challenge; no human review, real PDFs, crowding, extraction/layout validation or calibrated confidence. No-flag is not an explicit abstention or evidence of consistency."
+}

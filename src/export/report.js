@@ -84,6 +84,18 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,includ
     if(report.sourceIdentity?.requestedConfiguration)await write(`Original batch attempt: ${report.sourceIdentity.queueItemId || 'unknown item'}; epoch ${report.sourceIdentity.attemptEpoch ?? 'unknown'}; frozen requested configuration ${JSON.stringify(report.sourceIdentity.requestedConfiguration)}. Detached preferences do not change this attempt.`);
     await write(`Selection preferences at capture (separate from completed result): ${JSON.stringify(report.screeningSelection || {})}`);
     if(semantic){if(semantic.status==='skipped')await write(`AI requested but not run: ${semantic.reason || semantic.skipReason || 'analysis incomplete'}. No model inference claimed.`);if(semantic.error)await write(`Screening error: ${semantic.error}. Traditional outcomes retained; no completed inference claimed.`);await write(`Coverage: keywords ${JSON.stringify(semantic.keywordCoverage || {})}; sections ${JSON.stringify(semantic.sectionCoverage || {})}`);await write(`Skipped checks: ${JSON.stringify(semantic.skippedChecks || [])}`);await write(`Provisional thresholds: ${JSON.stringify(semantic.thresholds || {})}`);if(semantic.inferenceProvenance?.length)await write(`Model inputs: ${semantic.inferenceProvenance.length}; ${semantic.inferenceProvenance.filter(p=>p.truncated).length} truncated. Full consumed text and per-input counts are in JSON.`);}
+    if(semantic?.factPairs?.length){
+      await heading('Experimental numerical evidence');
+      await write('Related-statement candidates only, not established disagreements. Excluded from fix/check tasks, headline counts, scores and the concise fix list. Measurement identity may be unresolved. Similarity is relatedness, not a confidence probability; no candidates does not prove consistency.');
+      for(const [index,pair] of semantic.factPairs.entries()){
+        await heading(`Experimental candidate ${index+1}`);
+        await write(`Recorded similarity: ${pair.similarity ?? 'Not recorded'} (not confidence). Pair inference recorded: ${pair.inferencePerformed === true?'yes':'no'}.`);
+        for(const statement of [pair.a,pair.b]){
+          await write(`Original statement on page ${statement.page}: ${statement.text}`);
+          if(statement.context)await write(`Original context (statement on page ${statement.page}; context location not established): ${statement.context}`);
+        }
+      }
+    }
     await heading('Findings and inspection guidance');const findings=snapshot.normalized.findings.slice(0,80);
     for(let i=0;i<findings.length;i++){
       throwIfAborted(signal);const f=findings[i];onProgress({completed:i,total:findings.length,unit:'findings'});

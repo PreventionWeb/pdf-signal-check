@@ -1,0 +1,3144 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-22T22:19:05.687Z",
+  "humanReviewed": false,
+  "observations": [
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/final-granite-r2.json",
+      "receiptSha256": "ab2e9ff81c37e3cf8f72d81d5cda21754ecd5764851aafb1256b35a8fefccadc",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "final",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "dad6fb215621d5c2ae52d3d31ef87dc066f3da9419c092cddee24eb0f500d34e"
+      },
+      "model": "granite-r2",
+      "observedAt": "2026-10-22T22:16:06.271Z",
+      "exposure": "development-exposed replay",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 6,
+            "fp": 0,
+            "fn": 6,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8571428571428571,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.175,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 4,
+            "fp": 0,
+            "fn": 8,
+            "ambiguousFlags": 3,
+            "precision": 1,
+            "conservativePrecision": 0.5714285714285714,
+            "recall": 0.3333333333333333,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.175,
+            "additionalUsefulIds": [
+              "d02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 10,
+            "fp": 0,
+            "fn": 2,
+            "ambiguousFlags": 4,
+            "precision": 1,
+            "conservativePrecision": 0.7142857142857143,
+            "recall": 0.8333333333333334,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.35,
+            "additionalUsefulIds": [
+              "d02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.1875,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 1,
+            "fp": 0,
+            "fn": 3,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.3333333333333333,
+            "recall": 0.25,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.1875,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.6666666666666666,
+            "recall": 1,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.375,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 6,
+            "fp": 0,
+            "fn": 2,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.3333333333333333,
+            "additionalUsefulIds": [
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        }
+      }
+    },
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/final-minilm.json",
+      "receiptSha256": "9475d9adbdaad679d9f533b601a162e233fbe31e808555c8076b8746b3bac72b",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "final",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "dad6fb215621d5c2ae52d3d31ef87dc066f3da9419c092cddee24eb0f500d34e"
+      },
+      "model": "minilm",
+      "observedAt": "2026-10-22T22:16:05.758Z",
+      "exposure": "development-exposed replay",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 6,
+            "fp": 0,
+            "fn": 6,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8571428571428571,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.175,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 5,
+            "fp": 0,
+            "fn": 7,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8333333333333334,
+            "recall": 0.4166666666666667,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.15,
+            "additionalUsefulIds": [
+              "d02",
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 11,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.8461538461538461,
+            "recall": 0.9166666666666666,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.325,
+            "additionalUsefulIds": [
+              "d02",
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.1875,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 1,
+            "fp": 0,
+            "fn": 3,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.25,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.0625,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 1,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 4,
+            "fp": 0,
+            "fn": 4,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 7,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.7777777777777778,
+            "recall": 0.875,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.375,
+            "additionalUsefulIds": [
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        }
+      }
+    },
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/final-reviewed-granite-r2.json",
+      "receiptSha256": "4bb3241ef3917eaa8f9435b7de2f12b1dd2b65461a1a695bcf952feb29348d8f",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "final-reviewed",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "119f7e09d4155be349d8480aae2d8c746bed3921ee5980a7ebaf75bc525e7271"
+      },
+      "model": "granite-r2",
+      "observedAt": "2026-10-22T22:17:56.937Z",
+      "exposure": "development-exposed replay",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 6,
+            "fp": 0,
+            "fn": 6,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8571428571428571,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.175,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 4,
+            "fp": 0,
+            "fn": 8,
+            "ambiguousFlags": 3,
+            "precision": 1,
+            "conservativePrecision": 0.5714285714285714,
+            "recall": 0.3333333333333333,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.175,
+            "additionalUsefulIds": [
+              "d02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 10,
+            "fp": 0,
+            "fn": 2,
+            "ambiguousFlags": 4,
+            "precision": 1,
+            "conservativePrecision": 0.7142857142857143,
+            "recall": 0.8333333333333334,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.35,
+            "additionalUsefulIds": [
+              "d02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.1875,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 1,
+            "fp": 0,
+            "fn": 3,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.3333333333333333,
+            "recall": 0.25,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.1875,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.6666666666666666,
+            "recall": 1,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.375,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 6,
+            "fp": 0,
+            "fn": 2,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.3333333333333333,
+            "additionalUsefulIds": [
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        }
+      }
+    },
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/final-reviewed-minilm.json",
+      "receiptSha256": "983f3e5eeff549875cc5e9e16f943d981a4feadbe4e7af5394fc4f6ddd81261c",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "final-reviewed",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "119f7e09d4155be349d8480aae2d8c746bed3921ee5980a7ebaf75bc525e7271"
+      },
+      "model": "minilm",
+      "observedAt": "2026-10-22T22:17:56.397Z",
+      "exposure": "development-exposed replay",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 6,
+            "fp": 0,
+            "fn": 6,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8571428571428571,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.175,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 5,
+            "fp": 0,
+            "fn": 7,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8333333333333334,
+            "recall": 0.4166666666666667,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.15,
+            "additionalUsefulIds": [
+              "d02",
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 11,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.8461538461538461,
+            "recall": 0.9166666666666666,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.325,
+            "additionalUsefulIds": [
+              "d02",
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.1875,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 1,
+            "fp": 0,
+            "fn": 3,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.25,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.0625,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 1,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 4,
+            "fp": 0,
+            "fn": 4,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.8,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 7,
+            "fp": 0,
+            "fn": 1,
+            "ambiguousFlags": 2,
+            "precision": 1,
+            "conservativePrecision": 0.7777777777777778,
+            "recall": 0.875,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 1,
+            "embeddedSentenceCoverage": 1,
+            "flagRate": 0.375,
+            "additionalUsefulIds": [
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": []
+          }
+        }
+      }
+    },
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/modified-granite-r2.json",
+      "receiptSha256": "131aeb743acb58fca331b336b9d54bb7404e6fa9ea7c680d78d3860d15194199",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "modified",
+      "factsSha256": "2660a195e3acda629773937c511a853610c088389afe01f47e2ddc74f5fb5ab9",
+      "dependencySha256": {
+        "facts-scope.js": "a21299961450e9101315027f3a991882f5a9e7ef497198775c94262ec3e09942"
+      },
+      "model": "granite-r2",
+      "observedAt": "2026-10-22T22:06:03.879Z",
+      "exposure": "assistant-authored synthetic phase1",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 6,
+            "fp": 1,
+            "fn": 6,
+            "ambiguousFlags": 1,
+            "precision": 0.8571428571428571,
+            "conservativePrecision": 0.75,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.2,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 4,
+            "fp": 2,
+            "fn": 8,
+            "ambiguousFlags": 3,
+            "precision": 0.6666666666666666,
+            "conservativePrecision": 0.4444444444444444,
+            "recall": 0.3333333333333333,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.225,
+            "additionalUsefulIds": [
+              "d02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "d10",
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 10,
+            "fp": 3,
+            "fn": 2,
+            "ambiguousFlags": 4,
+            "precision": 0.7692307692307693,
+            "conservativePrecision": 0.5882352941176471,
+            "recall": 0.8333333333333334,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.425,
+            "additionalUsefulIds": [
+              "d02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "d10",
+              "h14"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 0.75,
+            "conservativePrecision": 0.75,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 1,
+            "fp": 1,
+            "fn": 3,
+            "ambiguousFlags": 2,
+            "precision": 0.5,
+            "conservativePrecision": 0.25,
+            "recall": 0.25,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": [
+              "d10"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 4,
+            "fp": 2,
+            "fn": 0,
+            "ambiguousFlags": 2,
+            "precision": 0.6666666666666666,
+            "conservativePrecision": 0.5,
+            "recall": 1,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.5,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": [
+              "d10"
+            ]
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 1,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 0.75,
+            "conservativePrecision": 0.6,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 6,
+            "fp": 1,
+            "fn": 2,
+            "ambiguousFlags": 2,
+            "precision": 0.8571428571428571,
+            "conservativePrecision": 0.6666666666666666,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.375,
+            "additionalUsefulIds": [
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "h14"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/modified-minilm.json",
+      "receiptSha256": "60654a28fc2d2a922a0d19de9b1d5619e56a5d60eceacacde15e4b00f557d748",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "modified",
+      "factsSha256": "2660a195e3acda629773937c511a853610c088389afe01f47e2ddc74f5fb5ab9",
+      "dependencySha256": {
+        "facts-scope.js": "a21299961450e9101315027f3a991882f5a9e7ef497198775c94262ec3e09942"
+      },
+      "model": "minilm",
+      "observedAt": "2026-10-22T22:06:03.742Z",
+      "exposure": "assistant-authored synthetic phase1",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 6,
+            "fp": 1,
+            "fn": 6,
+            "ambiguousFlags": 1,
+            "precision": 0.8571428571428571,
+            "conservativePrecision": 0.75,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.2,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 5,
+            "fp": 2,
+            "fn": 7,
+            "ambiguousFlags": 1,
+            "precision": 0.7142857142857143,
+            "conservativePrecision": 0.625,
+            "recall": 0.4166666666666667,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.2,
+            "additionalUsefulIds": [
+              "d02",
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "d10",
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 11,
+            "fp": 3,
+            "fn": 1,
+            "ambiguousFlags": 2,
+            "precision": 0.7857142857142857,
+            "conservativePrecision": 0.6875,
+            "recall": 0.9166666666666666,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.4,
+            "additionalUsefulIds": [
+              "d02",
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "d10",
+              "h14"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 0.75,
+            "conservativePrecision": 0.75,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 1,
+            "fp": 1,
+            "fn": 3,
+            "ambiguousFlags": 0,
+            "precision": 0.5,
+            "conservativePrecision": 0.5,
+            "recall": 0.25,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": [
+              "d10"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 4,
+            "fp": 2,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": 0.6666666666666666,
+            "conservativePrecision": 0.6666666666666666,
+            "recall": 1,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.375,
+            "additionalUsefulIds": [
+              "d02"
+            ],
+            "additionalFalseIds": [
+              "d10"
+            ]
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 1,
+            "conservativePrecision": 0.75,
+            "recall": 0.375,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 1,
+            "precision": 0.8,
+            "conservativePrecision": 0.6666666666666666,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 7,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 2,
+            "precision": 0.875,
+            "conservativePrecision": 0.7,
+            "recall": 0.875,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [
+              "h02",
+              "h03",
+              "h04",
+              "h21"
+            ],
+            "additionalFalseIds": [
+              "h14"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/production-granite-r2.json",
+      "receiptSha256": "08a6717d05490d0850ccc16543369c1fe4623420c6bcc4943619b74cf263c03b",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "production",
+      "factsSha256": "00207848c3e07ef43a355b518ed45dfdad11cc94bef2f0e62a858499ac7248dc",
+      "dependencySha256": {},
+      "model": "granite-r2",
+      "observedAt": "2026-10-22T22:04:39.756Z",
+      "exposure": "assistant-authored synthetic phase1",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 7,
+            "fp": 2,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 0.7777777777777778,
+            "conservativePrecision": 0.7,
+            "recall": 0.5833333333333334,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 0,
+            "fp": 6,
+            "fn": 12,
+            "ambiguousFlags": 2,
+            "precision": 0,
+            "conservativePrecision": 0,
+            "recall": 0,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.2,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "d05",
+              "d06",
+              "d08",
+              "h10",
+              "h12",
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 7,
+            "fp": 8,
+            "fn": 5,
+            "ambiguousFlags": 3,
+            "precision": 0.4666666666666667,
+            "conservativePrecision": 0.3888888888888889,
+            "recall": 0.5833333333333334,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.45,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "d05",
+              "d06",
+              "d08",
+              "h10",
+              "h12",
+              "h14"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 0.75,
+            "conservativePrecision": 0.75,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 0,
+            "fp": 3,
+            "fn": 4,
+            "ambiguousFlags": 1,
+            "precision": 0,
+            "conservativePrecision": 0,
+            "recall": 0,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "d05",
+              "d06",
+              "d08"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 4,
+            "fn": 1,
+            "ambiguousFlags": 1,
+            "precision": 0.42857142857142855,
+            "conservativePrecision": 0.375,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.5,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "d05",
+              "d06",
+              "d08"
+            ]
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 1,
+            "precision": 0.8,
+            "conservativePrecision": 0.6666666666666666,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 0,
+            "fp": 3,
+            "fn": 8,
+            "ambiguousFlags": 1,
+            "precision": 0,
+            "conservativePrecision": 0,
+            "recall": 0,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.16666666666666666,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "h10",
+              "h12",
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 4,
+            "fp": 4,
+            "fn": 4,
+            "ambiguousFlags": 2,
+            "precision": 0.5,
+            "conservativePrecision": 0.4,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "h10",
+              "h12",
+              "h14"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "phase1",
+      "receipt": "evaluation/numerical-consistency/production-minilm.json",
+      "receiptSha256": "055914c8ed5e762afed86ec3d0d44cccf2f80f0fa90d6ba8d5df63c3bb1d9894",
+      "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+      "snapshot": "production",
+      "factsSha256": "00207848c3e07ef43a355b518ed45dfdad11cc94bef2f0e62a858499ac7248dc",
+      "dependencySha256": {},
+      "model": "minilm",
+      "observedAt": "2026-10-22T22:04:20.136Z",
+      "exposure": "assistant-authored synthetic phase1",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 7,
+            "fp": 2,
+            "fn": 5,
+            "ambiguousFlags": 1,
+            "precision": 0.7777777777777778,
+            "conservativePrecision": 0.7,
+            "recall": 0.5833333333333334,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 1,
+            "fp": 5,
+            "fn": 11,
+            "ambiguousFlags": 1,
+            "precision": 0.16666666666666666,
+            "conservativePrecision": 0.14285714285714285,
+            "recall": 0.08333333333333333,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.175,
+            "additionalUsefulIds": [
+              "h02"
+            ],
+            "additionalFalseIds": [
+              "d08",
+              "h09",
+              "h10",
+              "h12",
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 40,
+            "positives": 12,
+            "clean": 23,
+            "ambiguous": 5,
+            "tp": 8,
+            "fp": 7,
+            "fn": 4,
+            "ambiguousFlags": 2,
+            "precision": 0.5333333333333333,
+            "conservativePrecision": 0.47058823529411764,
+            "recall": 0.6666666666666666,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.425,
+            "additionalUsefulIds": [
+              "h02"
+            ],
+            "additionalFalseIds": [
+              "d08",
+              "h09",
+              "h10",
+              "h12",
+              "h14"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 0.75,
+            "conservativePrecision": 0.75,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 0,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 0,
+            "precision": 0,
+            "conservativePrecision": 0,
+            "recall": 0,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.0625,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "d08"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 16,
+            "positives": 4,
+            "clean": 10,
+            "ambiguous": 2,
+            "tp": 3,
+            "fp": 2,
+            "fn": 1,
+            "ambiguousFlags": 0,
+            "precision": 0.6,
+            "conservativePrecision": 0.6,
+            "recall": 0.75,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.3125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": [
+              "d08"
+            ]
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 1,
+            "precision": 0.8,
+            "conservativePrecision": 0.6666666666666666,
+            "recall": 0.5,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 1,
+            "fp": 4,
+            "fn": 7,
+            "ambiguousFlags": 1,
+            "precision": 0.2,
+            "conservativePrecision": 0.16666666666666666,
+            "recall": 0.125,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.25,
+            "additionalUsefulIds": [
+              "h02"
+            ],
+            "additionalFalseIds": [
+              "h09",
+              "h10",
+              "h12",
+              "h14"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 13,
+            "ambiguous": 3,
+            "tp": 5,
+            "fp": 5,
+            "fn": 3,
+            "ambiguousFlags": 2,
+            "precision": 0.5,
+            "conservativePrecision": 0.4166666666666667,
+            "recall": 0.625,
+            "candidateCoverage": 1,
+            "embeddingCoverage": 1,
+            "flagRate": 0.5,
+            "additionalUsefulIds": [
+              "h02"
+            ],
+            "additionalFalseIds": [
+              "h09",
+              "h10",
+              "h12",
+              "h14"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "confirmation",
+      "receipt": "evaluation/numerical-consistency/confirmation/final-granite-r2.json",
+      "receiptSha256": "908f06cdd1b7a79f7efa9521be09d13468fb4e7f1236d279e55b782b6423306b",
+      "datasetSha256": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca",
+      "snapshot": "final",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "dad6fb215621d5c2ae52d3d31ef87dc066f3da9419c092cddee24eb0f500d34e"
+      },
+      "model": "granite-r2",
+      "observedAt": "2026-10-22T22:16:47.597Z",
+      "exposure": "assistant-authored synthetic confirmation; no outputs inspected before reviewed freeze",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 3,
+            "precision": 0.8,
+            "conservativePrecision": 0.5,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.3333333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 7,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 3,
+            "precision": 0.875,
+            "conservativePrecision": 0.6363636363636364,
+            "recall": 0.875,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4583333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 3,
+            "precision": 0.8,
+            "conservativePrecision": 0.5,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.3333333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 7,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 3,
+            "precision": 0.875,
+            "conservativePrecision": 0.6363636363636364,
+            "recall": 0.875,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4583333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "confirmation",
+      "receipt": "evaluation/numerical-consistency/confirmation/final-minilm.json",
+      "receiptSha256": "2f88ab962771d7279bcfc16dad9a14f557fd121d6661c1c01fa13983253d0852",
+      "datasetSha256": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca",
+      "snapshot": "final",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "dad6fb215621d5c2ae52d3d31ef87dc066f3da9419c092cddee24eb0f500d34e"
+      },
+      "model": "minilm",
+      "observedAt": "2026-10-22T22:16:22.699Z",
+      "exposure": "assistant-authored synthetic confirmation; no outputs inspected before reviewed freeze",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 1,
+            "fn": 5,
+            "ambiguousFlags": 3,
+            "precision": 0.75,
+            "conservativePrecision": 0.42857142857142855,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.2916666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 6,
+            "fp": 1,
+            "fn": 2,
+            "ambiguousFlags": 3,
+            "precision": 0.8571428571428571,
+            "conservativePrecision": 0.6,
+            "recall": 0.75,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 1,
+            "fn": 5,
+            "ambiguousFlags": 3,
+            "precision": 0.75,
+            "conservativePrecision": 0.42857142857142855,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.2916666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 6,
+            "fp": 1,
+            "fn": 2,
+            "ambiguousFlags": 3,
+            "precision": 0.8571428571428571,
+            "conservativePrecision": 0.6,
+            "recall": 0.75,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "confirmation",
+      "receipt": "evaluation/numerical-consistency/confirmation/final-reviewed-granite-r2.json",
+      "receiptSha256": "9057a061fc5af34792e28b0318e8012916052e12cb034b9b94caf0c81fd77399",
+      "datasetSha256": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca",
+      "snapshot": "final-reviewed",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "119f7e09d4155be349d8480aae2d8c746bed3921ee5980a7ebaf75bc525e7271"
+      },
+      "model": "granite-r2",
+      "observedAt": "2026-10-22T22:17:55.751Z",
+      "exposure": "assistant-authored synthetic confirmation; no outputs inspected before reviewed freeze",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 3,
+            "precision": 0.8,
+            "conservativePrecision": 0.5,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.3333333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 7,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 3,
+            "precision": 0.875,
+            "conservativePrecision": 0.6363636363636364,
+            "recall": 0.875,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4583333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 3,
+            "precision": 0.8,
+            "conservativePrecision": 0.5,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.3333333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 7,
+            "fp": 1,
+            "fn": 1,
+            "ambiguousFlags": 3,
+            "precision": 0.875,
+            "conservativePrecision": 0.6363636363636364,
+            "recall": 0.875,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4583333333333333,
+            "additionalUsefulIds": [
+              "c01",
+              "c02",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "confirmation",
+      "receipt": "evaluation/numerical-consistency/confirmation/final-reviewed-minilm.json",
+      "receiptSha256": "94d95d388837f8af67561b6cf96e3c63554a07f6970476dc9c04892f8f686c99",
+      "datasetSha256": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca",
+      "snapshot": "final-reviewed",
+      "factsSha256": "ed73108a065ebe4be3c5b36ab1efea1a6ef5522be4fb4620665fafdeca582831",
+      "dependencySha256": {
+        "facts-scope.js": "119f7e09d4155be349d8480aae2d8c746bed3921ee5980a7ebaf75bc525e7271"
+      },
+      "model": "minilm",
+      "observedAt": "2026-10-22T22:17:54.868Z",
+      "exposure": "assistant-authored synthetic confirmation; no outputs inspected before reviewed freeze",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 1,
+            "fn": 5,
+            "ambiguousFlags": 3,
+            "precision": 0.75,
+            "conservativePrecision": 0.42857142857142855,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.2916666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 6,
+            "fp": 1,
+            "fn": 2,
+            "ambiguousFlags": 3,
+            "precision": 0.8571428571428571,
+            "conservativePrecision": 0.6,
+            "recall": 0.75,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "ambiguousFlags": 0,
+            "precision": 1,
+            "conservativePrecision": 1,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.125,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 3,
+            "fp": 1,
+            "fn": 5,
+            "ambiguousFlags": 3,
+            "precision": 0.75,
+            "conservativePrecision": 0.42857142857142855,
+            "recall": 0.375,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.2916666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 6,
+            "fp": 1,
+            "fn": 2,
+            "ambiguousFlags": 3,
+            "precision": 0.8571428571428571,
+            "conservativePrecision": 0.6,
+            "recall": 0.75,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [
+              "c01",
+              "c09",
+              "c17"
+            ],
+            "additionalFalseIds": [
+              "c19"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "confirmation",
+      "receipt": "evaluation/numerical-consistency/confirmation/production-granite-r2.json",
+      "receiptSha256": "794191fb8a385a014a72fd301a8f63a48e845d6615d76f15bb168423a9d663b9",
+      "datasetSha256": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca",
+      "snapshot": "production",
+      "factsSha256": "00207848c3e07ef43a355b518ed45dfdad11cc94bef2f0e62a858499ac7248dc",
+      "dependencySha256": {},
+      "model": "granite-r2",
+      "observedAt": "2026-10-22T22:16:38.823Z",
+      "exposure": "assistant-authored synthetic confirmation; no outputs inspected before reviewed freeze",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 0,
+            "precision": 0.8,
+            "conservativePrecision": 0.8,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 2,
+            "fp": 3,
+            "fn": 6,
+            "ambiguousFlags": 2,
+            "precision": 0.4,
+            "conservativePrecision": 0.2857142857142857,
+            "recall": 0.25,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.2916666666666667,
+            "additionalUsefulIds": [
+              "c02",
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c04",
+              "c13",
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 6,
+            "fp": 4,
+            "fn": 2,
+            "ambiguousFlags": 2,
+            "precision": 0.6,
+            "conservativePrecision": 0.5,
+            "recall": 0.75,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.5,
+            "additionalUsefulIds": [
+              "c02",
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c04",
+              "c13",
+              "c19"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 0,
+            "precision": 0.8,
+            "conservativePrecision": 0.8,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 2,
+            "fp": 3,
+            "fn": 6,
+            "ambiguousFlags": 2,
+            "precision": 0.4,
+            "conservativePrecision": 0.2857142857142857,
+            "recall": 0.25,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.2916666666666667,
+            "additionalUsefulIds": [
+              "c02",
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c04",
+              "c13",
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 6,
+            "fp": 4,
+            "fn": 2,
+            "ambiguousFlags": 2,
+            "precision": 0.6,
+            "conservativePrecision": 0.5,
+            "recall": 0.75,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.5,
+            "additionalUsefulIds": [
+              "c02",
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c04",
+              "c13",
+              "c19"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": "confirmation",
+      "receipt": "evaluation/numerical-consistency/confirmation/production-minilm.json",
+      "receiptSha256": "0a48701fa2fce251e49236ce96c8ab4d337cc25a9c5bce7ff915b7886e1898c2",
+      "datasetSha256": "cd525e20d5b9d5d098ca290d53660ccbb000cb3a5c3aaca7372f771f59f4d6ca",
+      "snapshot": "production",
+      "factsSha256": "00207848c3e07ef43a355b518ed45dfdad11cc94bef2f0e62a858499ac7248dc",
+      "dependencySha256": {},
+      "model": "minilm",
+      "observedAt": "2026-10-22T22:16:09.946Z",
+      "exposure": "assistant-authored synthetic confirmation; no outputs inspected before reviewed freeze",
+      "aggregates": {
+        "all": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 0,
+            "precision": 0.8,
+            "conservativePrecision": 0.8,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 1,
+            "fp": 2,
+            "fn": 7,
+            "ambiguousFlags": 2,
+            "precision": 0.3333333333333333,
+            "conservativePrecision": 0.2,
+            "recall": 0.125,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c13",
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 5,
+            "fp": 3,
+            "fn": 3,
+            "ambiguousFlags": 2,
+            "precision": 0.625,
+            "conservativePrecision": 0.5,
+            "recall": 0.625,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c13",
+              "c19"
+            ]
+          }
+        },
+        "development": {
+          "baselineFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "combinedFlag": {
+            "cases": 0,
+            "positives": 0,
+            "clean": 0,
+            "ambiguous": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "ambiguousFlags": 0,
+            "precision": null,
+            "conservativePrecision": null,
+            "recall": null,
+            "candidateCoverage": null,
+            "embeddingCoverage": null,
+            "pairEmbeddingCoverage": null,
+            "embeddedSentenceCoverage": null,
+            "flagRate": null,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          }
+        },
+        "held-out": {
+          "baselineFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 4,
+            "fp": 1,
+            "fn": 4,
+            "ambiguousFlags": 0,
+            "precision": 0.8,
+            "conservativePrecision": 0.8,
+            "recall": 0.5,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [],
+            "additionalFalseIds": []
+          },
+          "retrievalFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 1,
+            "fp": 2,
+            "fn": 7,
+            "ambiguousFlags": 2,
+            "precision": 0.3333333333333333,
+            "conservativePrecision": 0.2,
+            "recall": 0.125,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.20833333333333334,
+            "additionalUsefulIds": [
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c13",
+              "c19"
+            ]
+          },
+          "combinedFlag": {
+            "cases": 24,
+            "positives": 8,
+            "clean": 12,
+            "ambiguous": 4,
+            "tp": 5,
+            "fp": 3,
+            "fn": 3,
+            "ambiguousFlags": 2,
+            "precision": 0.625,
+            "conservativePrecision": 0.5,
+            "recall": 0.625,
+            "candidateCoverage": 0.9583333333333334,
+            "embeddingCoverage": 1,
+            "pairEmbeddingCoverage": 0.9583333333333334,
+            "embeddedSentenceCoverage": 0.9791666666666666,
+            "flagRate": 0.4166666666666667,
+            "additionalUsefulIds": [
+              "c09"
+            ],
+            "additionalFalseIds": [
+              "c13",
+              "c19"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "note": "No pooling across repeated snapshots. Conservative precision counts flags on ambiguous inputs as unsupported. Synthetic source-group transfer is not independent human or real-world validation."
+}

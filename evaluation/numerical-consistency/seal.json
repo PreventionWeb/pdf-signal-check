@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-10-22T22:02:07.240822+00:00",
+  "files": {
+    "challenge.json": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b"
+  },
+  "caseCount": 40,
+  "noOutputsInspected": true,
+  "labelsMustNotChange": "Any correction requires a separately versioned dataset and explanation; do not relabel based on outputs."
+}

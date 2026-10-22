@@ -1,0 +1,1597 @@
+{
+  "dependencySha256": {
+    "facts-scope.js": "a21299961450e9101315027f3a991882f5a9e7ef497198775c94262ec3e09942"
+  },
+  "embeddingReuse": {
+    "path": "evaluation/numerical-consistency/production-minilm-embeddings.json",
+    "sha256": "b86c74308a6d26ede8e44b09439b78000a2e7f794f4cc8073bd08d615b46c7a4"
+  },
+  "schemaVersion": 1,
+  "observedAt": "2026-10-22T22:06:03.742Z",
+  "snapshot": "modified",
+  "productionCommit": "4170bf3eb8345696fc3786760ee50e4b5e53fa2b",
+  "datasetSha256": "0ecae577021a02ae634ec8516e1d7d8b337a8659b386e68cfd5a0ddbb784560b",
+  "factsSha256": "2660a195e3acda629773937c511a853610c088389afe01f47e2ddc74f5fb5ab9",
+  "runnerSha256": "2018b35f8a1566f8296be88f2682176bb9aea9298278c068ac287b1a9912978d",
+  "modelConfigSha256": "e8d849b3d063a14f56e5540d9e012cdcd92827be13d7de169eae4ca0aef7e65b",
+  "harnessSha256": "5debd6ffbf04c1f05974f7c38d859bf170ab73ce82a71c6b68c30d7f89f8d0c0",
+  "workerSha256": "6a38ed1836fe8781b20cedb31e3216b52dabe6e608e2b30ae2874aaf546e66df",
+  "backend": "actual browser WASM",
+  "browserHarness": "agent-browser 0.37.1",
+  "cacheSource": "unknown",
+  "model": {
+    "dtype": "q8",
+    "device": "wasm",
+    "normalize": true,
+    "prefix": "",
+    "dimensions": 384,
+    "calibrated": false,
+    "key": "minilm",
+    "label": "MiniLM · compact English",
+    "id": "Xenova/all-MiniLM-L6-v2",
+    "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "pooling": "mean",
+    "maxTokens": 256,
+    "language": "English",
+    "languages": [
+      "en"
+    ],
+    "graphBytes": 22972370,
+    "tokenizerBytes": 711661,
+    "tradeoff": "Smallest shipped download; English-only screening with short context.",
+    "thresholds": {
+      "titleLow": 0.35,
+      "titleHigh": 0.75,
+      "topicLow": 0.2,
+      "topicHigh": 0.45,
+      "factHigh": 0.88
+    },
+    "budget": {
+      "facts": 300,
+      "figures": 80,
+      "contents": 24,
+      "sections": 40
+    }
+  },
+  "aggregates": {
+    "all": {
+      "baselineFlag": {
+        "cases": 40,
+        "positives": 12,
+        "clean": 23,
+        "ambiguous": 5,
+        "tp": 6,
+        "fp": 1,
+        "fn": 6,
+        "ambiguousFlags": 1,
+        "precision": 0.8571428571428571,
+        "conservativePrecision": 0.75,
+        "recall": 0.5,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.2,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      },
+      "retrievalFlag": {
+        "cases": 40,
+        "positives": 12,
+        "clean": 23,
+        "ambiguous": 5,
+        "tp": 5,
+        "fp": 2,
+        "fn": 7,
+        "ambiguousFlags": 1,
+        "precision": 0.7142857142857143,
+        "conservativePrecision": 0.625,
+        "recall": 0.4166666666666667,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.2,
+        "additionalUsefulIds": [
+          "d02",
+          "h02",
+          "h03",
+          "h04",
+          "h21"
+        ],
+        "additionalFalseIds": [
+          "d10",
+          "h14"
+        ]
+      },
+      "combinedFlag": {
+        "cases": 40,
+        "positives": 12,
+        "clean": 23,
+        "ambiguous": 5,
+        "tp": 11,
+        "fp": 3,
+        "fn": 1,
+        "ambiguousFlags": 2,
+        "precision": 0.7857142857142857,
+        "conservativePrecision": 0.6875,
+        "recall": 0.9166666666666666,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.4,
+        "additionalUsefulIds": [
+          "d02",
+          "h02",
+          "h03",
+          "h04",
+          "h21"
+        ],
+        "additionalFalseIds": [
+          "d10",
+          "h14"
+        ]
+      }
+    },
+    "development": {
+      "baselineFlag": {
+        "cases": 16,
+        "positives": 4,
+        "clean": 10,
+        "ambiguous": 2,
+        "tp": 3,
+        "fp": 1,
+        "fn": 1,
+        "ambiguousFlags": 0,
+        "precision": 0.75,
+        "conservativePrecision": 0.75,
+        "recall": 0.75,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.25,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      },
+      "retrievalFlag": {
+        "cases": 16,
+        "positives": 4,
+        "clean": 10,
+        "ambiguous": 2,
+        "tp": 1,
+        "fp": 1,
+        "fn": 3,
+        "ambiguousFlags": 0,
+        "precision": 0.5,
+        "conservativePrecision": 0.5,
+        "recall": 0.25,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.125,
+        "additionalUsefulIds": [
+          "d02"
+        ],
+        "additionalFalseIds": [
+          "d10"
+        ]
+      },
+      "combinedFlag": {
+        "cases": 16,
+        "positives": 4,
+        "clean": 10,
+        "ambiguous": 2,
+        "tp": 4,
+        "fp": 2,
+        "fn": 0,
+        "ambiguousFlags": 0,
+        "precision": 0.6666666666666666,
+        "conservativePrecision": 0.6666666666666666,
+        "recall": 1,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.375,
+        "additionalUsefulIds": [
+          "d02"
+        ],
+        "additionalFalseIds": [
+          "d10"
+        ]
+      }
+    },
+    "held-out": {
+      "baselineFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 13,
+        "ambiguous": 3,
+        "tp": 3,
+        "fp": 0,
+        "fn": 5,
+        "ambiguousFlags": 1,
+        "precision": 1,
+        "conservativePrecision": 0.75,
+        "recall": 0.375,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.16666666666666666,
+        "additionalUsefulIds": [],
+        "additionalFalseIds": []
+      },
+      "retrievalFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 13,
+        "ambiguous": 3,
+        "tp": 4,
+        "fp": 1,
+        "fn": 4,
+        "ambiguousFlags": 1,
+        "precision": 0.8,
+        "conservativePrecision": 0.6666666666666666,
+        "recall": 0.5,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.25,
+        "additionalUsefulIds": [
+          "h02",
+          "h03",
+          "h04",
+          "h21"
+        ],
+        "additionalFalseIds": [
+          "h14"
+        ]
+      },
+      "combinedFlag": {
+        "cases": 24,
+        "positives": 8,
+        "clean": 13,
+        "ambiguous": 3,
+        "tp": 7,
+        "fp": 1,
+        "fn": 1,
+        "ambiguousFlags": 2,
+        "precision": 0.875,
+        "conservativePrecision": 0.7,
+        "recall": 0.875,
+        "candidateCoverage": 1,
+        "embeddingCoverage": 1,
+        "flagRate": 0.4166666666666667,
+        "additionalUsefulIds": [
+          "h02",
+          "h03",
+          "h04",
+          "h21"
+        ],
+        "additionalFalseIds": [
+          "h14"
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "d01",
+      "split": "development",
+      "label": "contradiction",
+      "category": "identical",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 0,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the delta response programme reached 240 households during the final survey."
+        },
+        {
+          "index": 1,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the delta response programme reached 420 households during the final survey."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9297418061203818,
+      "baselineValues": [
+        [
+          {
+            "unit": "households",
+            "a": 240,
+            "b": 420
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "d02",
+      "split": "development",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 2,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the delta response programme reached 240 households during the final survey."
+        },
+        {
+          "index": 3,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "during the final survey, 420 households received assistance from the delta response programme."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.8982375313819004,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "households",
+            "a": 240,
+            "b": 420
+          }
+        ]
+      ]
+    },
+    {
+      "id": "d03",
+      "split": "development",
+      "label": "clean",
+      "category": "dates",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 4,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "in 2021 the delta programme reached 240 households through its relief activities."
+        },
+        {
+          "index": 5,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "in 2022 the delta programme reached 420 households through its relief activities."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8961733490492636,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d04",
+      "split": "development",
+      "label": "clean",
+      "category": "hazards",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 6,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the delta flood response reached 240 households during the final survey period."
+        },
+        {
+          "index": 7,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the delta drought response reached 420 households during the final survey period."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8367508885911633,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d05",
+      "split": "development",
+      "label": "clean",
+      "category": "places",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 8,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the delta response reached 240 households in northport during the final survey."
+        },
+        {
+          "index": 9,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the delta response reached 420 households in southport during the final survey."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8211657189929407,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d06",
+      "split": "development",
+      "label": "clean",
+      "category": "denominator",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 10,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "the delta survey found that 40 percent of women had received a warning before the flood."
+        },
+        {
+          "index": 11,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "the delta survey found that 60 percent of men had received a warning before the flood."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8495637429538936,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d07",
+      "split": "development",
+      "label": "clean",
+      "category": "scale",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 12,
+          "inputTokens": 13,
+          "consumedTokens": 13,
+          "truncated": false,
+          "consumedText": "the delta recovery programme allocated 2 million dollars for reconstruction."
+        },
+        {
+          "index": 13,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the delta recovery programme allocated 2000000 dollars for reconstruction."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9097944729928311,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d08",
+      "split": "development",
+      "label": "clean",
+      "category": "range",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 14,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the delta programme expects to support between 200 and 300 households this season."
+        },
+        {
+          "index": 15,
+          "inputTokens": 13,
+          "consumedTokens": 13,
+          "truncated": false,
+          "consumedText": "the delta programme expects to support 250 households this season."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9565593348146053,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d09",
+      "split": "development",
+      "label": "clean",
+      "category": "subset",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 16,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the delta programme reached 240 households, including 120 households with children."
+        },
+        {
+          "index": 17,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the delta programme reached 120 households with children during its response."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9286850612690408,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d10",
+      "split": "development",
+      "label": "clean",
+      "category": "rounding",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 18,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "approximately 2 million people received a delta warning during the exercise."
+        },
+        {
+          "index": 19,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "a total of 1980000 people received a delta warning during the exercise."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9060816149236086,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "people",
+            "a": 2000000,
+            "b": 1980000
+          }
+        ]
+      ]
+    },
+    {
+      "id": "d11",
+      "split": "development",
+      "label": "ambiguous",
+      "category": "ambiguity",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 20,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the delta response programme reached 240 households during the initial assessment."
+        },
+        {
+          "index": 21,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the delta response programme reached 420 households according to the latest briefing."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8595866244473628,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d12",
+      "split": "development",
+      "label": "contradiction",
+      "category": "multiple",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 22,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the final delta inventory counted 12 hospitals and 40 schools needing repairs."
+        },
+        {
+          "index": 23,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the final delta inventory counted 12 hospitals and 60 schools needing repairs."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9737199446052672,
+      "baselineValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 40,
+            "b": 60
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "d13",
+      "split": "development",
+      "label": "contradiction",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 24,
+          "inputTokens": 26,
+          "consumedTokens": 26,
+          "truncated": false,
+          "consumedText": "during the final assessment, 240 households were recorded as displaced by flooding. context : northport / 2024 final flood assessment"
+        },
+        {
+          "index": 25,
+          "inputTokens": 26,
+          "consumedTokens": 26,
+          "truncated": false,
+          "consumedText": "during the final assessment, 420 households were recorded as displaced by flooding. context : northport / 2024 final flood assessment"
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9733071428873646,
+      "baselineValues": [
+        [
+          {
+            "unit": "households",
+            "a": 240,
+            "b": 420
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "d14",
+      "split": "development",
+      "label": "clean",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 26,
+          "inputTokens": 26,
+          "consumedTokens": 26,
+          "truncated": false,
+          "consumedText": "during the final assessment, 240 households were recorded as displaced by flooding. context : northport / 2024 final flood assessment"
+        },
+        {
+          "index": 27,
+          "inputTokens": 25,
+          "consumedTokens": 25,
+          "truncated": false,
+          "consumedText": "during the final assessment, 420 households were recorded as displaced by flooding. context : southport / 2024 final flood assessment"
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9063788095704892,
+      "baselineValues": [
+        [
+          {
+            "unit": "households",
+            "a": 240,
+            "b": 420
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "d15",
+      "split": "development",
+      "label": "clean",
+      "category": "multiple",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 28,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the delta programme repaired 12 hospitals and trained 40 staff during recovery."
+        },
+        {
+          "index": 29,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the delta programme repaired 12 hospitals and trained 60 participants during recovery."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9150940899974372,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "d16",
+      "split": "development",
+      "label": "ambiguous",
+      "category": "scope",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 30,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the delta flood response reached 240 households in the coastal districts this year."
+        },
+        {
+          "index": 31,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the delta emergency response reached 420 households in the coastal districts this year."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.841981916933645,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h01",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "identical",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 32,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas final register lists 36 schools damaged by the february earthquake."
+        },
+        {
+          "index": 33,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas final register lists 63 schools damaged by the february earthquake."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9727126567334317,
+      "baselineValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 36,
+            "b": 63
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "h02",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 34,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas final register lists 36 schools damaged by the february earthquake."
+        },
+        {
+          "index": 35,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "according to the final atlas register, the february earthquake damaged 63 schools."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9225779166444948,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 36,
+            "b": 63
+          }
+        ]
+      ]
+    },
+    {
+      "id": "h03",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 36,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the annual atlas assessment recorded 18 hospitals destroyed across the province."
+        },
+        {
+          "index": 37,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "across the province, 81 hospitals were destroyed according to the annual atlas assessment."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9020603921398714,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "hospitals",
+            "a": 18,
+            "b": 81
+          }
+        ]
+      ]
+    },
+    {
+      "id": "h04",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 38,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the atlas vaccination campaign served 850 people during the completed pilot."
+        },
+        {
+          "index": 39,
+          "inputTokens": 21,
+          "consumedTokens": 21,
+          "truncated": false,
+          "consumedText": "during the completed pilot, the atlas vaccination campaign provided vaccination to 580 people."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9259089134911068,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "people",
+            "a": 850,
+            "b": 580
+          }
+        ]
+      ]
+    },
+    {
+      "id": "h05",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "multiple",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 40,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "the final atlas register lists 36 schools and 18 hospitals damaged by the earthquake."
+        },
+        {
+          "index": 41,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "the final atlas register lists 63 schools and 18 hospitals damaged by the earthquake."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.975843386377484,
+      "baselineValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 36,
+            "b": 63
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "h06",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 42,
+          "inputTokens": 22,
+          "consumedTokens": 22,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 36 schools requiring structural repairs. context : atlas / westhaven / final earthquake inspection"
+        },
+        {
+          "index": 43,
+          "inputTokens": 22,
+          "consumedTokens": 22,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 63 schools requiring structural repairs. context : atlas / westhaven / final earthquake inspection"
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9845454486469201,
+      "baselineValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 36,
+            "b": 63
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "h07",
+      "split": "held-out",
+      "label": "clean",
+      "category": "dates",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 44,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas programme repaired 36 schools during its 2022 reconstruction programme."
+        },
+        {
+          "index": 45,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas programme repaired 63 schools during its 2023 reconstruction programme."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9694169041895406,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h08",
+      "split": "held-out",
+      "label": "clean",
+      "category": "hazards",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 46,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the atlas earthquake programme repaired 36 schools during the reconstruction period."
+        },
+        {
+          "index": 47,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the atlas cyclone programme repaired 63 schools during the reconstruction period."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8217684554337986,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h09",
+      "split": "held-out",
+      "label": "clean",
+      "category": "places",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 48,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas inspection identified 36 schools needing repairs in westhaven province."
+        },
+        {
+          "index": 49,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas inspection identified 63 schools needing repairs in easthaven province."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9442841445211292,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h10",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 50,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "the atlas survey found 25 percent of rural households had received a cyclone warning."
+        },
+        {
+          "index": 51,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "the atlas survey found 75 percent of urban households had received a cyclone warning."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9005042008262306,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h11",
+      "split": "held-out",
+      "label": "clean",
+      "category": "scale",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 52,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas recovery appeal requested 3 billion dollars to repair damaged infrastructure."
+        },
+        {
+          "index": 53,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the atlas recovery appeal requested 3000 million dollars to repair damaged infrastructure."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9354000244472467,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h12",
+      "split": "held-out",
+      "label": "clean",
+      "category": "range",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 54,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the atlas inspection estimated between 30 and 70 schools would require structural repairs."
+        },
+        {
+          "index": 55,
+          "inputTokens": 13,
+          "consumedTokens": 13,
+          "truncated": false,
+          "consumedText": "the atlas inspection estimated 63 schools would require structural repairs."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9541278249850877,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h13",
+      "split": "held-out",
+      "label": "clean",
+      "category": "subset",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 56,
+          "inputTokens": 19,
+          "consumedTokens": 19,
+          "truncated": false,
+          "consumedText": "the atlas network includes 140 countries, 90 of which have adopted the latest warning protocol."
+        },
+        {
+          "index": 57,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the atlas network includes 90 countries that have adopted the latest warning protocol."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9698436423745891,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h14",
+      "split": "held-out",
+      "label": "clean",
+      "category": "rounding",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 58,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "around 900 people participated in the atlas emergency evacuation drill this spring."
+        },
+        {
+          "index": 59,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "exactly 897 people participated in the atlas emergency evacuation drill this spring."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9074096070627664,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "people",
+            "a": 900,
+            "b": 897
+          }
+        ]
+      ]
+    },
+    {
+      "id": "h15",
+      "split": "held-out",
+      "label": "clean",
+      "category": "multiple",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 60,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "the atlas register lists 63 schools and 18 hospitals damaged by the february earthquake."
+        },
+        {
+          "index": 61,
+          "inputTokens": 17,
+          "consumedTokens": 17,
+          "truncated": false,
+          "consumedText": "the atlas register lists 18 hospitals damaged by the february earthquake across the province."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8985970981728072,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h16",
+      "split": "held-out",
+      "label": "clean",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 62,
+          "inputTokens": 20,
+          "consumedTokens": 20,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 36 schools requiring structural repairs. context : atlas / 2022 earthquake inspection"
+        },
+        {
+          "index": 63,
+          "inputTokens": 20,
+          "consumedTokens": 20,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 63 schools requiring structural repairs. context : atlas / 2023 earthquake inspection"
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9844114239127724,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h17",
+      "split": "held-out",
+      "label": "clean",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 64,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 36 schools requiring structural repairs. context : atlas / earthquake inspection"
+        },
+        {
+          "index": 65,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 63 schools requiring structural repairs. context : atlas / cyclone inspection"
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8940907200086697,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h18",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "revision",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 66,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the preliminary atlas register lists 36 schools damaged by the february earthquake."
+        },
+        {
+          "index": 67,
+          "inputTokens": 15,
+          "consumedTokens": 15,
+          "truncated": false,
+          "consumedText": "the revised atlas register lists 63 schools damaged by the february earthquake."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9538861775172748,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 36,
+            "b": 63
+          }
+        ]
+      ]
+    },
+    {
+      "id": "h19",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "missing-denominator",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 68,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the atlas survey found 25 percent of households had received a cyclone warning."
+        },
+        {
+          "index": 69,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the atlas survey found 75 percent had received a cyclone warning before evacuation."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8259058448669901,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h20",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "heading",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 70,
+          "inputTokens": 12,
+          "consumedTokens": 12,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 36 schools requiring structural repairs."
+        },
+        {
+          "index": 71,
+          "inputTokens": 12,
+          "consumedTokens": 12,
+          "truncated": false,
+          "consumedText": "the completed inspection identified 63 schools requiring structural repairs."
+        }
+      ],
+      "baselineFlag": true,
+      "retrievalFlag": false,
+      "combinedFlag": true,
+      "similarity": 0.9594535801225469,
+      "baselineValues": [
+        [
+          {
+            "unit": "schools",
+            "a": 36,
+            "b": 63
+          }
+        ]
+      ],
+      "retrievedValues": []
+    },
+    {
+      "id": "h21",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 72,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the beacon final audit reports 72 municipalities with operational warning systems."
+        },
+        {
+          "index": 73,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "operational warning systems were present in 27 municipalities in the final beacon audit."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": true,
+      "combinedFlag": true,
+      "similarity": 0.9290943800657662,
+      "baselineValues": [],
+      "retrievedValues": [
+        [
+          {
+            "unit": "municipalities",
+            "a": 72,
+            "b": 27
+          }
+        ]
+      ]
+    },
+    {
+      "id": "h22",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 74,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the beacon audit found 72 percent of municipalities maintained warning systems."
+        },
+        {
+          "index": 75,
+          "inputTokens": 14,
+          "consumedTokens": 14,
+          "truncated": false,
+          "consumedText": "the beacon audit found 27 percent of schools maintained warning systems."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.8110567712618478,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h23",
+      "split": "held-out",
+      "label": "clean",
+      "category": "time",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 76,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "at 09 : 00 the beacon exercise had evacuated 120 people from the coastal zone."
+        },
+        {
+          "index": 77,
+          "inputTokens": 18,
+          "consumedTokens": 18,
+          "truncated": false,
+          "consumedText": "at 11 : 00 the beacon exercise had evacuated 240 people from the coastal zone."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9278012829356517,
+      "baselineValues": [],
+      "retrievedValues": []
+    },
+    {
+      "id": "h24",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "range-disjoint",
+      "candidates": 2,
+      "inferencePerformed": true,
+      "provenance": [
+        {
+          "index": 78,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the final beacon audit reports between 20 and 30 hospitals with warning systems."
+        },
+        {
+          "index": 79,
+          "inputTokens": 16,
+          "consumedTokens": 16,
+          "truncated": false,
+          "consumedText": "the final beacon audit reports between 60 and 70 hospitals with warning systems."
+        }
+      ],
+      "baselineFlag": false,
+      "retrievalFlag": false,
+      "combinedFlag": false,
+      "similarity": 0.9733385197311689,
+      "baselineValues": [],
+      "retrievedValues": []
+    }
+  ],
+  "note": "Assistant-labelled synthetic pairwise extraction challenge; no human review, real PDFs, crowding, extraction/layout validation or calibrated confidence. No-flag is not an explicit abstention or evidence of consistency."
+}

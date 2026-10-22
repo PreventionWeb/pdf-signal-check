@@ -1,6 +1,7 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { it, expect, vi } from 'vitest';
+import { screeningAvailability } from '../src/runtime/screening-availability.js';
 import { AIComparisonOffer } from '../src/app/AIComparisonOffer.jsx';
 const report = () => ({ analysisComplete: true, metadata: { language: 'en', subject: 'Flood preparedness' }, metadataConsistency: { candidates: [] }, pages: [{ number: 1, logicalBlocks: [], blocks: [{ id: 0, text: 'Flood preparedness includes monitoring water levels, preparing local responders and protecting communities against disasters.' }] }] });
 it('offers recovered work without invoking a controller, and states why an empty PDF has no download action', () => {
@@ -19,4 +20,28 @@ it('requests configuration rather than claiming runnable work when only images a
   expect(html).toContain('separate image-model consent');
   expect(html).toContain('Choose AI comparisons');
   expect(html).not.toContain('Run local AI comparisons');
+});
+
+it('discloses numerical-only work as experimental technical evidence before consent or running', () => {
+  const source = { analysisComplete: true, metadata: { language: 'en' }, metadataConsistency: { candidates: [] }, pages: [
+    { number: 1, logicalBlocks: [], blocks: [{ id: 1, text: 'The regional flood programme reached 1200 households in Kenya.' }] },
+    { number: 2, logicalBlocks: [], blocks: [{ id: 2, text: 'In Kenya, 1800 households were reached by the flood programme.' }] },
+  ] };
+  const saved = structuredClone(source), controller = { requestAIComparisons: vi.fn(), openSetup: vi.fn() };
+  const available = screeningAvailability(source, { modelId: 'minilm', checks: ['title'] });
+  expect(available.experimentalNumericalSentences).toBe(2);
+  expect(available.text).toEqual([{ label: 'statements with numbers (experimental)', count: 2 }]);
+  expect(available.textAvailable).toBe(true);
+  for (const aiEnabled of [false, true]) {
+    const html = renderToStaticMarkup(React.createElement(AIComparisonOffer, { state: { report: source, checks: ['title'], selectedModel: 'minilm', aiEnabled }, controller }));
+    expect(html).toContain('Number comparisons are experimental');
+    expect(html).toContain('only in Technical details and the full report');
+    expect(html).toContain('does not add things to fix or check');
+    expect(html.indexOf('Number comparisons are experimental')).toBeLessThan(html.indexOf('<button'));
+    expect(html).toContain(aiEnabled ? 'Run local AI comparisons' : 'Choose AI comparisons');
+  }
+  expect(source).toEqual(saved);
+  expect(controller.requestAIComparisons).not.toHaveBeenCalled();
+  expect(controller.openSetup).not.toHaveBeenCalled();
+  expect(screeningAvailability({ analysisComplete: false }).experimentalNumericalSentences).toBe(0);
 });

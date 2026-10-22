@@ -1,0 +1,741 @@
+{
+  "schemaVersion": 1,
+  "authoredBy": "assistant evaluator",
+  "humanReviewed": false,
+  "frozenAt": "2026-10-22T22:02:07.240822+00:00",
+  "labelPolicy": "contradiction = useful incompatible same-claim quantity; clean = compatible or distinct claim; ambiguous = insufficient evidence, should abstain",
+  "splitPolicy": "source-group and document disjoint: Delta development; Atlas and Beacon held-out; every document has two bounded extracted statements. No threshold tuning. All labels authored before execution.",
+  "realReports": "None included: no safely accessible independently labelled real report set established; public repository sample PDFs are synthetic and not represented as real.",
+  "cases": [
+    {
+      "id": "d01",
+      "sourceGroup": "delta",
+      "documentId": "d01",
+      "split": "development",
+      "label": "contradiction",
+      "category": "identical",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta response programme reached 240 households during the final survey."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta response programme reached 420 households during the final survey."
+      },
+      "rationale": "Same programme, period, population and measure; incompatible exact totals."
+    },
+    {
+      "id": "d02",
+      "sourceGroup": "delta",
+      "documentId": "d02",
+      "split": "development",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta response programme reached 240 households during the final survey."
+      },
+      "b": {
+        "page": 3,
+        "text": "During the final survey, 420 households received assistance from the Delta response programme."
+      },
+      "rationale": "Reached and received assistance explicitly refer to same final-survey beneficiary count."
+    },
+    {
+      "id": "d03",
+      "sourceGroup": "delta",
+      "documentId": "d03",
+      "split": "development",
+      "label": "clean",
+      "category": "dates",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "In 2021 the Delta programme reached 240 households through its relief activities."
+      },
+      "b": {
+        "page": 3,
+        "text": "In 2022 the Delta programme reached 420 households through its relief activities."
+      },
+      "rationale": "Different years permit different counts."
+    },
+    {
+      "id": "d04",
+      "sourceGroup": "delta",
+      "documentId": "d04",
+      "split": "development",
+      "label": "clean",
+      "category": "hazards",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta flood response reached 240 households during the final survey period."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta drought response reached 420 households during the final survey period."
+      },
+      "rationale": "Distinct hazards identify different responses."
+    },
+    {
+      "id": "d05",
+      "sourceGroup": "delta",
+      "documentId": "d05",
+      "split": "development",
+      "label": "clean",
+      "category": "places",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta response reached 240 households in Northport during the final survey."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta response reached 420 households in Southport during the final survey."
+      },
+      "rationale": "Different towns."
+    },
+    {
+      "id": "d06",
+      "sourceGroup": "delta",
+      "documentId": "d06",
+      "split": "development",
+      "label": "clean",
+      "category": "denominator",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta survey found that 40 percent of women had received a warning before the flood."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta survey found that 60 percent of men had received a warning before the flood."
+      },
+      "rationale": "Different demographic denominators."
+    },
+    {
+      "id": "d07",
+      "sourceGroup": "delta",
+      "documentId": "d07",
+      "split": "development",
+      "label": "clean",
+      "category": "scale",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta recovery programme allocated 2 million dollars for reconstruction."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta recovery programme allocated 2000000 dollars for reconstruction."
+      },
+      "rationale": "Equivalent amounts expressed with different scales."
+    },
+    {
+      "id": "d08",
+      "sourceGroup": "delta",
+      "documentId": "d08",
+      "split": "development",
+      "label": "clean",
+      "category": "range",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta programme expects to support between 200 and 300 households this season."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta programme expects to support 250 households this season."
+      },
+      "rationale": "Point estimate falls within stated range."
+    },
+    {
+      "id": "d09",
+      "sourceGroup": "delta",
+      "documentId": "d09",
+      "split": "development",
+      "label": "clean",
+      "category": "subset",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta programme reached 240 households, including 120 households with children."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta programme reached 120 households with children during its response."
+      },
+      "rationale": "Subset equals explicitly stated subset, not total."
+    },
+    {
+      "id": "d10",
+      "sourceGroup": "delta",
+      "documentId": "d10",
+      "split": "development",
+      "label": "clean",
+      "category": "rounding",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "Approximately 2 million people received a Delta warning during the exercise."
+      },
+      "b": {
+        "page": 3,
+        "text": "A total of 1980000 people received a Delta warning during the exercise."
+      },
+      "rationale": "Approximate million figure accommodates exact count."
+    },
+    {
+      "id": "d11",
+      "sourceGroup": "delta",
+      "documentId": "d11",
+      "split": "development",
+      "label": "ambiguous",
+      "category": "ambiguity",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta response programme reached 240 households during the initial assessment."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta response programme reached 420 households according to the latest briefing."
+      },
+      "rationale": "Period and revision relation unresolved; do not call contradiction."
+    },
+    {
+      "id": "d12",
+      "sourceGroup": "delta",
+      "documentId": "d12",
+      "split": "development",
+      "label": "contradiction",
+      "category": "multiple",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The final Delta inventory counted 12 hospitals and 40 schools needing repairs."
+      },
+      "b": {
+        "page": 3,
+        "text": "The final Delta inventory counted 12 hospitals and 60 schools needing repairs."
+      },
+      "rationale": "Hospital count stable; incompatible school totals."
+    },
+    {
+      "id": "d13",
+      "sourceGroup": "delta",
+      "documentId": "d13",
+      "split": "development",
+      "label": "contradiction",
+      "category": "heading",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "During the final assessment, 240 households were recorded as displaced by flooding.",
+        "context": "Northport / 2024 final flood assessment"
+      },
+      "b": {
+        "page": 3,
+        "text": "During the final assessment, 420 households were recorded as displaced by flooding.",
+        "context": "Northport / 2024 final flood assessment"
+      },
+      "rationale": "Shared section fixes same place and period."
+    },
+    {
+      "id": "d14",
+      "sourceGroup": "delta",
+      "documentId": "d14",
+      "split": "development",
+      "label": "clean",
+      "category": "heading",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "During the final assessment, 240 households were recorded as displaced by flooding.",
+        "context": "Northport / 2024 final flood assessment"
+      },
+      "b": {
+        "page": 3,
+        "text": "During the final assessment, 420 households were recorded as displaced by flooding.",
+        "context": "Southport / 2024 final flood assessment"
+      },
+      "rationale": "Headings identify distinct places."
+    },
+    {
+      "id": "d15",
+      "sourceGroup": "delta",
+      "documentId": "d15",
+      "split": "development",
+      "label": "clean",
+      "category": "multiple",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta programme repaired 12 hospitals and trained 40 staff during recovery."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta programme repaired 12 hospitals and trained 60 participants during recovery."
+      },
+      "rationale": "Different units/populations; no claim staff equals all participants."
+    },
+    {
+      "id": "d16",
+      "sourceGroup": "delta",
+      "documentId": "d16",
+      "split": "development",
+      "label": "ambiguous",
+      "category": "scope",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Delta flood response reached 240 households in the coastal districts this year."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Delta emergency response reached 420 households in the coastal districts this year."
+      },
+      "rationale": "Emergency response scope may encompass more hazards."
+    },
+    {
+      "id": "h01",
+      "sourceGroup": "atlas",
+      "documentId": "h01",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "identical",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas final register lists 36 schools damaged by the February earthquake."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas final register lists 63 schools damaged by the February earthquake."
+      },
+      "rationale": "Same final-register school total."
+    },
+    {
+      "id": "h02",
+      "sourceGroup": "atlas",
+      "documentId": "h02",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas final register lists 36 schools damaged by the February earthquake."
+      },
+      "b": {
+        "page": 3,
+        "text": "According to the final Atlas register, the February earthquake damaged 63 schools."
+      },
+      "rationale": "Same earthquake, register and damage measure."
+    },
+    {
+      "id": "h03",
+      "sourceGroup": "atlas",
+      "documentId": "h03",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The annual Atlas assessment recorded 18 hospitals destroyed across the province."
+      },
+      "b": {
+        "page": 3,
+        "text": "Across the province, 81 hospitals were destroyed according to the annual Atlas assessment."
+      },
+      "rationale": "Same exact annual destruction count."
+    },
+    {
+      "id": "h04",
+      "sourceGroup": "atlas",
+      "documentId": "h04",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas vaccination campaign served 850 people during the completed pilot."
+      },
+      "b": {
+        "page": 3,
+        "text": "During the completed pilot, the Atlas vaccination campaign provided vaccination to 580 people."
+      },
+      "rationale": "Same completed pilot vaccination count."
+    },
+    {
+      "id": "h05",
+      "sourceGroup": "atlas",
+      "documentId": "h05",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "multiple",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The final Atlas register lists 36 schools and 18 hospitals damaged by the earthquake."
+      },
+      "b": {
+        "page": 3,
+        "text": "The final Atlas register lists 63 schools and 18 hospitals damaged by the earthquake."
+      },
+      "rationale": "One shared value must not mask changed school count."
+    },
+    {
+      "id": "h06",
+      "sourceGroup": "atlas",
+      "documentId": "h06",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "heading",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The completed inspection identified 36 schools requiring structural repairs.",
+        "context": "Atlas / Westhaven / final earthquake inspection"
+      },
+      "b": {
+        "page": 3,
+        "text": "The completed inspection identified 63 schools requiring structural repairs.",
+        "context": "Atlas / Westhaven / final earthquake inspection"
+      },
+      "rationale": "Same section establishes school population."
+    },
+    {
+      "id": "h07",
+      "sourceGroup": "atlas",
+      "documentId": "h07",
+      "split": "held-out",
+      "label": "clean",
+      "category": "dates",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas programme repaired 36 schools during its 2022 reconstruction programme."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas programme repaired 63 schools during its 2023 reconstruction programme."
+      },
+      "rationale": "Different reporting years."
+    },
+    {
+      "id": "h08",
+      "sourceGroup": "atlas",
+      "documentId": "h08",
+      "split": "held-out",
+      "label": "clean",
+      "category": "hazards",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas earthquake programme repaired 36 schools during the reconstruction period."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas cyclone programme repaired 63 schools during the reconstruction period."
+      },
+      "rationale": "Different hazards and programmes."
+    },
+    {
+      "id": "h09",
+      "sourceGroup": "atlas",
+      "documentId": "h09",
+      "split": "held-out",
+      "label": "clean",
+      "category": "places",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas inspection identified 36 schools needing repairs in Westhaven province."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas inspection identified 63 schools needing repairs in Easthaven province."
+      },
+      "rationale": "Different provinces."
+    },
+    {
+      "id": "h10",
+      "sourceGroup": "atlas",
+      "documentId": "h10",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas survey found 25 percent of rural households had received a cyclone warning."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas survey found 75 percent of urban households had received a cyclone warning."
+      },
+      "rationale": "Rural and urban denominators differ."
+    },
+    {
+      "id": "h11",
+      "sourceGroup": "atlas",
+      "documentId": "h11",
+      "split": "held-out",
+      "label": "clean",
+      "category": "scale",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas recovery appeal requested 3 billion dollars to repair damaged infrastructure."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas recovery appeal requested 3000 million dollars to repair damaged infrastructure."
+      },
+      "rationale": "Equivalent billion and million scales."
+    },
+    {
+      "id": "h12",
+      "sourceGroup": "atlas",
+      "documentId": "h12",
+      "split": "held-out",
+      "label": "clean",
+      "category": "range",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas inspection estimated between 30 and 70 schools would require structural repairs."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas inspection estimated 63 schools would require structural repairs."
+      },
+      "rationale": "Point falls inside range."
+    },
+    {
+      "id": "h13",
+      "sourceGroup": "atlas",
+      "documentId": "h13",
+      "split": "held-out",
+      "label": "clean",
+      "category": "subset",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas network includes 140 countries, 90 of which have adopted the latest warning protocol."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas network includes 90 countries that have adopted the latest warning protocol."
+      },
+      "rationale": "Explicit subset repeated."
+    },
+    {
+      "id": "h14",
+      "sourceGroup": "atlas",
+      "documentId": "h14",
+      "split": "held-out",
+      "label": "clean",
+      "category": "rounding",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "Around 900 people participated in the Atlas emergency evacuation drill this spring."
+      },
+      "b": {
+        "page": 3,
+        "text": "Exactly 897 people participated in the Atlas emergency evacuation drill this spring."
+      },
+      "rationale": "Rounding consistent with approximate count."
+    },
+    {
+      "id": "h15",
+      "sourceGroup": "atlas",
+      "documentId": "h15",
+      "split": "held-out",
+      "label": "clean",
+      "category": "multiple",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas register lists 63 schools and 18 hospitals damaged by the February earthquake."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas register lists 18 hospitals damaged by the February earthquake across the province."
+      },
+      "rationale": "Second statement repeats one measure, omits other."
+    },
+    {
+      "id": "h16",
+      "sourceGroup": "atlas",
+      "documentId": "h16",
+      "split": "held-out",
+      "label": "clean",
+      "category": "heading",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The completed inspection identified 36 schools requiring structural repairs.",
+        "context": "Atlas / 2022 earthquake inspection"
+      },
+      "b": {
+        "page": 3,
+        "text": "The completed inspection identified 63 schools requiring structural repairs.",
+        "context": "Atlas / 2023 earthquake inspection"
+      },
+      "rationale": "Distinct context dates."
+    },
+    {
+      "id": "h17",
+      "sourceGroup": "atlas",
+      "documentId": "h17",
+      "split": "held-out",
+      "label": "clean",
+      "category": "heading",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The completed inspection identified 36 schools requiring structural repairs.",
+        "context": "Atlas / earthquake inspection"
+      },
+      "b": {
+        "page": 3,
+        "text": "The completed inspection identified 63 schools requiring structural repairs.",
+        "context": "Atlas / cyclone inspection"
+      },
+      "rationale": "Distinct context hazards."
+    },
+    {
+      "id": "h18",
+      "sourceGroup": "atlas",
+      "documentId": "h18",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "revision",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The preliminary Atlas register lists 36 schools damaged by the February earthquake."
+      },
+      "b": {
+        "page": 3,
+        "text": "The revised Atlas register lists 63 schools damaged by the February earthquake."
+      },
+      "rationale": "Revision plausibly supersedes preliminary count."
+    },
+    {
+      "id": "h19",
+      "sourceGroup": "atlas",
+      "documentId": "h19",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "missing-denominator",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Atlas survey found 25 percent of households had received a cyclone warning."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Atlas survey found 75 percent had received a cyclone warning before evacuation."
+      },
+      "rationale": "Second denominator not explicitly supplied; abstain."
+    },
+    {
+      "id": "h20",
+      "sourceGroup": "atlas",
+      "documentId": "h20",
+      "split": "held-out",
+      "label": "ambiguous",
+      "category": "heading",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The completed inspection identified 36 schools requiring structural repairs."
+      },
+      "b": {
+        "page": 3,
+        "text": "The completed inspection identified 63 schools requiring structural repairs."
+      },
+      "rationale": "No section evidence can establish same inspection."
+    },
+    {
+      "id": "h21",
+      "sourceGroup": "beacon",
+      "documentId": "h21",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "paraphrase",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Beacon final audit reports 72 municipalities with operational warning systems."
+      },
+      "b": {
+        "page": 3,
+        "text": "Operational warning systems were present in 27 municipalities in the final Beacon audit."
+      },
+      "rationale": "Same audit and operational-system count."
+    },
+    {
+      "id": "h22",
+      "sourceGroup": "beacon",
+      "documentId": "h22",
+      "split": "held-out",
+      "label": "clean",
+      "category": "denominator",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The Beacon audit found 72 percent of municipalities maintained warning systems."
+      },
+      "b": {
+        "page": 3,
+        "text": "The Beacon audit found 27 percent of schools maintained warning systems."
+      },
+      "rationale": "Different institutional populations."
+    },
+    {
+      "id": "h23",
+      "sourceGroup": "beacon",
+      "documentId": "h23",
+      "split": "held-out",
+      "label": "clean",
+      "category": "time",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "At 09:00 the Beacon exercise had evacuated 120 people from the coastal zone."
+      },
+      "b": {
+        "page": 3,
+        "text": "At 11:00 the Beacon exercise had evacuated 240 people from the coastal zone."
+      },
+      "rationale": "Different timestamps in evolving cumulative count."
+    },
+    {
+      "id": "h24",
+      "sourceGroup": "beacon",
+      "documentId": "h24",
+      "split": "held-out",
+      "label": "contradiction",
+      "category": "range-disjoint",
+      "provenance": "assistant-authored synthetic; no human review",
+      "a": {
+        "page": 1,
+        "text": "The final Beacon audit reports between 20 and 30 hospitals with warning systems."
+      },
+      "b": {
+        "page": 3,
+        "text": "The final Beacon audit reports between 60 and 70 hospitals with warning systems."
+      },
+      "rationale": "Disjoint ranges for same final audit measure."
+    }
+  ]
+}
