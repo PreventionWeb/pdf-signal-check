@@ -303,9 +303,9 @@ export function createAppController({
       emit({
         stage: "checks",
         awaitingLanguageDecision: false,
-        screeningAttempt: { status: "canceled", message: "AI checks cancelled. Completed text checks and previous AI results are still available." },
+        screeningAttempt: { status: "canceled", message: "AI checks skipped. The standard results and any earlier AI results are shown." },
         message:
-          "AI checks cancelled. Standard results and any previous completed AI comparisons are still available.",
+          "AI checks skipped. The standard results and any earlier AI results are shown.",
         progress: null,
         imagePreviews: null,
       });

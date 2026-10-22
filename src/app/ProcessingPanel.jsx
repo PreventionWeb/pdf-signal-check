@@ -79,8 +79,8 @@ export function ProcessingPanel({ state, controller }) {
     <div className="processing-actions">
       {step === "read"
         ? <Button id="flow-cancel" onClick={() => controller.cancelAnalysis()}>Cancel and go back</Button>
-        : <><Button onClick={() => controller.cancelScreening()}>Cancel AI checks</Button>
-          <p className="model-note">Cancelling keeps the standard results and any earlier AI results.</p></>}
+        : <><Button onClick={() => controller.cancelScreening()}>Skip AI checks</Button>
+          <p className="model-note">Skipping shows the standard results now, with any earlier AI results.</p></>}
     </div>
   </section>;
 }

@@ -57,7 +57,7 @@ export function inspectHeadings(report, limits = HEADING_LIMITS) {
       blockIds: small.flatMap(element => element.blocks.map(block => block.id)) });
   }
   const items = [];
-  if (split.length) items.push({ id: 'headings:split', kind: 'heading-split', severity: 'concern', pairs: split.slice(0, limits.maxReported), total: split.length });
+  if (split.length) items.push({ id: 'headings:split', kind: 'heading-split', severity: 'minor', pairs: split.slice(0, limits.maxReported), total: split.length });
   if (labels.length) items.push({ id: 'headings:labels', kind: 'heading-label', severity: 'concern', pages: labels.slice(0, limits.maxReported), total: labels.reduce((sum, page) => sum + page.texts.length, 0) });
   return items;
 }

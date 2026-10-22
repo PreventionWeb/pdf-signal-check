@@ -656,9 +656,9 @@ function consistencyTask(finding) {
     case 'heading-split': {
       const first = item.pairs[0];
       return task(`Headings split across two tags (${item.total})`,
-        `${item.total === 1 ? 'A heading is' : `${item.total} headings are`} tagged as two separate headings, for example “${quote(first.a)}” and “${quote(first.b)}” on page ${first.page}. Screen readers announce them as two headings, and AI tools may read them as two topics.`,
+        `${item.total === 1 ? 'A heading is' : `${item.total} headings are`} tagged as two separate headings, for example “${quote(first.a)}” and “${quote(first.b)}” on page ${first.page}. Read straight through, they sound fine, but in a list of headings each shows as two half-titles.`,
         'In the source document, put each heading in a single heading paragraph (use a line break, not a new paragraph, to wrap it). Then export again.',
-        'People who use screen readers often move through a document by its headings. A heading split in two reads as two half-headings.');
+        'A small tidy-up. Screen reader users who jump between headings, generated outlines and bookmarks, and AI tools that split a document at its headings all see two half-titles instead of one.');
     }
     case 'same-image': return task('The same picture has different descriptions',
       `The picture on page ${item.a.page} and the one on page ${item.b.page} look the same, but one is described as “${quote(item.a.alt)}” and the other as “${quote(item.b.alt)}”.`,
