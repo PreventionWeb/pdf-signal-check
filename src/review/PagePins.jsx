@@ -68,8 +68,10 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
   useEffect(() => {
     if (!focus) return;
     setSheetOpen(false);
-    const node = pageRefs.current.get(focus.page);
-    if (!focus.quads?.length || !node?.querySelector("img")) jump(focus.page);
+    const node = pageRefs.current.get(focus.page), rect = node?.getBoundingClientRect();
+    // Pages redraw (with the highlight) only near the screen, so a far-away page is brought close first.
+    const far = !rect || rect.bottom < -600 || rect.top > window.innerHeight + 600;
+    if (!focus.quads?.length || !node?.querySelector("img") || far) jump(focus.page);
   }, [focus?.key]);
   const [current, setCurrent] = useState(pages[0]?.page || 1);
   useEffect(() => onPageChange(current), [current]);
@@ -327,7 +329,7 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
         const sheet = element.current?.querySelector(".page-pins-sheet")?.clientHeight || 0;
         const place = sheet * focusBox.height > window.innerHeight * 0.45 ? "inside" : focusBox.y + focusBox.height > 0.72 ? "above" : "below";
         const top = place === "below" ? focusBox.y + focusBox.height : focusBox.y;
-        const side = focusBox.x > 0.5 ? { left: "auto", right: `${Math.max(0, 1 - focusBox.x - focusBox.width) * 100}%` } : { left: `${focusBox.x * 100}%` };
+        const side = focusBox.x > 0.5 ? { left: "auto", right: `${Math.max(0, 1 - focusBox.x - focusBox.width) * 100}%` } : { left: `${Math.max(0.01, focusBox.x) * 100}%` }; // never past the page edge, where it would be clipped
         return <span key={`info-${focus.key}`} className={`page-pins-tooltip page-pins-focus-info is-${place}`} role="note" style={{ ...side, top: `${top * 100}%` }}>
         <span className="page-pins-tooltip-eyebrow">{focus.info.eyebrow}</span>
         <strong>{focus.info.title}</strong>
