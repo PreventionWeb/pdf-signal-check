@@ -3,11 +3,25 @@ export function normalizeTitle(text = '') {
     .replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, ' ').trim();
 }
 
+/** Cover titles often wrap across lines; join adjacent large cover lines, top to bottom. */
+export function coverSpans(candidates = []) {
+  const lines = candidates.filter(c => c.source === 'cover text candidate' && c.page === 1 && Number.isFinite(c.y) &&
+    c.height > 0 && c.maxHeight > 0 && c.height / c.maxHeight >= 0.5).sort((a, b) => b.y - a.y);
+  const spans = [];
+  for (let start = 0; start < lines.length; start++) for (let end = start + 2; end <= Math.min(lines.length, start + 4); end++) {
+    const part = lines.slice(start, end);
+    if (!part.some(c => c.height / c.maxHeight >= 0.85)) continue;
+    spans.push({ text: part.map(c => c.text).join(' '), page: 1, source: 'joined cover lines', height: Math.max(...part.map(c => c.height)),
+      maxHeight: part[0].maxHeight, blockIds: part.flatMap(c => c.blockIds || []), node: null });
+  }
+  return spans;
+}
+
 export function publicationCandidates(candidates = []) {
-  return candidates.filter(c => c.page === 1 && typeof c.text === 'string' &&
+  return [...candidates, ...coverSpans(candidates)].filter(c => c.page === 1 && typeof c.text === 'string' &&
     c.text.trim().length >= 5 && c.text.length <= 200 &&
     (c.text.match(/[\p{L}\p{N}]+/gu) || []).length <= 25 &&
-    (/^tagged H1?$/.test(c.source || '') || (c.source === 'cover text candidate' &&
+    (/^tagged H1?$/.test(c.source || '') || (/^(cover text candidate|joined cover lines)$/.test(c.source) &&
       c.height > 0 && c.maxHeight > 0 && c.height / c.maxHeight >= 0.85)));
 }
 

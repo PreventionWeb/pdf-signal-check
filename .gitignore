@@ -8,3 +8,6 @@ public/licenses/
 .env.*
 !.env.example
 .claude/worktrees/
+
+# Local real-report corpus for development (never committed)
+dev-corpus/

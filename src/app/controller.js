@@ -3,6 +3,20 @@ import { createEvaluationPreferences } from './preferences.js';
 import { hasUnchangedNoInputs } from "../runtime/screening-recovery.js";
 import { buildScreeningRequest } from "../runtime/screening-request.js";
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from "../engine/models.js";
+import { imageCandidates, descriptionCandidates } from "../engine/image-model.js";
+/** Clean crops of graphics for the image model; needs a canvas, so it is loaded only in the browser and only when used. */
+async function defaultImageCropper(file, report, items, signal) {
+  const { EvidenceCropService } = await import("../evidence/crops.js");
+  const service = new EvidenceCropService(file, report, { signal });
+  const crops = [];
+  try {
+    for (const item of items) {
+      const result = await service.crop({ page: item.page, quads: [item.quad], clean: true });
+      if (result?.blob) crops.push({ index: item.index, page: item.page, blob: result.blob });
+    }
+  } finally { await service.destroy(); }
+  return crops;
+}
 /** DOM-free single-source owner. Construction does not fetch, create workers, or start inference. */
 export function createAppController({
   workerFactory = (kind) =>
@@ -10,9 +24,12 @@ export function createAppController({
       ? new Worker(new URL("../analysis.worker.js", import.meta.url), {
           type: "module",
         })
-      : new Worker(new URL("../model.worker.js", import.meta.url), {
+      : kind === "image"
+        ? new Worker(new URL("../image.worker.js", import.meta.url), { type: "module" })
+        : new Worker(new URL("../model.worker.js", import.meta.url), {
           type: "module",
         }),
+  imageCropper = defaultImageCropper,
   fetcher = (...args) => fetch(...args),
   digest = (buffer) => crypto.subtle.digest("SHA-256", buffer),
   preferences = createEvaluationPreferences(),
@@ -32,6 +49,8 @@ export function createAppController({
     setupComplete: Boolean(saved),
     settingsSaved: Boolean(saved),
     aiEnabled: Boolean(saved && saved.modelId !== null),
+    // Separate consent for the optional image model, which only judges graphics marked as decoration.
+    imageAI: Boolean(saved?.imageAI && saved.modelId !== null),
     evaluationModel: saved ? saved.modelId : "granite-r2",
     setupDestination: "document",
     pendingSetupLabel: null,
@@ -88,7 +107,7 @@ export function createAppController({
     return true;
   };
   const saveSettings = () => {
-    if (state.setupComplete) emit({ settingsSaved: preferences.save({ modelId: state.evaluationModel, checks: state.checks }) });
+    if (state.setupComplete) emit({ settingsSaved: preferences.save({ modelId: state.evaluationModel, checks: state.checks, imageAI: state.imageAI }) });
   };
   const controller = {
     getSnapshot: () => state,
@@ -181,12 +200,12 @@ export function createAppController({
       pendingIntake = () => controller.loadSample(path);
       emit({ stage: "setup", setupDestination: "document", pendingSetupLabel: path.split("/").at(-1) });
     },
-    completeSetup(modelId) {
+    completeSetup(modelId, { imageAI = false } = {}) {
       const useAI = modelId !== null;
       if (useAI) getSemanticModel(modelId);
       services.batch?.setSettings({ useAI, modelId: modelId || "minilm", checks: [...state.checks] });
       services.batch?.setConsent(useAI);
-      emit({ setupComplete: true, aiEnabled: useAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination, awaitingLanguageDecision: false });
+      emit({ setupComplete: true, aiEnabled: useAI, imageAI: useAI && imageAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination, awaitingLanguageDecision: false });
       saveSettings();
       const start = pendingIntake;
       pendingIntake = null;
@@ -284,10 +303,11 @@ export function createAppController({
       emit({
         stage: "checks",
         awaitingLanguageDecision: false,
-        screeningAttempt: { status: "canceled", message: "AI checks cancelled. Completed text checks and previous AI results are still available." },
+        screeningAttempt: { status: "canceled", message: "AI checks skipped. The standard results and any earlier AI results are shown." },
         message:
-          "AI checks cancelled. Standard results and any previous completed AI comparisons are still available.",
+          "AI checks skipped. The standard results and any earlier AI results are shown.",
         progress: null,
+        imagePreviews: null,
       });
     },
     takeOwnership() {
@@ -438,8 +458,10 @@ export function createAppController({
             });
             if (state.aiEnabled && supportsLanguage(getSemanticModel(state.selectedModel), report.metadata.language)) {
               controller.runScreening();
-            } else if (state.aiEnabled && !willAwaitDecision) {
-              emit({ message: "Text checks completed. AI screening needs a supported language before this evaluation can finish." });
+            } else {
+              if (state.aiEnabled && !willAwaitDecision) emit({ message: "Text checks completed. AI screening needs a supported language before this evaluation can finish." });
+              // The image model doesn't depend on the document language.
+              controller.runImageScreening();
             }
           }
         };
@@ -500,6 +522,51 @@ export function createAppController({
           });
       }
     },
+    /** Optional: show the image model graphics marked as decoration that the rules couldn't place. Never overrides the rules. */
+    async runImageScreening() {
+      if (!available() || !state.imageAI || !state.report?.analysisComplete || !state.file || state.modelBusy || state.report.imageScreening) return;
+      const items = imageCandidates(state.report), described = descriptionCandidates(state.report);
+      if (!items.length && !described.length) {
+        // Say so instead of skipping silently: the person asked for image checks.
+        const photos = (state.report.figureAlternatives?.items || []).filter(figure => figure.tagged && figure.alt?.trim()).length;
+        emit({ report: { ...state.report, imageScreening: { inferencePerformed: false, skipped: { decorativeUnclear: (state.report.decorative?.items || []).filter(item => item.kind === 'unclear').length, describedImages: photos } } } });
+        return;
+      }
+      const currentJob = job, currentRun = ++modelRun, abort = new AbortController();
+      const active = () => currentJob === job && currentRun === modelRun;
+      emit({ modelBusy: true, modelTask: "image", stage: "processing-model", screeningAttempt: { status: "running" }, message: `Looking at ${items.length + described.length} image${items.length + described.length === 1 ? "" : "s"}…`, progress: null });
+      const fail = message => {
+        if (!active()) return;
+        abort.abort(); stopModel();
+        emit({ stage: "review", message: `The image check didn’t finish: ${message}. All other results are unchanged.`, progress: null, imagePreviews: null });
+      };
+      let crops, descriptionCrops;
+      try {
+        crops = await imageCropper(state.file, state.report, items, abort.signal);
+        // Described images reuse the cropper; their crops carry the description to compare.
+        const pictures = await imageCropper(state.file, state.report, described.map((item, index) => ({ ...item, index })), abort.signal);
+        descriptionCrops = pictures.map(crop => ({ ...described[crop.index], blob: crop.blob }));
+      } catch (e) { fail(e.message); return; }
+      if (!active()) return;
+      if (!crops.length && !descriptionCrops.length) { emit({ modelBusy: false, stage: "review", progress: null }); return; }
+      // The crops already exist here; the waiting screen shows them passing as the worker reports each one done (same order).
+      emit({ imagePreviews: [...crops, ...descriptionCrops].map(crop => crop.blob) });
+      let worker;
+      try { worker = workerFactory("image"); } catch (e) { fail(e.message); return; }
+      modelWorker = worker;
+      worker.onerror = e => fail(e.message || "Image worker failed");
+      worker.onmessage = ({ data }) => {
+        if (!active() || modelWorker !== worker || data.requestId !== currentRun) return;
+        if (data.type === "progress") emit({ message: data.message, progress: data.progress || null });
+        else if (data.type === "error") fail(data.message);
+        else if (data.type === "result") {
+          worker.terminate(); modelWorker = null;
+          emit({ report: { ...state.report, imageScreening: data.imageScreening }, modelBusy: false, modelTask: null, stage: "review", progress: null, imagePreviews: null,
+            message: "Image check complete. The rule-based results are unchanged." });
+        }
+      };
+      try { worker.postMessage({ requestId: currentRun, items: crops, descriptions: descriptionCrops.map(({ id, page, alt, blob }) => ({ id, page, alt, blob })) }); } catch (e) { fail(e.message); }
+    },
     runScreening() {
       if (
         !available() ||
@@ -540,6 +607,7 @@ export function createAppController({
         report,
         stage: "processing-model",
         modelBusy: true,
+        modelTask: "text",
         screeningAttempt: { status: "running" },
         message: "Preparing the selected checks…",
         progress: null,
@@ -573,6 +641,7 @@ export function createAppController({
               : "Screening complete. Structural acceptance and traditional metadata findings are unchanged.",
             progress: null,
           });
+          controller.runImageScreening();
         }
       };
       try {

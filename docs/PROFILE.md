@@ -4,7 +4,7 @@ App version 0.8.0 uses `text-actionability-0.3`, distinct from the broader propo
 
 ## Required predicates
 
-1. **Parsing:** pdf-lib and PDF.js can load the file. Encrypted PDFs are excluded. Analysis is limited to 50 MB, 200 pages, 1 million decoded operators, 250,000 text items, 10 MB per decoded content stream, and bounded object/structure traversal.
+1. **Parsing:** pdf-lib and PDF.js can load the file. Encrypted PDFs are excluded. Analysis is limited to 50 MB, 500 pages, 1 million decoded operators, 250,000 text items, 10 MB per decoded content stream, and bounded object/structure traversal.
 2. **Title:** a nonempty title exists in the Info dictionary or XMP. XMP is parsed as XML with language alternatives preserved. Malformed, oversized, or DTD-bearing XMP prevents acceptance.
 3. **Language:** catalog language is accepted by `Intl.getCanonicalLocales`. This validates syntax, not that the declared language describes the content.
 4. **Text decoding:** non-artifact text is extracted, with no replacement characters, private-use characters, disallowed controls, or empty Unicode strings on observed text glyphs. This is an indicator check, not proof of correct glyph semantics or exhaustive Unicode conformance.

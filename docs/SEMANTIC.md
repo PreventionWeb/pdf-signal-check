@@ -58,6 +58,10 @@ Primary references: [MiniLM browser export](https://huggingface.co/Xenova/all-Mi
 
 Author/byline identity, numbered-step order and text visibility remain deterministic advisories. Embeddings cannot override those rules or profile acceptance. No custom-question answering or generative summarization is provided.
 
+- **Title variants:** title pairs that [consistency rules](CONSISTENCY.md) leave unresolved (saved title, cover, running header worded differently) are compared with the title thresholds when the title check is requested, at most eight pairs. Results are `nameItems` keyed by `nameId`; related pairs become minor, weakly related pairs a concern. Rule-based concerns are never overridden.
+
+- **Flag-only jobs (October 2026):** whenever AI runs and the language is supported, the request also carries image descriptions with captions (`figures`), unresolved contents entries with the headings on their expected page (`contents`) and sentences stating quantities (`facts`). Results are `figureItems`, `contentItems` and `factPairs`, bounded by each model's `budget`. Saved descriptions and keywords are now always compared with passages from across the PDF (`documentEvidence`), not only the opening pages. See [consistency](CONSISTENCY.md).
+
 ## Bounds, provenance and uncertainty
 
 Metadata queries are at most 350 characters; credible titles at most 200 characters/25 words. Opening evidence uses pages 1–2, at most 100 blocks, six excerpts of at most 800 characters, requiring 80 characters. Heading bodies are independently capped at 800 characters; automatic grouping examines only the first three pages and 200 logical blocks per page. Transformer batches contain at most four texts, limiting padding and attention cost.
@@ -77,9 +81,9 @@ Intermediate scores remain uncertain. These manually selected policies are conse
 
 ## Integration contract and lifecycle
 
-Worker input: `{requestId, modelId, checks, metadata, candidates, openingEvidence, deterministicTitle, sections, languageAssumption}`. Model IDs are registry keys `minilm` and `granite-r2`; checks are `title`, `subject`, `keywords`, `sections`. `sectionEvidence(pages)` can create bounded heading/body pairs from tagged logical blocks. Unsupported model/check IDs fail explicitly with no silent fallback.
+Worker input: `{requestId, modelId, checks, metadata, candidates, openingEvidence, deterministicTitle, sections, names, languageAssumption}`. Model IDs are registry keys `minilm` and `granite-r2`; checks are `title`, `subject`, `keywords`, `sections`. `sectionEvidence(pages)` can create bounded heading/body pairs from tagged logical blocks. Unsupported model/check IDs fail explicitly with no silent fallback.
 
-Result schema 2 preserves `title`, `subject`, `keywords`, `assessment` (title alias), `ranked`, `note`, plus `sections`, `keywordItems`, `sectionItems`, coverage counts, requested checks, selected pinned model/thresholds, `inferencePerformed`, embedded text count and per-input token provenance. Per-field `method`/`inferencePerformed` distinguish rules, skipped checks and actual AI. Evidence preserves page/node/content keys/block IDs.
+Result schema 2 preserves `title`, `subject`, `keywords`, `assessment` (title alias), `ranked`, `note`, plus `sections`, `keywordItems`, `sectionItems`, `nameItems`, coverage counts, requested checks, selected pinned model/thresholds, `inferencePerformed`, embedded text count and per-input token provenance. Per-field `method`/`inferencePerformed` distinguish rules, skipped checks and actual AI. Evidence preserves page/node/content keys/block IDs.
 
 The worker caches one loaded encoder. Same-model runs reuse it; switching models disposes the previous encoder before loading the chosen one. Failures dispose the current instance and report an error without substituting another model or manufacturing results. Every progress/result/error echoes requestId. UI cancellation terminates the worker and guards stale responses by request/job/worker identity.
 

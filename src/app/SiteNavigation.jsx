@@ -31,7 +31,7 @@ export function SiteNavigation({ onNavigate }) {
   };
   return <div className="site-navigation" ref={wrapper} onClickCapture={activate}>
     <MegaMenu sections={sections} logoSrc={new URL('./images/pdf-signal-check-wordmark.svg', document.baseURI).href}
-      logoAlt="PDF Signal Check: help people and their tools understand your PDFs" logoHref="#upload" logoWidth={280} logoHeight={76}
+      logoAlt="PDF Signal Check" logoHref="#upload" logoWidth={230} logoHeight={34}
       labels={{ navLabel: 'PDF Signal Check navigation' }} />
   </div>;
 }

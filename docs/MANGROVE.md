@@ -285,3 +285,11 @@ Updated the npm package, the theme stylesheet URL and its SRI hash (`index.html`
 Not adopted: the experimental ContentCard/ContentTeaser renderers and the Collection page, Cite this, Page actions and search changes target editorial publishing, not this tool. Compiled-CSS consumers need no Sass migration.
 
 Verified with `npm test` (all passing), `npm run build`, and headless Chromium under `/pdf-signal-check/` at 1440 × 1000 and 390 × 844, compared with a 2.0.1 build: the SRI-protected 2.2.0 stylesheet loaded (`--mg-theme-loaded: preventionweb`, interactive `10 105 105`); the gate rejected a wrong PIN, accepted the correct one, wrote only the fingerprint record and stayed unlocked in a second tab but not in a fresh browser context; intake, About, results and Technical details had no horizontal overflow or page errors. Requests went only to the page origin, assets.undrr.org and the theme’s existing www.undrr.org toolbar image, as with 2.0.1.
+
+## Snackbar (toast) for downloads — 20 October 2026
+
+The pinned 2.2.0 package ships the Snackbar as theme CSS (`mg-snackbar-wrapper`, `mg-snackbar`, `mg-snackbar__message`) with no React module. `src/ui/Toast.jsx` is a documented native adaptation: the theme's fixed wrapper, portalled to the body, around the published `Notice` with `className="mg-snackbar"`. Export progress stays open; a completed download closes after six seconds; failures use the negative notice and stay until dismissed. Progress uses `role="status"`, failures `role="alert"`. The inline export status line and the “keep them after closing this tab” note were removed from the results hero.
+
+## Inspect your PDF overlay toggle — 20 October 2026
+
+The preview's overlay choice (Issues / Reading order / Page only) uses the published, pinned `SegmentedControl` (small) instead of a select menu. Reading order is a disabled option when the PDF has no recovered sequence.

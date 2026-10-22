@@ -47,7 +47,10 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,includ
     await write(`Checked ${(report.analyzedAt || snapshot.capturedAt).slice(0,10)} with ${PRODUCT_NAME}. Send this fix list to whoever edits the original document. Ask for an updated PDF, then check it again. This tool does not change the PDF.`,{size:9.5,color:pdfColor(palette.muted)});
     if(sheet.scope)await write(sheet.scope,{size:9.5,color:pdfColor(palette.muted)});
     for(const [key,label,intro] of [['fix','Fix','Problems found in this PDF.'],['check','Check','Possible problems. Look at each one and decide.']]){
-      if(!sheet[key].length)continue;await heading(`${label} (${sheet[key].length})`);await write(intro,{size:9.5,color:pdfColor(palette.muted)});
+      if(!sheet[key].length)continue;
+      // Keep the bucket heading with its first item (and that item's image), so a heading never sits alone at the foot of a page.
+      {const first=sheet[key][0],firstSize=first.cropFindingId?cropSize(first.cropFindingId):null;ensure(Math.min(height-120,(firstSize?firstSize.height+40:0)+200));}
+      await heading(`${label} (${sheet[key].length})`);await write(intro,{size:9.5,color:pdfColor(palette.muted)});
       for(const item of sheet[key]){throwIfAborted(signal);const size=item.cropFindingId?cropSize(item.cropFindingId):null;
         // Keep an item's text and its image on the same page.
         ensure(Math.min(height-120,(size ? size.height+40 : 0)+140));
@@ -60,7 +63,8 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,includ
         y-=10;
       }
     }
-    if(sheet.unknown.length || sheet.limits.length){ensure(75+(sheet.unknown.length+sheet.limits.length)*30);await heading(`Couldn’t check (${sheet.unknown.length+sheet.limits.length})`);await write('The tool could not decide these. They are limits of this tool, not problems found in the PDF.',{size:9.5,color:pdfColor(palette.muted)});await list([...sheet.unknown,...sheet.limits],{size:10,gap:2});}
+    if(sheet.travel?.length){ensure(75+sheet.travel.length*36);await heading(`Optional: make it travel further (${sheet.travel.length})`);await write('Improvements for wider reuse, after the things to fix or check. These are not problems and do not count in the totals above.',{size:9.5,color:pdfColor(palette.muted)});await list(sheet.travel.map(item=>item.change?`${item.title}: ${item.change}`:item.title),{size:10,gap:2});await write(' ',{size:8});}
+    if(sheet.unknown.length || sheet.limits.length){ensure(75+(sheet.unknown.length+sheet.limits.length)*30);await heading(sheet.unknown.length?`Couldn’t check (${sheet.unknown.length})`:'Couldn’t check');await write('The tool could not decide these. They are limits of this tool, not problems found in the PDF.',{size:9.5,color:pdfColor(palette.muted)});await list(sheet.unknown,{size:10,gap:2});if(sheet.limits.length){y-=6;await write('Not checked by this tool',{size:11,gap:3,role:'H3'});await list(sheet.limits,{size:10,gap:2});}}
     if(!sheet.fix.length && !sheet.check.length)await write('Nothing to fix or check was found automatically. Image and chart meaning, factual accuracy and intended reading order still need a person to review.');
     if(includeTechnical) {
     runningHeader='Technical appendix';newPage();await heading('Technical appendix');await write('The rest of this report is the analysis record behind the fix list, for people who need the method and evidence.',{size:9.5,color:pdfColor(palette.muted)});await write(snapshot.source.name,{size:14});

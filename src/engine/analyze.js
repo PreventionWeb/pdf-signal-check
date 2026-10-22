@@ -8,11 +8,14 @@ import { compareTitles } from './titles.js';
 import { compareAuthors, inspectReadingOrder, inspectTextVisibility } from './advisories.js';
 import { inspectHiddenInstructions } from './hidden-instructions.js';
 import { inspectAttachments } from './attachments.js';
+import { inspectConsistency } from './consistency.js';
+import { inspectFigureDescriptions } from './figure-descriptions.js';
+import { judgeDecorative } from './decorative.js';
 import { summarizeAnnotations, inspectLinks, inspectCrossReferences, inspectOutline, inspectMachineMetadata, inspectFigureData, inspectDetachedValues, inspectReferenceTargets } from './travel.js';
 
 export { pdfjs };
 export const PROFILE = 'text-actionability-0.3';
-export const LIMITS = { maxBytes: 50 * 1024 * 1024, maxPages: 200, maxOperators: 1_000_000, maxTextItems: 250_000 };
+export const LIMITS = { maxBytes: 50 * 1024 * 1024, maxPages: 500, maxOperators: 1_000_000, maxTextItems: 250_000 };
 const check = (id, label, status, summary, evidence = []) => ({ id, label, required: true, status, summary, evidence });
 
 export function finalize(report) {
@@ -32,7 +35,7 @@ export async function analyzePdf(input, options = {}) {
     readingOrder: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     textVisibility: { status: 'uncertain', reason: 'Analysis not completed.', evidence: [] },
     hiddenInstructions: { status: 'not-assessed', reason: 'Analysis not completed.', matches: [] },
-    ...Object.fromEntries(['links', 'crossReferences', 'outline', 'machineMetadata', 'figureData', 'detachedValues'].map(field => [field, { status: 'not-assessed', reason: 'Analysis not completed.' }])), checks: [], pages: [], limitations: [
+    ...Object.fromEntries(['links', 'crossReferences', 'outline', 'machineMetadata', 'figureData', 'detachedValues', 'consistency'].map(field => [field, { status: 'not-assessed', reason: 'Analysis not completed.' }])), checks: [], pages: [], limitations: [
       'This is a project-specific text profile, not PDF/UA or PDF/A validation.',
       'Decoding checks identify suspicious output; they do not prove glyph-to-text semantic correctness.',
       'Logical order and role meaning are not visually verified. Artifact declarations are trusted.',
@@ -111,6 +114,15 @@ export async function analyzePdf(input, options = {}) {
     report.machineMetadata = inspectMachineMetadata(report.metadata, report.attachments);
     report.figureData = inspectFigureData(report.figureAlternatives, structure, report.attachments);
     report.detachedValues = inspectDetachedValues(report.pages);
+    report.figureDescriptions = inspectFigureDescriptions(report);
+    // Judge each graphic marked as decoration; only the ones the rules can't place stay in the page-by-page review list.
+    report.decorative = judgeDecorative(report);
+    report.figureAlternatives.decorativeItems = [...new Set(report.decorative.items.filter(item => item.kind === 'unclear').map(item => item.page))].map(number => {
+      const unclear = report.decorative.items.filter(item => item.page === number && item.kind === 'unclear');
+      return { id: `${number}:decorative`, page: number, tagged: false, decorative: true, alt: null, status: 'uncertain', keys: [],
+        quads: unclear.map(item => item.quad).slice(0, 16), reasons: [...new Set(unclear.map(item => item.reason))] };
+    });
+    report.consistency = inspectConsistency(report);
     report.hiddenInstructions = inspectHiddenInstructions({ pages: report.pages, metadata: report.metadata, figures: report.figureAlternatives?.items || [], attachments: report.attachments?.files || [] });
     // Hidden runs can be a whole OCR layer; keep only a summary in the report. Matches retain their own snippets.
     for (const page of report.pages) {

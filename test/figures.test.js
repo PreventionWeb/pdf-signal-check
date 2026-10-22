@@ -1,4 +1,4 @@
-import { it, expect } from 'vitest';
+import { it, expect, describe } from 'vitest';
 import { inspectFigureAlternatives } from '../src/engine/figures.js';
 import { normalizeFindings } from '../src/review/findings.js';
 const leaf = {role:'Span',ref:'3 0 R',contentKeys:['1:2'],children:[]};
@@ -35,7 +35,21 @@ it('excludes graphics explicitly marked Artifact from figure review, while retai
  const decorative=await analyzePdf(await makePdf({graphic:true,artifactGraphic:true}));
  expect(decorative.pages[0].graphics).toEqual([]);
  expect(decorative.figureAlternatives.items).toEqual([]);
- expect(decorative.figureAlternatives.decorativeItems).toEqual([expect.objectContaining({page:1,decorative:true})]);
+ // Every decorative graphic gets a verdict; only the ones the rules can't place stay in the page-by-page review list.
+ expect(decorative.decorative.items.length).toBeGreaterThan(0);
+ const unclearPages=decorative.decorative.items.filter(item=>item.kind==='unclear').map(item=>item.page);
+ expect(decorative.figureAlternatives.decorativeItems.map(item=>item.page)).toEqual([...new Set(unclearPages)]);
  const unlabelled=await analyzePdf(await makePdf({graphic:true,artifactGraphic:false}));
  expect(unlabelled.figureAlternatives.items.some(item=>!item.tagged)).toBe(true);
+});
+
+describe('link underlines', () => {
+  it('leaves a thin line running along a line of text out of unlabelled graphics, but keeps a real rule or shape', async () => {
+    const { isTextDecoration } = await import('../src/engine/figures.js');
+    const rect = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+    const blocks = [{ text: 'https://www.who.int/publications', quad: rect(100, 700, 300, 712) }];
+    expect(isTextDecoration({ quad: rect(100, 699, 300, 700) }, blocks)).toBe(true);
+    expect(isTextDecoration({ quad: rect(50, 500, 550, 501) }, blocks)).toBe(false);
+    expect(isTextDecoration({ quad: rect(100, 690, 300, 720) }, blocks)).toBe(false);
+  });
 });

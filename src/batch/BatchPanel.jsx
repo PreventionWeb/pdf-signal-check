@@ -1,4 +1,4 @@
-import { formatProgress } from '../ui/progress.js';
+import { formatProgress, formatBytes } from '../ui/progress.js';
 import React, { useSyncExternalStore } from "react";
 import {
   Button,
@@ -61,7 +61,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
           : item.status === "failed"
             ? "Incomplete or failed"
             : item.status === "canceled" ? "cancelled" : item.status}{" "}
-        · {(item.bytes / 1e6).toFixed(2)} MB
+        · {formatBytes(item.bytes)}
       </p>
       {item.progress && item.id === queue.activeId && (
         <div>
@@ -309,7 +309,7 @@ export function BatchPanel({ controller, requireAI = false }) {
             }}
           />
           <p className="model-note">
-            Up to 20 files · 300 MB total · 50 MB each · engine limit 200 pages
+            Up to 20 files · 300 MB total · 50 MB each · engine limit 500 pages
             per file
           </p>
         </Card>

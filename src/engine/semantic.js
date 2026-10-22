@@ -1,9 +1,10 @@
 import { selectTopicEvidence } from './topic-retrieval.js';
+import { similarPairs } from './facts.js';
 import { compareTitles, normalizeTitle, publicationCandidates } from './titles.js';
 
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from './models.js';
 export const SEMANTIC_LIMITS = Object.freeze({ titleCandidates: 8, excerptCount: 6,
-  excerptCharacters: 800, metadataCharacters: 350, keywordCount: 12, sectionCount: 6, titleLow: 0.35, titleHigh: 0.75,
+  excerptCharacters: 800, metadataCharacters: 350, keywordCount: 12, sectionCount: 6, sectionMargin: 0.15, titleLow: 0.35, titleHigh: 0.75,
   topicLow: 0.20, topicHigh: 0.45 });
 const uncertain = reason => ({ status: 'uncertain', reason, evidence: [] });
 const words = text => normalizeTitle(text).match(/[\p{L}\p{N}]+/gu) || [];
@@ -58,24 +59,35 @@ const cosine = (a, b) => {
 };
 
 
+/**
+ * Each tagged heading with the text that follows it, across the whole document. Lines that belong to the same heading tag
+ * (a heading wrapped over two lines) are one heading, so "at scale" is never compared on its own.
+ */
 export function sectionEvidence(pages = []) {
   const sections = [];
-  for (const page of pages.slice(0,3)) {
-    let current = null;
-    for (const block of (page.logicalBlocks || []).slice(0,200)) {
+  let current = null;
+  const close = () => { if (current?.body.text.length >= 80) sections.push(current); current = null; };
+  for (const page of pages) {
+    for (const block of (page.logicalBlocks || []).slice(0, 400)) {
       if (/^H[1-6]?$/.test(block.role || '')) {
-        if (current?.body.text.length >= 80) sections.push(current);
+        // Same tag, or the same level with no text between (a heading split across two tags): one heading.
+        if (current && !current.body.text && ((current.heading.node && current.heading.node === block.node) || current.heading.role === block.role)) {
+          current.heading = { ...current.heading, text: `${current.heading.text} ${block.text}`.replace(/\s+/g, ' ').trim(),
+            keys: [...current.heading.keys, ...(block.key ? [block.key] : [])] };
+          continue;
+        }
+        close();
         current = { heading: { ...block, page: page.number, keys: block.key ? [block.key] : [] },
           body: { page: page.number, text: '', keys: [], source: 'following tagged section text' } };
-      } else if (current && block.text?.trim() && current.body.text.length < 800) {
+      } else if (current && block.text?.trim() && current.body.text.length < 800 && page.number === current.heading.page) {
         current.body.text += `${current.body.text ? ' ' : ''}${block.text}`;
         if (block.key) current.body.keys.push(block.key);
-        current.body.text = current.body.text.slice(0,800);
+        current.body.text = current.body.text.slice(0, 800);
       }
     }
-    if (current?.body.text.length >= 80) sections.push(current);
+    close();
   }
-  return sections.slice(0, SEMANTIC_LIMITS.sectionCount);
+  return sections;
 }
 
 /** embed(texts, model) returns vectors or {vectors, provenance}. Policy is separate from inference. */
@@ -92,7 +104,7 @@ export async function assessSemantic(input, embed) {
   const warnings = identityWarnings(metadata, candidates, deterministicTitle);
   const result = { schemaVersion: 2, model, languageContext, requireInference: input.requireInference === true, thresholds: model.thresholds, limits, requestedChecks: checks,
     assessedAt: new Date().toISOString(), inferencePerformed: false, embeddedTextCount: 0,
-    inferenceProvenance: [], skippedChecks: [], keywordItems: [], sectionItems: [],
+    inferenceProvenance: [], skippedChecks: [], keywordItems: [], sectionItems: [], nameItems: [], figureItems: [], contentItems: [], factPairs: [],
     title: uncertain('No credible cover or first-page title evidence.'),
     subject: uncertain('No subject metadata or sufficient opening text.'),
     keywords: uncertain('No delimited keywords or sufficient opening text.'),
@@ -121,6 +133,22 @@ export async function assessSemantic(input, embed) {
     const selected = input.documentEvidence && query?.trim() ? selectTopicEvidence(query, input.documentEvidence, excerpts) : { evidence: excerpts, receipt: null };
     addTask(field, query, selected.evidence, { ...extra, retrieval: selected.receipt });
   };
+  // Titles the PDF writes differently in different places, which the consistency rules could not classify.
+  if (requested('title')) for (const pair of (input.names || []).slice(0, 8)) {
+    if (typeof pair?.id === 'string' && words(pair.left || '').length >= 2 && words(pair.right || '').length >= 2)
+      addTask('name', pair.left, [{ text: pair.right, source: 'other title' }], { nameId: pair.id });
+  }
+  // Flag-only comparisons, bounded per model so browser inference stays responsive.
+  const budget = model.budget || { facts: 0, figures: 0, contents: 0 };
+  for (const figure of (input.figures || []).slice(0, budget.figures))
+    if (words(figure.alt || '').length >= 2 && figure.caption?.trim()) addTask('figure', figure.alt.slice(0, limits.metadataCharacters), [{ text: figure.caption, source: 'caption' }], { figureId: figure.id });
+  for (const entry of (input.contents || []).slice(0, budget.contents))
+    if (words(entry.entry || '').length >= 2 && entry.headings?.length) addTask('contents', entry.entry, entry.headings.slice(0, 8).map(text => ({ text, source: 'heading on the expected page' })), { contentsId: entry.id });
+  // Spread the sentence budget across the document so a summary and a later chapter can both be compared.
+  const allFacts = input.facts || [];
+  const facts = allFacts.length <= budget.facts ? allFacts : Array.from({ length: budget.facts }, (_, i) => allFacts[Math.floor(i * allFacts.length / budget.facts)]);
+  const factIndices = facts.length >= 2 ? facts.map(fact => add(fact.text)) : [];
+  result.factCoverage = { candidates: allFacts.length, compared: factIndices.length };
   if (requested('subject')) topicTask('subject',metadata.subject);
   const rawKeywords = typeof metadata.keywords === 'string' ? metadata.keywords.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean) : [];
   const keywordTerms = [...new Set(rawKeywords)];
@@ -129,7 +157,10 @@ export async function assessSemantic(input, embed) {
     delimitation: /[,;\n]/.test(metadata.keywords || '') ? 'explicit separators' : 'undelimited metadata treated as one phrase' };
   if (requested('keywords')) for (const keyword of selectedKeywords) topicTask('keyword',keyword,{keyword});
   const availableSections = input.sections || sectionEvidence(input.pages);
-  const sections = availableSections.slice(0,limits.sectionCount);
+  // Spread across the document, like the sentence budget, so later chapters are compared too.
+  const sectionBudget = budget.sections ?? limits.sectionCount;
+  const sections = availableSections.length <= sectionBudget ? availableSections
+    : Array.from({ length: sectionBudget }, (_, i) => availableSections[Math.floor(i * availableSections.length / sectionBudget)]);
   result.sectionCoverage = { suppliedPairs: availableSections.length, evaluatedPairs: 0, skippedPairs: availableSections.length };
   if (requested('sections')) for (const section of sections) {
     const h = section.heading, body = section.body;
@@ -137,7 +168,7 @@ export async function assessSemantic(input, embed) {
     if (/^(executive overview|introduction|conclusion|summary|references|results|discussion|methods)$/i.test(h.text.trim())) continue;
     addTask('section',h.text,[{...body,text:body.text.slice(0,800)}],{heading:h});
   }
-  if (!tasks.length) {
+  if (!tasks.length && !factIndices.length) {
     const queryReason = (query, evidence, missing) => !query?.trim() ? missing : query.length > limits.metadataCharacters
       ? `The metadata value exceeds the ${limits.metadataCharacters}-character screening limit.`
       : !evidence.length ? 'No sufficient opening-page text was recovered for comparison.' : 'No eligible comparison was prepared.';
@@ -148,18 +179,24 @@ export async function assessSemantic(input, embed) {
         : 'No eligible tagged heading and following text were recovered. Generic or very short headings cannot be screened.'
     })) };
   }
-  if (tasks.length) {
+  if (tasks.length || factIndices.length) {
     const embedded = await embed(texts,model);
     const vectors = Array.isArray(embedded) ? embedded : embedded.vectors;
     if (!Array.isArray(vectors) || vectors.length !== texts.length) throw new Error('The model returned incomplete embeddings.');
     result.inferencePerformed = true; result.embeddedTextCount = texts.length;
     result.inferenceProvenance = Array.isArray(embedded.provenance) ? embedded.provenance : [];
+    if (factIndices.length) {
+      const sentence = ({ page, text, blockIds }) => ({ page, text, blockIds });
+      result.factPairs = similarPairs(facts, factIndices.map(i => vectors[i]), limits.factHigh)
+        .map(pair => ({ a: sentence(pair.a), b: sentence(pair.b), values: pair.values, similarity: pair.similarity, method: 'embedding-screening', inferencePerformed: true }));
+    }
     for (const task of tasks) {
       const evidence = task.evidence.map(e => ({...e, similarity:cosine(vectors[task.queryIndex],vectors[e.embeddingIndex]),
         modelInput:result.inferenceProvenance[e.embeddingIndex] || null})).sort((a,b)=>b.similarity-a.similarity);
       const best = evidence[0].similarity;
-      const low = task.field.startsWith('title') ? limits.titleLow : limits.topicLow;
-      const high = task.field.startsWith('title') ? limits.titleHigh : limits.topicHigh;
+      const titleLike = task.field.startsWith('title') || ['name', 'figure', 'contents'].includes(task.field);
+      const low = titleLike ? limits.titleLow : limits.topicLow;
+      const high = titleLike ? limits.titleHigh : limits.topicHigh;
       const assessment = { status:best>=high?'semantically-related':best<low?'suspected-mismatch':'uncertain',
         retrieval: task.retrieval || undefined, method:'embedding-screening',inferencePerformed:true,evidence, queryInput:result.inferenceProvenance[task.queryIndex] || null,
         reason:best>=high?'The bounded evidence is topically related; identity and factual correctness remain unconfirmed.':best<low?'The query is weakly related to the bounded evidence. Inspect the text; later sections, generic headings or alternate wording may supply missing context.':'Similarity falls in this model’s provisional review range.' };
@@ -167,8 +204,25 @@ export async function assessSemantic(input, embed) {
       else if(task.field==='title-support')result.titleAI=assessment;
       else if(task.field==='subject')result.subject=assessment;
       else if(task.field==='keyword')result.keywordItems.push({...assessment,keyword:task.keyword});
-      else result.sectionItems.push({...assessment,heading:task.heading});
+      else if(task.field==='figure')result.figureItems.push({...assessment,figureId:task.figureId,reason:assessment.status==='suspected-mismatch'?'The description has little in common with the figure’s caption; it may describe a different image.':assessment.reason});
+      else if(task.field==='contents')result.contentItems.push({...assessment,contentsId:task.contentsId,reason:assessment.status==='semantically-related'?'A heading on the expected page is closely related; the contents entry is probably worded differently.':assessment.status==='suspected-mismatch'?'No heading on the expected page is related to this contents entry.':assessment.reason});
+      else if(task.field==='name')result.nameItems.push({...assessment,nameId:task.nameId,reason:assessment.status==='semantically-related'?'The two titles are closely related in meaning; they likely name the same document.':assessment.status==='suspected-mismatch'?'The two titles have little in common in meaning; one may name a different document.':assessment.reason});
+      else result.sectionItems.push({...assessment,heading:task.heading,queryIndex:task.queryIndex,bodyIndex:task.evidence[0].embeddingIndex});
     }
+    // A low score alone mostly catches short, general headings ("Ways forward"). Keep a mismatch only when a nearby
+    // section's text fits the heading clearly better than its own: a heading that seems to belong somewhere else.
+    result.sectionItems = result.sectionItems.map((item, index, all) => {
+      const { queryIndex, bodyIndex, ...rest } = item;
+      if (item.status !== 'suspected-mismatch') return rest;
+      const own = cosine(vectors[queryIndex], vectors[bodyIndex]);
+      const better = all.map((other, j) => ({ other, j })).filter(({ j }) => j !== index && Math.abs(j - index) <= 5)
+        .map(({ other }) => ({ heading: other.heading, similarity: cosine(vectors[queryIndex], vectors[other.bodyIndex]) }))
+        .sort((x, y) => y.similarity - x.similarity)[0];
+      if (better && better.similarity >= own + limits.sectionMargin && better.similarity >= limits.topicLow)
+        return { ...rest, betterMatch: { heading: better.heading?.text || null, page: better.heading?.page || null, similarity: better.similarity },
+          reason: `This heading relates more closely to the text under “${better.heading?.text || 'a nearby heading'}” than to its own section. It may be misplaced or mislabelled.` };
+      return { ...rest, status: 'uncertain', reason: 'The heading scores low against its own text, as short or general headings often do; no nearby section fits it better.' };
+    });
   }
   const aggregate = (items, reason, incomplete=false) => ({ status:items.some(i=>i.status==='suspected-mismatch')?'suspected-mismatch':items.length&&!incomplete&&items.every(i=>i.status==='semantically-related')?'semantically-related':'uncertain',
     reason,method:'embedding-screening',inferencePerformed:items.length>0,evidence:items.flatMap(i=>i.evidence).slice(0,6) });

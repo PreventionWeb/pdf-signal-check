@@ -1,8 +1,9 @@
 import { SiteNavigation } from "./SiteNavigation.jsx";
+import { formatBytes } from "../ui/progress.js";
+import { ProcessingPanel } from "./ProcessingPanel.jsx";
 import { Capabilities } from './Capabilities.jsx';
 import { IntakeHero } from './IntakeHero.jsx';
 import { AboutPage } from './AboutPage.jsx';
-import { formatProgress } from '../ui/progress.js';
 import React, {
   useEffect,
   useRef,
@@ -19,7 +20,6 @@ import { SetupDialog } from "./SetupDialog.jsx";
 import { LanguageDialog } from "./LanguageDialog.jsx";
 import { PrivacyNotice } from "./PrivacyNotice.jsx";
 import { ReviewLoader } from "../review/ReviewLoader.jsx";
-import { needsDocumentInformation } from "../runtime/screening-recovery.js";
 import {
   PRESENTATION_BRAND,
   PRODUCT_NAME,
@@ -27,8 +27,6 @@ import {
 import {
   Button,
   Actions,
-  Loader,
-  ProgressBar,
   Notice,
 } from "../ui/react.jsx";
 export function App() {
@@ -108,7 +106,7 @@ export function App() {
     batch: "Review several PDFs",
     checks: null,
     review: null,
-    "processing-analysis": "Checking text, tags and document details",
+    "processing-analysis": "Checking your PDF",
     "processing-model": null,
   }[state.stage];
   return (
@@ -174,9 +172,9 @@ export function App() {
                     {title}
                   </h1>
                 )}
-                {state.file && state.stage !== "batch" && state.stage !== "document" && (!["checks", "review"].includes(state.stage) || needsDocumentInformation(state.report)) && (
+                {state.file && state.stage !== "batch" && state.stage !== "document" && !["checks", "review", "processing-model"].includes(state.stage) && (
                   <p className="flow-file">
-                    {state.file.name} · {(state.file.size / 1e6).toFixed(2)} MB
+                    {state.file.name} · {formatBytes(state.file.size)}
                   </p>
                 )}
                 {["document", "setup"].includes(state.stage) && (
@@ -188,44 +186,7 @@ export function App() {
                     batchBusy={batch.busy}
                   />
                 )}
-              {state.stage === "processing-analysis" && (
-                <>
-                  <p role="status" id="flow-status">
-                    {state.message}
-                  </p>
-                  {state.progress?.total > 0 &&
-                  Number.isFinite(state.progress.completed) ? (
-                    <>
-                      <ProgressBar
-                        label="Current processing step"
-                        hideLabel
-                        max={state.progress.total}
-                        value={state.progress.completed}
-                        valueText={formatProgress(state.progress)}
-                        helpText={`${formatProgress(state.progress)}${state.progress.asset ? ` · ${state.progress.asset}` : ""}`}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Loader label="Preparing local processing" />
-                      <p className="model-note">
-                        Preparing or processing locally. No estimated completion
-                        time is available.
-                      </p>
-                    </>
-                  )}
-                  <Button
-                    id="flow-cancel"
-                    onClick={() =>
-                      state.stage === "processing-analysis"
-                        ? controller.cancelAnalysis()
-                        : controller.cancelScreening()
-                    }
-                  >
-                    Cancel and go back
-                  </Button>
-                </>
-              )}
+              {state.stage === "processing-analysis" && <ProcessingPanel state={state} controller={controller} />}
               {["checks", "review", "processing-model"].includes(state.stage) && state.report && (
                 <ReviewLoader
                   key={state.sourceKey}
@@ -268,7 +229,7 @@ export function App() {
               <p className="mg-footer-bar__text">
                 {PRODUCT_NAME}
               </p>
-              <p className="mg-footer-bar__text">Processed on your device · Early version / 0.8</p>
+              <p className="mg-footer-bar__text">Processed on your device · Early version / 0.9</p>
               <div className="mg-footer-bar__links">
                 <a href="#ai-info-dialog" id="about-ai" ref={openerRef} onClick={e => { e.preventDefault(); privacyRef.current?.open(e.currentTarget); }}>About AI &amp; privacy</a>
                 <a
@@ -333,7 +294,7 @@ function Entry({ state, controller, batchBusy, onAbout, onWatch }) {
           <div className="mg-card__content">
             <div className="mg-card__meta"><span className="mg-card__label">Your PDF</span></div>
             <h2 className="mg-card__title" id="upload-title">Check your own PDF</h2>
-            <p className="mg-card__summary">Drag a PDF onto this box or choose one from your device. Up to 50 MB and 200 pages. It never leaves this device.</p>
+            <p className="mg-card__summary">Drag a PDF onto this box or choose one from your device. Up to 50 MB and 500 pages. It never leaves this device.</p>
             {/* The visually hidden file input is the focusable control; its label is styled as the primary button. */}
             <label className="mg-button mg-button-primary upload-button" htmlFor="file-input">Choose a PDF</label>
             <input

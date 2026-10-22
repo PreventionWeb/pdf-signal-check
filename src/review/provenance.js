@@ -1,3 +1,4 @@
+import { imageVerdict, descriptionsInEnglish } from '../engine/image-model.js';
 const valueAt=(object,path)=>String(path || '').replace(/\[(\d+)\]/g,'.$1').split('.').filter(Boolean).reduce((value,key)=>value?.[key],object);
 const modelName=model=>model?.label || model?.id || 'unspecified model';
 const completedModel=semantic=>semantic?.inferencePerformed===true&&[undefined,null,'completed'].includes(semantic.status)&&Boolean(semantic.model?.id || semantic.model?.label);
@@ -9,6 +10,20 @@ export function findingProvenance(finding,report) {
     if(method==='deterministic-rules')return {kind:'rules',label:'Extracted PDF + rules',help:'rules',detail:'This result was settled by title comparison rules; no inference was used for this check.'};
     return {kind:'unassessed',label:'AI check not assessed',help:'bounded',detail:actual?.reason || actual?.error || finding.summary || 'No completed model inference is recorded for this check.'};
   }
+  if(path.startsWith('consistency.')) {
+    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true&&finding.comparison?.consistency?.kind==='same-image')return {kind:'ai',label:'Local image model',help:'ai',detail:`${report.imageScreening.model?.label || 'The image model'} found these two pictures almost identical, and their saved descriptions share few words. It compares how pictures look, not what they mean, and can be wrong.`};
+    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true)return {kind:'ai',label:'Rules + local image model',help:'ai',detail:`The rules couldn’t tell whether this graphic carries information; ${report.imageScreening.model?.label || 'the image model'} sorted a crop of it into a broad type. It cannot read text in images and can be wrong.`};
+    if(finding.method==='embedding-screening'&&completedModel(report.semantic)&&finding.comparison?.ai?.inferencePerformed===true){
+      const kind=finding.comparison?.consistency?.kind,model=modelName(report.semantic?.model);
+      const coverage=report.semantic?.factCoverage,compared=coverage?.candidates?` It compared ${coverage.compared} of the ${coverage.candidates} sentences in this PDF that state a figure${coverage.compared<coverage.candidates?', spread across the document':''}.`:'';
+      const detail=kind==='same-fact'?`${model} found two sentences that say the same thing; rules found they give different numbers.${compared} The model compares meaning and can pair sentences about different things.`
+        :/^contents-/.test(kind||'')?`Rules could not find this contents entry as a heading on its page; ${model} compared it with the headings there.`
+        :`Rules found the two titles worded differently; ${model} compared their meaning. This is not identity verification.`;
+      return {kind:'ai',label:'Rules + local AI relatedness',help:'ai',detail};
+    }
+    return {kind:'rules',label:'Extracted PDF + consistency rules',help:'rules',detail:'Values the PDF states in different places are compared with rules: titles, dates, draft labels, language and decorative graphics beside captions. Rules can miss differences or flag intended ones.'};
+  }
+  if(['machineMetadata','links','outline','crossReferences','figureData','detachedValues'].includes(path))return {kind:'rules',label:'Saved properties and PDF structure, read by rules',help:'rules',detail:'The tool reads the PDF’s saved properties, links, bookmarks and tags without AI. It checks that details are present, not that they are correct.'};
   if(['authorConsistency','readingOrder'].includes(path))return {kind:'heuristic',label:'Rule-based heuristic',help:'heuristic',detail:path==='authorConsistency'?'Recovered metadata is compared with a heuristic first-page byline candidate; authorship is not authenticated.':'A bounded numbered/spatial order clue; intended reading order still requires visual inspection.'};
   if(path==='metadataConsistency')return {kind:'rules',label:'Extracted PDF + title rules',help:'rules',detail:'Title strings are compared with recovered publication candidates. Candidate selection and normalization can miss issues.'};
   if(path==='attachments'&&actual?.status==='not-assessed')return {kind:'unassessed',label:'Attachment inventory not assessed',help:'attachments',detail:actual.reason || 'No completed attachment inventory is recorded.'};
@@ -47,4 +62,63 @@ export function groupedFindingProvenance(findings, report) {
   const sharedModel = model?.id && members.length && members.every(({ finding, method }) => method.kind === 'ai'
     && finding.comparison?.model?.id === model.id && finding.comparison?.model?.revision === model.revision) ? model : null;
   return { members, sharedModel };
+}
+
+/** One plain receipt line: which kinds of check produced these results. */
+/** Why the image model had nothing to look at, in one plain clause. */
+/** Said whenever the image model ran or was asked to: descriptions in other languages are not compared with pictures. */
+export function descriptionLanguageNote(report) {
+  if (!report.imageScreening || descriptionsInEnglish(report)) return '';
+  const described = (report.figureAlternatives?.items || []).filter(figure => figure.tagged && figure.alt?.trim()).length;
+  return described ? 'Photo descriptions were not compared with their pictures: the image model only reads English descriptions.' : '';
+}
+export function imageSkipNote(report) {
+  const skipped = report.imageScreening?.skipped;
+  if (!skipped) return descriptionLanguageNote(report);
+  return `The image model had nothing to look at in this PDF: ${skipped.decorativeUnclear ? 'the decorative graphics it could judge were too text-heavy or too small' : 'no decorative graphics the rules couldn’t place'}, and ${skipped.describedImages ? `${skipped.describedImages} described image${skipped.describedImages === 1 ? '' : 's'} (it needs at least 5 well-cropped photo descriptions to compare)` : 'no photo descriptions to compare'}.${descriptionLanguageNote(report) ? ` ${descriptionLanguageNote(report)}` : ''}`;
+}
+export function checkedWith(report) {
+  const semantic = report.semantic;
+  const note = imageSkipNote(report);
+  if (note) return `${checkedWithModels(report)} ${note}`;
+  return checkedWithModels(report);
+}
+function checkedWithModels(report) {
+  const semantic = report.semantic;
+  if (!semantic) return report.imageScreening?.inferencePerformed ? 'Checked with standard checks and an on-device image model.' : 'Checked with standard checks.';
+  const model = semantic.model?.label ? ` (${semantic.model.label.split(' · ')[0]})` : '';
+  if (semantic.status === 'error' || semantic.status === 'skipped') return 'Checked with standard checks. The AI checks did not run.';
+  if (semantic.inferencePerformed !== true) return `Checked with standard checks. AI${model} was selected but had nothing to compare in this PDF.`;
+  return `Checked with standard checks and on-device AI${model}${report.imageScreening?.inferencePerformed ? ' and an image model' : ''}.`;
+}
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+/**
+ * How the on-device AI took part in an issue, in plain words, for the note under its headline.
+ * `decided`: the AI's comparison put the issue here (rules alone wouldn't have). Otherwise the AI helped (ordered a list,
+ * looked at a graphic and couldn't tell) or wasn't used, in which case there is no note.
+ */
+export function aiInvolvement(finding, report) {
+  if (!finding) return null;
+  const members = finding.members || [finding];
+  const decided = members.find(member => findingProvenance(member, report).kind === 'ai' && member.category === 'advisory-concern');
+  if (decided) {
+    const detail = findingProvenance(decided, report).detail;
+    return { decided: true, text: /wrong/.test(detail) ? `${detail} Check it yourself.` : `${detail} AI can be wrong, so check it yourself.` };
+  }
+  const lines = [];
+  const images = report.imageScreening?.inferencePerformed === true ? report.imageScreening : null;
+  const descriptions = members.map(member => member.comparison?.description).filter(Boolean);
+  const pictured = descriptions.filter(item => item.image);
+  if (pictured.length) {
+    const flagged = pictured.filter(item => item.image.mismatch).length;
+    lines.push(`The on-device image model compared ${plural(pictured.length, 'description')} with ${pictured.length === 1 ? 'its picture' : 'their pictures'}${flagged ? ` and listed ${flagged === 1 ? 'the one' : `the ${flagged}`} that matched least well first` : ' and found nothing to flag'}.`);
+  }
+  const captioned = descriptions.filter(item => item.ai?.inferencePerformed === true || item.ai?.status);
+  if (captioned.length) lines.push(`The on-device AI compared ${plural(captioned.length, 'description')} with ${captioned.length === 1 ? 'its caption' : 'their captions'}.`);
+  const pages = new Set(members.map(member => member.comparison?.figure).filter(figure => figure && !figure.tagged).map(figure => figure.page));
+  // Only graphics it couldn't settle: ones it called content or decoration have their own outcome elsewhere.
+  const looked = images && pages.size ? (images.items || []).filter(item => pages.has(item.page) && imageVerdict(item, report.decorative?.items?.[item.index]) === 'unclear') : [];
+  if (looked.length) lines.push(`The on-device image model also looked at ${plural(looked.length, 'graphic')} here and couldn’t tell whether ${looked.length === 1 ? 'it carries' : 'they carry'} information, so ${looked.length === 1 ? 'it stays' : 'they stay'} for you to decide.`);
+  return lines.length ? { decided: false, text: `${lines.join(' ')} AI can be wrong.` } : null;
 }

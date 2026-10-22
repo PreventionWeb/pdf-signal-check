@@ -3,13 +3,16 @@ import { SEMANTIC_MODELS } from '../engine/models.js';
 import { Help } from '../help/Help.jsx';
 import { CalibrationPanel } from '../calibration/CalibrationPanel.jsx';
 import { createDevicePreferences, rateDevice } from '../calibration/preferences.js';
-import { Card, Button, Radio, Actions } from '../ui/react.jsx';
+import { Card, Button, Radio, Actions, Checkbox } from '../ui/react.jsx';
+import { IMAGE_MODEL } from '../engine/image-model.js';
 import './setup.css';
 
 export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
   const [step, setStep] = useState(1);
   const [modelId, setModelId] = useState(() => controller.getSnapshot().setupComplete ? controller.getSnapshot().evaluationModel : 'granite-r2');
   const [receipt, setReceipt] = useState(null);
+  // Image checks are on by default when choosing AI; the box and its download size stay visible before continuing.
+  const [imageAI, setImageAI] = useState(() => controller.getSnapshot().setupComplete ? controller.getSnapshot().imageAI : true);
   const [busy, setBusy] = useState(false);
   const [resetStatus, setResetStatus] = useState('');
   const [preferences] = useState(() => createDevicePreferences());
@@ -24,7 +27,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
     { key: null, purpose: 'Standard checks', note: 'No model download', description: 'Checks text, tags and saved details. Skips AI text comparisons; you can add them later.' },
   ];
   const selected = options.find(option => option.key === modelId);
-  const downloadNote = modelId ? `${selected.label}: ${selected.download} for model and tokenizer files, plus approximately 26.86 MB of uncompressed runtime files and JavaScript. Actual transfer varies; your browser may reuse cached files.` : '';
+  const downloadNote = modelId ? `${selected.label}: ${selected.download} for model and tokenizer files${imageAI ? `, ${IMAGE_MODEL.label}: ${IMAGE_MODEL.download} for the image model` : ''}, plus approximately 26.86 MB of uncompressed runtime files and JavaScript. Actual transfer varies; your browser may reuse cached files.` : '';
   const speed = model => {
     const measured = model.key === modelId && receipt ? receipt : preferences.load(model.key)?.receipt;
     if (!measured) return <span><strong>{model.key === 'minilm' ? 'Good' : 'OK'}</strong><br /><small>Expected · not benchmarked</small></span>;
@@ -45,7 +48,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       <p className="model-note">{downloadNote}</p>
       <p>Continuing saves your choice and allows these downloads for future PDF checks. Your PDF stays on this device. AI comparisons can be wrong.</p>
       <Actions>
-        <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(modelId)}>{receipt ? 'Use this model and continue' : 'Continue without speed test'}</Button>
+        <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(modelId, { imageAI })}>{receipt ? 'Use this model and continue' : 'Continue without speed test'}</Button>
         {receipt && <Button disabled={busy || batchBusy} onClick={() => calibrationRef.current?.start()}>Check again</Button>}
         <Button disabled={busy} onClick={() => setStep(1)}>Back to check options</Button>
       </Actions>
@@ -64,6 +67,11 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
           </Card>)}
         </div>
       </fieldset>
+      {modelId && <div className="setup-image-option">
+        <Checkbox id="setup-image-ai" name="setup-image-ai" checked={imageAI} disabled={batchBusy} onChange={event => setImageAI(event.target.checked)}
+          label={`Also look at images with an on-device image model (${IMAGE_MODEL.download}, plus ${IMAGE_MODEL.descriptionDownload} when a PDF has photo descriptions to check)`} />
+        <p className="model-note">It sorts graphics marked as decoration that the rules can’t place into types such as chart, map, photo or plain panel, and checks whether photo descriptions match their pictures. It can’t read text in images and can be wrong. Your PDF stays on this device.</p>
+      </div>}
       <p className="model-note">Both AI options also need approximately 26.86 MB of uncompressed runtime files, plus JavaScript. Actual transfer varies; your browser may reuse cached files. Choose multilingual AI for broader language coverage or English AI for a smaller download. AI comparisons can be wrong.</p>
       <details className="mg-details setup-technical">
         <summary>Compare technical details</summary>

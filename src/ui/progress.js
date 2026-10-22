@@ -4,7 +4,7 @@ export function formatBytes(bytes) {
   const units = ['bytes', 'KB', 'MB', 'GB'];
   let amount = bytes, unit = 0;
   while (amount >= 1000 && unit < units.length - 1) { amount /= 1000; unit++; }
-  return `${amount.toLocaleString('en', { maximumFractionDigits: unit ? 1 : 0 })} ${units[unit]}`;
+  return `${amount.toLocaleString('en', { minimumFractionDigits: unit ? 1 : 0, maximumFractionDigits: unit ? 1 : 0 })} ${units[unit]}`;
 }
 export function formatProgress(progress) {
   if (progress.unit === 'bytes') return `${formatBytes(progress.completed)}${progress.total > 0 ? ` of ${formatBytes(progress.total)}` : ''} downloaded`;

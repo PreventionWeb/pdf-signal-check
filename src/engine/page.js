@@ -1,15 +1,37 @@
 import { textQuad, multiply, rectPoints } from '../geometry.js';
 const mergeQuads = (a, b) => { const xs = [...a, ...b].map(p => p[0]), ys = [...a, ...b].map(p => p[1]);
   return [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)], [Math.min(...xs), Math.max(...ys)]]; };
+/** Split one header/footer baseline into separately placed segments, such as a title on the left and a chapter on the right. */
+function marginSegments(items) {
+  const segments = [];
+  let current = null, end = -Infinity;
+  for (const item of [...items].sort((a, b) => a.x - b.x)) {
+    const gap = item.x - end, height = item.height || 10;
+    if (!current || gap > height * 3) { current = { text: '' }; segments.push(current); }
+    else if (gap > height * 0.15 && !/\s$/.test(current.text) && !/^\s/.test(item.text)) current.text += ' ';
+    current.text += item.text;
+    end = Math.max(end, item.x + item.width);
+  }
+  return segments.map(segment => segment.text.replace(/\s+/g, ' ').trim()).filter(Boolean);
+}
 /** Inspect extracted text and drawing operators against raw page-scoped tag links. */
 export function inspectPage(text, operators, tree, pageNumber, structure, OPS, view = null) {
-  const stack = [], blocks = [], byKey = new Map();
+  const stack = [], blocks = [], byKey = new Map(), margin = new Map();
   let untaggedCharacters = 0, characters = 0, suspicious = 0;
+  // Running headers and footers are often artifacts, so collect them before artifact text is skipped.
+  const [, pageBottom, , pageTop] = view || [0, 0, 0, 0];
+  const marginBand = (pageTop - pageBottom) * 0.08;
   const bad = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffd\ue000-\uf8ff\u{f0000}-\u{ffffd}\u{100000}-\u{10fffd}]/gu;
   for (const item of text.items) {
     if (item.type === 'beginMarkedContent' || item.type === 'beginMarkedContentProps') stack.push(item);
     else if (item.type === 'endMarkedContent') stack.pop();
     else if (typeof item.str === 'string' && item.str.trim()) {
+      const y = item.transform?.[5];
+      if (view && Number.isFinite(y) && (y > pageTop - marginBand || y < pageBottom + marginBand)) {
+        const line = Math.round(y);
+        if (margin.has(line) || margin.size < 12) margin.set(line, [...(margin.get(line) || []),
+          { x: item.transform[4], width: item.width || 0, height: Math.abs(item.height || item.transform[3] || 0), text: item.str }]);
+      }
       if (stack.some(s => s.tag === 'Artifact')) continue;
       const owner = [...stack].reverse().find(s => s.id);
       const mcid = owner?.id?.match(/_mc(\d+)$/)?.[1];
@@ -33,7 +55,17 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
   const HIDDEN_CHARACTER_LIMIT = 50_000, HIDDEN_RUN_LIMIT = 300;
   const translate = (m, tx, ty) => [m[0], m[1], m[2], m[3], m[0]*tx + m[2]*ty + m[4], m[1]*tx + m[3]*ty + m[5]];
   const nearWhite = hex => /^#[0-9a-f]{6}$/i.test(hex) && [1, 3, 5].every(i => parseInt(hex.slice(i, i + 2), 16) >= 0xf0);
-  const graphicRegions = [], decorativeGraphics = [], matrices = []; let matrix = [1,0,0,1,0,0], formDepth = 0, formXObjectInvocations = 0;
+  const graphicRegions = [], decorativeGraphics = [], matrices = [];
+  const pageArea = view ? Math.abs((view[2] - view[0]) * (view[3] - view[1])) : 0;
+  const decorativeExtent = { images: 0, largestImage: 0, paths: 0 };
+  // Each artifact (decoration) sequence as one item: what it draws, how much, and where, so it can be judged on its own.
+  const decorativeItems = [];
+  const growBox = (box, quad) => {
+    // Some drawings report infinite bounds; they say nothing about where the graphic is.
+    if (quad.some(point => !Number.isFinite(point[0]) || !Number.isFinite(point[1]))) return box;
+    const xs = quad.map(point => point[0]), ys = quad.map(point => point[1]);
+    return box ? [Math.min(box[0], ...xs), Math.min(box[1], ...ys), Math.max(box[2], ...xs), Math.max(box[3], ...ys)] : [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+  }; let matrix = [1,0,0,1,0,0], formDepth = 0, formXObjectInvocations = 0;
   const usedKeys = new Set(), opStack = [];
   const pageTextKeys = new Set(), reusedTextKeys = new Set();
   const graphics = new Set(['paintImageXObject', 'paintInlineImageXObject', 'paintImageMaskXObject',
@@ -62,10 +94,13 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
         else if (mcidOccurrences.has(mcid)) contentErrors.push(`Page ${pageNumber}: MCID ${mcid} occurs in multiple marked-content sequences.`);
         else mcidOccurrences.add(mcid);
       }
-      opStack.push({ tag: typeof args[0] === 'string' ? args[0] : args[0]?.name, mcid: fn === OPS.beginMarkedContentProps ? args[1] : null });
+      const tag = typeof args[0] === 'string' ? args[0] : args[0]?.name;
+      const opening = tag === 'Artifact' && !opStack.some(entry => entry.tag === 'Artifact');
+      opStack.push({ tag, mcid: fn === OPS.beginMarkedContentProps ? args[1] : null, depth: formDepth, ...(opening ? { group: { images: 0, paths: 0, box: null } } : {}) });
     } else if (fn === OPS.endMarkedContent) {
       if (!opStack.length && !formDepth) contentErrors.push(`Page ${pageNumber}: unmatched marked-content closing boundary.`);
-      opStack.pop();
+      const closed = opStack.pop();
+      if (closed?.group && (closed.group.images || closed.group.paths) && closed.group.box && decorativeItems.length < 80) decorativeItems.push(closed.group);
     }
     else {
       const artifact = opStack.some(s => s.tag === 'Artifact');
@@ -77,10 +112,30 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
       if (graphics.has(fn) || (fn === OPS.constructPath && graphics.has(args[0]))) {
         if (!artifact) nonArtifactGraphics++;
         let box = null;
-        if (!formDepth && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
-        if (!formDepth && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
-        const region = { key: !formDepth && owner ? `${pageNumber}:${owner.mcid}` : null, quad: box ? rectPoints(box,matrix) : null, label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
-        if (artifact) { if (decorativeGraphics.length < 16) decorativeGraphics.push(region); }
+        // Images drawn inside a form still belong to the page-level tag around the form; the matrix includes the form's own.
+        const pageOwner = owner && owner.depth === 0 ? owner : null;
+        // Inside a form, a tagged drawing belongs to its page-level tag; an untagged one still gets its place on the page
+        // (the matrix includes the form's), so link underlines and rules drawn in forms can be told apart from content.
+        const placeable = !formDepth || pageOwner || !owner;
+        if (placeable && fn === OPS.constructPath && args[2]?.length === 4) box = args[2];
+        if (placeable && [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) box = [0,0,1,1];
+        const quad = box ? rectPoints(box, matrix) : null;
+        const region = { kind: fn === OPS.constructPath ? 'path' : 'image', key: pageOwner ? `${pageNumber}:${pageOwner.mcid}` : null, quad: quad && quad.every(([x, y]) => Number.isFinite(x) && Number.isFinite(y)) ? quad : null,
+          label: box ? 'Graphic; bounding region (clipping not resolved)' : 'Graphic; no trustworthy region recovered' };
+        if (artifact) {
+          if (decorativeGraphics.length < 16) decorativeGraphics.push(region);
+          const group = opStack.find(entry => entry.group)?.group;
+          if (group) {
+            const isImage = [OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn);
+            const local = isImage ? [0, 0, 1, 1] : fn === OPS.constructPath && args[2]?.length === 4 ? args[2] : null;
+            if (isImage) group.images++; else group.paths++;
+            if (local) group.box = growBox(group.box, rectPoints(local, matrix));
+          }
+          if ([OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject].includes(fn)) {
+            decorativeExtent.images++;
+            if (pageArea) decorativeExtent.largestImage = Math.max(decorativeExtent.largestImage, Math.min(1, Math.abs(matrix[0]*matrix[3] - matrix[1]*matrix[2]) / pageArea));
+          } else decorativeExtent.paths++;
+        }
         else graphicRegions.push(region);
       }
       if (fn === OPS.showText) {
@@ -133,7 +188,7 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
       else lines.push({ ...block, blockIds: [block.id] });
     }
     for (const line of lines.sort((a, b) => b.height - a.height || b.y - a.y).slice(0, 4)) {
-      if (line.text.length <= 350) candidates.push({ height: line.height, maxHeight: Math.max(...lines.map(l=>l.height)), blockIds: line.blockIds, text: line.text.trim(), page: 1, source: 'cover text candidate', node: null });
+      if (line.text.length <= 350) candidates.push({ height: line.height, maxHeight: Math.max(...lines.map(l=>l.height)), y: line.y, blockIds: line.blockIds, text: line.text.trim(), page: 1, source: 'cover text candidate', node: null });
     }
   }
   const logicalBlocks = [];
@@ -156,5 +211,9 @@ export function inspectPage(text, operators, tree, pageNumber, structure, OPS, v
     evidenceGeometryScoped: true,
     contentErrors: [...new Set(contentErrors)], invisibleKeys: [...invisibleKeys], invisibleTextOperations,
     hiddenText: hiddenText.map(({ lastIndex, ...run }) => ({ ...run, text: run.text.replace(/\s+/g, ' ').trim() })),
+    marginLines: [...margin].sort((a, b) => b[0] - a[0]).map(([y, items]) => ({ y, segments: marginSegments(items) })).filter(line => line.segments.length),
+    decorativeExtent: { ...decorativeExtent, largestImage: Math.round(decorativeExtent.largestImage * 1000) / 1000 },
+    view: view ? [...view] : null,
+    decorativeItems: decorativeItems.map(item => ({ images: item.images, paths: item.paths, box: item.box.map(value => Math.round(value * 10) / 10) })),
     nonArtifactGraphics, graphics: graphicRegions, decorativeGraphics, dangling, emptyContent, blocks, logicalBlocks, candidates, structure: enrichedTree };
 }

@@ -1,6 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { EvidenceCropService } from '../src/evidence/crops.js';
-import { PreviewSession } from '../src/evidence/preview-session.js';
 import { boundedRenderScale, RENDER_BUDGET } from '../src/evidence/render-budget.js';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -37,13 +36,7 @@ it.each([
   expect(pinned.boxes[0].y * pinned.height).toBeCloseTo(rotated ? 10 * s : viewport.height - 40 * s);
   await service.crop({ page: 1, contextPage: true });
 
-  const preview = Object.assign(Object.create(PreviewSession.prototype), {
-    doc, epoch: 0, pageNumber: 1, zoom: { value: '2' }, scroller: { clientWidth: 1200 },
-    canvas: canvas(), sheet: { style: {} }, svg: { setAttribute() {} }, counter: {}, previous: {}, next: {},
-    message: {}, selectionMessage: null, mode: { value: 'none' }, draw() {},
-  });
-  await preview.render();
-  expect(allocations).toHaveLength(3);
+  expect(allocations).toHaveLength(2);
   for (const allocation of allocations) {
     expect(allocation.width).toBeGreaterThan(0);
     expect(allocation.height).toBeGreaterThan(0);

@@ -1,3 +1,5 @@
+import { imageVerdict } from '../engine/image-model.js';
+import { addConsistencyFindings } from './consistency-findings.js';
 const hash = value => { let n=2166136261; for(const c of String(value)) n=Math.imul(n^c.codePointAt(0),16777619); return (n>>>0).toString(16); };
 const normalize = text => String(text || '').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
 const advisoryCategory = result => (result?.method==='embedding-screening' && result?.inferencePerformed===false) || ['not-requested','unsupported-language','insufficient-evidence'].includes(result?.method) ? 'unassessed' :
@@ -25,6 +27,7 @@ const guidance = {
   hiddenInstructions:['AI tools read text that people cannot see. Hidden instructions can steer AI summaries, reviews, search results or decisions about the document.','Ask whoever produced the PDF why the text is there. If it is not meant to be in the document, remove it from the source and export again.'],
   visibility:['Invisible extracted text can differ from content people see.','Compare extracted text with the rendered page; invisible OCR/accessibility text can be legitimate. Color, clipping and occlusion remain unverified.'],
   travel:['Links, bookmarks, saved publication details and data help people and tools find, understand and reuse a PDF. These are opportunities, separate from the required text checks.','Read the recorded evidence and the limits of each advisory. Make changes in the source document or publishing system, export again and recheck.'],
+  consistency:['When a PDF names or dates itself in different ways, people and AI tools cannot tell which version is right, and may cite the wrong one.','Compare the values shown. Decide which is correct, update the others in the source document, export again and recheck.'],
   semantic:['Topical relatedness is evidence to inspect, not proof of identity or truth.','Compare the bounded excerpts and metadata/heading. Check token truncation, later sections, alternate wording and the provisional model policy before changing source content.'],
 };
 const target = e => {
@@ -46,7 +49,8 @@ function addTravelFindings(report, add) {
   const refs = report.crossReferences;
   if (refs?.status === 'requires-review' || refs?.status === 'present') {
     const unlinked = (refs.references || []).filter(reference => reference.linked !== true);
-    add(base('travel:cross-references', 'crossReferences', refs, { category: unlinked.length ? 'advisory-concern' : 'success',
+    // Linking cross-references helps readers jump around; it is a bar to strive for, not a defect.
+    add(base('travel:cross-references', 'crossReferences', refs, { category: unlinked.length ? 'opportunity' : 'success',
       title: unlinked.length ? 'Cross-references without links' : 'Cross-references are linked', method: 'cross-reference-pattern-and-link-overlap',
       evidence: (unlinked.length ? unlinked : refs.references).map(reference => ({ page: reference.page, blockIds: [reference.blockId], ...(reference.quad ? { quad: reference.quad } : {}), text: reference.text })),
       comparison: { references: unlinked.map(({ page, text, context }) => ({ page, text, context })), linked: refs.linked, found: refs.found } }));
@@ -70,8 +74,11 @@ function addTravelFindings(report, add) {
     evidence: (outline.titles || []).slice(0, 50).map(title => `Bookmark: ${title}`), comparison: { headings: outline.headings, count: outline.count, pages: report.file?.pages } }));
   else unassessed('travel:outline', 'outline', outline, 'Bookmarks not checked');
   const machine = report.machineMetadata;
+  // No saved publisher or publication date is a fix: catalogues, search and AI tools cannot tell who issued the report or which
+  // edition it is. A missing licence or identifier alone, or no attached schema.org description, stays an opportunity.
+  const undated = (machine?.missingPublication || []).some(field => ['publisher', 'date'].includes(field));
   if (machine?.status === 'opportunity' || machine?.status === 'present') add(base('travel:metadata', 'machineMetadata', machine, {
-    category: machine.status === 'present' ? 'success' : 'opportunity', title: 'Publication details for catalogues and search', method: 'metadata-property-inventory',
+    category: machine.status === 'present' ? 'success' : undated ? 'advisory-concern' : 'opportunity', title: 'Publication details for catalogues and search', method: 'metadata-property-inventory',
     evidence: [`Saved: ${machine.present.join(', ') || 'none'}`, `Not saved: ${machine.missing.join(', ') || 'none'}`, ...machine.structuredData.map(file => `Attached description: ${file.name || file.id} (${file.mediaTypes.join(', ') || 'type not declared'}; relationship ${file.relationship || 'not set'})`)],
     comparison: { missingPublication: machine.missingPublication, structuredData: machine.structuredData.length } }));
   else unassessed('travel:metadata', 'machineMetadata', machine, 'Publication details not checked');
@@ -90,22 +97,32 @@ function addTravelFindings(report, add) {
 /** Normalizes completed reports only. Review annotations never modify engine outcomes. */
 export function normalizeFindings(report) {
   const findings=[],seen=new Set(),pages=report.pages || [];
-  const add = ({id,category,title,outcome,method,summary,evidence=[],comparison={},source,kind='semantic'}) => {
+  const add = ({id,category,title,outcome,method,summary,evidence=[],comparison={},source,kind='semantic',severity}) => {
     if(seen.has(id))return;seen.add(id);
     const orderGuidance = kind === 'order' ? !pages.some(page => page.logicalBlocks?.some(block => block.text?.trim())) ? guidance.orderMissing : !report.readingOrder?.findings?.length ? guidance.orderUnconfirmed : guidance.order : null;
     const [whyItMatters,whatToInspect]=orderGuidance || guidance[kind] || (source?.checkId ? guidance.required : guidance.semantic);
-    findings.push({id,category,title,outcome,method,summary,whyItMatters,whatToInspect,comparison,evidence,targets:targets(evidence),source});
+    findings.push({id,category,title,outcome,method,summary,whyItMatters,whatToInspect,comparison,evidence,targets:targets(evidence),source,...(severity?{severity}:{})});
   };
   for(const c of report.checks || []) {
     let evidence=[...(c.evidence || [])];
-    if(c.id==='coverage' && c.status==='fail') evidence.push(...pages.flatMap(p=>p.blocks.filter(b=>!b.connected).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
-    if(c.id==='text' && c.status==='fail') evidence.push(...pages.flatMap(p=>p.blocks.filter(b=>b.suspicious).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
-    if(c.id==='supported-content' && c.status==='indeterminate') evidence.push(...pages.flatMap(p=>(p.graphics || []).map(g=>({...g,page:p.number,text:g.label}))));
+    if(c.id==='coverage' && c.status==='fail') evidence=evidence.concat(pages.flatMap(p=>p.blocks.filter(b=>!b.connected).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
+    if(c.id==='text' && c.status==='fail') evidence=evidence.concat(pages.flatMap(p=>p.blocks.filter(b=>b.suspicious).map(b=>({...b,page:p.number,blockIds:[b.id]}))));
+    if(c.id==='supported-content' && c.status==='indeterminate') evidence=evidence.concat(pages.flatMap(p=>(p.graphics || []).map(g=>({...g,page:p.number,text:g.label}))));
     add({id:`required:${c.id}`,category:c.id==='supported-content' && c.status==='indeterminate'?'unassessed':c.status==='fail'?'required-defect':c.status==='pass'?'success':['not-applicable','not-assessed'].includes(c.status)?'unassessed':'required-indeterminate',
       title:c.id==='supported-content' && c.status==='indeterminate' ? 'Content this tool cannot fully assess' : c.label,outcome:c.status,method:'profile-rules',summary:c.summary,evidence,
       comparison:c.id==='title'?{metadata:{infoTitle:report.metadata?.infoTitle,xmpTitles:report.metadata?.xmpTitles}}:{},source:{path:`checks.${c.id}`,checkId:c.id},kind:c.id});
   }
+  const descriptions = new Map((report.figureDescriptions?.items || []).map(item => [item.id, item]));
+  // The image model's check of each description against its picture (only when it actually ran).
+  const imageMatches = new Map(report.imageScreening?.inferencePerformed === true ? (report.imageScreening.descriptions || []).map(item => [item.id, item]) : []);
+  const describedByAI = new Map(report.semantic?.inferencePerformed === true ? (report.semantic.figureItems || []).filter(item => item.inferencePerformed).map(item => [item.figureId, item]) : []);
   for (const [index, figure] of (report.figureAlternatives?.items || []).entries()) {
+    const rules = descriptions.get(figure.id), ai = describedByAI.get(figure.id);
+    // Authoring-tool placeholders, generic words and file names describe nothing: treat them as missing.
+    const description = rules ? { flags: rules.flags, duplicates: rules.duplicates, caption: rules.context?.caption || null,
+      unusable: rules.flags.some(flag => ['auto-generated', 'generic', 'file-name'].includes(flag)),
+      ai: ai ? { status: ai.status, similarity: ai.evidence?.[0]?.similarity ?? null } : null,
+      image: imageMatches.get(figure.id) || null } : null;
     const summary = !figure.tagged ? 'Graphic content was detected, but no unambiguous Figure tag was recovered for it. It may be meaningful or decorative; inspect its intended role.'
       : !figure.alt ? 'A Figure tag was found, but its alternate text is missing or empty.'
       : figure.status === 'uncertain' ? 'Alternate text is present, but tag connection problems prevent a reliable association with page content.'
@@ -114,14 +131,19 @@ export function normalizeFindings(report) {
       title:!figure.tagged?'Graphics without a recovered figure tag':figure.alt?'Figure alternate text present':'Figure alternate text missing',
       outcome:figure.status, method:'figure-alternative-inspection', summary,
       evidence:[...(figure.alt ? [`Alternate text: ${figure.alt}`] : []), {page:figure.page,keys:figure.keys,node:figure.node,quads:figure.quads,text:figure.tagged?'Figure content':'Graphic content'}],
-      comparison:{figure, figureNumber: report.figureAlternatives.items.slice(0, index + 1).filter(item => item.page === figure.page).length}, source:{path:`figureAlternatives.items[${index}]`}, kind:figure.tagged?'figure':'figureUnknown'});
+      comparison:{figure, figureNumber: report.figureAlternatives.items.slice(0, index + 1).filter(item => item.page === figure.page).length, ...(description ? { description } : {})}, source:{path:`figureAlternatives.items[${index}]`}, kind:figure.tagged?'figure':'figureUnknown'});
   }
+  // Graphics the image model confidently called decoration (or content, handled as a concern) no longer need a person's decision.
+  const imageDecided = new Set(report.imageScreening?.inferencePerformed === true ? (report.imageScreening.items || [])
+    .filter(result => imageVerdict(result, report.decorative?.items?.[result.index]) !== 'unclear').map(result => result.index) : []);
+  const stillUnclear = page => (report.decorative?.items || []).some((item, index) => item.page === page && item.kind === 'unclear' && !imageDecided.has(index));
   for (const [index, figure] of (report.figureAlternatives?.decorativeItems || []).entries()) {
+    if (report.decorative?.items && !stillUnclear(figure.page)) continue;
     add({ id: `figure:${figure.id}`, category: 'uncertain', title: 'Graphics marked as decorative',
       outcome: 'uncertain', method: 'figure-alternative-inspection',
       summary: 'These graphics are marked as decoration and excluded from the reading sequence. Check that they do not convey essential information.',
       evidence: [{ page: figure.page, keys: [], quads: figure.quads, text: 'Declared decorative graphics' }],
-      comparison: { figure }, source: { path: `figureAlternatives.decorativeItems[${index}]` }, kind: 'figureDecorative' });
+      comparison: { figure, decorativeFine: report.decorative?.decoration || 0 }, source: { path: `figureAlternatives.decorativeItems[${index}]` }, kind: 'figureDecorative' });
   }
   const identity=(field,id,title,kind,comparison)=>{
     const r=report[field];if(!r)return;
@@ -137,6 +159,7 @@ export function normalizeFindings(report) {
     evidence:(hidden.matches || []).map(match=>match.quads?.length && match.page ? {page:match.page,quads:match.quads,text:match.text} : `${match.field || match.kind}: ${match.text}`)});
   if(report.attachments){const a=report.attachments,files=a.files || [],evidence=files.map(file=>`File: ${file.unicodeFilename || file.filename || `Unnamed (${file.id})`}; ${file.embedded?(file.payloads?.length?'located embedded payload stream(s)':'embedded-file declaration; no payload stream located'):'associated reference only'}; declared media type: ${(file.payloads || []).map(p=>p.mediaType || 'not declared').join(', ') || 'not declared'}; description: ${file.description || 'not set'}; declared relationship: ${file.relationship || 'not set'}; related filename declarations: ${(file.payloads || []).map(p=>p.relatedFilename).filter(Boolean).join(', ') || 'none recovered'}; guidance: ${(file.guidanceIssues || []).map(i=>typeof i==='string'?i:i.message || JSON.stringify(i)).join('; ') || 'no missing-declaration issue recorded; instruction usability is not verified'}.`);evidence.push(...(a.orphanStreams || []).map(stream=>`Unlinked embedded payload declaration: ${stream.origin || 'unknown origin'}; reference ${stream.streamRef || 'not recovered'}; declared media type ${stream.mediaType || 'not declared'}; encoded size ${stream.encodedBytes ?? 'unknown'} bytes; context ${stream.path || 'not recovered'}. It is not established as an active attachment.`));evidence.push(...(a.warnings || []).map(w=>typeof w==='string'?w:w.message || JSON.stringify(w)));add({id:'advisory:attachments',category:a.status==='none'&&a.inventoryComplete===true?'success':a.status==='requires-review'?'advisory-concern':a.status==='not-assessed'?'unassessed':'uncertain',title:'Embedded and associated files',outcome:a.status,method:'attachment-metadata-inspection',summary:a.reason,evidence,comparison:{inventory:a},source:{path:'attachments'},kind:'attachments'});}
   addTravelFindings(report, add);
+  addConsistencyFindings(report, add);
   const semantic=report.semantic;
   if(!semantic) add({id:'semantic:unassessed',category:'unassessed',title:'AI screening not completed',outcome:'not-assessed',method:'not-requested',summary:'No completed model screening is available.',source:{path:'semantic'}});
   else if(semantic.status==='skipped')add({id:'semantic:skipped',category:'unassessed',title:'Requested AI screening skipped',outcome:'skipped',method:semantic.skipReason||'screening-skipped',summary:semantic.reason||'The requested optional screening was not performed.',comparison:{model:semantic.model||null,requestedChecks:semantic.requestedChecks||[],skipReason:semantic.skipReason||null},source:{path:'semantic'},kind:'semanticError'});
@@ -149,6 +172,9 @@ export function normalizeFindings(report) {
       const items=field==='keywords'?semantic.keywordItems || []:field==='sections'?semantic.sectionItems || []:[];
       if(items.length) {
         items.forEach((item,i)=>{
+          // Headings are now compared across the whole document: ones the model can't place either way stay in the technical
+          // record instead of filling Couldn't check; related pairs pass silently as before.
+          if(field==='sections'&&item.status==='uncertain')return;
           const identity=field==='keywords'?normalize(item.keyword):`${item.heading?.page}:${(item.heading?.keys || []).slice().sort().join('|') || item.heading?.node || normalize(item.heading?.text)}`;
           add({id:`semantic:${field}:${hash(identity)}`,category:advisoryCategory(item),title:field==='keywords'?`Keyword: ${item.keyword}`:`Heading: ${item.heading?.text || 'Tagged heading'}`,outcome:item.status,method:item.method || 'embedding-screening',summary:item.reason,evidence:[...(item.heading?[item.heading]:[]),...(item.evidence || [])],comparison:{retrieval:item.retrieval,query:field==='keywords'?item.keyword:item.heading?.text,candidates:item.evidence || [],queryInput:item.queryInput,model:semantic.model},source:{path:`semantic.${field==='keywords'?'keywordItems':'sectionItems'}[${i}]`}});
         });

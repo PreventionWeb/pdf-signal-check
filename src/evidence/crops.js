@@ -28,7 +28,8 @@ export class EvidenceCropService {
       const outputScale=Math.min(1,1000/Math.max(bounds.width,bounds.height),Math.sqrt(1_000_000/(bounds.width*bounds.height)));
       crop=document.createElement('canvas');crop.width=Math.max(1,Math.floor(bounds.width*outputScale));crop.height=Math.max(1,Math.floor(bounds.height*outputScale));const ctx=crop.getContext('2d');
       ctx.drawImage(canvas,bounds.x,bounds.y,bounds.width,bounds.height,0,0,crop.width,crop.height);
-      const outlines = target.wholePage ? quads.map(quad => quad.map(p => point(viewport.transform, p))) : !bounds.pageContext ? [bounds.points] : [];
+      // A clean crop (for the image model) has no outline drawn on it.
+      const outlines = target.clean ? [] : target.wholePage ? quads.map(quad => quad.map(p => point(viewport.transform, p))) : !bounds.pageContext ? [bounds.points] : [];
       if (target.wholePage) {
         // Decorative graphics are often thin rules in brand colours: draw a padded, dashed box so the outline does not merge with the graphic.
         ctx.strokeStyle='#c2410c';ctx.lineWidth=3;ctx.setLineDash([8,5]);
@@ -37,11 +38,12 @@ export class EvidenceCropService {
         ctx.setLineDash([]);
       } else for (const outline of outlines) { ctx.strokeStyle='#1767a6';ctx.fillStyle='rgba(23,103,166,.10)';ctx.lineWidth=2;ctx.beginPath();outline.forEach(([x,y],i)=>i?ctx.lineTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale):ctx.moveTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale));ctx.closePath();ctx.fill();ctx.stroke(); }
       const blob=await blobOf(crop);throwIfAborted(this.signal);
-      return {blob,width:crop.width,height:crop.height,page:target.page,pageContext:bounds.pageContext,caption:bounds.pageContext ? `Page ${target.page} · page context; the figure’s exact location could not be isolated.` : `Page ${target.page} · blue outline: one approximate located evidence region${quads.length>1?`; ${quads.length-1} additional regions remain in textual/full-page evidence`:''}.`,text:target.text || 'Located evidence'};
+      return {blob,width:crop.width,height:crop.height,page:target.page,pageContext:bounds.pageContext,caption:bounds.pageContext ? `Page ${target.page} · page context; the figure’s exact location could not be isolated.` : `Page ${target.page} · outlined in blue${quads.length>1?` · ${quads.length-1} more ${quads.length===2?'place':'places'} listed in “How to fix this”`:''}`,text:target.text || 'Located evidence'};
     } finally {if(canvas)canvas.width=canvas.height=0;if(crop)crop.width=crop.height=0;page?.cleanup();}
   }
   /** Whole page image plus fractional boxes (0–1) for each group of quads; serialized with crops. */
-  renderPage(pageNumber,groups,maxWidth=900) {const task=this.queue.catch(()=>{}).then(()=>this.renderWholePage(pageNumber,groups,maxWidth));this.queue=task;return task;}
+  // Renders run one at a time; one no longer wanted when its turn comes (isWanted() false) is skipped and resolves to null.
+  renderPage(pageNumber,groups,maxWidth=900,isWanted=()=>true) {const task=this.queue.catch(()=>{}).then(()=>isWanted()?this.renderWholePage(pageNumber,groups,maxWidth):null);this.queue=task;return task;}
   async renderWholePage(pageNumber,groups,maxWidth) {
     let canvas,page;
     try {
