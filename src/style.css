@@ -1001,3 +1001,5 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .fix-ai-note { margin: 0 0 16px; padding: 8px 12px; border-radius: 4px; font-size: .9375rem; line-height: 1.5; background: rgb(var(--mg-color-neutral-100, 245 245 245)); }
 .fix-ai-note .fix-ai-tag { margin: 0 4px 0 0; }
 .fix-ai-note.is-decided { background: rgb(var(--mg-color-interactive) / .08); }
+/* A pin's hover tooltip and the highlight's info box never stack: while the reader hovers a pin, its tooltip wins. */
+.page-pins-sheet:has(.page-pins-tooltip:not(.page-pins-focus-info)) .page-pins-focus-info { display: none; }

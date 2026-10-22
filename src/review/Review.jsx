@@ -6,7 +6,7 @@ import { Checks } from "../app/Checks.jsx";
 import { ProcessingPanel } from "../app/ProcessingPanel.jsx";
 import { profileReceipt, profileReasons, reviewSummary, reviewTask, reviewLimitEvidence, reviewLimitText, STANDING_LIMITS, reviewGroups, fixCard, fixBucket } from "./workspace.js";
 import { normalizeFindings } from "./findings.js";
-import { checkedWith, findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
+import { aiInvolvement, checkedWith, findingProvenance, screeningProvenance, screeningLanguageNote, groupedFindingProvenance } from "./provenance.js";
 import { Button, Card, Actions, Tag, Notice } from "../ui/react.jsx";
 import { Help } from "../help/Help.jsx";
 import { IdentityComparison } from "./IdentityComparison.jsx";
@@ -156,6 +156,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     else if (!narrow && !special && finding) setFocus({ page: 1, quads: [], target: null, key: Date.now() });
     else setFocus(null);
   }, [finding?.id, special, narrow]);
+  const ai = finding && !special ? aiInvolvement(finding, report) : null;
   const savedRows = finding && !places.length && kind !== "title" && kind !== "authors" ? propertyLabels(finding) : [];
   const drawerTargets = finding?.members ? finding.members.flatMap(member => member.targets || []) : targets;
   const showOrder = kind === "order" && !finding.comparison?.readingSequenceMissing;
@@ -167,6 +168,8 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       {(task.why || finding.whyItMatters) && <p className="fix-why-caption">{[task.why || finding.whyItMatters].flat()[0]}</p>}
       {/* The one sentence that matters: plain lead text with a thin bucket-coloured rule, not a boxed notice. */}
       <p className={`fix-detail-lead fix-detail-lead--${bucket}`}>{card.summary}</p>
+      {/* Say plainly when on-device AI flagged this or helped, and how. */}
+      {ai && <p className={`fix-ai-note ${ai.decided ? "is-decided" : ""}`}><span className="fix-ai-tag">AI</span>{ai.decided ? " Flagged with on-device AI. " : " "}{ai.text}</p>}
       {card.also?.length > 0 && <div className="fix-also"><p>Doing this should also fix:</p><ul>{card.also.map(text => <li key={text}>{text}</li>)}</ul></div>}
       {finding.figureGroup ? <FigureGroup key={finding.id} finding={finding} places={places} index={placeIndex} onGo={index => inspect(places[index])} />
         : finding.source?.path?.startsWith("consistency.") || finding.consistencyGroup ? <ConsistencyDetail finding={finding} file={file} report={report} onInspect={inspect} />

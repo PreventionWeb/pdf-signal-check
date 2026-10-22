@@ -39,7 +39,7 @@ export function processingSteps(state) {
     "text-model": step === "text" && part !== "run" ? download || (part === "download" ? "Downloading…" : "Starting on this device…") : null,
     text: step === "text" && part === "run" ? (Number.isFinite(progress.totalTexts) ? count(progress.completedTexts ?? 0, progress.totalTexts, "passages") : count(progress.completed, progress.total, "steps")) : null,
     "image-model": step === "image" && part !== "run" ? download || (part === "download" ? "Downloading…" : "Cutting out images and starting the model…") : null,
-    image: step === "image" && part === "run" ? (processingPhase(state).descriptions ? "Comparing descriptions with pictures…" : count(progress.completed, progress.total, "images")) : null,
+    image: step === "image" && part === "run" ? (processingPhase(state).descriptions ? "Matching descriptions…" : count(progress.completed, progress.total, "images")) : null,
   };
   const labels = { read: "Read the PDF", "text-model": "Get the AI text model ready", text: "Compare text with AI", "image-model": "Get the image model ready", image: "Look at images with AI" };
   return order.map((id, index) => {

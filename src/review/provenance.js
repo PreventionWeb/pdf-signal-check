@@ -1,3 +1,4 @@
+import { imageVerdict } from '../engine/image-model.js';
 const valueAt=(object,path)=>String(path || '').replace(/\[(\d+)\]/g,'.$1').split('.').filter(Boolean).reduce((value,key)=>value?.[key],object);
 const modelName=model=>model?.label || model?.id || 'unspecified model';
 const completedModel=semantic=>semantic?.inferencePerformed===true&&[undefined,null,'completed'].includes(semantic.status)&&Boolean(semantic.model?.id || semantic.model?.label);
@@ -81,4 +82,35 @@ function checkedWithModels(report) {
   if (semantic.status === 'error' || semantic.status === 'skipped') return 'Checked with standard checks. The AI checks did not run.';
   if (semantic.inferencePerformed !== true) return `Checked with standard checks. AI${model} was selected but had nothing to compare in this PDF.`;
   return `Checked with standard checks and on-device AI${model}${report.imageScreening?.inferencePerformed ? ' and an image model' : ''}.`;
+}
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+/**
+ * How the on-device AI took part in an issue, in plain words, for the note under its headline.
+ * `decided`: the AI's comparison put the issue here (rules alone wouldn't have). Otherwise the AI helped (ordered a list,
+ * looked at a graphic and couldn't tell) or wasn't used, in which case there is no note.
+ */
+export function aiInvolvement(finding, report) {
+  if (!finding) return null;
+  const members = finding.members || [finding];
+  const decided = members.find(member => findingProvenance(member, report).kind === 'ai' && member.category === 'advisory-concern');
+  if (decided) {
+    const detail = findingProvenance(decided, report).detail;
+    return { decided: true, text: /wrong/.test(detail) ? `${detail} Check it yourself.` : `${detail} AI can be wrong, so check it yourself.` };
+  }
+  const lines = [];
+  const images = report.imageScreening?.inferencePerformed === true ? report.imageScreening : null;
+  const descriptions = members.map(member => member.comparison?.description).filter(Boolean);
+  const pictured = descriptions.filter(item => item.image);
+  if (pictured.length) {
+    const flagged = pictured.filter(item => item.image.mismatch).length;
+    lines.push(`The on-device image model compared ${plural(pictured.length, 'description')} with ${pictured.length === 1 ? 'its picture' : 'their pictures'}${flagged ? ` and listed ${flagged === 1 ? 'the one' : `the ${flagged}`} that matched least well first` : ' and found nothing to flag'}.`);
+  }
+  const captioned = descriptions.filter(item => item.ai?.inferencePerformed === true || item.ai?.status);
+  if (captioned.length) lines.push(`The on-device AI compared ${plural(captioned.length, 'description')} with ${captioned.length === 1 ? 'its caption' : 'their captions'}.`);
+  const pages = new Set(members.map(member => member.comparison?.figure).filter(figure => figure && !figure.tagged).map(figure => figure.page));
+  // Only graphics it couldn't settle: ones it called content or decoration have their own outcome elsewhere.
+  const looked = images && pages.size ? (images.items || []).filter(item => pages.has(item.page) && imageVerdict(item, report.decorative?.items?.[item.index]) === 'unclear') : [];
+  if (looked.length) lines.push(`The on-device image model also looked at ${plural(looked.length, 'graphic')} here and couldn’t tell whether ${looked.length === 1 ? 'it carries' : 'they carry'} information, so ${looked.length === 1 ? 'it stays' : 'they stay'} for you to decide.`);
+  return lines.length ? { decided: false, text: `${lines.join(' ')} AI can be wrong.` } : null;
 }

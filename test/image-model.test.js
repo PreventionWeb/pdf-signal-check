@@ -142,3 +142,17 @@ describe('descriptions against pictures', () => {
     expect(descriptionNote({ comparison: { description: { flags: [], image: { mismatch: true, rank: 6, of: 8 } } } })).toMatch(/matches its picture less well than 5 other descriptions/);
   });
 });
+
+describe('saying how AI took part', () => {
+  it('says the AI flagged an issue it decided, and that the image model looked at graphics it could not settle', async () => {
+    const { aiInvolvement } = await import('../src/review/provenance.js');
+    const quad = [[0, 0], [10, 0], [10, 10], [0, 10]];
+    const report = { imageScreening: { inferencePerformed: true, model: { label: 'CLIP' }, items: [{ index: 0, page: 16, verdict: 'unclear', label: 'a photograph', contentScore: 0.5 }] },
+      decorative: { items: [{ page: 16, kind: 'unclear', share: 0.3, letters: 0, quad }] }, consistency: { items: [] } };
+    const decided = { source: { path: 'consistency.decorative:ai:3' }, method: 'image-screening', category: 'advisory-concern', comparison: {} };
+    expect(aiInvolvement(decided, report)).toMatchObject({ decided: true, text: expect.stringMatching(/sorted a crop.*Check it yourself\.$/) });
+    const group = { members: [{ source: { path: 'figureAlternatives.items.0' }, category: 'uncertain', comparison: { figure: { page: 16, decorative: true, tagged: false } } }] };
+    expect(aiInvolvement(group, report)).toMatchObject({ decided: false, text: expect.stringMatching(/looked at 1 graphic here and couldn’t tell/) });
+    expect(aiInvolvement(group, { ...report, imageScreening: undefined })).toBeNull();
+  });
+});
