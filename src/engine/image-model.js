@@ -56,7 +56,17 @@ export function judgeImage(vector, policy = IMAGE_POLICY, vectors = labels.vecto
  */
 export const DESCRIPTION_POLICY = Object.freeze({ minDescribed: 5, maxRatio: 4, minShare: 0.01, flagRank: 3,
   textual: /\b(graphic|diagram|infographic|chart|graph|table|titled|timeline|flowchart|logo|map)\b/i });
+/**
+ * The image model's text half only understands English, so descriptions are compared with pictures only in English PDFs:
+ * the declared language, or, when none is declared, the language the text reads as. Unknown counts as not English.
+ */
+export function descriptionsInEnglish(report) {
+  const declared = String(report.metadata?.language || '').toLowerCase().split(/[-_]/)[0];
+  const code = declared || report.consistency?.language?.code || '';
+  return code === 'en';
+}
 export function descriptionCandidates(report, policy = DESCRIPTION_POLICY, budget = IMAGE_MODEL.descriptionBudget) {
+  if (!descriptionsInEnglish(report)) return [];
   const unusable = new Set((report.figureDescriptions?.items || []).filter(item => item.flags.some(flag => ['auto-generated', 'generic', 'file-name'].includes(flag))).map(item => item.id));
   const candidates = (report.figureAlternatives?.items || []).filter(figure => figure.tagged && figure.alt?.trim() && figure.quads?.length && !unusable.has(figure.id) && !policy.textual.test(figure.alt))
     .map(figure => {
@@ -67,6 +77,23 @@ export function descriptionCandidates(report, policy = DESCRIPTION_POLICY, budge
         ratio: Math.max(width, height) / Math.max(1e-6, Math.min(width, height)), share: width * height / Math.abs((x1 - x0) * (y1 - y0) || 1) };
     }).filter(item => Number.isFinite(item.ratio) && item.ratio <= policy.maxRatio && item.share >= policy.minShare).slice(0, budget);
   return candidates.length >= policy.minDescribed ? candidates : [];
+}
+const words = text => new Set(String(text || '').toLocaleLowerCase().match(/\p{L}{3,}/gu) || []);
+/**
+ * The same picture saved with different descriptions: two image fingerprints almost identical (the same photo placed twice),
+ * descriptions sharing under half their words. Logos and blank crops are left out; logos are repeated on purpose.
+ */
+export function duplicateImages(images, policy = { minSimilarity: 0.97, maxOverlap: 0.5, max: 12 }) {
+  const usable = images.filter(image => !image.blank && image.vector && image.alt && !/\blogo\b/i.test(image.alt));
+  const pairs = [];
+  for (let i = 0; i < usable.length; i++) for (let j = i + 1; j < usable.length; j++) {
+    const a = usable[i], b = usable[j], similarity = dot(a.vector, b.vector);
+    if (similarity < policy.minSimilarity) continue;
+    const wa = words(a.alt), wb = words(b.alt), shared = [...wa].filter(word => wb.has(word)).length;
+    if (shared / Math.max(1, Math.min(wa.size, wb.size)) >= policy.maxOverlap) continue;
+    pairs.push({ a: { id: a.id, page: a.page, alt: a.alt }, b: { id: b.id, page: b.page, alt: b.alt }, similarity: Math.round(similarity * 1000) / 1000 });
+  }
+  return pairs.sort((x, y) => y.similarity - x.similarity).slice(0, policy.max);
 }
 /**
  * For each image, where its own description ranks among all the checked descriptions (1 = best match).

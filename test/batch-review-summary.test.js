@@ -40,7 +40,8 @@ it('counts multiple heading comparisons as one task while retaining member outco
   await queue.start({ useAI: false });
   const counts = queue.snapshot().items[0].summary.presentationCounts;
   expect(counts.check).toBe(1);
-  expect(counts.unknown).toBe(1);
+  // Headings the model can't place either way stay in the technical record, not in Couldn't check.
+  expect(counts.unknown).toBe(0);
   expect(groups.problems[0].members).toHaveLength(2);
   expect(queue.getReport(id).semantic.sectionItems).toEqual(report.semantic.sectionItems);
 });

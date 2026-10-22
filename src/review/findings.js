@@ -172,6 +172,9 @@ export function normalizeFindings(report) {
       const items=field==='keywords'?semantic.keywordItems || []:field==='sections'?semantic.sectionItems || []:[];
       if(items.length) {
         items.forEach((item,i)=>{
+          // Headings are now compared across the whole document: ones the model can't place either way stay in the technical
+          // record instead of filling Couldn't check; related pairs pass silently as before.
+          if(field==='sections'&&item.status==='uncertain')return;
           const identity=field==='keywords'?normalize(item.keyword):`${item.heading?.page}:${(item.heading?.keys || []).slice().sort().join('|') || item.heading?.node || normalize(item.heading?.text)}`;
           add({id:`semantic:${field}:${hash(identity)}`,category:advisoryCategory(item),title:field==='keywords'?`Keyword: ${item.keyword}`:`Heading: ${item.heading?.text || 'Tagged heading'}`,outcome:item.status,method:item.method || 'embedding-screening',summary:item.reason,evidence:[...(item.heading?[item.heading]:[]),...(item.evidence || [])],comparison:{retrieval:item.retrieval,query:field==='keywords'?item.keyword:item.heading?.text,candidates:item.evidence || [],queryInput:item.queryInput,model:semantic.model},source:{path:`semantic.${field==='keywords'?'keywordItems':'sectionItems'}[${i}]`}});
         });

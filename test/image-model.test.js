@@ -119,12 +119,16 @@ describe('descriptions against pictures', () => {
     const { descriptionCandidates } = await import('../src/engine/image-model.js');
     const figure = (id, alt, quad = [[0, 0], [200, 0], [200, 150], [0, 150]]) => ({ id, page: 1, tagged: true, alt, quads: [quad] });
     const photos = Array.from({ length: 5 }, (_, i) => figure(`p${i}`, `Photo of volunteers at a shelter ${i}`));
-    const report = extra => ({ pages: [{ view: [0, 0, 600, 800] }], figureDescriptions: { items: [{ id: 'auto', flags: ['auto-generated'] }] },
+    const report = extra => ({ metadata: { language: 'en-GB' }, pages: [{ view: [0, 0, 600, 800] }], figureDescriptions: { items: [{ id: 'auto', flags: ['auto-generated'] }] },
       figureAlternatives: { items: [...photos, ...extra] } });
     const ids = descriptionCandidates(report([figure('chart', 'A bar chart of losses by region'), figure('auto', 'Description automatically generated'),
       figure('sliver', 'Photo of a field', [[0, 0], [20, 0], [20, 400], [0, 400]])])).map(item => item.id);
     expect(ids).toEqual(['p0', 'p1', 'p2', 'p3', 'p4']);
     expect(descriptionCandidates({ ...report([]), figureAlternatives: { items: photos.slice(0, 4) } })).toEqual([]);
+    // The image model's text half reads English only: a French PDF is not compared, and the review says why.
+    expect(descriptionCandidates({ ...report([]), metadata: { language: 'fr' } })).toEqual([]);
+    const { checkedWith } = await import('../src/review/provenance.js');
+    expect(checkedWith({ ...report([]), metadata: { language: 'fr' }, imageScreening: { inferencePerformed: true, items: [] } })).toMatch(/only reads English descriptions/);
   });
   it('flags a description its own picture ranks below third, and leaves out blank crops', async () => {
     const { rankDescriptions } = await import('../src/engine/image-model.js');
@@ -154,5 +158,20 @@ describe('saying how AI took part', () => {
     const group = { members: [{ source: { path: 'figureAlternatives.items.0' }, category: 'uncertain', comparison: { figure: { page: 16, decorative: true, tagged: false } } }] };
     expect(aiInvolvement(group, report)).toMatchObject({ decided: false, text: expect.stringMatching(/looked at 1 graphic here and couldn’t tell/) });
     expect(aiInvolvement(group, { ...report, imageScreening: undefined })).toBeNull();
+  });
+});
+
+describe('the same picture with different descriptions', () => {
+  it('pairs nearly identical pictures whose descriptions share few words, but not logos or matching descriptions', async () => {
+    const { duplicateImages } = await import('../src/engine/image-model.js');
+    const v = [1, 0, 0], near = [0.99, Math.sqrt(1 - 0.99 ** 2), 0], other = [0, 1, 0];
+    const images = [
+      { id: 'a', page: 2, vector: v, alt: 'Volunteers fill sandbags beside a river' },
+      { id: 'b', page: 9, vector: near, alt: 'A school classroom with children reading' },
+      { id: 'c', page: 11, vector: near, alt: 'Volunteers filling sandbags beside the river' },
+      { id: 'd', page: 12, vector: other, alt: 'A map of rainfall' },
+      { id: 'e', page: 13, vector: v, alt: 'UNDRR logo' },
+    ];
+    expect(duplicateImages(images).map(pair => [pair.a.id, pair.b.id])).toEqual([['b', 'c'], ['a', 'b']]);
   });
 });

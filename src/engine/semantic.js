@@ -4,7 +4,7 @@ import { compareTitles, normalizeTitle, publicationCandidates } from './titles.j
 
 import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from './models.js';
 export const SEMANTIC_LIMITS = Object.freeze({ titleCandidates: 8, excerptCount: 6,
-  excerptCharacters: 800, metadataCharacters: 350, keywordCount: 12, sectionCount: 6, titleLow: 0.35, titleHigh: 0.75,
+  excerptCharacters: 800, metadataCharacters: 350, keywordCount: 12, sectionCount: 6, sectionMargin: 0.15, titleLow: 0.35, titleHigh: 0.75,
   topicLow: 0.20, topicHigh: 0.45 });
 const uncertain = reason => ({ status: 'uncertain', reason, evidence: [] });
 const words = text => normalizeTitle(text).match(/[\p{L}\p{N}]+/gu) || [];
@@ -59,24 +59,35 @@ const cosine = (a, b) => {
 };
 
 
+/**
+ * Each tagged heading with the text that follows it, across the whole document. Lines that belong to the same heading tag
+ * (a heading wrapped over two lines) are one heading, so "at scale" is never compared on its own.
+ */
 export function sectionEvidence(pages = []) {
   const sections = [];
-  for (const page of pages.slice(0,3)) {
-    let current = null;
-    for (const block of (page.logicalBlocks || []).slice(0,200)) {
+  let current = null;
+  const close = () => { if (current?.body.text.length >= 80) sections.push(current); current = null; };
+  for (const page of pages) {
+    for (const block of (page.logicalBlocks || []).slice(0, 400)) {
       if (/^H[1-6]?$/.test(block.role || '')) {
-        if (current?.body.text.length >= 80) sections.push(current);
+        // Same tag, or the same level with no text between (a heading split across two tags): one heading.
+        if (current && !current.body.text && ((current.heading.node && current.heading.node === block.node) || current.heading.role === block.role)) {
+          current.heading = { ...current.heading, text: `${current.heading.text} ${block.text}`.replace(/\s+/g, ' ').trim(),
+            keys: [...current.heading.keys, ...(block.key ? [block.key] : [])] };
+          continue;
+        }
+        close();
         current = { heading: { ...block, page: page.number, keys: block.key ? [block.key] : [] },
           body: { page: page.number, text: '', keys: [], source: 'following tagged section text' } };
-      } else if (current && block.text?.trim() && current.body.text.length < 800) {
+      } else if (current && block.text?.trim() && current.body.text.length < 800 && page.number === current.heading.page) {
         current.body.text += `${current.body.text ? ' ' : ''}${block.text}`;
         if (block.key) current.body.keys.push(block.key);
-        current.body.text = current.body.text.slice(0,800);
+        current.body.text = current.body.text.slice(0, 800);
       }
     }
-    if (current?.body.text.length >= 80) sections.push(current);
+    close();
   }
-  return sections.slice(0, SEMANTIC_LIMITS.sectionCount);
+  return sections;
 }
 
 /** embed(texts, model) returns vectors or {vectors, provenance}. Policy is separate from inference. */
@@ -146,7 +157,10 @@ export async function assessSemantic(input, embed) {
     delimitation: /[,;\n]/.test(metadata.keywords || '') ? 'explicit separators' : 'undelimited metadata treated as one phrase' };
   if (requested('keywords')) for (const keyword of selectedKeywords) topicTask('keyword',keyword,{keyword});
   const availableSections = input.sections || sectionEvidence(input.pages);
-  const sections = availableSections.slice(0,limits.sectionCount);
+  // Spread across the document, like the sentence budget, so later chapters are compared too.
+  const sectionBudget = budget.sections ?? limits.sectionCount;
+  const sections = availableSections.length <= sectionBudget ? availableSections
+    : Array.from({ length: sectionBudget }, (_, i) => availableSections[Math.floor(i * availableSections.length / sectionBudget)]);
   result.sectionCoverage = { suppliedPairs: availableSections.length, evaluatedPairs: 0, skippedPairs: availableSections.length };
   if (requested('sections')) for (const section of sections) {
     const h = section.heading, body = section.body;
@@ -193,8 +207,22 @@ export async function assessSemantic(input, embed) {
       else if(task.field==='figure')result.figureItems.push({...assessment,figureId:task.figureId,reason:assessment.status==='suspected-mismatch'?'The description has little in common with the figure’s caption; it may describe a different image.':assessment.reason});
       else if(task.field==='contents')result.contentItems.push({...assessment,contentsId:task.contentsId,reason:assessment.status==='semantically-related'?'A heading on the expected page is closely related; the contents entry is probably worded differently.':assessment.status==='suspected-mismatch'?'No heading on the expected page is related to this contents entry.':assessment.reason});
       else if(task.field==='name')result.nameItems.push({...assessment,nameId:task.nameId,reason:assessment.status==='semantically-related'?'The two titles are closely related in meaning; they likely name the same document.':assessment.status==='suspected-mismatch'?'The two titles have little in common in meaning; one may name a different document.':assessment.reason});
-      else result.sectionItems.push({...assessment,heading:task.heading});
+      else result.sectionItems.push({...assessment,heading:task.heading,queryIndex:task.queryIndex,bodyIndex:task.evidence[0].embeddingIndex});
     }
+    // A low score alone mostly catches short, general headings ("Ways forward"). Keep a mismatch only when a nearby
+    // section's text fits the heading clearly better than its own: a heading that seems to belong somewhere else.
+    result.sectionItems = result.sectionItems.map((item, index, all) => {
+      const { queryIndex, bodyIndex, ...rest } = item;
+      if (item.status !== 'suspected-mismatch') return rest;
+      const own = cosine(vectors[queryIndex], vectors[bodyIndex]);
+      const better = all.map((other, j) => ({ other, j })).filter(({ j }) => j !== index && Math.abs(j - index) <= 5)
+        .map(({ other }) => ({ heading: other.heading, similarity: cosine(vectors[queryIndex], vectors[other.bodyIndex]) }))
+        .sort((x, y) => y.similarity - x.similarity)[0];
+      if (better && better.similarity >= own + limits.sectionMargin && better.similarity >= limits.topicLow)
+        return { ...rest, betterMatch: { heading: better.heading?.text || null, page: better.heading?.page || null, similarity: better.similarity },
+          reason: `This heading relates more closely to the text under “${better.heading?.text || 'a nearby heading'}” than to its own section. It may be misplaced or mislabelled.` };
+      return { ...rest, status: 'uncertain', reason: 'The heading scores low against its own text, as short or general headings often do; no nearby section fits it better.' };
+    });
   }
   const aggregate = (items, reason, incomplete=false) => ({ status:items.some(i=>i.status==='suspected-mismatch')?'suspected-mismatch':items.length&&!incomplete&&items.every(i=>i.status==='semantically-related')?'semantically-related':'uncertain',
     reason,method:'embedding-screening',inferencePerformed:items.length>0,evidence:items.flatMap(i=>i.evidence).slice(0,6) });

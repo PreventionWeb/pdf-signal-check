@@ -95,9 +95,11 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
         })()}</li>}
         {semantic?.inferencePerformed && <li><strong>Consistency comparisons:</strong> {[
           semantic.factCoverage && `${semantic.factCoverage.compared} of ${semantic.factCoverage.candidates} sentences stating a figure compared (${(semantic.factPairs || []).length} pair${(semantic.factPairs || []).length === 1 ? '' : 's'} with different numbers)`,
-          `${(semantic.figureItems || []).length} image description${(semantic.figureItems || []).length === 1 ? '' : 's'} compared with ${(semantic.figureItems || []).length === 1 ? 'its caption' : 'their captions'}`,
-          `${(semantic.contentItems || []).length} contents entr${(semantic.contentItems || []).length === 1 ? 'y' : 'ies'} compared with headings`,
-          `${(semantic.nameItems || []).length} differently worded title${(semantic.nameItems || []).length === 1 ? '' : 's'} compared`,
+          // Only comparisons that actually ran: most PDFs have no captioned descriptions or unmatched contents entries.
+          semantic.sectionCoverage?.evaluatedPairs > 0 && `${semantic.sectionCoverage.evaluatedPairs} of ${semantic.sectionCoverage.suppliedPairs} headings compared with the text under them`,
+          (semantic.figureItems || []).length > 0 && `${semantic.figureItems.length} image description${semantic.figureItems.length === 1 ? '' : 's'} compared with ${semantic.figureItems.length === 1 ? 'its caption' : 'their captions'}`,
+          (semantic.contentItems || []).length > 0 && `${semantic.contentItems.length} contents entr${semantic.contentItems.length === 1 ? 'y' : 'ies'} compared with headings`,
+          (semantic.nameItems || []).length > 0 && `${semantic.nameItems.length} differently worded title${semantic.nameItems.length === 1 ? '' : 's'} compared`,
         ].filter(Boolean).join('; ')}.</li>}
         <li>Text the AI did not check is a limit of this evaluation, not evidence of a PDF problem.</li>
         <li>AI compares how closely texts relate. It does not verify facts or the meaning of images.</li>

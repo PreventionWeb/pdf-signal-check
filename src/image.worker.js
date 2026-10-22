@@ -1,4 +1,4 @@
-import { IMAGE_MODEL, judgeImage, rankDescriptions } from './engine/image-model.js';
+import { IMAGE_MODEL, judgeImage, rankDescriptions, duplicateImages } from './engine/image-model.js';
 import { createAssetFetch } from './runtime/asset-fetch.js';
 
 /** One image encoder per worker; the controller terminates the worker to cancel. Crops arrive as PNG blobs. */
@@ -40,20 +40,21 @@ self.onmessage = async ({ data }) => {
       results.push({ index: item.index, page: item.page, ...judgeImage(await embedImage(item.blob)) });
       step(done + 1);
     }
-    let described = [];
+    let described = [], duplicates = [];
     if (descriptions.length) {
       const images = [];
       for (const [done, item] of descriptions.entries()) {
         const vector = await embedImage(item.blob);
         // A crop the model sees as a blank panel missed the picture; it can't fairly judge the description.
-        images.push({ id: item.id, page: item.page, vector, blank: judgeImage(vector).label === 'a plain coloured background or panel' });
+        images.push({ id: item.id, page: item.page, alt: item.alt, vector, blank: judgeImage(vector).label === 'a plain coloured background or panel' });
         step(data.items.length + done + 1);
       }
       await ensureText(post);
       const texts = (await text(tokenizer(descriptions.map(item => item.alt), { padding: true, truncation: true }))).text_embeds.tolist().map(unit);
       described = rankDescriptions(images, texts);
+      duplicates = duplicateImages(images);
     }
-    post({ type: 'result', imageScreening: { model: IMAGE_MODEL, inferencePerformed: results.length > 0 || described.length > 0, items: results, descriptions: described, assessedAt: new Date().toISOString() } });
+    post({ type: 'result', imageScreening: { model: IMAGE_MODEL, inferencePerformed: results.length > 0 || described.length > 0, items: results, descriptions: described, duplicates, assessedAt: new Date().toISOString() } });
   } catch (error) {
     post({ type: 'error', message: error.message, stage: error.stage || null, code: error.code || null });
   }

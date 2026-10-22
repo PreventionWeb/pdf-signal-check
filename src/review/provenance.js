@@ -1,4 +1,4 @@
-import { imageVerdict } from '../engine/image-model.js';
+import { imageVerdict, descriptionsInEnglish } from '../engine/image-model.js';
 const valueAt=(object,path)=>String(path || '').replace(/\[(\d+)\]/g,'.$1').split('.').filter(Boolean).reduce((value,key)=>value?.[key],object);
 const modelName=model=>model?.label || model?.id || 'unspecified model';
 const completedModel=semantic=>semantic?.inferencePerformed===true&&[undefined,null,'completed'].includes(semantic.status)&&Boolean(semantic.model?.id || semantic.model?.label);
@@ -11,10 +11,12 @@ export function findingProvenance(finding,report) {
     return {kind:'unassessed',label:'AI check not assessed',help:'bounded',detail:actual?.reason || actual?.error || finding.summary || 'No completed model inference is recorded for this check.'};
   }
   if(path.startsWith('consistency.')) {
+    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true&&finding.comparison?.consistency?.kind==='same-image')return {kind:'ai',label:'Local image model',help:'ai',detail:`${report.imageScreening.model?.label || 'The image model'} found these two pictures almost identical, and their saved descriptions share few words. It compares how pictures look, not what they mean, and can be wrong.`};
     if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true)return {kind:'ai',label:'Rules + local image model',help:'ai',detail:`The rules couldn’t tell whether this graphic carries information; ${report.imageScreening.model?.label || 'the image model'} sorted a crop of it into a broad type. It cannot read text in images and can be wrong.`};
     if(finding.method==='embedding-screening'&&completedModel(report.semantic)&&finding.comparison?.ai?.inferencePerformed===true){
       const kind=finding.comparison?.consistency?.kind,model=modelName(report.semantic?.model);
-      const detail=kind==='same-fact'?`${model} found two sentences that say the same thing; rules found they give different numbers. The model compares meaning and can pair sentences about different things.`
+      const coverage=report.semantic?.factCoverage,compared=coverage?.candidates?` It compared ${coverage.compared} of the ${coverage.candidates} sentences in this PDF that state a figure${coverage.compared<coverage.candidates?', spread across the document':''}.`:'';
+      const detail=kind==='same-fact'?`${model} found two sentences that say the same thing; rules found they give different numbers.${compared} The model compares meaning and can pair sentences about different things.`
         :/^contents-/.test(kind||'')?`Rules could not find this contents entry as a heading on its page; ${model} compared it with the headings there.`
         :`Rules found the two titles worded differently; ${model} compared their meaning. This is not identity verification.`;
       return {kind:'ai',label:'Rules + local AI relatedness',help:'ai',detail};
@@ -64,10 +66,16 @@ export function groupedFindingProvenance(findings, report) {
 
 /** One plain receipt line: which kinds of check produced these results. */
 /** Why the image model had nothing to look at, in one plain clause. */
+/** Said whenever the image model ran or was asked to: descriptions in other languages are not compared with pictures. */
+export function descriptionLanguageNote(report) {
+  if (!report.imageScreening || descriptionsInEnglish(report)) return '';
+  const described = (report.figureAlternatives?.items || []).filter(figure => figure.tagged && figure.alt?.trim()).length;
+  return described ? 'Photo descriptions were not compared with their pictures: the image model only reads English descriptions.' : '';
+}
 export function imageSkipNote(report) {
   const skipped = report.imageScreening?.skipped;
-  if (!skipped) return '';
-  return `The image model had nothing to look at in this PDF: ${skipped.decorativeUnclear ? 'the decorative graphics it could judge were too text-heavy or too small' : 'no decorative graphics the rules couldn’t place'}, and ${skipped.describedImages ? `${skipped.describedImages} described image${skipped.describedImages === 1 ? '' : 's'} (it needs at least 5 well-cropped photo descriptions to compare)` : 'no photo descriptions to compare'}.`;
+  if (!skipped) return descriptionLanguageNote(report);
+  return `The image model had nothing to look at in this PDF: ${skipped.decorativeUnclear ? 'the decorative graphics it could judge were too text-heavy or too small' : 'no decorative graphics the rules couldn’t place'}, and ${skipped.describedImages ? `${skipped.describedImages} described image${skipped.describedImages === 1 ? '' : 's'} (it needs at least 5 well-cropped photo descriptions to compare)` : 'no photo descriptions to compare'}.${descriptionLanguageNote(report) ? ` ${descriptionLanguageNote(report)}` : ''}`;
 }
 export function checkedWith(report) {
   const semantic = report.semantic;
