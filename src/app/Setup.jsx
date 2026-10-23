@@ -27,10 +27,6 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
     flushSync(() => { setReceipt(saved?.receipt || null); setStep(2); });
     if (!saved) calibrationRef.current?.start();
   };
-  const skipIntake = () => {
-    calibrationRef.current?.cancel();
-    controller.skipSetupForCurrentIntake();
-  };
   return <div className="setup-screen">
     {step === 2 ? <>
       <h2 id="setup-speed-title" className="mg-u-sr-only" tabIndex={-1}>Device speed test</h2>
@@ -38,7 +34,6 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
         onResult={setReceipt} onBusy={value => { setBusy(value); controller.calibrationBusy(value); }} />
       <Actions>
         <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(model.key, { imageAI, remember })}>Continue with AI</Button>
-        {snapshot.pendingSetupLabel && <Button disabled={batchBusy} onClick={skipIntake}>Skip AI this time</Button>}
       </Actions>
       {!busy && <Actions>
           <Button disabled={batchBusy} onClick={() => calibrationRef.current?.start()}>{receipt ? 'Test again' : 'Retry test'}</Button>
@@ -70,10 +65,8 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       </div>
       <Checkbox id="setup-remember" name="setup-remember" checked={remember} disabled={batchBusy || !textAI}
         onChange={event => setRemember(event.target.checked)} label="Use these settings each time" />
-      {textAI && <p className="model-note">Next: a skippable device speed test.</p>}
       <Actions>
-        <Button variant="primary" disabled={batchBusy || (!textAI && !snapshot.pendingSetupLabel)} onClick={consentAndTest}>{textAI ? 'Allow downloads' : 'Continue without AI'}</Button>
-        {textAI && snapshot.pendingSetupLabel && <Button disabled={batchBusy} onClick={skipIntake}>Skip AI this time</Button>}
+        <Button variant="primary" disabled={batchBusy || (!textAI && !snapshot.pendingSetupLabel)} onClick={consentAndTest}>{textAI ? 'Continue' : 'Continue without AI'}</Button>
       </Actions>
     </>}
   </div>;

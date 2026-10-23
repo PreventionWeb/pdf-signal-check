@@ -15,8 +15,7 @@ it('renders Granite-only consent with visible costs and image opt-in before any 
   expect(html).toContain('64.50 MB');
   expect(html).toContain('52 supported languages');
   expect(html).toMatch(/id="setup-image-ai"[^>]*checked=""/);
-  expect(html).toContain('Allow downloads');
-  expect(html).toContain('Skip AI this time');
+  expect(html).toContain('Continue');
   expect(html).not.toMatch(/MiniLM|compact model|type="radio"|Expected · not benchmarked/);
   expect(ref.current.start).not.toHaveBeenCalled();
   expect(controller.completeSetup).not.toHaveBeenCalled();
