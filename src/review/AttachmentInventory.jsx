@@ -55,7 +55,7 @@ export function AttachmentInventory({ inventory, compact = false }) {
                 file.associations
                   ?.map(
                     (a) =>
-                      `${a.kind || "Association"}${a.page ? ` · page ${a.page}` : ""}${a.path ? ` · ${a.path}` : ""}`,
+                      `${a.kind || "Association"}${a.page ? `, page ${a.page}` : ""}${a.path ? `, ${a.path}` : ""}`,
                   )
                   .join("; ") || "Not recovered",
               ],
@@ -109,12 +109,12 @@ export function AttachmentInventory({ inventory, compact = false }) {
               {s.origin === "unreachable-remnant"
                 ? "Possible inactive remnant"
                 : "Reachable, unassociated declaration"}{" "}
-              · reference {s.streamRef || "not recovered"} · declared media type{" "}
-              {s.mediaType || "not declared"} · encoded size{" "}
+             , reference {s.streamRef || "not recovered"}, declared media type{" "}
+              {s.mediaType || "not declared"}, encoded size{" "}
               {Number.isFinite(s.encodedBytes)
                 ? `${s.encodedBytes} bytes`
                 : "unknown"}{" "}
-              · context {s.path || "not recovered"}
+             , context {s.path || "not recovered"}
             </p>
           ))}
         </Notice>

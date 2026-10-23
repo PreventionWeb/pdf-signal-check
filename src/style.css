@@ -30,7 +30,7 @@ body { -webkit-font-smoothing: antialiased; }
 .sample-intro { color: var(--muted); margin-top: 0; }
 /* Native Mangrove horizontal book cards; the title button is stretched so the whole card starts the check. */
 .sample-cards { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 20px; }
-.sample-card { position: relative; height: 100%; transition: box-shadow var(--mg-motion-duration-fast) var(--mg-motion-easing-standard); }
+.sample-card { position: relative; height: 100%; margin: 0; transition: box-shadow var(--mg-motion-duration-fast) var(--mg-motion-easing-standard); }
 .sample-card:hover:not(.is-disabled) { box-shadow: 0 4px 16px rgb(var(--mg-color-neutral-900) / .12); }
 .sample-card .mg-card__visual { background: #fff; }
 .sample-card .mg-card__image { display: block; width: 100%; height: auto; }
@@ -428,7 +428,7 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
   .tool-capabilities .mg-table th, .tool-capabilities .mg-table td { padding: 12px 8px; font-size: .875rem; overflow-wrap: normal; }
 }
 
-.setup-dialog { border: 0; border-radius: var(--mg-card-border-radius); padding: 24px; width: min(1120px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-text)); box-shadow: 0 10px 30px #0003; }
+.setup-dialog { border: 0; border-radius: var(--mg-card-border-radius); padding: 24px; width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-text)); box-shadow: 0 10px 30px #0003; }
 .setup-dialog::backdrop { background: var(--mg-color-modal-scrim); }
 .setup-dialog-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .setup-dialog-header h1 { margin: 0; }
@@ -473,7 +473,7 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
 .intake-tabs button.mg-tabs__link { font: inherit; cursor: pointer; }
 .review-limits { margin-block: 32px 16px; }
 
-.preview-dialog { border: 0; border-radius: var(--mg-card-border-radius); padding: 24px; width: min(1120px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-text)); box-shadow: 0 10px 30px #0003; }
+.preview-dialog { border: 0; border-radius: var(--mg-card-border-radius); padding: 24px; width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; background: rgb(var(--mg-color-neutral-0)); color: rgb(var(--mg-color-text)); box-shadow: 0 10px 30px #0003; }
 .preview-dialog::backdrop { background: var(--mg-color-modal-scrim); }
 .preview-dialog-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; position: sticky; top: -24px; z-index: 3; padding-block: 12px; margin-top: -12px; background: rgb(var(--mg-color-neutral-0)); }
 .preview-dialog-header h2 { margin: 0; }
@@ -722,9 +722,8 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .about-page .about-section > p, .about-page .about-section > ul { max-width: 72ch; }
 .about-lead { font-size: 1.125rem; font-weight: 600; }
 .about-hero .mg-hero__buttons .mg-button { color: rgb(var(--mg-color-neutral-0)); border-color: rgb(var(--mg-color-neutral-0)); }
-.about-challenges { list-style: none; padding: 0; display: grid; gap: 8px; }
-.about-challenges li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 16px; padding: 10px 14px; border: 1px solid rgb(var(--mg-color-neutral-200)); border-radius: var(--mg-card-border-radius); }
-.about-tag--manual { opacity: .8; }
+.about-challenges { padding-inline-start: 1.25rem; }
+.about-challenges li { padding-inline-start: .25rem; margin-block: .75rem; }
 .about-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 16px; margin-block: 16px; }
 .about-compare-column { margin: 0; padding: 16px; border-radius: var(--mg-card-border-radius); background: rgb(var(--mg-color-neutral-25)); border: 1px solid rgb(var(--mg-color-neutral-200)); }
 .about-compare-column figcaption { font-weight: 700; margin-bottom: 8px; }

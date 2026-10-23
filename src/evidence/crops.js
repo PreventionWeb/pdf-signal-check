@@ -38,7 +38,7 @@ export class EvidenceCropService {
         ctx.setLineDash([]);
       } else for (const outline of outlines) { ctx.strokeStyle='#1767a6';ctx.fillStyle='rgba(23,103,166,.10)';ctx.lineWidth=2;ctx.beginPath();outline.forEach(([x,y],i)=>i?ctx.lineTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale):ctx.moveTo((x-bounds.x)*outputScale,(y-bounds.y)*outputScale));ctx.closePath();ctx.fill();ctx.stroke(); }
       const blob=await blobOf(crop);throwIfAborted(this.signal);
-      return {blob,width:crop.width,height:crop.height,page:target.page,pageContext:bounds.pageContext,caption:bounds.pageContext ? `Page ${target.page} · page context; the figure’s exact location could not be isolated.` : `Page ${target.page} · outlined in blue${quads.length>1?` · ${quads.length-1} more ${quads.length===2?'place':'places'} listed in “How to fix this”`:''}`,text:target.text || 'Located evidence'};
+      return {blob,width:crop.width,height:crop.height,page:target.page,pageContext:bounds.pageContext,caption:bounds.pageContext ? `Page ${target.page}, page context; the figure’s exact location could not be isolated.` : `Page ${target.page}, outlined in blue${quads.length>1?`, ${quads.length-1} more ${quads.length===2?'place':'places'} listed in “How to fix this”`:''}`,text:target.text || 'Located evidence'};
     } finally {if(canvas)canvas.width=canvas.height=0;if(crop)crop.width=crop.height=0;page?.cleanup();}
   }
   /** Whole page image plus fractional boxes (0–1) for each group of quads; serialized with crops. */

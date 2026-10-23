@@ -79,12 +79,12 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       <p>{!state.aiEnabled ? 'Text, tags and metadata rules ran. Enable a local model in settings to add AI text comparisons.' : 'Your completed text checks are still available. You can review them while deciding how to continue with AI checks.'}</p>
       {stopped && <div role="status"><p><strong>{attempt.status === 'error' && /network|fetch|download|MODEL_ASSET/i.test(`${attempt.message} ${attempt.code}`) ? 'The AI model files could not be downloaded. Check your connection, then try again. Your PDF has stayed on this device.' : attempt.message}</strong></p>{attempt.reasons?.length > 0 && <ul>{attempt.reasons.map(reason => <li key={reason.check}><strong>{choices.find(([key]) => key === reason.check)?.[1] || reason.check}:</strong> {reason.reason}</li>)}</ul>}
         <p>{attempt.status === 'not-run' ? 'Repeating the same checks will produce the same result. Add the missing document details or tags in your source document, then export and check again. You can also select checks that have usable text to compare.' : attempt.status === 'error' ? 'Retry the checks, skip AI, or use another device. Any previous completed AI results remain in this report.' : 'Run the checks again when ready.'}</p>
-        {attempt.code && <p className="model-note">Error reference: {attempt.stage ? `${attempt.stage} · ` : ''}{attempt.code}</p>}
+        {attempt.code && <p className="model-note">Error reference: {attempt.stage ? `${attempt.stage}, ` : ''}{attempt.code}</p>}
       </div>}
       {semantic?.error && <p>{semantic.error}</p>}
       {state.aiEnabled && missing && <><Checkbox id="assume-english" label="Assume English for this PDF’s AI checks" checked={state.languageAssumption === 'en'} disabled={busy} onChange={e => controller.setLanguageAssumption(e.target.checked ? 'en' : null)} /><p className="model-note">Missing language can confuse machines. Choose this only for English text; it does not fix the PDF’s language declaration or change the required check.</p></>}
       {state.aiEnabled && !missing && model && !supportsLanguage(model, language) && <p>Declared language: {declared}. Granite R2 supports 52 languages. Correct an inaccurate language declaration in your source document, or continue with standard checks for an unsupported language.</p>}
-      {state.aiEnabled && model && <p className="model-note">{model.label}: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer if needed, plus runtime assets (approximately 26.86 MB uncompressed WASM and JavaScript). Running permits these downloads.</p>}
+      {state.aiEnabled && model && <p className="model-note">{model.label.replaceAll(' · ', ', ')}: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer if needed, plus runtime assets (approximately 26.86 MB uncompressed WASM and JavaScript). Running permits these downloads.</p>}
       {state.aiEnabled && eligible && <Button variant="primary" disabled={busy || !state.checks.length} onClick={() => controller.runScreening()}>{attempt?.status === 'error' ? 'Try AI checks again' : 'Run local AI checks'}</Button>}
       {state.aiEnabled && missing && !state.languageAssumption && <Button disabled={busy} onClick={() => controller.promptLanguageDecision()}>Decide document language…</Button>}
       <Button disabled={busy} onClick={() => controller.openSetup('checks')}>Change check settings</Button>
@@ -93,13 +93,13 @@ export function Checks({ state, controller, batchBusy, coverage = [], showStatus
       <h3>AI coverage</h3>
       <p>Caption, contents and experimental numerical comparisons accompany any selected AI text check when evidence is available. Clearing all text checks also turns off these comparisons.</p>
       <ul>
-        <li>Selected model: {model?.label || 'No AI model selected for new checks'}. Completed AI checks are recorded above.</li>
+        <li>Selected model: {model?.label?.replaceAll(' · ', ', ') || 'No AI model selected for new checks'}. Completed AI checks are recorded above.</li>
         {coverage.map(f => <li key={f.id}><strong>{f.title}:</strong> {f.summary}</li>)}
         {state.report.imageScreening?.skipped && <li><strong>Image check:</strong> {imageSkipNote(state.report)}</li>}
         {state.report.imageScreening?.inferencePerformed && <li><strong>Image check:</strong> {(() => {
           const items = state.report.imageScreening.items || [], count = verdict => items.filter(item => imageVerdict(item, state.report.decorative?.items?.[item.index]) === verdict).length;
           const described = state.report.imageScreening.descriptions || [];
-          return [`${state.report.imageScreening.model?.label || 'The image model'} looked at`,
+          return [`${state.report.imageScreening.model?.label?.replaceAll(' · ', ', ') || 'The image model'} looked at`,
             state.report.imageScreening.execution ? `${state.report.imageScreening.execution.encodedCrops} crops; ${state.report.imageScreening.execution.usableDescriptions} usable photo crops, ${state.report.imageScreening.execution.comparedDescriptions} descriptions compared${state.report.imageScreening.execution.descriptionSkipReason ? ' (at least 5 usable photo crops are needed for comparison)' : ''};` : null,
             items.length ? `${items.length} graphic${items.length === 1 ? '' : 's'} marked as decoration (${count('content')} look like content, ${count('decoration')} like decoration, ${count('unclear')} unclear)` : null,
             described.length ? `${items.length ? 'and ' : ''}${described.length} photo description${described.length === 1 ? '' : 's'} against ${described.length === 1 ? 'its picture' : 'their pictures'} (${described.filter(item => item.mismatch).length} may not match)` : null,

@@ -50,7 +50,7 @@ export function createAppController({
     stopModel();
     cancelAuxiliary();
     pendingIntake = start;
-    emit({ stage: "setup", setupDestination: "document", pendingSetupLabel: label,
+    emit({ stage: "setup", setupMode: "intake", setupDestination: "document", pendingSetupLabel: label,
       analysisBusy: false, awaitingLanguageDecision: false, progress: null });
   };
   let state = {
@@ -67,6 +67,7 @@ export function createAppController({
     // Separate consent for the optional image model, which only judges graphics marked as decoration.
     imageAI: Boolean(saved?.imageAI && saved.modelId !== null),
     evaluationModel: saved ? saved.modelId : "granite-r2",
+    setupMode: "intake",
     setupDestination: "document",
     pendingSetupLabel: null,
     selectedModel: saved?.modelId || null,
@@ -186,11 +187,15 @@ export function createAppController({
         return;
       }
       if (state.setupComplete) controller.go(stage);
-      else emit({ setupDestination: stage, stage: "setup" });
+      else emit({ setupDestination: stage, setupMode: "intake", stage: "setup" });
     },
     openSetup(stage = state.stage) {
       pendingIntake = null;
-      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, stage: "setup" });
+      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, setupMode: "intake", stage: "setup" });
+    },
+    openSettings(stage = state.stage) {
+      pendingIntake = null;
+      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, setupMode: "settings", stage: "setup" });
     },
     resetSetup() {
       if (state.analysisBusy || state.modelBusy || state.calibrationBusy || services.batch?.busy) return false;

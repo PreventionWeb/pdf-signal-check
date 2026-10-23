@@ -37,7 +37,7 @@ export function PreviewGate({ children, access: suppliedAccess }) {
     aria-labelledby="preview-access-title" aria-describedby="preview-access-body"
     onCancel={event => event.preventDefault()}>
     <section className="mg-preview-access__modal">
-      <p className="mg-preview-access__eyebrow">UNDRR &amp; PreventionWeb · preview</p>
+      <p className="mg-preview-access__eyebrow">UNDRR &amp; PreventionWeb, preview</p>
       <h1 className="mg-preview-access__title" id="preview-access-title">Enter the preview PIN</h1>
       <p className="mg-preview-access__body" id="preview-access-body">PDF Signal Check is a preview version for testing. It is not ready for general distribution. Enter the access PIN provided by the project team to continue.</p>
       <form className="mg-preview-access__form" noValidate onSubmit={event => {

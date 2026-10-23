@@ -56,7 +56,7 @@ export function PlacePager({ places, index, onGo, inline = false }) {
   const go = step => onGo(at == null ? 0 : (at + step + places.length) % places.length);
   return <div className="place-pager" role="group" aria-label="Places on the pages">
     <button type="button" className="viewer-button" aria-label="Previous place" onClick={() => go(-1)}>‹</button>
-    <span className="place-pager-label" aria-live="polite">{at == null ? `${places.length} places` : `Place ${at + 1} of ${places.length} · page ${places[at].page}`}</span>
+    <span className="place-pager-label" aria-live="polite">{at == null ? `${places.length} places` : `Place ${at + 1} of ${places.length}, page ${places[at].page}`}</span>
     <button type="button" className="viewer-button" aria-label="Next place" onClick={() => go(1)}>›</button>
   </div>;
 }

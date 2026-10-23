@@ -174,7 +174,7 @@ export function scenes(data) {
         <A anim="pop" delay={2400} dur={500} idle="1.4"><At x={1330} y={230} r={14}><QMark /></At></A>
         <A anim="pop" delay={2500} dur={500} idle="1.4" className="sp-wide"><At x={520} y={170} r={-16} s={0.75}><QMark fill={C.sky} /></At></A>
         <A anim="pop" delay={2600} dur={500} idle="1.4"><At x={1290} y={720} r={8} s={0.85}><QMark fill={C.coral} /></At></A>
-        <Label x={252} y={776} text="01 · Who needs your report?" size={24} fill={LAYER.text} delay={2600} />
+        <Label x={252} y={776} text="01, Who needs your report?" size={24} fill={LAYER.text} delay={2600} />
       </Stage>,
     },
     // 2. People who see, people who listen
@@ -391,7 +391,7 @@ export function scenes(data) {
     },
     // 11. What happens: AI chatbots and reach
     {
-      describe: `Two small paper fragments approach the AI chatbot before a clearly hypothetical answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “${coverYear} · ${sentence}”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.`,
+      describe: `Two small paper fragments approach the AI chatbot before a clearly hypothetical answer says “${possibleAnswer}” under the label “Possible wrong answer”. A red pencil ring circles it. A separate teal reference headed “What the report actually says” reads “${coverYear}, ${sentence}”, showing why both the year and station in the possible answer are wrong. Two white copies of the possible wrong answer drift outward, away from the reference. Seven solid paths reach people; five end at an X, with a faint dashed continuation towards the people they do not reach.`,
       stage: <Stage v={10}>
         <A anim="left" dur={650} idle="0.6"><At x={330} y={160} s={0.9}><Person kind="assistant" label={READERS[3][1]} /></At></A>
         {[0, 1].map((i) => <A key={i} anim="travel" delay={2600 + i * 410} dur={660} from="360,-100">
@@ -400,7 +400,7 @@ export function scenes(data) {
         <Label x={650} y={116} text="Possible wrong answer" size={25} fill={LAYER.tags} delay={5050} />
         <A anim="pop" delay={5650} dur={500} idle="0.8"><At x={760} y={250}><Bubble text={possibleAnswer} size={30} fill={C.paper} color={C.ink} tail="left" ring={{ delay: 7150, dur: 600 }} /></At></A>
         <Label x={735} y={352} text="What the report actually says" size={24} fill={LAYER.text} color={C.teal} delay={7950} />
-        <Label x={735} y={402} text={`${coverYear} · ${sentence}`} size={30} fill={LAYER.text} delay={8450} />
+        <Label x={735} y={402} text={`${coverYear}, ${sentence}`} size={30} fill={LAYER.text} delay={8450} />
         {[[1170, 120], [1200, 290]].map(([x, y], i) => <A key={i} anim="travel" delay={10200 + i * 300} dur={800} from={`${760 - x},${250 - y}`}>
           <At x={x} y={y} r={[6, -5, 4][i]} s={0.55}><Bubble text={possibleAnswer} size={32} fill={C.paper} color={C.inkSoft} tail="left" /></At>
         </A>)}
@@ -412,10 +412,10 @@ export function scenes(data) {
     },
     // 12. Garbage in, garbage out: missing or misleading inputs can lead to misleading answers.
     {
-      describe: `A small paper strip reads “1950s · Early computing” beside the saying “Garbage in, garbage out”. Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out, showing a possible misleading result from missing or misleading information.`,
+      describe: `A small paper strip reads “1950s, Early computing” beside the saying “Garbage in, garbage out”. Three paper scraps, “Missing description”, “Mixed-up order” and “Wrong year”, move towards a neutral AI box. A crumpled possible answer and a question mark come out, showing a possible misleading result from missing or misleading information.`,
       stage: <Stage v={11}>
         <Label x={430} y={82} text="Garbage in, garbage out" size={40} />
-        <Label x={994} y={94} text="1950s · Early computing" size={30} fill={LAYER.text} delay={650} />
+        <Label x={994} y={94} text="1950s, Early computing" size={30} fill={LAYER.text} delay={650} />
         <A anim="pop" delay={650} dur={600}><At x={760} y={264}>
           <Torn w={250} h={300} fill={LAYER.text}>
             <text x="125" y="64" textAnchor="middle" className="sp-tile" fontSize="52" fill={C.ink}>AI</text>
@@ -498,7 +498,7 @@ export function scenes(data) {
           <At x={CROWD[index].x} y={CROWD[index].y}><Mini body={CROWD[index].body} skin={CROWD[index].skin} /></At>
         </A>)}
         {[1, 3, 5, 7, 9, 11].map((index, i) => <Reach key={index} from={[847, 660]} to={[CROWD[index].x, CROWD[index].y - 18]} delay={9050 + i * 140} />)}
-        <A anim="pop" delay={8700} dur={500} idle="0.5"><At x={1160} y={150}><Bubble text={`${coverYear} · ${sentence}`} size={27} /></At></A>
+        <A anim="pop" delay={8700} dur={500} idle="0.5"><At x={1160} y={150}><Bubble text={`${coverYear}, ${sentence}`} size={27} /></At></A>
       </Stage>,
     },
     // 15. Check your own PDF

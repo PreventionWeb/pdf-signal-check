@@ -48,7 +48,7 @@ export function addConsistencyFindings(report, add) {
       const severity = !ai ? 'unresolved' : ai.status === 'semantically-related' ? 'minor' : ai.status === 'suspected-mismatch' ? 'concern' : 'unresolved';
       add({ ...base, title: TITLES[item.kind](item), outcome: ai?.status || 'unresolved', severity: severity === 'unresolved' ? undefined : severity,
         category: severity === 'unresolved' ? 'uncertain' : 'advisory-concern', method: ai ? 'embedding-screening' : 'consistency-rules',
-        summary: '', evidence: [{ page: item.entry.contentsPage, blockIds: item.entry.blockIds, text: item.entry.text }, `Headings on page ${item.expected}: ${item.headings.join(' · ') || 'none recovered'}`],
+        summary: '', evidence: [{ page: item.entry.contentsPage, blockIds: item.entry.blockIds, text: item.entry.text }, `Headings on page ${item.expected}: ${item.headings.join(', ') || 'none recovered'}`],
         comparison: { consistency: item, ai } });
       continue;
     }
@@ -56,7 +56,7 @@ export function addConsistencyFindings(report, add) {
         ...(item.other ? [{ page: item.other.contentsPage, blockIds: item.other.blockIds, text: item.other.text }] : [])]
       : item.kind === 'same-fact' ? sentencePairEvidence(item.a, item.b)
       : item.kind === 'heading-split' ? item.pairs.map(pair => ({ page: pair.page, blockIds: pair.blockIds, text: `${pair.a} / ${pair.b}` }))
-      : item.kind === 'heading-label' ? item.pages.map(page => ({ page: page.page, blockIds: page.blockIds, text: page.texts.join(' · ') }))
+      : item.kind === 'heading-label' ? item.pages.map(page => ({ page: page.page, blockIds: page.blockIds, text: page.texts.join(', ') }))
       : item.kind === 'decorative' ? [{ page: item.page, quads: item.quads, text: 'Graphic marked as decoration' }, ...item.captions, ...(item.source ? [item.source] : [])]
       : item.evidence ? item.evidence.map(entry => ({ ...entry }))
         : item.kind === 'draft' ? item.blockIds?.length ? [{ page: item.pages[0], blockIds: item.blockIds, text: item.text || item.label }] : [`“${item.label}” on page ${item.pages.slice(0, 5).join(', ')}`]

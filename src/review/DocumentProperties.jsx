@@ -33,7 +33,7 @@ export function DocumentProperties({ metadata = {}, title = 'What is saved in th
       <tbody>{rows.map(([label, value, unreadable]) => <tr key={label}>
         <th scope="row">{label}</th>
         <td><strong>{value ? 'Set' : unreadable ? 'Could not read' : 'Missing'}</strong></td>
-        <td>{value || (unreadable ? 'Part of the saved information could not be read.' : '—')}{annotate?.(label)}
+        <td>{value || (unreadable ? 'Part of the saved information could not be read.' : 'Not recorded')}{annotate?.(label)}
           {found[label] && <span className="document-properties-found">{found[label]}</span>}</td>
       </tr>)}</tbody>
     </table>

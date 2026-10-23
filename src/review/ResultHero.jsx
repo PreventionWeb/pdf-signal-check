@@ -7,7 +7,7 @@ export function ResultHero({ overview, titleId, file, exports }) {
     <div className="mg-hero__split-grid">
     <div className="mg-hero__content">
       <h1 id={titleId} className="mg-hero__title flow-title" tabIndex={-1}>{overview.headline}</h1>
-      {file && <p className="result-hero-file">{file.name} · {formatBytes(file.size)}</p>}
+      {file && <p className="result-hero-file">{file.name}, {formatBytes(file.size)}</p>}
       {overview.nextStep && <p className="result-hero-lead">{overview.nextStep}</p>}
       {overview.checkedWith && <p className="result-hero-receipt">{overview.checkedWith}{overview.scope ? ` ${overview.scope}` : ""}</p>}
       {exports}

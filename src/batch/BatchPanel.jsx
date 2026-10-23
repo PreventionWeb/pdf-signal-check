@@ -60,7 +60,7 @@ function QueueItem({ item, state, controller, pending }) {
           : item.status === "failed"
             ? "Incomplete or failed"
             : item.status === "canceled" ? "cancelled" : item.status}{" "}
-        · {formatBytes(item.bytes)}
+       , {formatBytes(item.bytes)}
       </p>
       {item.progress && item.id === queue.activeId && (
         <div>
@@ -90,7 +90,7 @@ function QueueItem({ item, state, controller, pending }) {
       {item.error && <p className="error-message">{item.error}</p>}
       {item.summary && (
         <>
-          {counts?.version === 2 ? <p><strong>Fix ({counts.fix})</strong> · Check ({counts.check}) · Couldn’t check ({counts.couldntCheck})</p>
+          {counts?.version === 2 ? <p><strong>Fix ({counts.fix})</strong>, Check ({counts.check}), Couldn’t check ({counts.couldntCheck})</p>
             : <p>Open the report to see its Fix and Check items.</p>}
           {item.summary.semantic?.skipReason === "user-skipped" && (
             <p>AI skipped for this PDF. Standard check results are retained.</p>
@@ -183,7 +183,7 @@ function QueueItem({ item, state, controller, pending }) {
       >
         {item.summary && <p>Formal text profile: {item.summary.accepted ? "Required checks passed" : item.summary.checks?.some(check => check.status === "fail") ? "Required defects found" : "Required checks not established"}. Independent of advisory counts.</p>}
         <p>
-          {item.id} · {item.phase}
+          {item.id}, {item.phase}
         </p>
         {item.sourceHash && (
           <p className="batch-hash">SHA-256 {item.sourceHash}</p>
@@ -311,7 +311,7 @@ export function BatchPanel({ controller }) {
             }}
           />
           <p className="model-note">
-            Up to 20 files · 300 MB total · 50 MB each · engine limit 500 pages
+            Up to 20 files, 300 MB total, 50 MB each, engine limit 500 pages
             per file
           </p>
         </Card>
@@ -349,7 +349,7 @@ export function BatchPanel({ controller }) {
           />
           <p>Standard checks run for every PDF. Eligible AI comparisons run one PDF at a time after download consent. Skipping AI applies only to this batch.</p>
           <p className="model-note">
-            {model.label}: {(model.graphBytes / 1e6).toFixed(2)} MB model +{" "}
+            {model.label.replaceAll(' · ', ', ')}: {(model.graphBytes / 1e6).toFixed(2)} MB model +{" "}
             {(model.tokenizerBytes / 1e6).toFixed(2)} MB tokenizer; runtime
             approximately 26.86 MB uncompressed, separate. {model.language}. {model.tradeoff}
           </p>
@@ -395,10 +395,10 @@ export function BatchPanel({ controller }) {
           <p className="frozen-settings">
             This run:{" "}
             {queue.configuration.useAI
-              ? getSemanticModel(queue.configuration.modelId).label
+              ? getSemanticModel(queue.configuration.modelId).label.replaceAll(' · ', ', ')
               : "Standard checks only"}
             {queue.configuration.useAI
-              ? ` · ${(queue.configuration.checks || []).join(", ")}`
+              ? `, ${(queue.configuration.checks || []).join(", ")}`
               : ""}
           </p>
         )}
@@ -427,9 +427,9 @@ export function BatchPanel({ controller }) {
           {finished} of {queue.items.length} PDFs finished
         </h3>
         <p>
-          {count("completed")} complete · {count("failed")} incomplete or failed ·{" "}
-          {count("canceled")} cancelled · {count("skipped")} skipped ·{" "}
-          {count("queued")} waiting{queue.activeId ? " · 1 current" : ""}
+          {count("completed")} complete, {count("failed")} incomplete or failed,{" "}
+          {count("canceled")} cancelled, {count("skipped")} skipped,{" "}
+          {count("queued")} waiting{queue.activeId ? ", 1 current" : ""}
         </p>
         {queue.items.length > 0 && (
           <ProgressBar

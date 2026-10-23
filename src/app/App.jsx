@@ -1,3 +1,4 @@
+import { BUILD_TIMESTAMP, buildLabel } from "../build-info.js";
 import { SiteNavigation } from "./SiteNavigation.jsx";
 import { formatBytes } from "../ui/progress.js";
 import { ProcessingPanel } from "./ProcessingPanel.jsx";
@@ -134,7 +135,7 @@ export function App() {
         if (action === "privacy") { privacyRef.current?.open(opener); return; }
         if (action === "about") { showAbout(true); return; }
         showAbout(false);
-        if (action === "settings") { controller.openSetup(state.report ? "checks" : "document"); return; }
+        if (action === "settings") { controller.openSettings(state.report ? "checks" : state.stage === "batch" ? "batch" : "document"); return; }
         if (action === "batch") { controller.beginEvaluation("batch"); return; }
         controller.go("document");
         // Navigation scrolls to the intake section it names; there are no intake tabs to switch.
@@ -174,7 +175,7 @@ export function App() {
                 )}
                 {state.file && state.stage !== "batch" && state.stage !== "document" && !["checks", "review", "processing-model"].includes(state.stage) && (
                   <p className="flow-file">
-                    {state.file.name} · {formatBytes(state.file.size)}
+                    {state.file.name}, {formatBytes(state.file.size)}
                   </p>
                 )}
                 {["document", "setup"].includes(state.stage) && (
@@ -229,10 +230,9 @@ export function App() {
               <p className="mg-footer-bar__text">
                 {PRODUCT_NAME}
               </p>
-              <p className="mg-footer-bar__text">Processed on your device · Early version / 0.9</p>
+              <p className="mg-footer-bar__text">Processed on your device. <a href="https://github.com/PreventionWeb/pdf-signal-check/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" title="View changelog"><time dateTime={BUILD_TIMESTAMP || undefined}>{buildLabel()}</time></a></p>
               <div className="mg-footer-bar__links">
                 <a href="#ai-info-dialog" id="about-ai" ref={openerRef} onClick={e => { e.preventDefault(); privacyRef.current?.open(e.currentTarget); }}>About AI &amp; privacy</a>
-                <a href="https://github.com/PreventionWeb/pdf-signal-check/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Changelog ↗</a>
                 <a
                   href="https://github.com/PreventionWeb/pdf-signal-check/"
                   target="_blank"
@@ -316,7 +316,7 @@ function Entry({ state, controller, batchBusy, onAbout, onWatch }) {
       </section>
       <Samples disabled={disabled} onChoose={path => controller.selectSample(path)} />
       <div className="intake-settings">
-        <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose a PDF to set up optional on-device AI. Standard checks need no model download."}</p>
+        <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? "Granite R2, multilingual" : "rule-based checks without AI"}${state.settingsSaved ? ", saved in this browser" : ", this session only"}.` : "Choose a PDF to set up optional on-device AI. Standard checks need no model download."}</p>
       </div>
       <Capabilities />
     </div>

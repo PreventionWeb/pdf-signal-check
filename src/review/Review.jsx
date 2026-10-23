@@ -109,7 +109,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
       page: t.page,
       quads: t.quads?.length ? t.quads : page ? candidateBlocks(page, t).flatMap((b) => (b.quad ? [b.quad] : [])) : [],
       // The info box beside the highlight: which issue this is and what this spot shows.
-      info: special || !card ? null : { eyebrow: `${BUCKETS[bucket].label} · Page ${t.page}`, title: card.title,
+      info: special || !card ? null : { eyebrow: `${BUCKETS[bucket].label}, Page ${t.page}`, title: card.title,
         text: t.label || t.note || brief(t.text) },
       target: t,
       key: Date.now(),
@@ -164,7 +164,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
   const detailArticle = finding && (
         <PlaceContext.Provider value={placeContext}><Card as="article" className="problem-frame" data-finding-id={finding.id}>
       <Button className="review-list-back" onClick={() => { const current = document.querySelector('.page-pins-entry[aria-current="true"]'); current?.scrollIntoView({ block: "center", behavior: "instant" }); current?.focus({ preventScroll: true }); }}>Back to the list</Button>
-      <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? ` · ${card.where}` : ""}</p>
+      <p className="fix-detail-eyebrow"><span className={`fix-dot fix-dot--${bucket}`} aria-hidden="true" />{BUCKETS[bucket].label}{card.where ? `, ${card.where}` : ""}</p>
       <h2 className="review-detail-title" id="finding-title" tabIndex={-1} ref={titleRef}>{card.title}</h2>
       {(task.why || finding.whyItMatters) && <p className="fix-why-caption">{[task.why || finding.whyItMatters].flat()[0]}</p>}
       {/* The one sentence that matters: plain lead text with a thin bucket-coloured rule, not a boxed notice. */}
@@ -280,7 +280,7 @@ export function Review({ state, controller, exportRef, onReturnBatch }) {
     <>
       {state.modelBusy && <section className="screening-wait" aria-label="PDF analysis in progress">
         <h1 id="flow-title" className="flow-title" tabIndex={-1}>Checking your PDF</h1>
-        {file && <p className="flow-file">{file.name} · {formatBytes(file.size)}</p>}
+        {file && <p className="flow-file">{file.name}, {formatBytes(file.size)}</p>}
         <ProcessingPanel state={state} controller={controller} />
       </section>}
       <div hidden={state.modelBusy} inert={state.modelBusy || undefined}>
@@ -296,7 +296,7 @@ const CHANNELS = { property: "Document properties", "image-description": "Image 
 /** Each hidden passage: where it is, how it is hidden, what it seems to ask an AI to do, and the text itself. */
 function HiddenInstructions({ matches, onInspect }) {
   return <ul className="hidden-instructions">{matches.map((match, index) => <li key={index}>
-    <p className="hidden-instructions-where">{match.kind === "page" ? `Page ${match.page} · ${hidingLabel(match.reasons)}` : `${CHANNELS[match.kind] || "Document details"}${match.field ? ` · ${match.field}` : ""}${match.page ? ` · page ${match.page}` : ""}`}</p>
+    <p className="hidden-instructions-where">{match.kind === "page" ? `Page ${match.page}, ${hidingLabel(match.reasons)}` : `${CHANNELS[match.kind] || "Document details"}${match.field ? `, ${match.field}` : ""}${match.page ? `, page ${match.page}` : ""}`}</p>
     {/* A single match is already quoted in the lead sentence; quote it again only when there are several. */}
     {matches.length > 1 && <blockquote>{match.text}</blockquote>}
     <p className="hidden-instructions-why">{match.labels?.join("; ")}</p>
@@ -322,7 +322,7 @@ function PageLocations({ targets, onInspect }) {
   return <section className="finding-evidence">
     <h4>Where in the PDF</h4>
     {targets.slice(0, limit).map((t, i) => <Button className="location-button" key={i} onClick={() => onInspect(t)}>
-      {t.page ? `Page ${t.page}: ${t.text || "evidence"}` : "Document finding · no page location"}
+      {t.page ? `Page ${t.page}: ${t.text || "evidence"}` : "Document finding, no page location"}
     </Button>)}
     {limit < targets.length && <Button onClick={() => setLimit(value => value + 12)}>Show more locations ({targets.length - limit} remaining)</Button>}
   </section>;
@@ -352,7 +352,7 @@ function FixerSections({ finding, report, method, change, detail, targets = [], 
       {details.properties ? <table className="fixer-properties"><tbody>{details.properties.map(row => <tr key={row.label}><th scope="row">{row.label}</th>
         <td className={row.value ? undefined : "fixer-missing"}>{row.value || "Not saved"}</td></tr>)}</tbody></table>
         : matches.length ? <ul className="fixer-list">{matches.map((match, i) => <li key={i}>
-          <span className="fixer-where">{match.page ? `Page ${match.page}` : match.field || "Document details"}{match.reasons?.length ? ` · ${hidingLabel(match.reasons)}` : ""}</span>
+          <span className="fixer-where">{match.page ? `Page ${match.page}` : match.field || "Document details"}{match.reasons?.length ? `, ${hidingLabel(match.reasons)}` : ""}</span>
           <q>{match.text}</q></li>)}</ul>
         : evidence.length ? evidence.map((text, i) => <p key={i}>{text}</p>) : <p>{finding.summary}</p>}
       {targets.length > 0 && <PageLocations targets={targets} onInspect={onInspect} />}

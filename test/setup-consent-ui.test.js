@@ -16,8 +16,8 @@ it('renders Granite-only consent with visible costs and image opt-in before any 
   expect(html).toContain('26.86 MB uncompressed');
   expect(html).toContain('52 supported languages');
   expect(html).toMatch(/id="setup-image-ai"[^>]*checked=""/);
-  expect(html).toContain('Allow downloads and continue');
-  expect(html).toContain('Skip AI for this intake');
+  expect(html).toContain('Allow downloads');
+  expect(html).toContain('Skip AI this time');
   expect(html).not.toMatch(/MiniLM|compact model|type="radio"|Expected · not benchmarked/);
   expect(ref.current.start).not.toHaveBeenCalled();
   expect(controller.completeSetup).not.toHaveBeenCalled();
@@ -41,7 +41,7 @@ it('discloses experimental number scope before download permission without start
     'do not add things to fix or check, change headline counts or affect scores',
   ]) {
     expect(html).toContain(warning);
-    expect(html.indexOf(warning)).toBeLessThan(html.indexOf('Allow downloads and continue'));
+    expect(html.indexOf(warning)).toBeLessThan(html.indexOf('Allow downloads'));
   }
   expect(ref.current.start).not.toHaveBeenCalled();
   expect(controller.completeSetup).not.toHaveBeenCalled();

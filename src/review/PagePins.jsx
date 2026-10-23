@@ -197,7 +197,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     </div>
     {/* Narrow screens: a persistent bar opens the list and the selected item's detail as a bottom sheet. */}
     <button type="button" className="page-pins-sheet-toggle" aria-controls="page-pins-panel" aria-expanded={sheetOpen} onClick={() => setSheetOpen(open => !open)}>
-      <span>Issues ({entries.length}){selected ? ` · item ${selected} selected` : ""}</span><span aria-hidden="true">{sheetOpen ? "▾" : "▴"}</span>
+      <span>Issues ({entries.length}){selected ? `, item ${selected} selected` : ""}</span><span aria-hidden="true">{sheetOpen ? "▾" : "▴"}</span>
     </button>
   </div>;
 }
@@ -223,7 +223,7 @@ const propertyFor = item => {
 };
 
 /** Issues with pages but no reliable position say so; others name where they apply instead of a page. */
-const unplacedLabel = entry => /^Pages? /.test(entry.where || "") ? `${entry.where} · exact position unknown` : entry.where || "Whole document";
+const unplacedLabel = entry => /^Pages? /.test(entry.where || "") ? `${entry.where}, exact position unknown` : entry.where || "Whole document";
 
 /** Renders one page only when it scrolls near the viewport, then keeps the image until unmount. */
 const TOOLTIP_BUCKET = { fix: "Fix", check: "Check" };
@@ -250,7 +250,7 @@ function TippedPin({ entry, selected, onSelect }) {
     <button ref={button} type="button" className={`page-pin page-pin--${entry.bucket} page-pins-docpin ${selected ? "is-selected" : ""}`} aria-label={`${entry.number}: ${entry.title}`}
       aria-pressed={selected} aria-describedby={open ? id : undefined} onFocus={show} onBlur={() => setOpen(false)} onClick={onSelect}>{entry.number}</button>
     {open && <span role="tooltip" id={id} className="page-pins-tooltip page-pins-tooltip--fixed" style={place || undefined}>
-      <span className="page-pins-tooltip-eyebrow">{entry.number} · {TOOLTIP_BUCKET[entry.bucket] || entry.bucket}</span>
+      <span className="page-pins-tooltip-eyebrow">{entry.number}, {TOOLTIP_BUCKET[entry.bucket] || entry.bucket}</span>
       <strong>{entry.title}</strong>
       {entry.summary && <span>{brief(entry.summary)}</span>}
       <span className="page-pins-tooltip-hint">Click for what to change</span>
@@ -363,7 +363,7 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
             onClick={() => onSelect(pin.number)}>{pin.number}</button>
           {tip === pin.number && <span role="tooltip" id={`pin-tip-${page}-${pin.number}`} className={`page-pins-tooltip ${box.y > 0.7 ? "is-above" : ""}`}
             style={{ left: `${Math.min(box.x, 0.55) * 100}%`, top: `${(box.y > 0.7 ? box.y : box.y + box.height) * 100}%` }}>
-            <span className="page-pins-tooltip-eyebrow">{pin.number} · {TOOLTIP_BUCKET[pin.bucket] || pin.bucket}</span>
+            <span className="page-pins-tooltip-eyebrow">{pin.number}, {TOOLTIP_BUCKET[pin.bucket] || pin.bucket}</span>
             <strong>{pin.title}</strong>
             {describe(pin.number) && <span>{brief(describe(pin.number))}</span>}
             <span className="page-pins-tooltip-hint">Click for what to change</span>
