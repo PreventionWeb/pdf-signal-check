@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import { getSemanticModel } from '../engine/models.js';
 import { Help } from '../help/Help.jsx';
 import { CalibrationPanel } from '../calibration/CalibrationPanel.jsx';
-import { createDevicePreferences } from '../calibration/preferences.js';
+import { createDevicePreferences, rateDevice } from '../calibration/preferences.js';
 import { Button, Actions, Checkbox } from '../ui/react.jsx';
 import { IMAGE_MODEL } from '../engine/image-model.js';
 import './setup.css';
@@ -34,11 +34,8 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
         onResult={setReceipt} onBusy={value => { setBusy(value); controller.calibrationBusy(value); }} />
       <Actions>
         <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(model.key, { imageAI, remember })}>Start processing</Button>
+        {!busy && snapshot.pendingSetupLabel && rateDevice(receipt).key === 'slow' && <Button disabled={batchBusy} onClick={() => controller.skipSetupForCurrentIntake()}>Continue without AI</Button>}
       </Actions>
-      {!busy && <Actions>
-          <Button disabled={batchBusy} onClick={() => calibrationRef.current?.start()}>{receipt ? 'Test again' : 'Retry test'}</Button>
-          <Button disabled={batchBusy} onClick={() => setStep(1)}>Change download options</Button>
-      </Actions>}
     </> : <>
       <h2 id="setup-model-title" className="mg-u-sr-only" tabIndex={-1}>Add AI checks</h2>
       <div className="setup-check-option">
