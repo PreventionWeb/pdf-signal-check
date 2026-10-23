@@ -4,6 +4,8 @@ Find PDF problems that can make reports harder for people and their tools to und
 
 **As of October 2026, PDF Signal Check is in internal preview.** [Open the preview](https://preventionweb.github.io/pdf-signal-check/).
 
+See the [changelog](CHANGELOG.md) for dated updates.
+
 ## What it checks
 
 - Saved titles, authors and language
