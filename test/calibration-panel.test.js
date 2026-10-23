@@ -26,6 +26,7 @@ function renderReceipt(change = {}) {
 it('leads with the sample result and observed durations without changing the receipt', () => {
   const html = renderReceipt();
   expect(html).toContain('Sample text speed: OK');
+  expect(html.match(/benchmark-step-mark is-complete/g)).toHaveLength(3);
   for (const text of ['Took less than 1 second', 'Took about 16 seconds', 'About 2 seconds per sample run']) expect(html).toContain(text);
 });
 
@@ -47,6 +48,7 @@ it('retains unrated conditions and safely represents missing measurements', () =
     const html = renderReceipt({ fixture: undefined, load: undefined, warm });
     expect(html).toContain('Sample text speed: Check again');
     expect(html).toContain('Not measured');
+    expect(html).not.toContain('is-complete');
     expect(html).not.toMatch(/NaN|undefined|Infinity/);
   }
 });

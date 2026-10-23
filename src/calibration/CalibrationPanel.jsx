@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { Button, ProgressBar } from "../ui/react.jsx";
 import { getSemanticModel } from "../engine/models.js";
-import { TIMING_GUIDES, observedDuration } from './timing-guide.js';
+import { timingGuide, observedDuration } from './timing-guide.js';
 import { rateDevice } from "./preferences.js";
 import { CalibrationController } from "./controller.js";
 
@@ -68,9 +68,9 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     unrated: 'A usable speed result is not available. Keep this tab visible and active, then check again.',
   }[rating.key];
   const timings = receipt ? [
-    ['preparation', receipt.fixture?.parseMs],
-    ['startup', receipt.load?.loadAndInitMs],
-    ['comparison', receipt.warm?.medianMs],
+    ['preparation', receipt.fixture?.parseMs, 'Sample PDF prepared'],
+    ['startup', receipt.load?.loadAndInitMs, 'AI model ready'],
+    ['comparison', receipt.warm?.medianMs, 'Text comparison tested'],
   ] : [];
   const progress = state.progress;
   const determinate = progress?.total > 0 && Number.isFinite(progress.completed);
@@ -97,8 +97,13 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
       <p>{receipt ? resultDescription : "Run a short sample test to see how quickly this model works on your device. Your PDFs are not used."}</p>
       {receipt && <>
         <dl className="benchmark-timings" aria-label="Observed sample timings">
-          {timings.map(([kind, ms]) => <div className="benchmark-timing" key={kind}>
-            <dt>{TIMING_GUIDES[kind].label}</dt>
+          {timings.map(([kind, ms, label]) => <div className="benchmark-timing" key={kind}>
+            <dt>
+              <span className={`benchmark-step-mark${timingGuide(kind, ms) ? ' is-complete' : ''}`} aria-hidden="true">
+                {timingGuide(kind, ms) ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m5 12 4 4 10-10" /></svg> : '?'}
+              </span>
+              {timingGuide(kind, ms) ? label : { preparation: 'Sample PDF preparation', startup: 'AI model startup', comparison: 'Text comparison test' }[kind]}
+            </dt>
             <dd>{observedDuration(kind, ms)}</dd>
           </div>)}
         </dl>
