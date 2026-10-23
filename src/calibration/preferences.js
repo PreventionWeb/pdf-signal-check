@@ -15,7 +15,7 @@ export function rateDevice(receipt) {
   }
   if (ms <= SPEED_POLICY.greatMs) return { key: 'great', label: 'Great for local AI', description: 'The sample checks ran quickly. This model should feel responsive for short comparisons.' };
   if (ms <= SPEED_POLICY.okMs) return { key: 'ok', label: 'OK for local AI', description: 'The sample checks completed at a usable pace. Expect pauses, especially with more checks or larger documents.' };
-  return { key: 'slow', label: 'Not recommended for local AI', description: 'The sample checks were slow. Try the compact model or another device before evaluating many PDFs.' };
+  return { key: 'slow', label: 'Not recommended for local AI', description: 'The sample checks were slow. Skip AI checks or try another device before evaluating many PDFs.' };
 }
 
 const defaultStorage = () => { try { return globalThis.localStorage; } catch { return null; } };

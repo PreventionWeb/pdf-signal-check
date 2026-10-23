@@ -26,9 +26,10 @@ it('records why there are no comparisons without loading a model or changing pro
 it('surfaces failed reruns even when prior successful AI results are retained, and ignores stale callbacks', () => {
   const worker = { terminate: vi.fn(), postMessage: vi.fn() };
   const app = createAppController({ workerFactory: () => worker, preferences: { load: () => null, save: () => false } });
+  app.completeSetup('granite-r2');
   const source = report(); source.semantic = { inferencePerformed: true, model: { id: 'previous' } };
   app.openCompletedReport(source, { name: 'untagged.pdf', size: 4 }, 'one');
-  app.setModel('minilm');
+  app.setModel('granite-r2');
   app.runScreening();
   const requestId = worker.postMessage.mock.calls[0][0].requestId;
   const callback = worker.onmessage;
@@ -45,8 +46,9 @@ it('surfaces failed reruns even when prior successful AI results are retained, a
 it('retains a no-input result with actionable per-check reasons', () => {
   const worker = { terminate: vi.fn(), postMessage: vi.fn() };
   const app = createAppController({ workerFactory: () => worker, preferences: { load: () => null, save: () => false } });
+  app.completeSetup('granite-r2');
   app.openCompletedReport(report(), { name: 'untagged.pdf', size: 4 }, 'one');
-  app.setModel('minilm'); app.runScreening();
+  app.setModel('granite-r2'); app.runScreening();
   const requestId = worker.postMessage.mock.calls[0][0].requestId;
   worker.onmessage({ data: { type: 'result', requestId, semantic: { inferencePerformed: false, notRun: { reason: 'No comparison inputs', checks: [{ check: 'subject', reason: 'No subject metadata' }] } } } });
   expect(app.getSnapshot().screeningAttempt).toMatchObject({ status: 'not-run', message: 'No comparison inputs', reasons: [{ check: 'subject', reason: 'No subject metadata' }] });
@@ -57,10 +59,11 @@ it('does not create another worker for unchanged no-input comparisons, but allow
   const worker = { terminate: vi.fn(), postMessage: vi.fn() };
   const workerFactory = vi.fn(() => worker);
   const app = createAppController({ workerFactory, preferences: { load: () => null, save: () => false } });
+  app.completeSetup('granite-r2');
   const source = report(); source.metadata = { language: 'en' };
   const checks = ['title', 'subject', 'keywords', 'sections'];
   app.openCompletedReport(source, { name: 'untagged.pdf', size: 4 }, 'one');
-  app.setModel('minilm'); app.setChecks(checks); app.runScreening();
+  app.setModel('granite-r2'); app.setChecks(checks); app.runScreening();
   const retained = app.getSnapshot();
   expect(retained.report.semantic.assessment).toEqual(retained.report.semantic.title);
   app.runScreening();
@@ -69,7 +72,7 @@ it('does not create another worker for unchanged no-input comparisons, but allow
   app.setChecks(['subject']); app.runScreening();
   expect(workerFactory).not.toHaveBeenCalled();
   app.openCompletedReport(report(), { name: 'updated.pdf', size: 4 }, 'two');
-  app.setModel('minilm'); app.runScreening();
+  app.setModel('granite-r2'); app.runScreening();
   expect(workerFactory).toHaveBeenCalledTimes(1);
   app.dispose();
 });

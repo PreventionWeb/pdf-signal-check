@@ -4,9 +4,11 @@ Updates to PDF Signal Check, newest first. Entries use dates rather than release
 
 ## 2026-10-23
 
+- Simplified first-use AI setup to Granite R2, with explicit download permission, separate image-model consent and a skippable text speed test. Eligible AI checks now follow standard analysis automatically; AI can be skipped for an intake without changing future defaults. Earlier settings require fresh consent and historical reports retain their model provenance.
+
 - Improved numerical comparisons to distinguish units, scales, dates, locations and other recovered context. Fixed grouped decimal parsing, percentage-point comparisons, rounding false alarms and comparisons involving several quantities.
 - Bounded numerical comparison work and recorded when a limit leaves comparisons unfinished, without failing the PDF analysis.
-- Kept AI-retrieved numerical candidates in experimental technical evidence, outside fix/check tasks, headline counts and scores. The optional AI offer explains this before download consent. Original statements and context remain available in Technical details and the full PDF report.
+- Kept AI-retrieved numerical candidates in experimental technical evidence, outside fix/check tasks, headline counts and scores. Setup explains this before download consent. Original statements and context remain available in Technical details and the full PDF report.
 - Added reproducible evaluations using both shipped text models and 64 assistant-authored synthetic cases. The results show useful additional retrieval alongside unsupported flags; they do not establish real-report accuracy. See the [evaluation record](docs/experiments/NUMERICAL-CONSISTENCY.md).
 - Improved saved-description and keyword comparisons in large reports by retaining relevant passages before document sampling, within the existing evidence and inference limits.
 - Corrected numerical scoring so an empty AI result cannot earn positive consistency credit. Made text and image similarity claims more cautious, preserved source context in review and exports, and asked readers to compare scope or image use before making corrections.

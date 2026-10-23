@@ -14,7 +14,7 @@ import { CalibrationController } from "./controller.js";
 
 export const CalibrationPanel = forwardRef(function CalibrationPanel(
   {
-    modelId = "minilm",
+    modelId = "granite-r2",
     onResult = () => {},
     showStartAction = true,
     disabled = false,
@@ -38,8 +38,9 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
   const state = useSyncExternalStore(
       controller.subscribe,
       controller.getSnapshot,
+      controller.getSnapshot,
     ),
-    model = getSemanticModel(modelId || "minilm");
+    model = getSemanticModel(modelId || "granite-r2");
   useEffect(() => () => controller.dispose(), [controller]);
   useEffect(() => {
     controller.selectModel(modelId);
@@ -98,7 +99,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
           <div className="benchmark-timing-track" aria-hidden="true"><span className={`benchmark-timing-fill ${item.rating ? `is-${item.rating.key}` : ''}`} style={{ width: `${100 * Math.max(0, 1 - item.ms / timingScale)}%` }} /></div>
         </div>)}
       </div>}
-      {receipt && <p className="model-note">{model.label} · {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : "Not saved on this browser"}. Speed guidance, not an accuracy or memory rating.</p>}
+      {receipt && <p className="model-note">{model.label} · {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : "Not saved on this browser"}. Measured text speed only; image-model speed, full-PDF time, accuracy and memory capacity are not measured.</p>}
       <p className="model-note">Download if needed: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer assets, plus runtime (~26.86 MB uncompressed WASM and JavaScript).</p>
       {showStartAction && <div className="flow-actions"><Button disabled={disabled} onClick={() => controller.start(model.key)}>
         {receipt ? "Check again" : "Download files and test speed"}

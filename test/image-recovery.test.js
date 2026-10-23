@@ -5,7 +5,7 @@ import { Checks } from '../src/app/Checks.jsx';
 import { createAppController } from '../src/app/controller.js';
 const source = () => ({ analysisComplete: true, accepted: true, checks: [], metadata: { language: 'en' }, metadataConsistency: { candidates: [] }, pages: [], decorative: { items: [{ kind: 'unclear', page: 1, share: 0.3, letters: 0, quad: [[0,0],[20,0],[20,20],[0,20]] }] } });
 const file = name => ({ name, size: 4 });
-const preferences = { load: () => ({ modelId: 'minilm', checks: ['subject'], imageAI: true }), save: () => true };
+const preferences = { load: () => ({ modelId: 'granite-r2', checks: ['subject'], imageAI: true }), save: () => true };
 function setup(imageCropper = async (_file, _report, items) => items.map(item => ({ index: item.index, page: item.page, blob: new Blob() }))) {
   const workers = [];
   const app = createAppController({ preferences, imageCropper, workerFactory: kind => { const worker = { kind, terminate: vi.fn(), postMessage: vi.fn() }; workers.push(worker); return worker; } });

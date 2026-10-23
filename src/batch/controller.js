@@ -1,6 +1,12 @@
 import { createSequentialQueue } from "./queue.js";
 import { BatchWorkerClient } from "./client.js";
 
+const defaultSettings = () => ({
+  useAI: true,
+  modelId: "granite-r2",
+  checks: ["title", "subject", "keywords", "sections"],
+});
+
 /** App-owned queue adapter. React panel unmounts never discard session source handles. */
 export class BatchController {
   constructor({
@@ -33,11 +39,7 @@ export class BatchController {
     this.generation = 0;
     this.hiddenEvents = 0;
     this.disclosures = {};
-    this.settings = {
-      useAI: false,
-      modelId: "minilm",
-      checks: ["title", "subject", "keywords", "sections"],
-    };
+    this.settings = defaultSettings();
     this.consent = false;
     this.message = "";
     this.starting = false;
@@ -62,6 +64,8 @@ export class BatchController {
       this.disposed = false;
       this.disclosures = {};
       this.createQueue();
+      this.settings = defaultSettings();
+      this.consent = false;
       this.publish();
     }
     return this;
@@ -139,6 +143,8 @@ export class BatchController {
               : "Queue paused. Completed outcomes are retained; continue when ready.";
         else if (event.type === "pause-requested")
           this.message = "Pause requested. The current PDF will finish first.";
+        else if (event.type === "ai-skip-requested")
+          this.message = "Skipping AI for the current PDF. Its standard check results will be kept.";
         this.publish();
         this.onState(event.state);
         if (["queue-idle", "queue-paused"].includes(event.type)) {
@@ -183,6 +189,14 @@ export class BatchController {
     if (previous !== this.settings.modelId) this.consent = false;
     this.publish();
   }
+  /** Reset only unstarted setup; frozen queue attempts keep their exact model. */
+  resetSetup() {
+    if (this.state.configuration || this.busy || this.disposed) return false;
+    this.settings = defaultSettings();
+    this.consent = false;
+    this.publish();
+    return true;
+  }
   setConsent(value) {
     if (!this.state.configuration) {
       this.consent = Boolean(value);
@@ -193,12 +207,12 @@ export class BatchController {
     if (this.busy || this.disposed) return;
     const configuration = this.state.configuration;
     if (!configuration && this.settings.useAI && !this.settings.checks.length) {
-      this.say("Select at least one AI check or turn AI off.");
+      this.say("Select at least one AI check or skip AI for this batch.");
       return;
     }
     if (!configuration && this.settings.useAI && !this.consent) {
       this.say(
-        "Authorize the displayed optional downloads, or leave AI screening off.",
+        "Authorize the displayed downloads, or skip AI for this batch.",
       );
       return;
     }
@@ -258,6 +272,7 @@ export class BatchController {
       await queue.destroy();
       if (this.disposed || generation !== this.generation) return;
       this.files.clear();
+      this.settings = defaultSettings();
       this.consent = false;
       this.disclosures = {};
       await this.onClear();

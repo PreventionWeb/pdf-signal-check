@@ -6,13 +6,12 @@ import {
   Details,
   Notice,
   Checkbox,
-  Select,
   FormGroup,
   Actions,
   ProgressBar,
 } from "../ui/react.jsx";
 import { REPORT_FILENAME_STEM } from "../brand.js";
-import { SEMANTIC_MODELS, getSemanticModel } from "../engine/models.js";
+import { getSemanticModel } from "../engine/models.js";
 import { downloadJson } from "../export/download.js";
 
 const checkChoices = [
@@ -41,7 +40,7 @@ function Disclosure({
     </Details>
   );
 }
-function QueueItem({ item, state, controller, pending, requireAI }) {
+function QueueItem({ item, state, controller, pending }) {
   const queue = state.queue,
     act = (fn) => controller.act(fn),
     counts = item.summary?.presentationCounts;
@@ -57,7 +56,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
       <h3>{item.name}</h3>
       <p className="batch-status">
         {item.status === "completed"
-          ? requireAI && !item.summary?.semantic?.inferencePerformed ? "Partial evaluation · AI did not complete" : "Complete"
+          ? "Complete"
           : item.status === "failed"
             ? "Incomplete or failed"
             : item.status === "canceled" ? "cancelled" : item.status}{" "}
@@ -93,6 +92,9 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
         <>
           {counts?.version === 2 ? <p><strong>Fix ({counts.fix})</strong> · Check ({counts.check}) · Couldn’t check ({counts.couldntCheck})</p>
             : <p>Open the report to see its Fix and Check items.</p>}
+          {item.summary.semantic?.skipReason === "user-skipped" && (
+            <p>AI skipped for this PDF. Standard check results are retained.</p>
+          )}
           {item.summary.semantic?.error && (
             <p className="error-message">
               AI did not complete: {item.summary.semantic.error}
@@ -258,7 +260,7 @@ function QueueItem({ item, state, controller, pending, requireAI }) {
 }
 
 /** Declarative queue UI; queue/client ownership stays with the app's controller. */
-export function BatchPanel({ controller, requireAI = false }) {
+export function BatchPanel({ controller }) {
   const state = useSyncExternalStore(
       controller.subscribe,
       controller.getSnapshot,
@@ -322,12 +324,13 @@ export function BatchPanel({ controller, requireAI = false }) {
         controller={controller}
         state={state}
         name="configuration"
+        defaultOpen={!queue.configuration}
         id="batch-configuration"
         className="batch-configuration"
         summary={
           queue.configuration
             ? "Run settings and download receipt"
-            : requireAI ? "AI model and checks" : "Optional AI settings · standard checks run by default"
+            : "AI checks and download consent"
         }
       >
         <FormGroup
@@ -336,31 +339,19 @@ export function BatchPanel({ controller, requireAI = false }) {
           className="batch-settings"
         >
           <Checkbox
-            id="batch-use-ai"
-            label={requireAI ? "Local AI screening enabled for every PDF" : "Optional local AI screening"}
-            checked={settings.useAI}
-            disabled={locked || requireAI}
+            id="batch-skip-ai"
+            label="Skip AI for this batch"
+            checked={!settings.useAI}
+            disabled={locked}
             onChange={(event) =>
-              controller.setSettings({ useAI: event.target.checked })
+              controller.setSettings({ useAI: !event.target.checked })
             }
           />
-          <Select
-            id="batch-model"
-            label="Batch screening model"
-            value={settings.modelId}
-            disabled={locked || !settings.useAI}
-            options={SEMANTIC_MODELS.map((option) => ({
-              value: option.key,
-              label: `${option.label} · ${option.language}`,
-            }))}
-            onChange={(event) =>
-              controller.setSettings({ modelId: event.target.value })
-            }
-          />
+          <p>Standard checks run for every PDF. Eligible AI comparisons run one PDF at a time after download consent. Skipping AI applies only to this batch.</p>
           <p className="model-note">
             {model.label}: {(model.graphBytes / 1e6).toFixed(2)} MB model +{" "}
             {(model.tokenizerBytes / 1e6).toFixed(2)} MB tokenizer; runtime
-            approximately 26.86 MB uncompressed, separate. {model.tradeoff}
+            approximately 26.86 MB uncompressed, separate. {model.language}. {model.tradeoff}
           </p>
           <p className="model-note">
             Each PDF’s declared language controls model eligibility. Missing or
@@ -468,12 +459,22 @@ export function BatchPanel({ controller, requireAI = false }) {
       {!queue.configuration && setup}
       <p role="status">{state.message}</p>
       <Actions>
+        {queue.items.some(item => item.id === queue.activeId && item.phase === "screening") && (
+          <Button
+            id="batch-skip-active-ai"
+            disabled={queue.items.some(item => item.id === queue.activeId && item.aiSkipRequested)}
+            onClick={() => act(() => controller.queue.skipActiveAI())}
+          >
+            Skip AI for this PDF; keep standard results
+          </Button>
+        )}
         {(!queue.configuration || pending.length > 0) && (
           <Button
             variant="primary"
             id="batch-start"
             disabled={
               controller.busy ||
+              (!queue.configuration && settings.useAI && (!state.consent || !settings.checks.length)) ||
               !pending.length ||
               Boolean(queue.modelFailure) ||
               queue.budget.pendingSerializedBytes > 0
@@ -527,12 +528,12 @@ export function BatchPanel({ controller, requireAI = false }) {
               >
                 Try preparing the model again
               </Button>
-              {!requireAI && <Button
+              <Button
                 id="batch-structural-only"
                 onClick={() => controller.recoverModel("structural-only")}
               >
                 Continue remaining PDFs without AI
-              </Button>}
+              </Button>
             </>
           }
         >
@@ -599,7 +600,6 @@ export function BatchPanel({ controller, requireAI = false }) {
             state={state}
             controller={controller}
             pending={pending}
-            requireAI={requireAI}
           />
         ))}
       </div>
