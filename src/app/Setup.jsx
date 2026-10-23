@@ -36,18 +36,14 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       <h2 id="setup-speed-title" className="mg-u-sr-only" tabIndex={-1}>Device speed test</h2>
       <CalibrationPanel ref={calibrationRef} modelId={model.key} showStartAction={false} showHeading={false} disabled={batchBusy} canRun={canCalibrate}
         onResult={setReceipt} onBusy={value => { setBusy(value); controller.calibrationBusy(value); }} />
-      {!busy && <p>Continue to check your PDF with these settings.</p>}
       <Actions>
         <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(model.key, { imageAI, remember })}>Continue with AI</Button>
         {snapshot.pendingSetupLabel && <Button disabled={batchBusy} onClick={skipIntake}>Skip AI this time</Button>}
       </Actions>
-      {!busy && <details className="mg-details setup-technical"><summary>Speed test options</summary>
-        <p>The test measures fixed sample text, not image speed, accuracy, memory capacity or the time needed for your PDF.</p>
-        <Actions>
+      {!busy && <Actions>
           <Button disabled={batchBusy} onClick={() => calibrationRef.current?.start()}>{receipt ? 'Test again' : 'Retry test'}</Button>
           <Button disabled={batchBusy} onClick={() => setStep(1)}>Change download options</Button>
-        </Actions>
-      </details>}
+      </Actions>}
     </> : <>
       <h2 id="setup-model-title" className="mg-u-sr-only" tabIndex={-1}>Add AI checks</h2>
       <div className="setup-check-option">
@@ -60,7 +56,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
         <Checkbox id="setup-text-ai" name="setup-text-ai" checked={textAI} disabled={batchBusy}
           onChange={event => { setTextAI(event.target.checked); if (!event.target.checked) setImageAI(false); }} label="AI text checks" />
         <div className="setup-check-description">
-          <p>Granite R2, <Help topic="ai" label="About 52 supported languages" extraText={model.languages.map(code => new Intl.DisplayNames(['en'], { type: 'language' }).of(code)).join(', ')}>52 supported languages</Help>. <strong>123.16 MB</strong> download.</p>
+          <p className="setup-check-meta">Granite R2, <Help topic="ai" label="About 52 supported languages" extraText={model.languages.map(code => new Intl.DisplayNames(['en'], { type: 'language' }).of(code)).join(', ')}>52 supported languages</Help>. <strong>123.16 MB</strong> download.</p>
           <p>AI compares limited excerpts, up to <Help topic="excerptLimit" label="What 512 tokens means">512 tokens</Help> each. It may miss errors or raise false alarms.</p>
         </div>
       </div>
@@ -68,15 +64,10 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
         <Checkbox id="setup-image-ai" name="setup-image-ai" checked={imageAI} disabled={batchBusy}
           onChange={event => { setImageAI(event.target.checked); if (event.target.checked) setTextAI(true); }} label="AI image checks" />
         <div className="setup-check-description">
-          <p><strong>{IMAGE_MODEL.download}</strong> download, plus <strong>{IMAGE_MODEL.descriptionDownload}</strong> for photo-description comparisons.</p>
+          <p className="setup-check-meta"><strong>{IMAGE_MODEL.download}</strong> download, plus <strong>{IMAGE_MODEL.descriptionDownload}</strong> for photo-description comparisons.</p>
           <p>Image checks classify some graphics and compare photo descriptions with pictures. They cannot read chart values or judge chart meaning, and can be wrong.</p>
-          <p className="model-note">Image checks also enable text checks.</p>
         </div>
       </div>
-      <details className="mg-details setup-technical">
-        <summary>Other AI comparisons</summary>
-        <p>AI can also compare keywords, image descriptions with captions, contents entries with headings, and statements with numbers. Number comparisons are experimental evidence only; AI cannot check whether those numbers are true. They appear only in Technical details and the full report; they do not add things to fix or check, change headline counts or affect scores.</p>
-      </details>
       <Checkbox id="setup-remember" name="setup-remember" checked={remember} disabled={batchBusy || !textAI}
         onChange={event => setRemember(event.target.checked)} label="Use these settings each time" />
       {textAI && <p className="model-note">Next: a skippable device speed test.</p>}

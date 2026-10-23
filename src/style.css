@@ -407,13 +407,9 @@ details.review-export-menu > summary { padding: 10px 44px 10px 12px; font-size: 
 .benchmark-timing { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 20px; margin-block: 12px; }
 .benchmark-timing dt { font-weight: 600; }
 .benchmark-timing dd { margin: 0; font-variant-numeric: tabular-nums; }
-.benchmark-exact-timings dt { font-weight: 600; }
-.benchmark-exact-timings dd { margin: 0 0 12px; font-variant-numeric: tabular-nums; }
 @media (max-width: 540px) {
   .benchmark-timing { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
-.benchmark-fine-print { margin-top: 18px; font-size: .875rem; line-height: 1.6; color: var(--muted); }
-.benchmark-fine-print p { margin-block: 8px; font-size: inherit; }
 
 .tool-capabilities { margin-block: 24px; }
 .tool-capabilities th, .tool-capabilities td { white-space: normal; overflow-wrap: anywhere; }

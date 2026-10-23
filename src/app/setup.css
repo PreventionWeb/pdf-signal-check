@@ -1,6 +1,10 @@
 .setup-screen h2, .settings-screen h2 { margin-block: 0 12px; }
-.setup-check-option { margin-block: 20px; }
-.setup-check-description { margin-inline-start: 28px; }
-.setup-check-description p { margin-block: 8px; }
+.setup-check-option { margin-block: 24px; }
+.setup-check-option .mg-form-check { margin: 0; }
+.setup-check-option .mg-form-check__label { font-weight: 600; }
+.setup-check-description { margin: 4px 0 0 28px; font-size: .875rem; line-height: 1.5; color: rgb(var(--mg-color-neutral-700)); }
+.setup-check-description p { margin-block: 4px; }
+.setup-check-description .setup-check-meta { font-size: .8125rem; color: rgb(var(--mg-color-neutral-600)); }
+.setup-check-meta strong { font-weight: 600; }
 .setup-technical { margin-block: 20px; }
 .setup-screen .flow-actions { margin-block: 20px 0; }
