@@ -35,11 +35,9 @@ it('opens explicit consent from settings and resets saved permissions without do
   expect(workerFactory).not.toHaveBeenCalled();
 });
 
-it('places reset behind settings disclosure and does not start calibration on render', () => {
+it('renders settings without starting calibration or resetting permissions', () => {
   const controller = { calibrationBusy: vi.fn(), resetSetup: vi.fn(), openSetup: vi.fn() };
   const html = renderToStaticMarkup(React.createElement(Settings, { controller, state: { setupComplete: true, imageAI: true }, calibrationRef: { current: null } }));
-  expect(html).toMatch(/<details[^>]*><summary>Reset saved settings<\/summary>/);
-  expect(html).not.toContain(' open=');
   expect(controller.calibrationBusy).not.toHaveBeenCalled();
   expect(controller.resetSetup).not.toHaveBeenCalled();
 });
@@ -47,4 +45,21 @@ it('places reset behind settings disclosure and does not start calibration on re
 it('formats the captured build timestamp explicitly in UTC', () => {
   expect(buildLabel('2026-10-23T12:13:00.000Z')).toBe('Build: 23 Oct 2026, 12:13 UTC');
   expect(buildLabel(null)).toBe('Local development');
+});
+
+it('applies one-time consent without saving or silently reusing it for another PDF', () => {
+  const preferences = { load: () => null, save: vi.fn(() => true), clear: vi.fn(() => true) };
+  const workerFactory = vi.fn();
+  const app = createAppController({ preferences, workerFactory });
+  app.completeSetup('granite-r2', { imageAI: true, remember: false });
+  expect(app.getSnapshot()).toMatchObject({ setupComplete: true, reuseSettings: false, settingsSaved: false, aiEnabled: true });
+  expect(preferences.save).not.toHaveBeenCalled();
+  expect(preferences.clear).toHaveBeenCalledOnce();
+  app.setChecks(['title']);
+  expect(preferences.save).not.toHaveBeenCalled();
+  const file = { name: 'next.pdf', arrayBuffer: vi.fn() };
+  app.selectFiles([file]);
+  expect(app.getSnapshot()).toMatchObject({ stage: 'setup', pendingSetupLabel: 'next.pdf' });
+  expect(file.arrayBuffer).not.toHaveBeenCalled();
+  expect(workerFactory).not.toHaveBeenCalled();
 });

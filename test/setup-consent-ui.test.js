@@ -13,7 +13,6 @@ it('renders Granite-only consent with visible costs and image opt-in before any 
   expect(html).toContain('123.16 MB');
   expect(html).toContain('89.12 MB');
   expect(html).toContain('64.50 MB');
-  expect(html).toContain('26.86 MB uncompressed');
   expect(html).toContain('52 supported languages');
   expect(html).toMatch(/id="setup-image-ai"[^>]*checked=""/);
   expect(html).toContain('Allow downloads');

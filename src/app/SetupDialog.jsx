@@ -16,7 +16,7 @@ export function SetupDialog({ controller, state, calibrationRef, batchBusy, canC
   return <dialog ref={dialog} className="setup-dialog" aria-labelledby="setup-modal-title"
     onCancel={event => { event.preventDefault(); controller.cancelSetup(); }}>
     <div className="setup-dialog-header">
-      <h1 id="setup-modal-title" ref={title} tabIndex={-1}>{settings ? 'Settings' : 'AI checks'}</h1>
+      <h1 id="setup-modal-title" ref={title} tabIndex={-1}>{settings ? 'Settings' : 'Configure your check'}</h1>
       <Button aria-label={settings ? "Close settings" : "Close setup"} onClick={() => controller.cancelSetup()}>Close</Button>
     </div>
     {state.pendingSetupLabel && <p className="model-note">{state.pendingSetupLabel}</p>}

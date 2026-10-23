@@ -1,8 +1,6 @@
 .setup-screen h2, .settings-screen h2 { margin-block: 0 12px; }
-.setup-text-option { margin-block: 20px 16px; }
-.setup-text-option h3 { margin-block: 0 4px; }
-.setup-text-option p { margin: 0; }
-.setup-image-option { margin-block: 16px; }
-.setup-image-option .model-note { margin: 4px 0 0 28px; }
+.setup-check-option { margin-block: 20px; }
+.setup-check-description { margin-inline-start: 28px; }
+.setup-check-description p { margin-block: 8px; }
 .setup-technical { margin-block: 20px; }
 .setup-screen .flow-actions { margin-block: 20px 0; }
