@@ -4,6 +4,7 @@ import { Button } from "../ui/react.jsx";
 import { SegmentedControl } from "@undrr/undrr-mangrove/components/SegmentedControl.js";
 import { fixCard } from "./workspace.js";
 import { pagePins } from "./page-pins.js";
+import { GutterMarkers } from './PagePinMarkers.jsx';
 import { readingOrderPlacement } from "../evidence/reading-order-placement.js";
 import { DocumentProperties } from "./DocumentProperties.jsx";
 
@@ -18,6 +19,31 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  */
 export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect: select, detail, focus = null, onPageChange = () => {},
   lead = null, special = null, onSpecial = () => {}, technical = null, summaryLeads = false }) {
+  const workspaceNode = useRef(null);
+  // Docked panes must fit below the header before the document itself scrolls.
+  // A full-viewport cap leaves their bottom clipped, sometimes without overflow.
+  useEffect(() => {
+    const node = workspaceNode.current;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      if (window.innerWidth < 1200) { node.style.removeProperty('--review-pane-height'); return; }
+      const top = Math.max(0, node.getBoundingClientRect().top);
+      node.style.setProperty('--review-pane-height', `${Math.max(160, window.innerHeight - top - 16)}px`);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    const observer = new ResizeObserver(schedule);
+    observer.observe(document.body);
+    return () => {
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, []);
   // On narrow screens the list and detail live in a bottom sheet; choosing anything opens it.
   const [sheetOpen, setSheetOpen] = useState(false);
   const onSelect = (item, moveFocus) => { if (mobile()) setSheetOpen(true); select(item, moveFocus); };
@@ -130,11 +156,11 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       <button type="button" className={`page-pins-entry ${current ? "is-selected" : ""}`} aria-current={current ? "true" : undefined}
         aria-controls="selected-item-analysis" onClick={() => choose(entry, true)}>
         <span className={`page-pin page-pin--${entry.bucket}`} aria-hidden="true">{entry.number}</span>
-        <span><span className="fix-card-title">{entry.title}{entry.ai && <span className="fix-ai-tag" title="The on-device AI decided this item"> AI</span>}</span><span className="fix-card-where">{located ? entry.where : unplacedLabel(entry)}</span></span>
+        <span><span className="fix-card-title">{entry.title}{entry.ai && <span className="fix-ai-tag" title="The on-device AI decided this item"> AI</span>}</span><span className="fix-card-where">{located ? entry.where : unplacedLabel(entry)}</span><span className="review-task-state">{entry.bucket === "fix" ? "Needs fixing" : "Needs review"}</span></span>
       </button>
     </li>;
   };
-  return <div className="page-pins">
+  return <div className="page-pins" ref={workspaceNode}>
     <aside id="page-pins-panel" className={`page-pins-panel ${sheetOpen ? "is-open" : ""}`} aria-label="Issues and details">
       <div className="page-pins-sheet-header"><strong>Issues ({entries.length})</strong><Button onClick={() => setSheetOpen(false)}>Close</Button></div>
       <nav className="page-pins-legend" aria-labelledby="page-pins-title">
@@ -197,7 +223,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
     </div>
     {/* Narrow screens: a persistent bar opens the list and the selected item's detail as a bottom sheet. */}
     <button type="button" className="page-pins-sheet-toggle" aria-controls="page-pins-panel" aria-expanded={sheetOpen} onClick={() => setSheetOpen(open => !open)}>
-      <span>Issues ({entries.length}){selected ? ` · item ${selected} selected` : ""}</span><span aria-hidden="true">{sheetOpen ? "▾" : "▴"}</span>
+      <span>Issues ({entries.length}){selected ? `, item ${selected} selected` : ""}</span><span aria-hidden="true">{sheetOpen ? "▾" : "▴"}</span>
     </button>
   </div>;
 }
@@ -223,7 +249,7 @@ const propertyFor = item => {
 };
 
 /** Issues with pages but no reliable position say so; others name where they apply instead of a page. */
-const unplacedLabel = entry => /^Pages? /.test(entry.where || "") ? `${entry.where} · exact position unknown` : entry.where || "Whole document";
+const unplacedLabel = entry => /^Pages? /.test(entry.where || "") ? `${entry.where}, exact position unknown` : entry.where || "Whole document";
 
 /** Renders one page only when it scrolls near the viewport, then keeps the image until unmount. */
 const TOOLTIP_BUCKET = { fix: "Fix", check: "Check" };
@@ -250,7 +276,7 @@ function TippedPin({ entry, selected, onSelect }) {
     <button ref={button} type="button" className={`page-pin page-pin--${entry.bucket} page-pins-docpin ${selected ? "is-selected" : ""}`} aria-label={`${entry.number}: ${entry.title}`}
       aria-pressed={selected} aria-describedby={open ? id : undefined} onFocus={show} onBlur={() => setOpen(false)} onClick={onSelect}>{entry.number}</button>
     {open && <span role="tooltip" id={id} className="page-pins-tooltip page-pins-tooltip--fixed" style={place || undefined}>
-      <span className="page-pins-tooltip-eyebrow">{entry.number} · {TOOLTIP_BUCKET[entry.bucket] || entry.bucket}</span>
+      <span className="page-pins-tooltip-eyebrow">{entry.number}, {TOOLTIP_BUCKET[entry.bucket] || entry.bucket}</span>
       <strong>{entry.title}</strong>
       {entry.summary && <span>{brief(entry.summary)}</span>}
       <span className="page-pins-tooltip-hint">Click for what to change</span>
@@ -260,6 +286,17 @@ function TippedPin({ entry, selected, onSelect }) {
 const brief = text => { const value = String(text || "").trim(); if (value.length <= 160) return value; const cut = value.slice(0, 159); return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 120))}…`; };
 function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, describe = () => null, zoom = 1, focus = null, orderText = null }) {
   const element = useRef(null);
+  const sheetNode = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const node = sheetNode.current;
+    const observer = new ResizeObserver(() => {
+      const width = node.clientWidth, height = node.clientHeight;
+      setSize(previous => previous.width === width && previous.height === height ? previous : { width, height });
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
   // Hover or keyboard focus on a pin or its outline explains the issue in one line; Escape hides it.
   const [tip, setTip] = useState(null);
   useEffect(() => {
@@ -310,8 +347,8 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
   }, [focus?.key, focusBox?.x, focusBox?.y]);
   return <section className="page-pins-page" ref={node => { element.current = node; pageRef(node); }} aria-label={`Page ${page}`}>
     <div className="page-pins-page-header"><h3>Page {page}</h3></div>
-    <div className="page-pins-zoom">
-    <div className="page-pins-sheet" style={{ ...(image?.width ? { aspectRatio: `${image.width} / ${image.height}` } : {}), width: `${zoom * 100}%` }}>
+    <div className={`page-pins-zoom${pins.length ? ' has-issue-gutter' : ''}`}>
+    <div ref={sheetNode} className="page-pins-sheet" style={{ ...(image?.width ? { aspectRatio: `${image.width} / ${image.height}` } : {}), width: `${zoom * 100}%` }}>
       {focusBox && <span key={focus.key} ref={focusRef} className="page-pins-focus" aria-hidden="true" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%`, width: `${focusBox.width * 100}%`, height: `${focusBox.height * 100}%` }} />}
       {/* A spot with no recorded position: outline the whole page and say so, rather than show nothing. */}
       {focus && !focus.quads?.length && focus.info && image?.url && <>
@@ -356,20 +393,16 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
           <span className={`page-pins-box page-pins-box--${pin.bucket} ${isSelected ? "is-selected" : ""}`} aria-hidden="true"
             style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, width: `${box.width * 100}%`, height: `${box.height * 100}%` }}
             onMouseEnter={() => setTip(pin.number)} onMouseLeave={() => setTip(null)} onClick={() => onSelect(pin.number)} />
-          <button type="button" className={`page-pin page-pin--${pin.bucket} page-pins-marker ${isSelected ? "is-selected" : ""}`}
-            style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, marginLeft: `${index * 4}px` }}
-            aria-label={`${pin.number}: ${pin.title}`} aria-pressed={isSelected} aria-describedby={tip === pin.number ? `pin-tip-${page}-${pin.number}` : undefined}
-            onMouseEnter={() => setTip(pin.number)} onMouseLeave={() => setTip(null)} onFocus={() => setTip(pin.number)} onBlur={() => setTip(null)}
-            onClick={() => onSelect(pin.number)}>{pin.number}</button>
           {tip === pin.number && <span role="tooltip" id={`pin-tip-${page}-${pin.number}`} className={`page-pins-tooltip ${box.y > 0.7 ? "is-above" : ""}`}
             style={{ left: `${Math.min(box.x, 0.55) * 100}%`, top: `${(box.y > 0.7 ? box.y : box.y + box.height) * 100}%` }}>
-            <span className="page-pins-tooltip-eyebrow">{pin.number} · {TOOLTIP_BUCKET[pin.bucket] || pin.bucket}</span>
+            <span className="page-pins-tooltip-eyebrow">{pin.number}, {TOOLTIP_BUCKET[pin.bucket] || pin.bucket}</span>
             <strong>{pin.title}</strong>
             {describe(pin.number) && <span>{brief(describe(pin.number))}</span>}
             <span className="page-pins-tooltip-hint">Click for what to change</span>
           </span>}
         </React.Fragment>;
       })}
+      {image?.boxes && <GutterMarkers pins={pins} boxes={image.boxes} size={size} page={page} selected={selected} onSelect={onSelect} tip={tip} setTip={setTip} />}
     </div>
     </div>
     {orderText?.length > 0 && <details className="viewer-order-text"><summary>Text in reading order ({orderText.length})</summary>

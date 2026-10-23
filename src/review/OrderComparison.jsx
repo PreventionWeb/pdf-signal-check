@@ -17,7 +17,7 @@ export function OrderComparison({ report, file, onInspect, compact = false }) {
       ) : (
         <>
           {!compact && <p className="order-map-intro">
-            Page {data.page} · The same recovered headings, connected by their
+            Page {data.page}, The same recovered headings, connected by their
             PDF tags.
           </p>}
           <div className="order-map-lanes">
@@ -128,7 +128,7 @@ export function OrderTechnical({ report, onInspect }) {
                   >
                     <small>
                       Page {page.number}
-                      {b.role ? ` · ${b.role}` : ""}
+                      {b.role ? `, ${b.role}` : ""}
                     </small>
                     <button
                       type="button"

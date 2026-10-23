@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  define: { __BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()) },
   // Relative assets work at both a Pages project path and a custom domain.
   base: './',
   worker: { format: 'es' },

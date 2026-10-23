@@ -26,7 +26,7 @@ export function IntakeHero({ onAbout, onWatch }) {
             <img src={`${import.meta.env.BASE_URL}story/poster.webp`} width="960" height="540" alt="Illustrated report chart showing water clarity highest at South, with people and tools below" />
             <span className="intake-story-preview__play" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8 5.5 19 12 8 18.5Z" /></svg></span>
           </span>
-          <span className="intake-story-preview__caption">Watch the story <span aria-hidden="true">·</span> {storyTime}</span>
+          <span className="intake-story-preview__caption">Watch the story, {storyTime}</span>
         </a>
       </div>
     </div>

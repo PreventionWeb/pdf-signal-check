@@ -7,8 +7,9 @@ import React, {
   useState,
   useSyncExternalStore,
 } from "react";
-import { Button, Details, ProgressBar } from "../ui/react.jsx";
+import { Button, ProgressBar } from "../ui/react.jsx";
 import { getSemanticModel } from "../engine/models.js";
+import { timingGuide, observedDuration } from './timing-guide.js';
 import { rateDevice } from "./preferences.js";
 import { CalibrationController } from "./controller.js";
 
@@ -17,6 +18,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     modelId = "granite-r2",
     onResult = () => {},
     showStartAction = true,
+    showHeading = true,
     disabled = false,
     onBusy = () => {},
     canRun = () => true,
@@ -58,18 +60,18 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     [controller, model.key],
   );
   const receipt = state.receipt, rating = rateDevice(receipt);
-  const resultTitle = {
-    great: 'Your device: great for local AI',
-    ok: 'Your device: OK for local AI',
-    slow: 'Your device: not recommended for local AI',
-    unrated: 'Your device: check again',
+  const resultTitle = `Sample text speed: ${{ great: 'Fast', ok: 'OK', slow: 'Slow', unrated: 'Check again' }[rating.key]}`;
+  const resultDescription = {
+    great: 'The sample text comparisons ran quickly.',
+    ok: 'The sample text comparisons ran at a usable pace.',
+    slow: 'The sample text comparisons were slow. You can continue with standard checks or try another device.',
+    unrated: 'A usable speed result is not available. Keep this tab visible and active, then check again.',
   }[rating.key];
   const timings = receipt ? [
-    { label: "PDF preparation", ms: receipt.fixture.parseMs },
-    { label: "AI model startup", ms: receipt.load.loadAndInitMs },
-    { label: "AI comparison speed", ms: receipt.warm.medianMs, rating },
-  ].filter(item => Number.isFinite(item.ms) && item.ms >= 0) : [];
-  const timingScale = 5000;
+    ['preparation', receipt.fixture?.parseMs, 'Sample PDF prepared'],
+    ['startup', receipt.load?.loadAndInitMs, 'AI model ready'],
+    ['comparison', receipt.warm?.medianMs, 'Text comparison tested'],
+  ] : [];
   const progress = state.progress;
   const determinate = progress?.total > 0 && Number.isFinite(progress.completed);
   const progressLabel = progress?.stage === "benchmark" ? "Speed checks completed"
@@ -80,8 +82,8 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     : progress?.stage === "model-init" ? "Preparing the AI model…" : "Warming up the benchmark…";
   if (state.busy) return (
     <section className="calibration-panel" aria-busy="true">
-      <h2 className="mg-card__title">Testing speed on your device</h2>
-      <p>Testing {model.label} with sample text. Keep this tab open and visible.</p>
+      {showHeading && <h2 className="mg-card__title">Testing speed on your device</h2>}
+      <p>Testing {model.label.replaceAll(' · ', ', ')} with sample text. Keep this tab open and visible.</p>
       <p role="status">{phase}</p>
       <ProgressBar label={progressLabel} hideLabel max={determinate ? progress.total : undefined} value={determinate ? progress.completed : undefined} valueText={determinate ? formatProgress(progress) : undefined} />
       {progress?.unit === "bytes" && Number.isFinite(progress.completed) && <p className="model-note">{formatProgress(progress)}</p>}
@@ -90,57 +92,27 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
   );
   return (
     <section className="calibration-panel">
-      <h2 className="mg-card__title">{receipt ? resultTitle : "Test speed on your device"}</h2>
-      <p>{receipt ? rating.description : "Run a short sample test to see how quickly this model works on your device. Your PDFs are not used."}</p>
-      {receipt && <div className="benchmark-timings" aria-label="Measured benchmark times">
-        <p className="model-note">Relative speed · longer bars are faster</p>
-        {timings.map(item => <div className="benchmark-timing" key={item.label}>
-          <div className="benchmark-timing-label"><span>{item.label}</span><span>{(item.ms / 1000).toFixed(2)} s{item.rating ? ` · ${item.rating.key === 'great' ? 'Great' : item.rating.key === 'ok' ? 'OK' : item.rating.key === 'slow' ? 'Not recommended' : 'Unrated'}` : ''}</span></div>
-          <div className="benchmark-timing-track" aria-hidden="true"><span className={`benchmark-timing-fill ${item.rating ? `is-${item.rating.key}` : ''}`} style={{ width: `${100 * Math.max(0, 1 - item.ms / timingScale)}%` }} /></div>
-        </div>)}
-      </div>}
-      {receipt && <p className="model-note">{model.label} · {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : "Not saved on this browser"}. Measured text speed only; image-model speed, full-PDF time, accuracy and memory capacity are not measured.</p>}
-      <p className="model-note">Download if needed: {((model.graphBytes + model.tokenizerBytes) / 1e6).toFixed(2)} MB model/tokenizer assets, plus runtime (~26.86 MB uncompressed WASM and JavaScript).</p>
+      {showHeading ? <h2 className="mg-card__title">{receipt ? resultTitle : "Test speed on your device"}</h2>
+        : receipt && <p className="benchmark-result-title">{resultTitle}</p>}
+      <p>{receipt ? resultDescription : "Run a short sample test to see how quickly this model works on your device. Your PDFs are not used."}</p>
+      {receipt && <>
+        <dl className="benchmark-timings" aria-label="Observed sample timings">
+          {timings.map(([kind, ms, label]) => <div className="benchmark-timing" key={kind}>
+            <dt>
+              <span className={`benchmark-step-mark${timingGuide(kind, ms) ? ' is-complete' : ''}`} aria-hidden="true">
+                {timingGuide(kind, ms) ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m5 12 4 4 10-10" /></svg> : '?'}
+              </span>
+              {timingGuide(kind, ms) ? label : { preparation: 'Sample PDF preparation', startup: 'AI model startup', comparison: 'Text comparison test' }[kind]}
+            </dt>
+            <dd>{observedDuration(kind, ms)}</dd>
+          </div>)}
+        </dl>
+      </>}
       {showStartAction && <div className="flow-actions"><Button disabled={disabled} onClick={() => controller.start(model.key)}>
         {receipt ? "Check again" : "Download files and test speed"}
       </Button></div>}
       {state.message && state.message !== "Device check complete." && <p role="status">{state.message}</p>}
-      <Details summary="Speed test details" className="benchmark-details">
-        <div className="benchmark-fine-print">
-        <p className="model-note">Bars use a 0–5 second scale: full at 0 seconds, empty at 5 seconds or more. AI speed is the median of three sample runs. Great: ≤ 1.5 s · OK: ≤ 5 s · Not recommended: &gt; 5 s. Startup varies with downloads and cache.</p>
 
-        <p>The test reads a fictional two-page PDF, prepares the model and times three runs of four fixed text inputs. The test has a five-minute limit and cannot run alongside PDF screening.</p>
-        <p>Asset transfer/cache cost varies. Running or checking again permits the downloads listed above.</p>
-        {receipt && <>
-          <p>Measured model: {receipt.model.label}.</p>
-          <p>
-            Synthetic {receipt.fixture.pages}-page parse:{" "}
-            {Math.round(receipt.fixture.parseMs)} ms. Encoder load and
-            initialization: {Math.round(receipt.load.loadAndInitMs)} ms (
-            {receipt.load.state}; asset network/cache source{" "}
-            {receipt.load.assetSource}).
-          </p>
-          <p>
-            Three warm sample runs: median {Math.round(receipt.warm.medianMs)}{" "}
-            ms; range {Math.round(receipt.warm.minimumMs)}–
-            {Math.round(receipt.warm.maximumMs)} ms. Four fixed text inputs per
-            run; {receipt.workload.tokenCap}-token cap.
-          </p>
-          <p>{receipt.note}</p>
-          {(receipt.conditions.startedHidden ||
-            receipt.conditions.visibilityChanges ||
-            receipt.conditions.possibleSleepOrSchedulingGap) && (
-            <p>
-              Timing conditions changed or a scheduling gap was observed. This
-              may affect measurements; rerun in a visible, active tab. Sleep
-              itself cannot be confirmed.
-            </p>
-          )}
-          <p><a href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(receipt, null, 2))}`} download="synthetic-device-timing.json">Download device timing receipt</a></p>
-          <p className="model-note">Rating guide: Great ≤ 1.5 seconds; OK ≤ 5 seconds; Not recommended above 5 seconds, for four fixed inputs. These are product responsiveness bands, not validated device requirements. Saved results expire after 30 days or when browser/model settings change.</p>
-        </>}
-        </div>
-      </Details>
     </section>
   );
 });

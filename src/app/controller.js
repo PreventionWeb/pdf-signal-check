@@ -50,7 +50,7 @@ export function createAppController({
     stopModel();
     cancelAuxiliary();
     pendingIntake = start;
-    emit({ stage: "setup", setupDestination: "document", pendingSetupLabel: label,
+    emit({ stage: "setup", setupMode: "intake", setupDestination: "document", pendingSetupLabel: label,
       analysisBusy: false, awaitingLanguageDecision: false, progress: null });
   };
   let state = {
@@ -63,10 +63,12 @@ export function createAppController({
     sourceKey: 0,
     setupComplete: Boolean(saved),
     settingsSaved: Boolean(saved),
+    reuseSettings: Boolean(saved),
     aiEnabled: Boolean(saved && saved.modelId !== null),
     // Separate consent for the optional image model, which only judges graphics marked as decoration.
     imageAI: Boolean(saved?.imageAI && saved.modelId !== null),
     evaluationModel: saved ? saved.modelId : "granite-r2",
+    setupMode: "intake",
     setupDestination: "document",
     pendingSetupLabel: null,
     selectedModel: saved?.modelId || null,
@@ -125,7 +127,7 @@ export function createAppController({
     return true;
   };
   const saveSettings = () => {
-    if (state.setupComplete) emit({ settingsSaved: preferences.save({ modelId: state.evaluationModel, checks: state.checks, imageAI: state.imageAI }) });
+    if (state.setupComplete && state.reuseSettings) emit({ settingsSaved: preferences.save({ modelId: state.evaluationModel, checks: state.checks, imageAI: state.imageAI }) });
   };
   const controller = {
     getSnapshot: () => state,
@@ -180,17 +182,33 @@ export function createAppController({
           if (services.batch?.resetSetup?.() !== false) configureBatch(useAI);
           controller.go("batch");
         };
-        if (state.setupComplete) return start(true);
+        if (state.setupComplete && state.reuseSettings) return start(true);
         deferIntake(start, "next batch");
         emit({ setupDestination: "batch" });
         return;
       }
-      if (state.setupComplete) controller.go(stage);
-      else emit({ setupDestination: stage, stage: "setup" });
+      if (state.setupComplete && state.reuseSettings) controller.go(stage);
+      else emit({ setupDestination: stage, setupMode: "intake", stage: "setup" });
     },
     openSetup(stage = state.stage) {
       pendingIntake = null;
-      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, stage: "setup" });
+      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, setupMode: "intake", stage: "setup" });
+    },
+    openSettings(stage = state.stage) {
+      pendingIntake = null;
+      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, setupMode: "settings", stage: "setup", message: "" });
+    },
+    removeAIPermission() {
+      if (pendingIntake || state.analysisBusy || state.modelBusy || state.calibrationBusy || services.batch?.busy) return false;
+      stopModel();
+      services.calibration?.cancel();
+      services.batch?.releaseIdleWorkers();
+      configureBatch(false);
+      const cleared = preferences.clear?.();
+      emit({ setupComplete: false, settingsSaved: false, reuseSettings: false, aiEnabled: false, imageAI: false,
+        evaluationModel: "granite-r2", selectedModel: null, setupMode: "settings", stage: "setup",
+        message: cleared ? "AI permission removed. Your next PDF will ask again." : "AI is off for this session. Browser storage could not be cleared; saved permission may return after reload." });
+      return true;
     },
     resetSetup() {
       if (state.analysisBusy || state.modelBusy || state.calibrationBusy || services.batch?.busy) return false;
@@ -201,7 +219,7 @@ export function createAppController({
       const benchmarksCleared = devicePreferences.clear();
       services.batch?.releaseIdleWorkers();
       configureBatch(false);
-      emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "granite-r2", selectedModel: null, languageAssumption: null, awaitingLanguageDecision: false,
+      emit({ setupComplete: false, settingsSaved: false, reuseSettings: false, aiEnabled: false, evaluationModel: "granite-r2", selectedModel: null, languageAssumption: null, awaitingLanguageDecision: false,
         checks: ["title", "subject", "keywords", "sections"], pendingSetupLabel: null, message: settingsCleared && benchmarksCleared ? "Saved setup and speed tests reset. Choose settings for your next PDF." : "Setup reset for this session. Browser storage could not be cleared; saved settings may return after reload." });
       return true;
     },
@@ -223,7 +241,7 @@ export function createAppController({
         services.batch?.add(selection);
         controller.go("batch");
       };
-      if (state.setupComplete) return start(true);
+      if (state.setupComplete && state.reuseSettings) return start(true);
       deferIntake(start, `${selection.length} PDFs`);
     },
     selectSample(path) {
@@ -239,12 +257,13 @@ export function createAppController({
       start(false);
       return true;
     },
-    completeSetup(modelId, { imageAI = false } = {}) {
+    completeSetup(modelId, { imageAI = false, remember = true } = {}) {
       if (modelId !== "granite-r2") throw Error("Fresh Granite download consent is required. Use skipSetupForCurrentIntake for standard checks only.");
       configureBatch(true);
-      emit({ setupComplete: true, aiEnabled: true, imageAI: imageAI === true, evaluationModel: modelId, selectedModel: modelId,
+      emit({ setupComplete: true, reuseSettings: remember === true, settingsSaved: false, aiEnabled: true, imageAI: imageAI === true, evaluationModel: modelId, selectedModel: modelId,
         checks: [...defaultChecks], stage: state.setupDestination, awaitingLanguageDecision: false });
-      saveSettings();
+      if (remember) saveSettings();
+      else preferences.clear?.();
       const start = pendingIntake;
       pendingIntake = null;
       emit({ pendingSetupLabel: null });
@@ -397,7 +416,7 @@ export function createAppController({
     },
     async analyze(file, example = null, policy = null) {
       if (!available()) return;
-      if (!state.setupComplete && !policy) {
+      if ((!state.setupComplete || !state.reuseSettings) && !policy) {
         deferIntake(useAI => controller.analyze(file, example, { useAI }), file.name);
         return;
       }
@@ -500,7 +519,7 @@ export function createAppController({
     },
     async loadSample(path, policy = null) {
       if (!available()) return;
-      if (!state.setupComplete && !policy) {
+      if ((!state.setupComplete || !state.reuseSettings) && !policy) {
         deferIntake(useAI => controller.loadSample(path, { useAI }), path.split("/").at(-1));
         return;
       }

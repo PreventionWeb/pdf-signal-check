@@ -293,3 +293,15 @@ The pinned 2.2.0 package ships the Snackbar as theme CSS (`mg-snackbar-wrapper`,
 ## Inspect your PDF overlay toggle — 20 October 2026
 
 The preview's overlay choice (Issues / Reading order / Page only) uses the published, pinned `SegmentedControl` (small) instead of a select menu. Reading order is a disabled option when the PDF has no recovered sequence.
+
+## Task hierarchy, 23 October 2026
+
+Review rows, Settings sections and batch file headings adapt the name, hint and explicit-status hierarchy from the [GOV.UK task list](https://design-system.service.gov.uk/components/task-list/). These are native React-owned layouts using the pinned Mangrove typography, colours and controls, without importing GOV.UK CSS or scripts. Review rows keep numbered page pins, native selection buttons and `aria-current`; quiet separators replace individual card frames. Fix and Check retain different labels and remain unresolved until the source PDF is repaired and checked again. No reviewed/completed finding state is introduced. Device-test ticks indicate measured steps, not semantic accuracy or PDF acceptance. Batch completion means processing finished, with finding counts shown separately.
+
+Desktop docked review panes use a viewport cap measured from the workspace’s visible top, leaving 16px below the pane. A local geometry effect updates the CSS variable on scroll, resize and body layout changes, and removes it below the desktop breakpoint. It cleans up its observer, listeners and pending animation frame on unmount. The middle pane and issue list can scroll before the header leaves the screen; mobile retains the existing bottom sheet. Browser verification covered 900px and 700px desktop window heights, independent middle-pane and keyboard scrolling with unchanged document scroll, and the 390px mobile sheet.
+
+## PDF issue-marker gutter, 23 October 2026
+
+PDF issue pins reserve a 48px gutter inside the horizontally scrollable viewer. Visible 28px numbered markers have 44px native-button targets; a screen-space layout separates nearby markers without moving their recorded boxes. Runs of four or more nearby locations collapse into an explicitly labelled count button and a scrollable list of the original issue numbers, titles and Fix/Check states. A smaller page also groups markers when individual targets cannot fit. Thin SVG connectors retain the relationship to the original locations, and selected outlines and markers paint above other annotations. The grouped list uses native buttons, expanded state, outside-click dismissal and Escape with focus restoration. No finding outcomes, source positions or export numbering change.
+
+Verification: layout tests cover coincident and edge locations, dense groups, short-page capacity, resizing and missing render geometry. Real-browser checks cover the sample PDF at desktop and 390px mobile widths, zoom overflow containment and issue selection; an isolated synthetic fixture covers a four-issue group, all retained issue choices, keyboard reopening and Escape focus restoration.

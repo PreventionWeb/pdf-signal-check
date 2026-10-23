@@ -38,7 +38,7 @@ export function Crop({ file, report, targets = [], fallbackPage = false, wholePa
   if (!file || !target || !result) return null;
   const located = result.url && (!result.pageContext || (wholePage && targetQuads(report, target).length > 0));
   const caption = wholePage && result.url
-    ? located ? `Page ${result.page} · dashed orange boxes show the graphics marked as decorative.` : 'Decorative graphics could not be located on this page.'
+    ? located ? `Page ${result.page}, dashed orange boxes show the graphics marked as decorative.` : 'Decorative graphics could not be located on this page.'
     : result.url && result.pageContext ? 'Full page shown; the image location is unavailable.' : result.caption || result.unavailable;
   return (
     <figure className="evidence-crop">

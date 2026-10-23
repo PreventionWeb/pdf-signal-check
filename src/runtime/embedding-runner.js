@@ -5,7 +5,7 @@ export class EmbeddingRunner {
     if(this.extractor && this.loadedKey!==model.key) await this.dispose();
     if(this.extractor)return { loadAndInitMs:0, state:'warm-encoder', assetSource:'not-needed', assets:[] };
     const started=performance.now(), assets=new Map();
-    emit({type:'progress',message:`Initializing ${model.label}.`,progress:{stage:'model-init',state:'started',completed:null,total:null,unit:null}});
+    emit({type:'progress',message:`Initializing ${model.label.replaceAll(' · ', ', ')}.`,progress:{stage:'model-init',state:'started',completed:null,total:null,unit:null}});
     try {
     this.runtime ||= await import('@huggingface/transformers');this.runtime.env.allowLocalModels=false;
     if (!this.assetFetchInstalled && this.runtime.env.fetch) {
@@ -23,7 +23,7 @@ export class EmbeddingRunner {
     } catch(error) {const failure=error instanceof Error?error:new Error(String(error));failure.stage='model-init';failure.code ||= 'MODEL_INIT_FAILED';throw failure;}
     this.loadedKey=model.key;
     const receipt={loadAndInitMs:performance.now()-started,state:'new-encoder',assetSource:'unknown-network-or-cache',assets:[...assets.values()]};
-    emit({type:'progress',message:`${model.label} initialized.`,progress:{stage:'model-init',state:'completed',completed:null,total:null,unit:null}});
+    emit({type:'progress',message:`${model.label.replaceAll(' · ', ', ')} initialized.`,progress:{stage:'model-init',state:'completed',completed:null,total:null,unit:null}});
     return receipt;
   }
   async embed(texts,model,emit=()=>{}) {

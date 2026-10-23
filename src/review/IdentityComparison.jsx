@@ -48,9 +48,9 @@ export function IdentityComparison({ kind, report, file, targets, onInspect, com
             <small>
               Page {item.page}
               {compact ? "" : item.role
-                ? ` · tagged ${item.role}`
+                ? `, tagged ${item.role}`
                 : item.source
-                  ? ` · ${item.source}`
+                  ? `, ${item.source}`
                   : ""}
               {!compact && (item.role || /tagged|structure/i.test(item.source || "")) && (
                 <Help

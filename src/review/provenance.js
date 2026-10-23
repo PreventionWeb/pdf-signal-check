@@ -1,6 +1,6 @@
 import { imageVerdict, descriptionsInEnglish } from '../engine/image-model.js';
 const valueAt=(object,path)=>String(path || '').replace(/\[(\d+)\]/g,'.$1').split('.').filter(Boolean).reduce((value,key)=>value?.[key],object);
-const modelName=model=>model?.label || model?.id || 'unspecified model';
+const modelName=model=>model?.label?.replaceAll(' · ', ', ') || model?.id || 'unspecified model';
 const completedModel=semantic=>semantic?.inferencePerformed===true&&[undefined,null,'completed'].includes(semantic.status)&&Boolean(semantic.model?.id || semantic.model?.label);
 /** Explain recorded execution, never infer it from the selected model or method name alone. */
 export function findingProvenance(finding,report) {
@@ -11,8 +11,8 @@ export function findingProvenance(finding,report) {
     return {kind:'unassessed',label:'AI check not assessed',help:'bounded',detail:actual?.reason || actual?.error || finding.summary || 'No completed model inference is recorded for this check.'};
   }
   if(path.startsWith('consistency.')) {
-    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true&&finding.comparison?.consistency?.kind==='same-image')return {kind:'ai',label:'Local image model',help:'ai',detail:`${report.imageScreening.model?.label || 'The image model'} flagged these pictures as a similar-image candidate pair, and their saved descriptions share few words. Embedding similarity does not establish picture identity or a probability. Compare the images and their use before editing descriptions.`};
-    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true)return {kind:'ai',label:'Rules + local image model',help:'ai',detail:`The rules couldn’t tell whether this graphic carries information; ${report.imageScreening.model?.label || 'the image model'} sorted a crop of it into a broad type. It cannot read text in images and can be wrong.`};
+    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true&&finding.comparison?.consistency?.kind==='same-image')return {kind:'ai',label:'Local image model',help:'ai',detail:`${report.imageScreening.model?.label?.replaceAll(' · ', ', ') || 'The image model'} flagged these pictures as a similar-image candidate pair, and their saved descriptions share few words. Embedding similarity does not establish picture identity or a probability. Compare the images and their use before editing descriptions.`};
+    if(finding.method==='image-screening'&&report.imageScreening?.inferencePerformed===true)return {kind:'ai',label:'Rules + local image model',help:'ai',detail:`The rules couldn’t tell whether this graphic carries information; ${report.imageScreening.model?.label?.replaceAll(' · ', ', ') || 'the image model'} sorted a crop of it into a broad type. It cannot read text in images and can be wrong.`};
     if(finding.method==='embedding-screening'&&completedModel(report.semantic)&&finding.comparison?.ai?.inferencePerformed===true){
       const kind=finding.comparison?.consistency?.kind,model=modelName(report.semantic?.model);
       const coverage=report.semantic?.factCoverage,compared=coverage?.candidates?` It screened ${coverage.compared} of the ${coverage.candidates} sentences in this PDF that state a figure${coverage.compared<coverage.candidates?', spread across the document':''}.`:'';
@@ -43,7 +43,7 @@ function executionProvenance(report) {
   const fields=['title','titleAI','subject','keywords','sections'],performed=fields.filter(field=>semantic[field]?.inferencePerformed===true),rules=fields.filter(field=>semantic[field]?.method==='deterministic-rules');
   if(semantic.inferencePerformed===true&&!completedModel(semantic))return {kind:'unknown',label:'AI provenance incomplete',detail:'The receipt records inference but does not identify a completed model configuration. Inspect the full evidence; this view cannot attribute a model.'};
   if(completedModel(semantic))return {kind:'ai',label:`Local AI ran: ${modelName(semantic.model)}`,detail:`Bounded checks with recorded inference: ${performed.map(field=>field==='titleAI'?'AI title relatedness':field).join(', ') || 'see individual results'}. ${rules.length?`Rules only: ${rules.join(', ')}. `:''}Skipped or unsupported checks remain unassessed.`};
-  return {kind:'unassessed',label:rules.length?'AI not run · rules only':'AI not run',detail:`Configured model: ${modelName(semantic.model)}; configuration does not mean it was loaded or used. ${rules.length?`Rules settled: ${rules.join(', ')}. `:''}Other checks may be unrequested, unsupported, or lack sufficient evidence.`};
+  return {kind:'unassessed',label:rules.length?'AI not run, rules only':'AI not run',detail:`Configured model: ${modelName(semantic.model)}; configuration does not mean it was loaded or used. ${rules.length?`Rules settled: ${rules.join(', ')}. `:''}Other checks may be unrequested, unsupported, or lack sufficient evidence.`};
 }
 export function screeningLanguageNote(report) {
   return report.semantic?.languageContext?.source === 'user-assumption'
@@ -88,7 +88,7 @@ export function checkedWith(report) {
 function checkedWithModels(report) {
   const semantic = report.semantic;
   if (!semantic) return report.imageScreening?.inferencePerformed ? 'Checked with standard checks and an on-device image model.' : 'Checked with standard checks.';
-  const model = semantic.model?.label ? ` (${semantic.model.label.split(' · ')[0]})` : '';
+  const model = semantic.model?.label ? ` (${semantic.model.label.split(/[·,]/)[0].trim()})` : '';
   if (semantic.status === 'error' || semantic.status === 'skipped') return 'Checked with standard checks. The AI checks did not run.';
   if (semantic.inferencePerformed !== true) return `Checked with standard checks. AI${model} was selected but had nothing to compare in this PDF.`;
   return `Checked with standard checks and on-device AI${model}${report.imageScreening?.inferencePerformed ? ' and an image model' : ''}.`;

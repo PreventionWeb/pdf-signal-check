@@ -14,15 +14,15 @@ export function AdvancedReport({ report }) {
         </h2>
         <p>
           {report.accepted
-            ? "Yes — required checks passed"
+            ? "Yes: required checks passed"
             : report.checks.some((c) => c.status === "fail")
-              ? "No — required defects found"
-              : "No — not established"}
+              ? "No: required defects found"
+              : "No: not established"}
         </p>
         <StatsCard
           aria-label="Profile summary statistics"
           stats={[
-            { value: report.file.pages ?? "—", bottomLabel: "pages" },
+            { value: report.file.pages ?? "Not recorded", bottomLabel: "pages" },
             {
               value: report.checks.filter((c) => c.status === "pass").length,
               bottomLabel: "checks passed",
@@ -142,7 +142,7 @@ export function AdvancedReport({ report }) {
         {report.pages.map((page) => (
           <Details
             key={page.number}
-            summary={`Page ${page.number} · ${page.characters} characters · ${page.untaggedCharacters} untagged`}
+            summary={`Page ${page.number}, ${page.characters} characters, ${page.untaggedCharacters} untagged`}
           >
             <div className="text-block-list">
               {(order === "tagged" ? page.logicalBlocks : page.blocks)

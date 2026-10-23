@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect } from 'react';
-import { Button, Tag } from '../ui/react.jsx';
+import { Button } from '../ui/react.jsx';
 
 const GUIDANCE_TITLE = 'Making PDFs work for Humans and AI';
 const AboutStory = lazy(() => import('../story/AboutStory.jsx'));
@@ -72,9 +72,7 @@ export function AboutPage({ onStart, onPrivacy }) {
       <p><a href="https://www.undrr.org/our-work" target="_blank" rel="noopener noreferrer">The United Nations Office for Disaster Risk Reduction (UNDRR) helps people understand and act on disaster risk ↗</a>. <a href="https://www.preventionweb.net/about-preventionweb" target="_blank" rel="noopener noreferrer">PreventionWeb shares knowledge for disaster risk reduction and resilience ↗</a>.</p>
       <p>That is why the meaning inside a PDF matters to this service. PDF reports help people share knowledge about risk. A small omission can travel through search, research, summaries and AI answers, changing how people understand the evidence. Keeping findings clear and usable helps people bring that evidence into decisions about risk and resilience.</p>
       <h3>What goes wrong</h3>
-      <ul className="about-challenges">{challenges.map(([text, tag]) => <li key={text}>
-        <span>{text}</span><Tag subtle className={tag === 'Check yourself' ? 'about-tag--manual' : undefined}>{tag}</Tag>
-      </li>)}</ul>
+      <ul className="about-challenges">{challenges.map(([text]) => <li key={text}>{text}</li>)}</ul>
     </section>
 
     <section className="about-section mg-content" aria-labelledby="about-example">
@@ -86,7 +84,7 @@ export function AboutPage({ onStart, onPrivacy }) {
           <blockquote>
             <p>…particularly in cities where an additional 1.2 billion people are expected to be living by 2050 (Figure 5).</p>
             <p><strong>Figure 5. Projected urban population growth by 2050</strong><br />By 2050, cities are projected to add 1.2 billion residents. Over 98% of this growth will occur in the Global South.</p>
-            <p>Global North 1.6% · Global South 98.4%</p>
+            <p>Global North 1.6%, Global South 98.4%</p>
           </blockquote>
         </figure>
         <figure className="about-compare-column about-compare-column--extracted">

@@ -4,6 +4,12 @@ Updates to PDF Signal Check, newest first. Entries use dates rather than release
 
 ## 2026-10-23
 
+- Separated saved Settings from per-PDF configuration, added optional reuse and device recalibration, and simplified the device-test result to observed timings. Turning AI off from Settings removes saved permission while keeping device tests and report evidence; failed browser storage is identified as session-only.
+
+- Moved PDF issue markers into a dedicated gutter, separated nearby pins and connected them to their original page locations. Dense groups open a selectable issue list; selected markers and outlines stay above other annotations.
+
+- Adapted the [GOV.UK Design System task-list principles](https://design-system.service.gov.uk/components/task-list/) for clearer task names, supporting hints, explicit statuses and quiet separators across review, settings, batch progress and device-test results. Mangrove remains the app’s design system. Completion indicators describe processing steps, not document correctness; unresolved findings remain separate from completed checks. Tightened the configuration dialog’s heading spacing. Fixed desktop review panes so their scrollable height fits the visible space below the header, allowing the middle column to scroll independently of the PDF.
+
 - Simplified first-use AI setup to Granite R2, with explicit download permission, separate image-model consent and a skippable text speed test. Eligible AI checks now follow standard analysis automatically; AI can be skipped for an intake without changing future defaults. Earlier settings require fresh consent and historical reports retain their model provenance.
 
 - Improved numerical comparisons to distinguish units, scales, dates, locations and other recovered context. Fixed grouped decimal parsing, percentage-point comparisons, rounding false alarms and comparisons involving several quantities.
@@ -14,7 +20,7 @@ Updates to PDF Signal Check, newest first. Entries use dates rather than release
 - Corrected numerical scoring so an empty AI result cannot earn positive consistency credit. Made text and image similarity claims more cautious, preserved source context in review and exports, and asked readers to compare scope or image use before making corrections.
 - Added this dated changelog, linked from the app footer and README.
 
-History: [#10](https://github.com/PreventionWeb/pdf-signal-check/pull/10), [#11](https://github.com/PreventionWeb/pdf-signal-check/pull/11), [#12](https://github.com/PreventionWeb/pdf-signal-check/pull/12).
+History: [#10](https://github.com/PreventionWeb/pdf-signal-check/pull/10), [#11](https://github.com/PreventionWeb/pdf-signal-check/pull/11), [#12](https://github.com/PreventionWeb/pdf-signal-check/pull/12), [#14](https://github.com/PreventionWeb/pdf-signal-check/pull/14), [#15](https://github.com/PreventionWeb/pdf-signal-check/pull/15).
 
 ## 2026-10-22
 

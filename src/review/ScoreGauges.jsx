@@ -26,7 +26,7 @@ export function ScoreGauges({ scores }) {
     <div className="score-gauges-lead">
       <Gauge category={overall} large />
       <div className="score-gauges-lead-text">
-        <h2 id="score-gauges-title" className="score-gauges-title">Overall score{overall.band ? <span className={`score-gauges-band score-gauges-band--${overall.band}`}> · {BAND_WORDS[overall.band]}</span> : null}</h2>
+        <h2 id="score-gauges-title" className="score-gauges-title">Overall score{overall.band ? <span className={`score-gauges-band score-gauges-band--${overall.band}`}>, {BAND_WORDS[overall.band]}</span> : null}</h2>
         <p className="model-note">The average of People, AI and search, and Consistency. Uses {scores.decided} of {scores.total} checks; the rest couldn’t be decided and don’t count. Not an accessibility certificate.</p>
       </div>
     </div>

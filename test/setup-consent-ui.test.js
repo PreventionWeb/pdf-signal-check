@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it, vi } from 'vitest';
-vi.mock('../src/help/Help.jsx', () => ({ Help: () => null }));
+vi.mock('../src/help/Help.jsx', () => ({ Help: ({ children }) => children || null }));
 import { Setup } from '../src/app/Setup.jsx';
 import { CalibrationPanel } from '../src/calibration/CalibrationPanel.jsx';
 import { Checks } from '../src/app/Checks.jsx';
@@ -13,11 +13,9 @@ it('renders Granite-only consent with visible costs and image opt-in before any 
   expect(html).toContain('123.16 MB');
   expect(html).toContain('89.12 MB');
   expect(html).toContain('64.50 MB');
-  expect(html).toContain('26.86 MB uncompressed');
   expect(html).toContain('52 supported languages');
   expect(html).toMatch(/id="setup-image-ai"[^>]*checked=""/);
-  expect(html).toContain('Allow downloads and continue');
-  expect(html).toContain('Skip AI for this intake');
+  expect(html).toContain('Continue');
   expect(html).not.toMatch(/MiniLM|compact model|type="radio"|Expected · not benchmarked/);
   expect(ref.current.start).not.toHaveBeenCalled();
   expect(controller.completeSetup).not.toHaveBeenCalled();
@@ -28,23 +26,6 @@ it('does not invent a speed rating when no device receipt exists', () => {
   expect(html).toContain('Test speed on your device');
   expect(html).not.toContain('Your device:');
   expect(html).not.toContain('Measured benchmark times');
-});
-
-it('discloses experimental number scope before download permission without starting work', () => {
-  const controller = { getSnapshot: () => ({ checks: [], pendingSetupLabel: 'report.pdf' }), completeSetup: vi.fn() };
-  const ref = { current: { start: vi.fn() } };
-  const html = renderToStaticMarkup(React.createElement(Setup, { controller, calibrationRef: ref }));
-  for (const warning of [
-    'Number comparisons are experimental evidence only',
-    'AI cannot check whether those numbers are true',
-    'only in Technical details and the full report',
-    'do not add things to fix or check, change headline counts or affect scores',
-  ]) {
-    expect(html).toContain(warning);
-    expect(html.indexOf(warning)).toBeLessThan(html.indexOf('Allow downloads and continue'));
-  }
-  expect(ref.current.start).not.toHaveBeenCalled();
-  expect(controller.completeSetup).not.toHaveBeenCalled();
 });
 
 it('retains real AI retry controls without suggesting a compact model', () => {

@@ -220,7 +220,7 @@ export function StoryPlayer({ data, onCheck, onAbout }) {
         {last && <p className="story-launch-url">PreventionWeb.net/signal-check</p>}
       </div>
     </div>
-    <p className="story-playback-status" role="status">{state.error || (state.buffering ? 'Loading playback…' : `Chapter ${chapter.number} of ${chapters.length}: ${chapter.title} · Scene ${index + 1} of ${scenes.length}: ${scene.label}`)}</p>
+    <p className="story-playback-status" role="status">{state.error || (state.buffering ? 'Loading playback…' : `Chapter ${chapter.number} of ${chapters.length}: ${chapter.title}, Scene ${index + 1} of ${scenes.length}: ${scene.label}`)}</p>
     <audio ref={audio} preload="none" />
     {reduced && <p className="story-note">Your device is set to reduce motion, so each scene is shown as a still. Playback and audio follow the same timeline.</p>}
     <details className="mg-details story-transcript">

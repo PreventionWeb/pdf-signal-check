@@ -23,7 +23,7 @@ it('keeps source-rule heuristics and rendering instructions distinct from AI',()
 });
 it('selection or a configured model does not establish loading/inference; errors and skips remain unavailable',()=>{
  expect(screeningProvenance({screeningSelection:{modelId:'minilm'}}).label).toBe('AI not run');
- expect(screeningProvenance({semantic:{model:{label:'Configured'},inferencePerformed:false,title:{method:'deterministic-rules',inferencePerformed:false}}}).label).toBe('AI not run · rules only');
+ expect(screeningProvenance({semantic:{model:{label:'Configured'},inferencePerformed:false,title:{method:'deterministic-rules',inferencePerformed:false}}}).label).toBe('AI not run, rules only');
  expect(screeningProvenance({semantic:{status:'error',inferencePerformed:false,error:'Failed'}}).label).toBe('AI unavailable');
  expect(screeningProvenance({semantic:{status:'skipped',inferencePerformed:false,skipReason:'analysis-incomplete'}}).label).toBe('AI skipped');
  const result=screeningProvenance({semantic:{model:{label:'Actual'},inferencePerformed:true,title:{method:'deterministic-rules',inferencePerformed:false},subject:{inferencePerformed:true}}});
