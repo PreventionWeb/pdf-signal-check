@@ -293,3 +293,7 @@ The pinned 2.2.0 package ships the Snackbar as theme CSS (`mg-snackbar-wrapper`,
 ## Inspect your PDF overlay toggle — 20 October 2026
 
 The preview's overlay choice (Issues / Reading order / Page only) uses the published, pinned `SegmentedControl` (small) instead of a select menu. Reading order is a disabled option when the PDF has no recovered sequence.
+
+## Task hierarchy in the polishing branch, 23 October 2026
+
+Review rows, Settings sections and batch file headings adapt the name, hint and explicit-status hierarchy from the [GOV.UK task list](https://design-system.service.gov.uk/components/task-list/). These are native React-owned layouts using the pinned Mangrove typography, colours and controls, without importing GOV.UK CSS or scripts. Review rows keep numbered page pins, native selection buttons and `aria-current`; quiet separators replace individual card frames. Fix and Check retain different labels and remain unresolved until the source PDF is repaired and checked again. No reviewed/completed finding state is introduced. Device-test ticks indicate measured steps, not semantic accuracy or PDF acceptance. Batch completion means processing finished, with finding counts shown separately.

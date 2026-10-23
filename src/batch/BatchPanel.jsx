@@ -53,15 +53,15 @@ function QueueItem({ item, state, controller, pending }) {
     ["failed", "canceled", "skipped", "completed"].includes(item.status);
   return (
     <Card as="article" className="batch-item" data-queue-id={item.id}>
-      <h3>{item.name}</h3>
-      <p className="batch-status">
-        {item.status === "completed"
-          ? "Complete"
-          : item.status === "failed"
-            ? "Incomplete or failed"
-            : item.status === "canceled" ? "cancelled" : item.status}{" "}
-       , {formatBytes(item.bytes)}
-      </p>
+      <div className="batch-item-heading">
+        <h3>{item.name}</h3>
+        <span className="task-state">{{
+          completed: 'Checks complete', failed: 'Needs attention', canceled: 'Cancelled',
+          skipped: 'Skipped', queued: 'Waiting', 'awaiting-budget': 'Decision needed',
+          processing: 'Checking',
+        }[item.status] || 'In progress'}</span>
+      </div>
+      <p className="batch-status">{formatBytes(item.bytes)}</p>
       {item.progress && item.id === queue.activeId && (
         <div>
           <p>

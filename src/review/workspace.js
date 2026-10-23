@@ -230,7 +230,7 @@ export function fixCard(item, report = {}) {
     const members = item.members || [item];
     const pages = [...new Set(members.flatMap(member => member.comparison?.consistency?.right?.pages || []))].sort((a, b) => a - b);
     const cover = members.some(member => [member.comparison?.consistency?.left?.role, member.comparison?.consistency?.right?.role].includes('cover'));
-    return { ...card, where: [cover && 'Page 1', pages.length && 'Page headers and footers', members.some(member => member.comparison?.consistency?.left?.role === 'saved') && 'Document properties'].filter(Boolean).join(' · ') };
+    return { ...card, where: [cover && 'Page 1', pages.length && 'Page headers and footers', members.some(member => member.comparison?.consistency?.left?.role === 'saved') && 'Document properties'].filter(Boolean).join('; ') };
   }
   if ((path === 'metadataConsistency' || path === 'deterministicTitle') && item.outcome === 'suspected-mismatch') {
     const saved = report.metadata?.infoTitle || report.metadata?.xmpTitles?.[0]?.text;
@@ -595,7 +595,7 @@ export function consistencyLine(finding) {
   const item = finding.comparison?.consistency;
   if (!item?.left) return finding.title;
   const kind = finding.comparison?.ai ? (finding.severity === 'minor' ? 'worded differently (the AI found them closely related)' : 'worded differently') : KIND_WORDS[item.kind] || item.kind;
-  return `${ROLES[item.left.role]} “${quote(item.left.text)}” · ${ROLES[item.right.role]} “${quote(item.right.text)}”: ${kind}`;
+  return `${ROLES[item.left.role]} “${quote(item.left.text)}”; ${ROLES[item.right.role]} “${quote(item.right.text)}”: ${kind}`;
 }
 /** Plain-language task for a consistency advisory: what disagrees, and the single change to make. */
 function consistencyTask(finding) {
