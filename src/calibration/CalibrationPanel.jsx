@@ -99,7 +99,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
         {timings.map(item => <div className="benchmark-timing" key={item.label}>
           <div className="benchmark-timing-label"><span>{item.label}</span><span>{(item.ms / 1000).toFixed(2)} s, {item.rating}</span></div>
           <div className="benchmark-timing-track" aria-hidden="true"><span className={`benchmark-timing-fill ${item.rating === 'Slow' ? 'is-slow' : 'is-great'}`} style={{ width: `${item.percent}%` }} /></div>
-          <div className="benchmark-timing-scale"><span>0 s</span><span>OK up to {item.targetMs / 1000} s</span></div>
+          <div className="benchmark-timing-scale"><span>OK up to {item.targetMs / 1000} s</span></div>
         </div>)}
       </div>}
       {receipt && <p className="model-note">{model.label.replaceAll(' · ', ', ')}, {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : "Not saved on this browser"}. Measured text speed only; image-model speed, full-PDF time, accuracy and memory capacity are not measured.</p>}

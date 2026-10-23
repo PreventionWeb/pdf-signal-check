@@ -1023,5 +1023,5 @@ details.fix-bucket--travel, details.fix-bucket--unknown { border-top: 1px solid 
 .help-trigger.help-trigger--text { display: inline; width: auto; height: auto; min-width: 0; min-height: 0; font: inherit; text-align: inherit; vertical-align: baseline; text-decoration: underline dotted; text-underline-offset: .2em; }
 .help-trigger.help-trigger--text:hover { background: transparent; text-decoration-style: solid; }
 .help-trigger--text:focus-visible { outline: 2px solid rgb(var(--mg-color-interactive)); outline-offset: 3px; }
-.benchmark-timing-scale { display: flex; justify-content: space-between; margin-top: 4px; font-size: .8rem; color: var(--muted); }
+.benchmark-timing-scale { display: flex; justify-content: flex-end; margin-top: 4px; font-size: .8rem; color: var(--muted); }
 .benchmark-result-title { font-weight: 700; }
