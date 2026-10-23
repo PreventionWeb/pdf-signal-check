@@ -198,7 +198,7 @@ export function App() {
               )}
               {state.stage === "batch" && (
                 <>
-                  <BatchPanel controller={batch} requireAI={state.aiEnabled} />
+                  <BatchPanel controller={batch} />
                   <Button
                     onClick={() => {
                       batch.queue.stopAll();
@@ -316,7 +316,7 @@ function Entry({ state, controller, batchBusy, onAbout, onWatch }) {
       </section>
       <Samples disabled={disabled} onChoose={path => controller.selectSample(path)} />
       <div className="intake-settings">
-        <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? state.evaluationModel === "minilm" ? "MiniLM · English" : "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Standard checks run first. Add optional AI comparisons from the results."}</p>
+        <p className="model-note">{state.setupComplete ? `Using ${state.aiEnabled ? "Granite R2 · multilingual" : "rule-based checks without AI"}${state.settingsSaved ? " · saved in this browser" : " · this session only"}.` : "Choose a PDF to set up optional on-device AI. Standard checks need no model download."}</p>
       </div>
       <Capabilities />
     </div>

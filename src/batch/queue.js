@@ -17,7 +17,7 @@ const summary=report=>({screeningSelection:clone(report.screeningSelection||null
 /** Foreground, sequential queue. File handles are retained; bytes are read only by injected active services. */
 export function createSequentialQueue({analyze,screen,hash,reportStore=new ReportStore(),dispose=async()=>{},getConditions=()=>({visibility:'unknown'}),onEvent=()=>{},maxFiles=20,maxTotalBytes=300_000_000,maxFileBytes=50_000_000}={}) {
   if(typeof analyze!=='function')throw new Error('An analysis service is required.');
-  const items=[];let sequence=0,running=false,paused=true,active=null,configuration=null,pending=null,observerError=null,modelFailure=null;
+  const items=[];let sequence=0,running=false,paused=true,active=null,activeScreen=null,configuration=null,pending=null,observerError=null,modelFailure=null;
   const snapshot=()=>({modelFailure:clone(modelFailure),observerError,running,paused,activeId:active?.id||null,configuration:clone(configuration),budget:{estimatedSerializedBytes:reportStore.estimatedBytes,limit:reportStore.maxSerializedBytes,pendingSerializedBytes:pending?.bytes||0,measurement:'serialized-report-estimate-not-RAM'},items:items.map(({file,controller,...item})=>clone(item))});
   const emit=(type,detail={})=>{try{const notification=onEvent({type,...detail,state:snapshot()});if(notification?.catch)notification.catch(error=>{observerError=error.message||String(error);});}catch(error){observerError=error.message||String(error);}};
   const conditions=()=>{try{return clone(getConditions());}catch{return {visibility:'unknown',measurementError:true};}};
@@ -38,7 +38,29 @@ export function createSequentialQueue({analyze,screen,hash,reportStore=new Repor
           const sourceHash=hash?await hash(item.file,options):null;if(!live(item,epoch))continue;
           item.sourceHash=sourceHash;item.phase='analysis';emit('phase',{id:item.id,phase:item.phase});
           const report=await analyze(item.file,options);if(!live(item,epoch))continue;
-          if(configuration?.useAI&&screen&&report.analysisComplete){item.phase='screening';emit('phase',{id:item.id,phase:item.phase});try{report.semantic=await screen(report,options);}catch(error){if(!live(item,epoch))continue;if(error.stage==='model-init'||error.code==='MODEL_INIT_FAILED'){paused=true;modelFailure={id:item.id,message:error.message||String(error),stage:'model-init'};emit('model-initialization-failed',{id:item.id,choices:['retry','structural-only']});}report.semantic={status:'error',model:null,requestedChecks:configuration.checks||[],inferencePerformed:false,errorStage:error.stage||null,errorCode:error.code||null,error:error.message||String(error)};}if(!live(item,epoch))continue;}
+          if(configuration?.useAI&&screen&&report.analysisComplete){
+            // Screening has its own cancellation scope: skipping AI must retain
+            // this attempt's already completed structural report and source ID.
+            const screening=new AbortController();
+            const abortScreen=()=>screening.abort();
+            item.controller.signal.addEventListener('abort',abortScreen,{once:true});
+            activeScreen={item,controller:screening};item.aiSkipRequested=false;
+            item.phase='screening';emit('phase',{id:item.id,phase:item.phase});
+            try{
+              if(!screening.signal.aborted)report.semantic=await screen(report,{...options,signal:screening.signal,onProgress:progress=>{if(!screening.signal.aborted)options.onProgress(progress);}});
+            }catch(error){
+              if(!live(item,epoch))continue;
+              if(!item.aiSkipRequested){
+                if(error.stage==='model-init'||error.code==='MODEL_INIT_FAILED'){paused=true;modelFailure={id:item.id,message:error.message||String(error),stage:'model-init'};emit('model-initialization-failed',{id:item.id,choices:['retry','structural-only']});}
+                report.semantic={status:'error',model:null,requestedChecks:configuration.checks||[],inferencePerformed:false,errorStage:error.stage||null,errorCode:error.code||null,error:error.message||String(error)};
+              }
+            }finally{
+              item.controller.signal.removeEventListener('abort',abortScreen);
+              activeScreen=null;
+            }
+            if(!live(item,epoch))continue;
+            if(item.aiSkipRequested)report.semantic={status:'skipped',model:null,requestedChecks:[...(configuration.checks||[])],skippedChecks:[...(configuration.checks||[])],inferencePerformed:false,skipReason:'user-skipped',reason:'AI was skipped for this PDF. Standard check results are retained; no AI comparison is retained for this attempt.'};
+          }
           report.screeningSelection={useAI:Boolean(configuration?.useAI),modelId:configuration?.modelId||null,checks:[...(configuration?.checks||[])]};
           if(configuration?.useAI&&report.analysisComplete!==true)report.semantic={status:'skipped',requestedChecks:[...(configuration.checks||[])],model:null,inferencePerformed:false,skipReason:'analysis-incomplete',reason:'Structural analysis did not complete; the requested AI screening was not performed.'};
           report.sourceIdentity={queueItemId:item.id,sha256:sourceHash,attemptEpoch:epoch,requestedConfiguration:clone(item.requestedConfiguration)};
@@ -61,6 +83,7 @@ export function createSequentialQueue({analyze,screen,hash,reportStore=new Repor
     start(config){if(modelFailure)throw new Error('Resolve model initialization failure first.');if(running)throw new Error('Queue already running.');if(pending)throw new Error('Resolve report-budget pressure first.');configuration=clone(config||{});paused=false;return pump();},
     resume(){if(modelFailure)throw new Error('Resolve model initialization failure first.');if(!configuration)throw new Error('Choose queue settings first.');if(pending)throw new Error('Resolve report-budget pressure first.');paused=false;return pump();},
     pause(){paused=true;emit('pause-requested',{policy:'finish-current-then-stop'});},
+    skipActiveAI(){if(!activeScreen||activeScreen.item!==active||active.aiSkipRequested||active.controller.signal.aborted)return false;active.aiSkipRequested=true;active.progress=null;activeScreen.controller.abort();emit('ai-skip-requested',{id:active.id});return true;},
     cancelActive(){if(!active)return;const item=active;item.epoch++;item.controller.abort();finish(item);item.status='canceled';item.phase='canceled';emit('item-canceled',{id:item.id});},
     retry(id){const item=find(id);if(modelFailure?.id===id)throw new Error('Resolve model initialization failure first.');if(active===item||pending?.item===item)throw new Error('Active or pending item cannot be retried.');if(!['failed','canceled','skipped','completed'].includes(item.status))throw new Error('Item is not retryable.');reportStore.release(id);item.detailRetained=false;item.summary=null;item.timing=null;item.progress=null;item.sourceHash=null;item.actualModel=null;item.error=null;item.detailsReleased=false;item.requestedConfiguration=null;item.resultStatus=null;item.status='queued';item.phase='queued';item.epoch++;emit('item-requeued',{id});},
     skip(id){const item=find(id);if(modelFailure?.id===id)throw new Error('Resolve model initialization failure first.');if(active===item)this.cancelActive();if(pending?.item===item)pending=null;reportStore.release(id);item.detailRetained=false;item.detailsReleased=true;item.status='skipped';item.phase='skipped';emit('item-skipped',{id});},

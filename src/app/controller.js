@@ -3,7 +3,7 @@ import { createEvaluationPreferences } from './preferences.js';
 import { hasUnchangedNoInputs } from "../runtime/screening-recovery.js";
 import { screeningAvailability } from "../runtime/screening-availability.js";
 import { buildScreeningRequest } from "../runtime/screening-request.js";
-import { getSemanticModel, supportsLanguage, resolveScreeningLanguage } from "../engine/models.js";
+import { resolveScreeningLanguage } from "../engine/models.js";
 import { imageCandidates, descriptionCandidates } from "../engine/image-model.js";
 /** Clean crops of graphics for the image model; needs a canvas, so it is loaded only in the browser and only when used. */
 async function defaultImageCropper(file, report, items, signal) {
@@ -38,7 +38,21 @@ export function createAppController({
   semanticExperiment = false,
   baseUrl = globalThis.document?.baseURI || "http://localhost/",
 } = {}) {
-  const saved = preferences.load();
+  const loaded = preferences.load();
+  const saved = loaded?.modelId === "granite-r2" ? loaded : null;
+  const defaultChecks = ["title", "subject", "keywords", "sections"];
+  const configureBatch = useAI => {
+    services.batch?.setSettings({ useAI, modelId: "granite-r2", checks: [...defaultChecks] });
+    services.batch?.setConsent(useAI);
+  };
+  const deferIntake = (start, label) => {
+    stopAnalysis();
+    stopModel();
+    cancelAuxiliary();
+    pendingIntake = start;
+    emit({ stage: "setup", setupDestination: "document", pendingSetupLabel: label,
+      analysisBusy: false, awaitingLanguageDecision: false, progress: null });
+  };
   let state = {
     semanticExperiment,
     stage: "document",
@@ -58,7 +72,7 @@ export function createAppController({
     selectedModel: saved?.modelId || null,
     languageAssumption: null,
     awaitingLanguageDecision: false,
-    checks: saved?.checks || ["title", "subject", "keywords", "sections"],
+    checks: [...defaultChecks],
     message: "",
     progress: null,
     analysisBusy: false,
@@ -122,8 +136,7 @@ export function createAppController({
     bindServices: (patch) => {
       services = { ...services, ...patch };
       if (patch.batch && state.setupComplete) {
-        patch.batch.setSettings({ useAI: state.aiEnabled, modelId: state.evaluationModel || "minilm", checks: [...state.checks] });
-        patch.batch.setConsent(state.aiEnabled);
+        configureBatch(state.aiEnabled);
       }
     },
     mount() {
@@ -160,6 +173,18 @@ export function createAppController({
       emit({ stage: stage === "welcome" ? "document" : stage });
     },
     beginEvaluation(stage = "document") {
+      if (stage === "batch") {
+        // A frozen queue owns its original configuration, even after global setup changes.
+        if (services.batch?.resetSetup?.() === false) return controller.go("batch");
+        const start = useAI => {
+          if (services.batch?.resetSetup?.() !== false) configureBatch(useAI);
+          controller.go("batch");
+        };
+        if (state.setupComplete) return start(true);
+        deferIntake(start, "next batch");
+        emit({ setupDestination: "batch" });
+        return;
+      }
       if (state.setupComplete) controller.go(stage);
       else emit({ setupDestination: stage, stage: "setup" });
     },
@@ -175,8 +200,7 @@ export function createAppController({
       const settingsCleared = preferences.clear?.();
       const benchmarksCleared = devicePreferences.clear();
       services.batch?.releaseIdleWorkers();
-      services.batch?.setSettings({ useAI: false, modelId: "minilm", checks: ["title", "subject", "keywords", "sections"] });
-      services.batch?.setConsent(false);
+      configureBatch(false);
       emit({ setupComplete: false, settingsSaved: false, aiEnabled: false, evaluationModel: "granite-r2", selectedModel: null, languageAssumption: null, awaitingLanguageDecision: false,
         checks: ["title", "subject", "keywords", "sections"], pendingSetupLabel: null, message: settingsCleared && benchmarksCleared ? "Saved setup and speed tests reset. Choose settings for your next PDF." : "Setup reset for this session. Browser storage could not be cleared; saved settings may return after reload." });
       return true;
@@ -189,33 +213,46 @@ export function createAppController({
     selectFiles(files) {
       if (!files.length || !available()) return;
       const selection = [...files];
-      const start = () => {
-        if (selection.length === 1) return controller.analyze(selection[0]);
+      if (selection.length === 1) return controller.analyze(selection[0]);
+      const start = useAI => {
+        if (services.batch?.resetSetup?.() === false) {
+          emit({ message: "Clear the previous queue before adding a new batch.", stage: "batch" });
+          return false;
+        }
+        configureBatch(useAI);
         services.batch?.add(selection);
         controller.go("batch");
       };
-      if (selection.length === 1 || state.setupComplete) return start();
-      pendingIntake = start;
-      emit({ stage: "setup", setupDestination: "document", pendingSetupLabel: selection.length === 1 ? selection[0].name : `${selection.length} PDFs` });
+      if (state.setupComplete) return start(true);
+      deferIntake(start, `${selection.length} PDFs`);
     },
     selectSample(path) {
       if (!available()) return;
       return controller.loadSample(path);
     },
+    skipSetupForCurrentIntake() {
+      const start = pendingIntake;
+      if (!start) return false;
+      pendingIntake = null;
+      services.calibration?.cancel();
+      emit({ stage: state.setupDestination, pendingSetupLabel: null });
+      start(false);
+      return true;
+    },
     completeSetup(modelId, { imageAI = false } = {}) {
-      const useAI = modelId !== null;
-      if (useAI) getSemanticModel(modelId);
-      services.batch?.setSettings({ useAI, modelId: modelId || "minilm", checks: [...state.checks] });
-      services.batch?.setConsent(useAI);
-      emit({ setupComplete: true, aiEnabled: useAI, imageAI: useAI && imageAI, evaluationModel: modelId, selectedModel: modelId, stage: state.setupDestination, awaitingLanguageDecision: false });
+      if (modelId !== "granite-r2") throw Error("Fresh Granite download consent is required. Use skipSetupForCurrentIntake for standard checks only.");
+      configureBatch(true);
+      emit({ setupComplete: true, aiEnabled: true, imageAI: imageAI === true, evaluationModel: modelId, selectedModel: modelId,
+        checks: [...defaultChecks], stage: state.setupDestination, awaitingLanguageDecision: false });
       saveSettings();
       const start = pendingIntake;
       pendingIntake = null;
       emit({ pendingSetupLabel: null });
-      if (start) { start(); return; }
-      if (useAI && ["checks", "review"].includes(state.stage) && state.report) controller.requestAIComparisons();
+      if (start) return start(true);
+      if (["checks", "review"].includes(state.stage) && state.report?.analysisComplete && !state.analysisBusy) controller.requestAIComparisons();
     },
     setModel(modelId) {
+      if (modelId !== "granite-r2") throw Error("New scans use Granite. Confirm setup or skip the current intake.");
       services.calibration?.cancel();
       emit({
         selectedModel: modelId,
@@ -231,10 +268,11 @@ export function createAppController({
     },
     setLanguageAssumption(languageAssumption) {
       if (!state.report) return;
+      const resumeRequestedAI = state.awaitingLanguageDecision;
       resolveScreeningLanguage(state.report.metadata.language, languageAssumption);
       stopModel();
       services.calibration?.cancel();
-      const selectedModel = state.selectedModel || (languageAssumption ? "minilm" : null);
+      const selectedModel = state.selectedModel || (state.aiEnabled ? "granite-r2" : null);
       emit({
         languageAssumption,
         selectedModel,
@@ -244,6 +282,7 @@ export function createAppController({
           screeningSelection: { modelId: selectedModel, checks: [...state.checks], languageAssumption },
         },
       });
+      if (resumeRequestedAI && state.aiEnabled) controller.requestAIComparisons();
     },
     dismissLanguageDecision() {
       emit({ awaitingLanguageDecision: false });
@@ -356,8 +395,13 @@ export function createAppController({
         message: "Retained batch attempt opened without repeating analysis.",
       });
     },
-    async analyze(file, example = null) {
+    async analyze(file, example = null, policy = null) {
       if (!available()) return;
+      if (!state.setupComplete && !policy) {
+        deferIntake(useAI => controller.analyze(file, example, { useAI }), file.name);
+        return;
+      }
+      const automaticAI = policy ? policy.useAI : state.aiEnabled;
       cancelAuxiliary();
       stopAnalysis();
       stopModel();
@@ -367,10 +411,13 @@ export function createAppController({
         example,
         batchId: null,
         screeningAttempt: null,
+        modelTask: null,
+        imagePreviews: null,
         sourceKey: currentJob,
         report: null,
         reviewCursor: { category: "problems", issueId: null },
-        selectedModel: null,
+        selectedModel: automaticAI ? "granite-r2" : null,
+        checks: [...defaultChecks],
         languageAssumption: null,
         awaitingLanguageDecision: false,
         message: "Preparing local analysis…",
@@ -427,23 +474,14 @@ export function createAppController({
               sourceBytes: file.size,
               ...(hash ? { sha256: hash } : {}),
             };
-            let selectedModel = null;
-            if (supportsLanguage(getSemanticModel("minilm"), report.metadata.language))
-              selectedModel = "minilm";
-            else if (
-              supportsLanguage(
-                getSemanticModel("granite-r2"),
-                report.metadata.language,
-              )
-            )
-              selectedModel = "granite-r2";
             worker.terminate();
             analysisWorker = null;
             emit({
-              report, selectedModel: state.setupComplete ? state.evaluationModel : selectedModel,
+              report, selectedModel: automaticAI ? "granite-r2" : null,
               analysisBusy: false, error: false, stage: "review", progress: null, awaitingLanguageDecision: false,
-              message: "Standard checks complete. Optional AI comparisons are available in the results when this PDF has usable evidence.",
+              message: "Standard checks complete.",
             });
+            if (automaticAI && currentJob === job && state.report === report) controller.requestAIComparisons();
           }
         };
         worker.postMessage({ buffer, fileName: file.name }, [buffer]);
@@ -460,8 +498,12 @@ export function createAppController({
         }
       }
     },
-    async loadSample(path) {
+    async loadSample(path, policy = null) {
       if (!available()) return;
+      if (!state.setupComplete && !policy) {
+        deferIntake(useAI => controller.loadSample(path, { useAI }), path.split("/").at(-1));
+        return;
+      }
       cancelAuxiliary();
       stopAnalysis();
       stopModel();
@@ -474,6 +516,8 @@ export function createAppController({
         example: null,
         batchId: null,
         screeningAttempt: null,
+        modelTask: null,
+        imagePreviews: null,
         sourceKey: currentJob,
         reviewCursor: { category: "problems", issueId: null },
         message: "Loading the example PDF…",
@@ -492,6 +536,7 @@ export function createAppController({
           path.includes("/samples/")
             ? state.manifest.find((s) => s.file === name) || null
             : null,
+          policy,
         );
       } catch (e) {
         if (currentJob === job)
@@ -505,7 +550,7 @@ export function createAppController({
     },
     /** Optional: show the image model graphics marked as decoration that the rules couldn't place. Never overrides the rules. */
     async runImageScreening() {
-      if (!available() || !state.imageAI || !state.report?.analysisComplete || !state.file || state.modelBusy || state.report.imageScreening) return;
+      if (!available() || !state.aiEnabled || !state.imageAI || !state.report?.analysisComplete || !state.file || state.modelBusy || state.report.imageScreening) return;
       const items = imageCandidates(state.report), described = descriptionCandidates(state.report);
       if (!items.length && described.length < 5) {
         // Say so instead of skipping silently: the person asked for image checks.
@@ -565,20 +610,24 @@ export function createAppController({
       if (availability.textAvailable && availability.missingLanguage) {
         emit({ awaitingLanguageDecision: true });
         // Image evidence has its own language policy; defer the requested sequence until the decision.
-      } else if (availability.textAvailable && availability.languageSupported) controller.runScreening();
-      else controller.runImageScreening();
+      } else controller.runScreening();
     },
     runScreening() {
       if (
         !available() ||
+        !state.aiEnabled ||
+        state.selectedModel !== "granite-r2" ||
         !state.report ||
         state.modelBusy ||
         state.calibrationBusy ||
         !state.selectedModel ||
-        !state.checks.length ||
-        hasUnchangedNoInputs(state.report, { modelId: state.selectedModel, checks: state.checks, languageAssumption: state.languageAssumption })
+        !state.checks.length
       )
         return;
+      if (hasUnchangedNoInputs(state.report, { modelId: state.selectedModel, checks: state.checks, languageAssumption: state.languageAssumption })) {
+        controller.runImageScreening();
+        return;
+      }
       const availability = screeningAvailability(state.report, { modelId: state.selectedModel, checks: state.checks, languageAssumption: state.languageAssumption, requireInference: state.aiEnabled });
       if (!availability.textAvailable || !availability.languageSupported) {
         const semantic = availability.noInputResult;
@@ -625,6 +674,7 @@ export function createAppController({
         stopModel();
         emit({
           stage: "checks",
+          modelTask: null,
           screeningAttempt: { status: "error", message, stage: detail.stage || null, code: detail.code || null },
           message: `Semantic screening unavailable: ${message}. Traditional results and any previous completed screening are retained.`,
           progress: null,
@@ -643,6 +693,7 @@ export function createAppController({
             report: { ...state.report, semantic: data.semantic },
             screeningAttempt: data.semantic.inferencePerformed ? { status: "completed" } : { status: "not-run", message: data.semantic.notRun?.reason || "The model found no eligible comparisons in the selected checks.", reasons: data.semantic.notRun?.checks || [] },
             modelBusy: false,
+            modelTask: null,
             stage: state.aiEnabled && !data.semantic.inferencePerformed ? "checks" : "review",
             message: state.aiEnabled && !data.semantic.inferencePerformed
               ? "AI could not compare the selected checks with available evidence. Inspect the partial results or change the screening checks; no completed AI evaluation is claimed."

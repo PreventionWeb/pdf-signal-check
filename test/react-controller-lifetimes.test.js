@@ -39,6 +39,7 @@ it("does not start on subscription; remounts safely and opens duplicate filename
   const first = { name: "same.pdf", size: 2 },
     second = { name: "same.pdf", size: 3 },
     ids = controller.add([first, second]);
+  controller.setConsent(true);
   await controller.start();
   controller.open(ids[0]);
   controller.open(ids[1]);
@@ -107,6 +108,7 @@ it("does not display an old ownership failure on a freshly cleared queue", async
     onOwnership: () => ownership,
   });
   controller.add([{ name: "old.pdf", size: 2 }]);
+  controller.setConsent(true);
   const start = controller.start();
   await controller.clear();
   controller.add([{ name: "fresh.pdf", size: 2 }]);

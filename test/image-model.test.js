@@ -61,7 +61,7 @@ describe('trusting the image model', () => {
 
 describe('controller', () => {
   const quad = [[0, 0], [10, 0], [10, 10], [0, 10]];
-  const preferences = imageAI => ({ load: () => ({ modelId: 'minilm', checks: ['title'], imageAI }), save: () => true, clear: () => true });
+  const preferences = imageAI => ({ load: () => ({ modelId: 'granite-r2', checks: ['title'], imageAI }), save: () => true, clear: () => true });
   const report = { analysisComplete: true, checks: [], pages: [], metadata: { language: 'en' }, metadataConsistency: { candidates: [] },
     decorative: { items: [{ page: 2, kind: 'unclear', share: 0.3, letters: 0, quad }] } };
   const file = { name: 'source.pdf', size: 4, arrayBuffer: async () => new ArrayBuffer(4) };
