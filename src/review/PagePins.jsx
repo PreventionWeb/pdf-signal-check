@@ -18,6 +18,31 @@ const mobile = () => window.matchMedia("(max-width: 820px)").matches;
  */
 export function PagePins({ entries, tips = [], unknown = [], travel = [], travelIntro = "", limits = [], report, file, selectedId, onSelect: select, detail, focus = null, onPageChange = () => {},
   lead = null, special = null, onSpecial = () => {}, technical = null, summaryLeads = false }) {
+  const workspaceNode = useRef(null);
+  // Docked panes must fit below the header before the document itself scrolls.
+  // A full-viewport cap leaves their bottom clipped, sometimes without overflow.
+  useEffect(() => {
+    const node = workspaceNode.current;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      if (window.innerWidth < 1200) { node.style.removeProperty('--review-pane-height'); return; }
+      const top = Math.max(0, node.getBoundingClientRect().top);
+      node.style.setProperty('--review-pane-height', `${Math.max(160, window.innerHeight - top - 16)}px`);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    const observer = new ResizeObserver(schedule);
+    observer.observe(document.body);
+    return () => {
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, []);
   // On narrow screens the list and detail live in a bottom sheet; choosing anything opens it.
   const [sheetOpen, setSheetOpen] = useState(false);
   const onSelect = (item, moveFocus) => { if (mobile()) setSheetOpen(true); select(item, moveFocus); };
@@ -134,7 +159,7 @@ export function PagePins({ entries, tips = [], unknown = [], travel = [], travel
       </button>
     </li>;
   };
-  return <div className="page-pins">
+  return <div className="page-pins" ref={workspaceNode}>
     <aside id="page-pins-panel" className={`page-pins-panel ${sheetOpen ? "is-open" : ""}`} aria-label="Issues and details">
       <div className="page-pins-sheet-header"><strong>Issues ({entries.length})</strong><Button onClick={() => setSheetOpen(false)}>Close</Button></div>
       <nav className="page-pins-legend" aria-labelledby="page-pins-title">

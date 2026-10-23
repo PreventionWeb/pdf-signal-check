@@ -4,7 +4,7 @@ Updates to PDF Signal Check, newest first. Entries use dates rather than release
 
 ## 2026-10-23
 
-- In progress on the polishing branch: adapted the [GOV.UK Design System task-list principles](https://design-system.service.gov.uk/components/task-list/) for clearer task names, supporting hints, explicit statuses and quiet separators across review, settings, batch progress and device-test results. Mangrove remains the app’s design system. Completion indicators describe processing steps, not document correctness; unresolved findings remain separate from completed checks. Tightened the configuration dialog’s heading spacing.
+- In progress on the polishing branch: adapted the [GOV.UK Design System task-list principles](https://design-system.service.gov.uk/components/task-list/) for clearer task names, supporting hints, explicit statuses and quiet separators across review, settings, batch progress and device-test results. Mangrove remains the app’s design system. Completion indicators describe processing steps, not document correctness; unresolved findings remain separate from completed checks. Tightened the configuration dialog’s heading spacing. Fixed desktop review panes so their scrollable height fits the visible space below the header, allowing the middle column to scroll independently of the PDF.
 
 - Simplified first-use AI setup to Granite R2, with explicit download permission, separate image-model consent and a skippable text speed test. Eligible AI checks now follow standard analysis automatically; AI can be skipped for an intake without changing future defaults. Earlier settings require fresh consent and historical reports retain their model provenance.
 
