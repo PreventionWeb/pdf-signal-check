@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { Button, Details, ProgressBar } from "../ui/react.jsx";
 import { getSemanticModel } from "../engine/models.js";
+import { timingGuide } from './timing-guide.js';
 import { rateDevice } from "./preferences.js";
 import { CalibrationController } from "./controller.js";
 
@@ -17,6 +18,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     modelId = "granite-r2",
     onResult = () => {},
     showStartAction = true,
+    showHeading = true,
     disabled = false,
     onBusy = () => {},
     canRun = () => true,
@@ -65,11 +67,10 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     unrated: 'Your device: check again',
   }[rating.key];
   const timings = receipt ? [
-    { label: "PDF preparation", ms: receipt.fixture.parseMs },
-    { label: "AI model startup", ms: receipt.load.loadAndInitMs },
-    { label: "AI comparison speed", ms: receipt.warm.medianMs, rating },
-  ].filter(item => Number.isFinite(item.ms) && item.ms >= 0) : [];
-  const timingScale = 5000;
+    timingGuide('preparation', receipt.fixture.parseMs),
+    timingGuide('startup', receipt.load.loadAndInitMs),
+    timingGuide('comparison', receipt.warm.medianMs),
+  ].filter(Boolean) : [];
   const progress = state.progress;
   const determinate = progress?.total > 0 && Number.isFinite(progress.completed);
   const progressLabel = progress?.stage === "benchmark" ? "Speed checks completed"
@@ -80,7 +81,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
     : progress?.stage === "model-init" ? "Preparing the AI model…" : "Warming up the benchmark…";
   if (state.busy) return (
     <section className="calibration-panel" aria-busy="true">
-      <h2 className="mg-card__title">Testing speed on your device</h2>
+      {showHeading && <h2 className="mg-card__title">Testing speed on your device</h2>}
       <p>Testing {model.label.replaceAll(' · ', ', ')} with sample text. Keep this tab open and visible.</p>
       <p role="status">{phase}</p>
       <ProgressBar label={progressLabel} hideLabel max={determinate ? progress.total : undefined} value={determinate ? progress.completed : undefined} valueText={determinate ? formatProgress(progress) : undefined} />
@@ -90,13 +91,15 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
   );
   return (
     <section className="calibration-panel">
-      <h2 className="mg-card__title">{receipt ? resultTitle : "Test speed on your device"}</h2>
+      {showHeading ? <h2 className="mg-card__title">{receipt ? resultTitle : "Test speed on your device"}</h2>
+        : receipt && <p className="benchmark-result-title">{resultTitle}</p>}
       <p>{receipt ? rating.description : "Run a short sample test to see how quickly this model works on your device. Your PDFs are not used."}</p>
       {receipt && <div className="benchmark-timings" aria-label="Measured benchmark times">
-        <p className="model-note">Relative speed, longer bars are faster</p>
+        <p className="model-note">Elapsed time, shorter is faster. Each step has its own guide.</p>
         {timings.map(item => <div className="benchmark-timing" key={item.label}>
-          <div className="benchmark-timing-label"><span>{item.label}</span><span>{(item.ms / 1000).toFixed(2)} s{item.rating ? `, ${item.rating.key === 'great' ? 'Great' : item.rating.key === 'ok' ? 'OK' : item.rating.key === 'slow' ? 'Not recommended' : 'Unrated'}` : ''}</span></div>
-          <div className="benchmark-timing-track" aria-hidden="true"><span className={`benchmark-timing-fill ${item.rating ? `is-${item.rating.key}` : ''}`} style={{ width: `${100 * Math.max(0, 1 - item.ms / timingScale)}%` }} /></div>
+          <div className="benchmark-timing-label"><span>{item.label}</span><span>{(item.ms / 1000).toFixed(2)} s, {item.rating}</span></div>
+          <div className="benchmark-timing-track" aria-hidden="true"><span className={`benchmark-timing-fill ${item.rating === 'Slow' ? 'is-slow' : 'is-great'}`} style={{ width: `${item.percent}%` }} /></div>
+          <div className="benchmark-timing-scale"><span>0 s</span><span>OK up to {item.targetMs / 1000} s</span></div>
         </div>)}
       </div>}
       {receipt && <p className="model-note">{model.label.replaceAll(' · ', ', ')}, {state.saved ? `Saved ${new Date(state.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : "Not saved on this browser"}. Measured text speed only; image-model speed, full-PDF time, accuracy and memory capacity are not measured.</p>}
@@ -107,7 +110,7 @@ export const CalibrationPanel = forwardRef(function CalibrationPanel(
       {state.message && state.message !== "Device check complete." && <p role="status">{state.message}</p>}
       <Details summary="Speed test details" className="benchmark-details">
         <div className="benchmark-fine-print">
-        <p className="model-note">Bars use a 0–5 second scale: full at 0 seconds, empty at 5 seconds or more. AI speed is the median of three sample runs. Great: ≤ 1.5 s, OK: ≤ 5 s, Not recommended: &gt; 5 s. Startup varies with downloads and cache.</p>
+        <p className="model-note">Each bar shows elapsed time against its own responsiveness guide: 2 seconds for preparing the sample PDF, 30 seconds for model startup and 5 seconds for text comparisons. Bars stop at the guide; longer times are still shown exactly. Text comparisons up to 1.5 seconds are Fast. Startup includes any downloads and cache effects. These guides are product targets, not validated device requirements.</p>
 
         <p>The test reads a fictional two-page PDF, prepares the model and times three runs of four fixed text inputs. The test has a five-minute limit and cannot run alongside PDF screening.</p>
         <p>Asset transfer/cache cost varies. Running or checking again permits the downloads listed above.</p>

@@ -4,7 +4,7 @@ import { HELP_TOPICS } from "./catalog.js";
 import { helpPlacement } from "./placement.js";
 import { Icon } from "../ui/react.jsx";
 /** Native top-layer region: local help only; no model or PDF ownership. */
-export function Help({ topic: topicKey, label, extraText }) {
+export function Help({ topic: topicKey, label, extraText, children }) {
   const topic = HELP_TOPICS[topicKey],
     id = useId(),
     root = useRef(null),
@@ -75,7 +75,7 @@ export function Help({ topic: topicKey, label, extraText }) {
   return (
     <span
       ref={root}
-      className="help-tip"
+      className={children ? "help-tip help-tip--inline" : "help-tip"}
       onBlur={schedule}
       onKeyDown={(e) => {
         if (e.key === "Escape") {
@@ -89,7 +89,7 @@ export function Help({ topic: topicKey, label, extraText }) {
       <button
         ref={trigger}
         type="button"
-        className="help-trigger mg-icon-button"
+        className={children ? "help-trigger help-trigger--text" : "help-trigger mg-icon-button"}
         aria-label={label || `About ${topic.title}`}
         aria-controls={id}
         aria-expanded={open}
@@ -109,7 +109,7 @@ export function Help({ topic: topicKey, label, extraText }) {
           }
         }}
       >
-        <Icon name="info-circle" />
+        {children || <Icon name="info-circle" />}
       </button>
       {createPortal(
         <div

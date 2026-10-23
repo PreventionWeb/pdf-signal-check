@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it, vi } from 'vitest';
-vi.mock('../src/help/Help.jsx', () => ({ Help: () => null }));
+vi.mock('../src/help/Help.jsx', () => ({ Help: ({ children }) => children || null }));
 import { Setup } from '../src/app/Setup.jsx';
 import { CalibrationPanel } from '../src/calibration/CalibrationPanel.jsx';
 import { Checks } from '../src/app/Checks.jsx';

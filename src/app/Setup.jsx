@@ -33,11 +33,10 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
   };
   return <div className="setup-screen">
     {step === 2 ? <>
-      <h2 id="setup-speed-title" tabIndex={-1}>Text AI speed</h2>
-      <p>A short sample test. You can cancel it and still use AI.</p>
-      <CalibrationPanel ref={calibrationRef} modelId={model.key} showStartAction={false} disabled={batchBusy} canRun={canCalibrate}
+      <h2 id="setup-speed-title" className="mg-u-sr-only" tabIndex={-1}>Device speed test</h2>
+      <CalibrationPanel ref={calibrationRef} modelId={model.key} showStartAction={false} showHeading={false} disabled={batchBusy} canRun={canCalibrate}
         onResult={setReceipt} onBusy={value => { setBusy(value); controller.calibrationBusy(value); }} />
-      <p>AI will run when suitable evidence is available. You can skip it while scanning.</p>
+      {!busy && <p>Continue to check your PDF with these settings.</p>}
       <Actions>
         <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(model.key, { imageAI, remember })}>Continue with AI</Button>
         {snapshot.pendingSetupLabel && <Button disabled={batchBusy} onClick={skipIntake}>Skip AI this time</Button>}
@@ -52,16 +51,22 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
     </> : <>
       <h2 id="setup-model-title" className="mg-u-sr-only" tabIndex={-1}>Add AI checks</h2>
       <div className="setup-check-option">
-        <Checkbox id="setup-text-ai" name="setup-text-ai" checked={textAI} disabled={batchBusy}
-          onChange={event => { setTextAI(event.target.checked); if (!event.target.checked) setImageAI(false); }} label="Include text checks" />
+        <Checkbox id="setup-standard" name="setup-standard" checked disabled label="Standard checks (always on)" />
         <div className="setup-check-description">
-          <p>Granite R2, 52 supported languages. <strong>123.16 MB</strong> download. <Help topic="ai" label="Supported languages" extraText={model.languages.map(code => new Intl.DisplayNames(['en'], { type: 'language' }).of(code)).join(', ')} /></p>
-          <p>AI compares limited excerpts, up to 512 tokens each. <Help topic="excerptLimit" label="What 512 tokens means" /> It may miss errors or raise false alarms.</p>
+          <p>Looks for missing document details, broken text structure, reading-order clues, missing image descriptions and inconsistent values. Uses fixed rules, with no AI download.</p>
+        </div>
+      </div>
+      <div className="setup-check-option">
+        <Checkbox id="setup-text-ai" name="setup-text-ai" checked={textAI} disabled={batchBusy}
+          onChange={event => { setTextAI(event.target.checked); if (!event.target.checked) setImageAI(false); }} label="AI text checks" />
+        <div className="setup-check-description">
+          <p>Granite R2, <Help topic="ai" label="About 52 supported languages" extraText={model.languages.map(code => new Intl.DisplayNames(['en'], { type: 'language' }).of(code)).join(', ')}>52 supported languages</Help>. <strong>123.16 MB</strong> download.</p>
+          <p>AI compares limited excerpts, up to <Help topic="excerptLimit" label="What 512 tokens means">512 tokens</Help> each. It may miss errors or raise false alarms.</p>
         </div>
       </div>
       <div className="setup-check-option">
         <Checkbox id="setup-image-ai" name="setup-image-ai" checked={imageAI} disabled={batchBusy}
-          onChange={event => { setImageAI(event.target.checked); if (event.target.checked) setTextAI(true); }} label="Include image checks" />
+          onChange={event => { setImageAI(event.target.checked); if (event.target.checked) setTextAI(true); }} label="AI image checks" />
         <div className="setup-check-description">
           <p><strong>{IMAGE_MODEL.download}</strong> download, plus <strong>{IMAGE_MODEL.descriptionDownload}</strong> for photo-description comparisons.</p>
           <p>Image checks classify some graphics and compare photo descriptions with pictures. They cannot read chart values or judge chart meaning, and can be wrong.</p>
