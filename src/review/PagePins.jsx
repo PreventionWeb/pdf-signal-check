@@ -4,6 +4,7 @@ import { Button } from "../ui/react.jsx";
 import { SegmentedControl } from "@undrr/undrr-mangrove/components/SegmentedControl.js";
 import { fixCard } from "./workspace.js";
 import { pagePins } from "./page-pins.js";
+import { GutterMarkers } from './PagePinMarkers.jsx';
 import { readingOrderPlacement } from "../evidence/reading-order-placement.js";
 import { DocumentProperties } from "./DocumentProperties.jsx";
 
@@ -285,6 +286,17 @@ function TippedPin({ entry, selected, onSelect }) {
 const brief = text => { const value = String(text || "").trim(); if (value.length <= 160) return value; const cut = value.slice(0, 159); return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 120))}…`; };
 function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, describe = () => null, zoom = 1, focus = null, orderText = null }) {
   const element = useRef(null);
+  const sheetNode = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const node = sheetNode.current;
+    const observer = new ResizeObserver(() => {
+      const width = node.clientWidth, height = node.clientHeight;
+      setSize(previous => previous.width === width && previous.height === height ? previous : { width, height });
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
   // Hover or keyboard focus on a pin or its outline explains the issue in one line; Escape hides it.
   const [tip, setTip] = useState(null);
   useEffect(() => {
@@ -335,8 +347,8 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
   }, [focus?.key, focusBox?.x, focusBox?.y]);
   return <section className="page-pins-page" ref={node => { element.current = node; pageRef(node); }} aria-label={`Page ${page}`}>
     <div className="page-pins-page-header"><h3>Page {page}</h3></div>
-    <div className="page-pins-zoom">
-    <div className="page-pins-sheet" style={{ ...(image?.width ? { aspectRatio: `${image.width} / ${image.height}` } : {}), width: `${zoom * 100}%` }}>
+    <div className={`page-pins-zoom${pins.length ? ' has-issue-gutter' : ''}`}>
+    <div ref={sheetNode} className="page-pins-sheet" style={{ ...(image?.width ? { aspectRatio: `${image.width} / ${image.height}` } : {}), width: `${zoom * 100}%` }}>
       {focusBox && <span key={focus.key} ref={focusRef} className="page-pins-focus" aria-hidden="true" style={{ left: `${focusBox.x * 100}%`, top: `${focusBox.y * 100}%`, width: `${focusBox.width * 100}%`, height: `${focusBox.height * 100}%` }} />}
       {/* A spot with no recorded position: outline the whole page and say so, rather than show nothing. */}
       {focus && !focus.quads?.length && focus.info && image?.url && <>
@@ -381,11 +393,6 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
           <span className={`page-pins-box page-pins-box--${pin.bucket} ${isSelected ? "is-selected" : ""}`} aria-hidden="true"
             style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, width: `${box.width * 100}%`, height: `${box.height * 100}%` }}
             onMouseEnter={() => setTip(pin.number)} onMouseLeave={() => setTip(null)} onClick={() => onSelect(pin.number)} />
-          <button type="button" className={`page-pin page-pin--${pin.bucket} page-pins-marker ${isSelected ? "is-selected" : ""}`}
-            style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, marginLeft: `${index * 4}px` }}
-            aria-label={`${pin.number}: ${pin.title}`} aria-pressed={isSelected} aria-describedby={tip === pin.number ? `pin-tip-${page}-${pin.number}` : undefined}
-            onMouseEnter={() => setTip(pin.number)} onMouseLeave={() => setTip(null)} onFocus={() => setTip(pin.number)} onBlur={() => setTip(null)}
-            onClick={() => onSelect(pin.number)}>{pin.number}</button>
           {tip === pin.number && <span role="tooltip" id={`pin-tip-${page}-${pin.number}`} className={`page-pins-tooltip ${box.y > 0.7 ? "is-above" : ""}`}
             style={{ left: `${Math.min(box.x, 0.55) * 100}%`, top: `${(box.y > 0.7 ? box.y : box.y + box.height) * 100}%` }}>
             <span className="page-pins-tooltip-eyebrow">{pin.number}, {TOOLTIP_BUCKET[pin.bucket] || pin.bucket}</span>
@@ -395,6 +402,7 @@ function PinnedPage({ page, pins, order, service, selected, onSelect, pageRef, d
           </span>}
         </React.Fragment>;
       })}
+      {image?.boxes && <GutterMarkers pins={pins} boxes={image.boxes} size={size} page={page} selected={selected} onSelect={onSelect} tip={tip} setTip={setTip} />}
     </div>
     </div>
     {orderText?.length > 0 && <details className="viewer-order-text"><summary>Text in reading order ({orderText.length})</summary>
