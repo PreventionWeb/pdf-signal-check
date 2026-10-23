@@ -196,7 +196,19 @@ export function createAppController({
     },
     openSettings(stage = state.stage) {
       pendingIntake = null;
-      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, setupMode: "settings", stage: "setup" });
+      emit({ setupDestination: stage === "welcome" ? "document" : stage, pendingSetupLabel: null, setupMode: "settings", stage: "setup", message: "" });
+    },
+    removeAIPermission() {
+      if (pendingIntake || state.analysisBusy || state.modelBusy || state.calibrationBusy || services.batch?.busy) return false;
+      stopModel();
+      services.calibration?.cancel();
+      services.batch?.releaseIdleWorkers();
+      configureBatch(false);
+      const cleared = preferences.clear?.();
+      emit({ setupComplete: false, settingsSaved: false, reuseSettings: false, aiEnabled: false, imageAI: false,
+        evaluationModel: "granite-r2", selectedModel: null, setupMode: "settings", stage: "setup",
+        message: cleared ? "AI permission removed. Your next PDF will ask again." : "AI is off for this session. Browser storage could not be cleared; saved permission may return after reload." });
+      return true;
     },
     resetSetup() {
       if (state.analysisBusy || state.modelBusy || state.calibrationBusy || services.batch?.busy) return false;

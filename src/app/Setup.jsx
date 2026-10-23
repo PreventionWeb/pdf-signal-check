@@ -22,7 +22,11 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
     document.getElementById(step === 1 ? 'setup-model-title' : 'setup-speed-title')?.focus({ preventScroll: true });
   }, [step]);
   const consentAndTest = () => {
-    if (!textAI) { controller.skipSetupForCurrentIntake(); return; }
+    if (!textAI) {
+      if (snapshot.pendingSetupLabel) controller.skipSetupForCurrentIntake();
+      else controller.removeAIPermission();
+      return;
+    }
     const saved = preferences.load(model.key);
     flushSync(() => { setReceipt(saved?.receipt || null); setStep(2); });
     if (!saved) calibrationRef.current?.start();
@@ -60,10 +64,11 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
           <p>Image checks classify some graphics and compare photo descriptions with pictures. They cannot read chart values or judge chart meaning, and can be wrong.</p>
         </div>
       </div>
-      <Checkbox id="setup-remember" name="setup-remember" checked={remember} disabled={batchBusy || !textAI}
-        onChange={event => setRemember(event.target.checked)} label="Use these settings each time" />
+      {!textAI && !snapshot.pendingSetupLabel ? <p className="model-note">AI permission will be removed. Your next PDF will ask again.</p>
+        : <Checkbox id="setup-remember" name="setup-remember" checked={remember} disabled={batchBusy || !textAI}
+          onChange={event => setRemember(event.target.checked)} label="Use these settings each time" />}
       <Actions>
-        <Button variant="primary" disabled={batchBusy || (!textAI && !snapshot.pendingSetupLabel)} onClick={consentAndTest}>{textAI ? 'Continue' : 'Continue without AI'}</Button>
+        <Button variant="primary" disabled={batchBusy} onClick={consentAndTest}>{textAI ? 'Continue' : 'Continue without AI'}</Button>
       </Actions>
     </>}
   </div>;

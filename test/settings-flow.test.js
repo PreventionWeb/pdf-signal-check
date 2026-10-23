@@ -63,3 +63,44 @@ it('applies one-time consent without saving or silently reusing it for another P
   expect(file.arrayBuffer).not.toHaveBeenCalled();
   expect(workerFactory).not.toHaveBeenCalled();
 });
+
+it('removes AI permission from settings without discarding benchmarks or report evidence', () => {
+  const preferences = { load: () => ({ modelId: 'granite-r2', imageAI: true }), clear: vi.fn(() => true) };
+  const devicePreferences = { clear: vi.fn() }, workerFactory = vi.fn(), fetcher = vi.fn();
+  const app = createAppController({ preferences, devicePreferences, workerFactory, fetcher });
+  const report = { analysisComplete: true, checks: [], pages: [], metadata: {} };
+  app.openCompletedReport(report, { name: 'review.pdf' }, 'batch-source');
+  const original = app.getSnapshot().report;
+  app.openSettings('review');
+  app.openSetup('review');
+  expect(app.removeAIPermission()).toBe(true);
+  expect(app.getSnapshot()).toMatchObject({ stage: 'setup', setupMode: 'settings', setupDestination: 'review', aiEnabled: false, imageAI: false, setupComplete: false, reuseSettings: false, settingsSaved: false });
+  expect(app.getSnapshot().report).toBe(original);
+  expect(preferences.clear).toHaveBeenCalledOnce();
+  expect(devicePreferences.clear).not.toHaveBeenCalled();
+  expect(workerFactory).not.toHaveBeenCalled();
+  expect(fetcher).not.toHaveBeenCalled();
+  app.cancelSetup();
+  expect(app.getSnapshot().stage).toBe('review');
+  app.selectFiles([{ name: 'next.pdf', arrayBuffer: vi.fn() }]);
+  expect(app.getSnapshot().pendingSetupLabel).toBe('next.pdf');
+  expect(app.removeAIPermission()).toBe(false);
+  expect(preferences.clear).toHaveBeenCalledOnce();
+  app.dispose();
+});
+
+it('reports failed storage accurately for saving and removing AI permission', () => {
+  const preferences = { load: () => null, save: () => false, clear: () => false };
+  const app = createAppController({ preferences });
+  app.completeSetup('granite-r2', { remember: true });
+  const html = renderToStaticMarkup(React.createElement(Settings, { controller: app, state: app.getSnapshot(), calibrationRef: { current: null } }));
+  expect(html).not.toContain('Settings saved');
+  expect(html).toContain('This session only');
+  expect(html).toContain('each PDF in this session');
+  app.openSettings();
+  app.openSetup('document');
+  expect(app.removeAIPermission()).toBe(true);
+  expect(app.getSnapshot().message).toContain('saved permission may return after reload');
+  expect(app.getSnapshot()).toMatchObject({ aiEnabled: false, settingsSaved: false, reuseSettings: false });
+  app.dispose();
+});
