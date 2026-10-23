@@ -33,7 +33,7 @@ export function Setup({ controller, calibrationRef, batchBusy, canCalibrate }) {
       <CalibrationPanel ref={calibrationRef} modelId={model.key} showStartAction={false} showHeading={false} disabled={batchBusy} canRun={canCalibrate}
         onResult={setReceipt} onBusy={value => { setBusy(value); controller.calibrationBusy(value); }} />
       <Actions>
-        <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(model.key, { imageAI, remember })}>Continue with AI</Button>
+        <Button variant="primary" disabled={busy || batchBusy} onClick={() => controller.completeSetup(model.key, { imageAI, remember })}>Start processing</Button>
       </Actions>
       {!busy && <Actions>
           <Button disabled={batchBusy} onClick={() => calibrationRef.current?.start()}>{receipt ? 'Test again' : 'Retry test'}</Button>
