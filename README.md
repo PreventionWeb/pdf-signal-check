@@ -16,6 +16,8 @@ See the [changelog](CHANGELOG.md) for dated updates.
 
 Check one PDF or a batch, or try one of the eight sample reports. Results distinguish things to fix, things to check and what the tool could not assess. Downloads include a concise PDF fix list, a full technical PDF and JSON.
 
+For supported reading-order concerns, the concise fix list includes the page and a bounded comparison of the same recovered headings in tag order and drawing order. Neither order proves the intended reading order. Missing comparison evidence and omitted headings or concerns are stated explicitly. JSON retains complete recovered details; the full report adds bounded evidence.
+
 Your PDF, extracted text and results stay on your device. Optional AI runs locally; model downloads require consent, with sizes and language coverage shown before you agree. After setup, eligible Granite R2 AI checks run automatically for each PDF. A skippable first-use text speed test helps you assess your device; AI can also be skipped while scanning. See the [setup flow and verification](docs/AI-SETUP-FLOW.md). The site loads institutional design assets from the UNDRR asset library.
 
 This is a limited check, not an accessibility certification or a guarantee of accurate AI answers. It does not repair PDFs or interpret chart pixels. See the [implemented profile](docs/PROFILE.md) and [evaluation limits](docs/EVALUATION.md).

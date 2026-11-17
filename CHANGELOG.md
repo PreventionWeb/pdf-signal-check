@@ -2,6 +2,10 @@
 
 Updates to PDF Signal Check, newest first. Entries use dates rather than release versions and describe changes merged to `main`. The initial entry groups the work delivered with the first preview.
 
+## 2026-11-17
+
+The concise PDF fix list now includes the affected page and the recovered tag and drawing sequences for supported reading-order concerns. It preserves manual-review uncertainty, identifies unavailable or omitted comparison evidence, and keeps sequence review text-only because a single crop cannot show the order.
+
 ## 2026-10-23
 
 - Separated saved Settings from per-PDF configuration, added optional reuse and device recalibration, and simplified the device-test result to observed timings. Turning AI off from Settings removes saved permission while keeping device tests and report evidence; failed browser storage is identified as session-only.

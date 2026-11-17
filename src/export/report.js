@@ -38,6 +38,7 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,includ
   const list=async(values,options={})=>{if(!values.length)return;const owner=structure.element('L');for(const value of values){const item=structure.element('LI',{parent:owner});await write(`• ${value}`,{...options,role:'LBody',parent:item});}};
   try {
     const sheet=fixSheet(snapshot);
+    const evidenceHeight=item=>item.evidence.reduce((total,line)=>total+wrapText(line,text=>font.widthOfTextAtSize(text,9.5),content).length*9.5*1.5+4,0);
     const cropSize=findingId=>{const crop=crops.find(c=>c.findingId===findingId);if(!crop?.blob)return null;const height=Math.min(160,content*crop.height/crop.width);return {crop,height,width:height*crop.width/crop.height};};
     const drawCrop=async size=>{const image=await pdf.embedPng(await size.crop.blob.arrayBuffer());const x=margin+8;y-=4;
       structure.artifact(page,()=>page.drawRectangle({x:x-4,y:y-size.height-4,width:size.width+8,height:size.height+8,borderColor:pdfColor(palette.muted),borderWidth:.6}));
@@ -49,13 +50,14 @@ export async function createPdfReport(snapshot,{signal,crops=[],fontBytes,includ
     for(const [key,label,intro] of [['fix','Fix','Problems found in this PDF.'],['check','Check','Possible problems. Look at each one and decide.']]){
       if(!sheet[key].length)continue;
       // Keep the bucket heading with its first item (and that item's image), so a heading never sits alone at the foot of a page.
-      {const first=sheet[key][0],firstSize=first.cropFindingId?cropSize(first.cropFindingId):null;ensure(Math.min(height-120,(firstSize?firstSize.height+40:0)+200));}
+      {const first=sheet[key][0],firstSize=first.cropFindingId?cropSize(first.cropFindingId):null;ensure(Math.min(height-120,(firstSize?firstSize.height+40:0)+200+evidenceHeight(first)));}
       await heading(`${label} (${sheet[key].length})`);await write(intro,{size:9.5,color:pdfColor(palette.muted)});
       for(const item of sheet[key]){throwIfAborted(signal);const size=item.cropFindingId?cropSize(item.cropFindingId):null;
         // Keep an item's text and its image on the same page.
-        ensure(Math.min(height-120,(size ? size.height+40 : 0)+140));
+        ensure(Math.min(height-120,(size ? size.height+40 : 0)+140+evidenceHeight(item)));
         await write(`${item.number}. ${item.title}`,{size:12.5,gap:3,role:'H3'});if(item.where)await write(item.where,{size:9.5,color:pdfColor(palette.muted),gap:4});
         await write(bounded(item.summary,500));
+        for(const line of item.evidence)await write(line,{size:9.5,gap:4});
         await list(item.members.slice(0,12).map(line=>bounded(line,200)),{size:9.5,gap:2});
         if(item.members.length>12)await write(`and ${item.members.length-12} more`,{size:9.5});
         if(item.change)await write(`What to change: ${item.change}`);

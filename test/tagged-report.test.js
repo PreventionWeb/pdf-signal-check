@@ -5,9 +5,32 @@ import { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, decodePDFRawStream } f
 import { createPdfReport } from '../src/export/report.js';
 import { captureSnapshot } from '../src/export/snapshot.js';
 import { createReportStructure } from '../src/export/tagged-pdf.js';
-import { pdfjs } from '../src/engine/analyze.js';
+import { analyzePdf, pdfjs } from '../src/engine/analyze.js';
 
 afterEach(() => vi.unstubAllGlobals());
+
+it('puts the bundled Partly prepared comparison in the concise PDF Check item from a fixed snapshot', async () => {
+  vi.stubGlobal('FontFace', class { async load() { return this; } });
+  vi.stubGlobal('document', { fonts: { add() {}, delete() {} } });
+  const report=await analyzePdf(new Uint8Array(await readFile(new URL('../public/samples/partly-prepared.pdf',import.meta.url))));
+  const captured=captureSnapshot({report,file:null});
+  report.readingOrder.findings=[];
+  report.pages[1].logicalBlocks.reverse();
+  const fontBytes=new Uint8Array(await readFile(new URL('../public/fonts/NotoSans-Regular.ttf',import.meta.url)));
+  const blob=await createPdfReport(captured,{fontBytes});
+  const task=pdfjs.getDocument({data:new Uint8Array(await blob.arrayBuffer()),isEvalSupported:false});
+  const reader=await task.promise;
+  try{
+    const pages=[];
+    for(let n=1;n<=reader.numPages;n++)pages.push((await(await reader.getPage(n)).getTextContent()).items.map(item=>item.str).join(' ').replace(/\s+/g,' '));
+    const evidencePage=pages.find(text=>text.includes('order in the PDF’s tags: steps 3, 4, 1, 2.'));
+    expect(evidencePage).toContain('Text may be read in the wrong order');
+    expect(evidencePage).toContain('Page 2, order the text is drawn: steps 1, 2, 3, 4.');
+    expect(evidencePage).toContain('Neither recovered order proves the intended reading order.');
+    expect(evidencePage).toContain('What to change:');
+    expect(pages.join(' ')).not.toContain('Technical appendix');
+  }finally{await task.destroy();}
+});
 const snapshot = () => captureSnapshot({ report: {
   file: { name: 'source.pdf', pages: 1 }, appVersion: 'test', schemaVersion: 1,
   profile: 'text-actionability-0.3', analyzedAt: '2026-10-08', accepted: false,

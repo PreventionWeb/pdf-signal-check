@@ -1,5 +1,6 @@
 import { findingProvenance, screeningProvenance } from '../review/provenance.js';
 import { normalizeFindings } from '../review/findings.js';
+import { orderComparisonData } from '../review/order-comparison.js';
 import { consistencyLine, consistencyMemberText, reviewGroups, reviewLimitText, STANDING_LIMITS, reviewSummary, fixCard } from '../review/workspace.js';
 export function captureSnapshot({report,file}) {
   if(!report)throw new Error('Complete an analysis before exporting.');
@@ -24,6 +25,26 @@ export function screeningReceipt(report) {
   return `${provenance.label}. ${provenance.detail}${model?` ${provenance.kind==='ai'?'Actual':'Configured'} model: ${model.label || model.id || 'unspecified'}; revision ${model.revision || 'unavailable'}; ${model.dtype || 'unavailable'}; ${model.pooling || 'unavailable'} pooling.`:''}`;
 }
 
+/** A bounded hand-off of the same matched headings used by the on-screen comparison. */
+function readingOrderEvidence(report) {
+  const data=orderComparisonData(report);
+  const limitation='Neither recovered order proves the intended reading order. Compare the page and the source document before changing it.';
+  if(!data.available){
+    const pages=[...new Set((report.readingOrder?.findings || []).map(f=>f.page).filter(n=>Number.isInteger(n) && n>0))];
+    return [
+      ...(pages.length?[`Reported concern on ${pages.length===1?'page':'pages'} ${pages.slice(0,5).join(', ')}${pages.length>5?`; ${pages.length-5} more pages in JSON`:''}.`]:[]),
+      'A reliable comparison of the same headings in both orders is unavailable. Inspect the recovered text in JSON and review the page. The full report adds bounded evidence.',limitation];
+  }
+  const sequence=entries=>data.numbered?`steps ${entries.map(entry=>entry.step).join(', ')}`
+    :entries.map(entry=>`“${entry.text.length>48?`${entry.text.slice(0,47)}…`:entry.text}”`).join(' then ');
+  const lines=[`Page ${data.page}, order in the PDF’s tags: ${sequence(data.tagged)}.`,
+    `Page ${data.page}, order the text is drawn: ${sequence(data.drawing)}.`,limitation];
+  if(!data.numbered && data.tagged.some(entry=>entry.text.length>48))lines.push('Heading labels are shortened; complete recovered text is in JSON.');
+  if(data.omittedItems)lines.push(`${data.omittedItems} additional headings are outside this comparison excerpt; see JSON for complete recovered details. The full report adds bounded evidence.`);
+  if(data.omittedFindings)lines.push(`${data.omittedFindings} other recorded reading-order ${data.omittedFindings===1?'concern is':'concerns are'} not shown here; see JSON for complete recovered details. The full report adds bounded evidence.`);
+  return lines;
+}
+
 /** The designer hand-off: numbered Fix and Check items as the results screen shows them, from the captured report. */
 export function fixSheet(snapshot) {
   const report=snapshot.report;
@@ -35,6 +56,7 @@ export function fixSheet(snapshot) {
     if(figure)return `Page ${figure.page}, ${figure.decorative?'decorative graphics':figure.tagged?`image ${member.comparison.figureNumber || 1}`:'unlabelled graphics'}`;
     const page=member.targets?.[0]?.page;return `“${member.comparison?.query || member.title.replace(/^Heading: /,'')}”${page?`, page ${page}`:''}`;};
   const entry=(item,bucket)=>({number:++number,bucket,...fixCard(item,report),
+    evidence:item.source?.path==='readingOrder'?readingOrderEvidence(report):[],
     // A one-region crop cannot show a sequence or page-wide decoration; those stay text-only.
     cropFindingId:item.figureGroup==='decorative' || item.source?.path==='readingOrder'?null:item.figureGroup?item.members[0].id:item.members?null:item.id,
     members:[...(item.members || []).map(memberLine),...(fixCard(item,report).also || []).map(text=>`Also fixes: ${text}`)]});
