@@ -60,3 +60,56 @@ it('builds the designer fix sheet from the captured report in the same buckets a
   expect(sheet.unknown).toContain('The tool couldn’t tell whether hidden text matches the page');
   expect([...sheet.fix, ...sheet.check].every(item => item.change)).toBe(true);
 });
+
+const orderReport = (count=4, numbered=true) => {
+  const blocks=Array.from({length:count},(_,i)=>({key:`2:${i}`,role:'H2',text:numbered?`${i+1}. Heading ${i+1}`:`Heading ${i+1}`,quad:[[0,500-i*15],[100,500-i*15],[100,510-i*15],[0,510-i*15]]}));
+  const logicalBlocks=[...blocks.slice(2),...blocks.slice(0,2)];
+  return {...report(),analysisComplete:true,accepted:true,pages:[{number:2,blocks,logicalBlocks}],readingOrder:{status:'requires-review',reason:'Review sequence.',findings:[{page:2,detector:numbered?'numbered-step-sequence':'single-alignment-heading-geometry',evidence:logicalBlocks}]}};
+};
+const orderItem = snapshot => fixSheet(snapshot).check.find(item=>item.title==='Text may be read in the wrong order');
+
+it('retains actual ordered evidence and uncertainty in the captured Check item without changing outcomes',()=>{
+  const r=orderReport(),captured=captureSnapshot({report:r,file:{}}),before=structuredClone(captured);
+  r.pages[0].logicalBlocks.reverse();r.readingOrder.findings=[];
+  const item=orderItem(captured);
+  expect(item.evidence).toContain('Page 2, order in the PDF’s tags: steps 3, 4, 1, 2.');
+  expect(item.evidence).toContain('Page 2, order the text is drawn: steps 1, 2, 3, 4.');
+  expect(item.evidence.join(' ')).toContain('Neither recovered order proves the intended reading order');
+  expect(item.cropFindingId).toBeNull();
+  expect(item.bucket).toBe('check');
+  expect(captured).toEqual(before);
+  expect(captured.report.accepted).toBe(true);
+  expect(captured.normalized.findings.find(f=>f.source.path==='readingOrder')).toMatchObject({category:'advisory-concern',outcome:'requires-review'});
+});
+
+it('states comparison limits without inventing sequences when evidence is unsafe or unsupported',()=>{
+  for(const change of [
+    r=>{r.pages[0].blocks[0].quad=null;},
+    r=>{r.pages[0].blocks[0].text='Different text';},
+    r=>{r.readingOrder.findings[0].detector='unsupported-detector';},
+    r=>{r.pages[0].number=3;},
+  ]){
+    const r=orderReport();change(r);
+    const item=orderItem(captureSnapshot({report:r,file:{}}));
+    expect(item.evidence.join(' ')).toContain('Reported concern on page 2.');
+    expect(item.evidence.join(' ')).toContain('comparison of the same headings in both orders is unavailable');
+    expect(item.evidence.join(' ')).not.toContain('steps 3');
+    expect(item.cropFindingId).toBeNull();
+  }
+});
+
+it('bounds order excerpts and labels, records omitted concerns and supports unnumbered headings',()=>{
+  const r=orderReport(20);
+  r.readingOrder.findings.push({...r.readingOrder.findings[0],page:3});
+  const item=orderItem(captureSnapshot({report:r,file:{}}));
+  expect(item.evidence[0].match(/\d+/g)).toHaveLength(9); // Page plus eight retained steps.
+  expect(item.evidence.join(' ')).toContain('12 additional headings');
+  expect(item.evidence.join(' ')).toContain('1 other recorded reading-order concern is');
+  const unnumbered=orderReport(4,false);
+  unnumbered.pages[0].blocks[0].text='A'.repeat(500);
+  const plain=orderItem(captureSnapshot({report:unnumbered,file:{}}));
+  expect(plain.evidence[0]).toContain('“Heading 3” then “Heading 4”');
+  expect(plain.evidence[0]).not.toContain('steps');
+  expect(plain.evidence.join(' ')).toContain('Heading labels are shortened');
+  expect(plain.evidence[0].length).toBeLessThan(300);
+});
